@@ -1,0 +1,439 @@
+{% extends "layout-all-pnr.html" %}
+{% load ticket_segments %}
+{% load pnr_details %}
+{% block content %}
+<!-- Main content -->
+<div class="content-wrapper">
+  <section class="content-header p-0">
+    <div class="container-fluid">
+
+    </div><!-- /.container-fluid -->
+  </section>
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row ">
+        <div class="col-12">
+          <div class="card card-primary card-outline content-all-pnr mt-4">
+            <!-- /.card-header -->
+            <div class="card-header justify-content-between py-0">
+              <div class="row">
+                <div class="col-md-2 float-left">
+                <h4 class="text-primary title-all-pnr mt-1 mb-0">Gestion PNR</h4>
+                </div>
+                <div class="col-md-10 float-right">
+                  <div class="row d-flex justify-content-center">
+                    <div class="col-md-5 mr-4 px-0 d-flex align-items-center justify-content-center">
+                      <i class="fas fa-filter text-primary mr-2"></i>
+                      <span class="text-sm text-primary" style="width: 9rem;"> Filtrer par : </span>
+                      <select class="form-control form-control-sm form-select form-select-sm" id="pnrFilteredByOrder" name="pnr_filter">
+                        {% if request.user.role_id == 3 %}
+                          <option value="True">PNR envoyé</option>
+                          <option value="False" selected="true">PNR non envoyé</option>
+                        {% else %}
+                          <option value="None">Tous les PNR</option>
+                          <option value="True">PNR envoyé</option>
+                          <option value="False" selected="true">PNR non envoyé</option>
+                        {% endif %}
+                      </select>
+                      <span class="text-sm text-primary" style="width: 9rem; margin-left:2px;"> Créer par : </span>
+                      <select class="form-control form-control-sm form-select form-select-sm" id="pnrFilteredByCreator" name="pnr_filter">
+                        {% if request.user.role_id != 3 and request.user.id != 4 and request.user.id != 5 %}
+                          <option value="0">Tout</option>
+                          {% for user in users %}
+                          <option value="{{user.id}}">{{user.username}}</option>
+                          {% endfor %}
+                        {% elif request.user.id == 4 %}
+                          <option value="4" selected="true">Farida</option>
+                          <option value="5">Mouniati</option>
+                        {% elif request.user.id == 5 %}
+                          <option value="4" >Farida</option>
+                          <option value="5" selected="true">Mouniati</option>
+                        {% else %}
+                          <option value="{{request.user.id}}" selected="true">{{request.user.username}}</option>
+                        {% endif %}
+                      </select>
+                    </div>
+                
+                    <div class="col-md-2 mr-4 px-0 d-flex align-items-center justify-content-center">
+                      <div class="input-group input-group float-sm-right mt-1 mb-1" style="position: relative;">
+                        <input type="text" name="table_search" id="input-pnr" class="form-control form-control-sm"
+                          placeholder="Recherche">
+                        <div 
+                          id="spinnerLoadingSearch" 
+                          class="spinner-border" 
+                          role="status" 
+                          style="width: 14px; height: 14px; position: absolute; right: 48px; bottom: 6px; z-index: 9999"
+                          title="Recherche en cours"
+                        >
+                          <span class="sr-only">Loading...</span>
+                        </div>
+                        <div class="input-group-append">
+                          <button type="submit" id="pnr-research" class="btn btn-default py-0" title="Bouton de recherche">
+                            <i class="fas fa-search text-primary"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div> 
+                    <div class="col-md-2">
+                      <div class="d-flex">  
+                      <form method="GET" class="d-flex align-items-center justify-content-between"> 
+                        <div class="d-flex" style="width: 10rem;">
+                          <input type="text" name="paginate_by" class="form-control form-control-sm mt-1 value_page p-0 pl-2" placeholder="{{ row_num }}" required title="Nombres des lignes"/>
+                          <input type="text" class="form-control form-control-sm mt-1 count_page p-0" disabled value=" / {{ request|pnr_count }}" id="pnrCounterOnSearch"/>
+                        </div>
+
+                        <button type="submit" class="btn btn-outline-primary mt-1 px-2 py-0" id="buttonShowPnrBySize">Afficher</button>
+                      </form>
+                      <button type="submit" class="btn btn-outline-primary mt-1 px-2 py-0" id="buttonShowPnrBySizeOnSearch">Afficher</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-body p-0" id="showTableForAllPnr">
+              <table class="table table-bordered table-head-fixed table-hover text-nowrap" id="all-pnr">
+                <thead id="thead-all-pnr">
+                  <!-- <tr>
+                    <th width="6%"><span class="float-left sort">Numéro</span><span class="float-right filter" hidden><i class="fa-solid fa-chevron-down i-filter"></i></span></th>
+                    <th width="10%"><span class="float-left sort">Passagers</span><span class="float-right filter" hidden><i class="fa-solid fa-chevron-down i-filter"></i></span></th>
+                    <th width="8%"><span class="float-left sort">Client</span><span class="float-right filter" hidden><i class="fa-solid fa-chevron-down i-filter"></i></span></th>
+                    <th width="8%"><span class="float-left sort">Date de création</span><span class="float-right filter" hidden><i class="fa-solid fa-chevron-down i-filter"></i></span></th>
+                    <th width="8%"><span class="float-left sort">Date d'émission</span><span class="float-right filter" hidden><i class="fa-solid fa-chevron-down i-filter"></i></span></th>
+                    <th width="6%"><span class="float-left sort">Montant</span><span class="float-right filter" hidden><i class="fa-solid fa-chevron-down i-filter"></i></span></th>
+                    <th width="4%"><span class="float-left sort">Status</span><span class="float-right filter" hidden><i class="fa-solid fa-chevron-down i-filter"></i></span></th>
+                    <th width="8%"><span class="float-left sort">OPC</span><span class="float-right filter" hidden><i class="fa-solid fa-chevron-down i-filter"></i></span></th>
+                    <th width="5%"><span class="float-left sort">Type</span><span class="float-right filter" hidden><i class="fa-solid fa-chevron-down i-filter"></i></span></th>
+                    <th width="10%"><span class="float-left sort">Créateur</span><span class="float-right filter" hidden><i class="fa-solid fa-chevron-down i-filter"></i></span></th>
+                    <th width="10%"><span class="float-left sort">Emetteur</span><span class="float-right filter" hidden><i class="fa-solid fa-chevron-down i-filter"></i></span></th>
+                    <th width="20%"><span class="float-left sort">Agence</span><span class="float-right filter" hidden><i class="fa-solid fa-chevron-down i-filter"></i></span></th>
+                  </tr> -->
+                  <!-- <tr>
+                    <th width="6%">Numéro</th>
+                    <th width="10%">Passagers</th>
+                    <th width="5%">Client</th>
+                    <th width="8%">Date de création</th>
+                    <th width="8%">Date d'émission</th>
+                    <th width="8%">Montant</th>
+                    <th width="5%">Status</th>
+                    <th width="8%">OPC</th>
+                    <th width="5%">Type</th>
+                    <th width="10%">Créateur</th>
+                    <th width="10%">Emetteur</th>
+                    <th width="20%">Agence</th>
+                  </tr> -->
+                  <tr id="tr-all-pnr">
+                    <th>Numéro</th>
+                    <th>Passagers</th>
+                    <th>Client</th>
+                    <th class="pnr-creation-date" style="cursor: pointer;">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
+                        Date de création
+                        <i class="fa fa-sm fa-solid" id="icon__pnrDateCreation"></i>
+                      </div>
+                    </th>
+                    <th class="pnr-issuing-date">Date d'émission</th>
+                    <th>Montant</th>
+                    <th>Status</th>
+                    <th>OPC</th>
+                    <th>Type</th>
+                    <th>Créateur</th>
+                    <th>Emetteur</th>
+                    <th>Agence</th>
+                    <th>Code</th>
+                  </tr>
+                </thead>
+                  <!-- <tr class="tr-filter" hidden>
+                    <th width="5%"><input type="text" class="form form-control sm-height"/></th>
+                    <th><input type="text" class="form form-control sm-height"/></th>
+                    <th width="5%"><input type="text" class="form form-control sm-height"/></th>
+                    <th width="8%">
+                      <div class="btn-group sm-height w-100 show">
+                        <button type="button" class="btn btn-default sm-height w-50" data-toggle="dropdown" aria-expanded="true">
+                        </button>
+                        <div class="dropdown-menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(67px, 37px, 0px);">
+                          <div class="row">
+                            <div class="col-md-12">
+                              <div class="mb-0 pl-2 pr-2">
+                                <select class="form-control">
+                                  <option>Emis</option>
+                                  <option>Non-émis</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </th>
+                    <th width="8%">
+                      <div class="btn-group sm-height w-100 show">
+                        <button type="button" class="btn btn-default sm-height w-50" data-toggle="dropdown" aria-expanded="true">
+                        </button>
+                        <div class="dropdown-menu" role="menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(67px, 37px, 0px);">
+                        
+                        </div>
+                      </div>
+                    </th>
+                    <th width="8%"><input type="text" class="form form-control sm-height"/></th>
+                    <th width="5%">
+                      <div class="form-group mb-0">
+                      <select class="form-control sm-height">
+                        <option>Emis</option>
+                        <option>Non-émis</option>
+                      </select>
+                      </div>
+                    </th>
+                    <th width="8%">
+                      <div class="btn-group sm-height w-100 show">
+                        <button type="button" class="btn btn-default sm-height w-50" data-toggle="dropdown" aria-expanded="true">
+                        </button>
+                        <div class="dropdown-menu" role="menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(67px, 37px, 0px);">
+                        
+                        </div>
+                      </div>
+                    </th>
+                    <th width="5%">
+                      <div class="form-group mb-0">
+                      <select class="form-control sm-height">
+                        <option>Emis</option>
+                        <option>Non-émis</option>
+                      </select>
+                      </div>
+                    </th>
+                    <th width="10%"><input type="text" class="form form-control sm-height"/></th>
+                    <th width="10%"><input type="text" class="form form-control sm-height"/></th>
+                    <th width="20%"><input type="text" class="form form-control sm-height"/></th>
+                  </tr> -->
+                <tbody class="tbody-pnr">
+                  {% for pnr in page_obj %}
+                  
+                  {% with pnr|passenger_is_invoiced_in_passenger_invoice as passenger_is_invoiced_in_passenger_invoice %} 
+                  <tr class="pnr-class {% if passenger_is_invoiced_in_passenger_invoice and pnr.is_invoiced %} text-success {% endif %} {% if pnr.state == 1 %} tr-danger {% endif %}{% if pnr.state == 2 %}tr-warning {% endif %}{% if pnr.is_read != 1 %}non-lue {% endif %}
+                      {% if pnr.is_read == 1 %}lue {% endif %}" onclick="location.href='{% url 'pnr_details' pnr.id %}'"
+                      style="cursor: pointer;" data-status="{{ pnr.status_value }}" id="trAllPnr" data-pnr-id={{ pnr.id }} data-passenger-invoiced={{passenger_is_invoiced_in_passenger_invoice}} data-pnr-invoice={{pnr.is_invoiced}}>
+                      <td class="d-flex align-items-center justify-content-between" style="gap:5px">
+                        <span class="pnr-num-class">{{ pnr.number }}</span>
+                        {% if pnr.state == 2 or pnr.state == 3 %}
+                          <span 
+                            class="tooltips state_2 float-right" 
+                            tooltip="" 
+                            tooltip-position="top"
+                            tooltip-type="warning" 
+                            data-info="{% with pnr|passenger_segment_mail_missing as get_passenger_segment %}{{ get_passenger_segment }}{% endwith %}"
+                          >
+                            <i class="fa fa-exclamation-triangle warning"></i>
+                          </span>
+                        {% endif %}
+                        {% if pnr.state == 1 %}
+                          <span 
+                            class="tooltips state_1 float-right" 
+                            tooltip="" 
+                            tooltip-position="top"
+                            tooltip-type="danger"
+                          >
+                            <i class="fa fa-exclamation-triangle text-danger"></i>
+                          </span>
+                        {% endif %}
+                        {% with pnr|pnr_comment_state as pnr_comment_state %} 
+                          <!-- -1: pas d'anomalie, 0: non traitée, 1: traitée -->
+                          {% if pnr_comment_state == 0 %}
+                            <span 
+                              class="tooltips comment-state-0 float-right" 
+                              tooltip="" 
+                              tooltip-position="right"
+                              tooltip-type="danger"
+                            >
+                              <i class="fa fa-bug text-danger"></i>
+                            </span>
+                          {% endif %}
+                          {% if pnr_comment_state == 1 %}
+                            <span 
+                              class="tooltips comment-state-1 float-right" 
+                              tooltip="" 
+                              tooltip-position="right"
+                              tooltip-type="success"
+                            >
+                              <i class="fa fa-bug text-success"></i>
+                            </span>
+                          {% endif %}
+                        {% endwith %}
+                      </td>
+                      <td>
+                        {% with pnr|first_passenger as first_passenger %}
+                          {% if first_passenger.name is not None %}
+                            <span class="passenger-name text-uppercase" id="span__passengerName">
+                              {{ first_passenger.name }}
+                            </span> 
+                          {% endif %}
+                          {% if first_passenger.surname is not None %} 
+                            <span class="passenger-name text-capitalize" id="span__passengerName">
+                              {{ first_passenger.surname|title }}
+                            </span>
+                          {% endif %}
+                        {% endwith %}</td>
+                      <td width="4%">
+                        {% if pnr.status == 'Non émis' %}
+                          <span class="text-sm" id="span__customerIntitule">{{ pnr.customer.intitule }}</span>
+                        {% else %}
+                          {% with pnr|customer_in_passenger_invoice as customer_in_passenger_invoice %}
+                            <span class="text-sm" id="span__customerIntitule">{{ customer_in_passenger_invoice.intitule }}</span>
+                          {% endwith %}
+                        {% endif %}
+                        <span hidden>{{ pnr|tickets }}</span>
+                      </td>
+                      <td>{{ pnr.system_creation_date|date:"d/m/y H:i" }}</td>
+                      <td>
+                        {% if pnr|ticket_issuing_date is not None and pnr.status_value == 0 %}
+                          {{ pnr|ticket_issuing_date|date:"d/m/y" }}
+                        {% endif %}
+                        {% if pnr|ticket_issuing_date is not None and pnr.status_value == 1 %}
+                          
+                        {% endif %}
+                      </td>
+                      {% with pnr|order_amount_total as order_amount_total %}
+                        <td><span class="montant">{{ order_amount_total|floatformat:'2' }}</span></td>
+                      {% endwith %}
+                      <td>{{ pnr.status }}</td>
+                      <td>
+                        {% if pnr|opc is not None %}
+                          {{ pnr|opc|date:"d/m/y H:i" }}
+                        {% endif %}
+                      </td>
+                      <td>
+                        {% if pnr.type == 'EWA' %}
+                            {{ 'Zenith' }}
+                          {% else %}
+                            {{ pnr.type }}
+                          {% endif %}
+                      </td>
+                      <td>
+                        {% if pnr|pnr_creator is not None %}
+                          {{ pnr|pnr_creator }}
+                        {% endif %}
+                      </td>
+                      <td>
+                        {% if pnr|pnr_emitter is not None and pnr.status_value == 0 %}
+                          {{ pnr|pnr_emitter }}
+                        {% endif %}
+                      </td>
+                      <td>
+                        {% if pnr.agency is not None %}
+                          {{ pnr.agency.name }}
+                        {% endif %}
+                        {% if pnr.type == 'EWA' %}
+                          {{ pnr.agency_name }}
+                        {% endif %}
+                      </td>
+                      <td>
+                        {% if pnr.agency is not None %}
+                          {{ pnr.agency.code }}
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% endwith %} 
+                  
+                  {% endfor %}
+                </tbody>
+                <!-- <tfoot class="mb-0">
+                  <tr>
+                    <td colspan="8">
+                      <div class="pager">
+                        <span class="right">
+                          <span class="prev">
+                            <i class="fa fa-angle-left"></i>
+                          </span>
+                          <span class="pagecount"></span>
+                          <span class="next">
+                            <i class="fa fa-angle-right"></i>
+                          </span>
+                        </span>
+                        <select class="form-control form-control-sm pagesize" style="display: inline; width: 10%;">
+                          <option value="" disabled selected>Nombres de lignes</option>
+                          <option value="20">20</option>
+                          <option value="50">50</option>
+                          <option value="100">100</option>
+                          <option value="{{ pnr_count }}">Tous</option>
+                        </select>
+                      </div>
+                    </td>
+                  </tr>
+                </tfoot> -->
+              </table>
+
+              <table class="table table-bordered table-head-fixed table-hover text-nowrap" id="all-pnr-after-search">
+                <thead id="thead-all-pnr">
+                  <tr id="tr-all-pnr">
+                    <th style="cursor: pointer;">Numéro</th>
+                    <th style="cursor: pointer;">Passagers</th>
+                    <th style="cursor: pointer;">Client</i></th>
+                    <th style="cursor: pointer;" class="dateCreationOrderClass">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px" id="dateCreationOrder">
+                        Date de création
+                        <i class="fa fa-sm fa-solid fa-arrows-up-down" id="icon__pnrDateCreationSearch"></i>
+                      </div>
+                    </th>
+                    <th class="pnr-issuing-date" style="cursor: pointer;">Date d'émission</th>
+                    <th style="cursor: pointer;">Montant</th>
+                    <th style="cursor: pointer;">Status</th>
+                    <th style="cursor: pointer;">OPC</th>
+                    <th style="cursor: pointer;">Type</th>
+                    <th>Créateur</th>
+                    <th>Emetteur</th>
+                    <th>Agence</th>
+                    <th>Code</th>
+                  </tr>
+                </thead>
+                <tbody class="tbody-pnr-after-search">
+                </tbody>
+              </table>
+            </div>
+            
+            <!-- Modal -->  
+            <div class="modal fade" id="modalPnrNotUpdated" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="modalPnrNotUpdatedTitle">
+                      <i class="fa fa-upload"></i>
+                      PNR non remonté
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <form method='POST'>
+                      <div class="form-group">
+                        <label for="message-text" class="col-form-label">Numero PNR:</label>
+                        <input type='text' class="form-control" id="messagePnrNotUpdated" placeholder="Veuillez saisir le numero du PNR..."></input>
+                      </div>
+                    </form>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-success" id="buttonSendPnrNotUpdated">Envoyer</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            
+            <!-- /.card-body -->
+          </div>
+          <!-- /.card -->
+        </div>
+
+        <a class="" onclick="eraseCache()" role="button" title="Actualiser"><i class="fa fa-refresh fa-2x reload"
+            aria-hidden="true"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="loading">
+  <div class="spinner-wrapper">
+    <span class="spinner-text">Chargement...</span>
+    <span class="spinner"></span>
+  </div>
+</div>
+{% endblock content %}

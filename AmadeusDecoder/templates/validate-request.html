@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="content-wrapper">
+  <section class="content-header p-0">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1 class="text-primary">Demande de diminution de frais de services</h1>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          
+          {% if request_status == 1 %}
+          <div class="alert alert-success" role="alert">
+            {{message}}
+          </div>
+          {% elif request_status == 2 %}
+          <div class="alert alert-success" role="alert">
+            {{message}}
+          </div>
+          
+          {% elif request_status == 3 %}
+          <div class="card card-primary card-outline px-4">
+            <h4 class="text-info">PNR: {{request.pnr}}</h4>
+            <h4 class="text-info mb-2">Utilisateur: {{request.user}}</h4>
+              <label>Montant demandé</label>
+              <div class="input-group mb-2">
+                <input type="email" class="form-control" placeholder="" value="{{request.amount | floatformat:'2' }}" id="request_amount">
+                <input type="hidden" id="request_id" class="form-control" value="{{request.id }}" >
+                <input type="hidden" id="request_token" class="form-control" value="{{request.token }}" >
+                <input type="hidden" id="choice_type" class="form-control" value="{{choice_type }}" >
+                <div class="input-group-append">
+                  <div class="input-group-text">
+                    <span class="fas fa-euro"></span>
+                  </div>
+                </div>
+              </div>
+              <div class="row mb-2 text-end">
+                <div class="col-md-12">
+                  <button type="button" id="submitFeeModify" class="btn btn-success">Accepter</button>
+                  <button type="button" onclick="location.href='{{ UrlRejected }}'" class="btn btn-danger" data-dismiss="modal">Refuser</button>
+                </div>
+              </div>
+          </div>
+          {% else %}
+            <div class="alert alert-danger" role="alert">
+              {{message}}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock content %}

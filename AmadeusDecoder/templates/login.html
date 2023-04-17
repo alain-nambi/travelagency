@@ -1,0 +1,77 @@
+{% extends "header-login.html" %}
+
+{% block content %}
+<div class="login-box">
+	<!-- /.login-logo -->
+	<div class="card card-outline card-primary">
+		<h1 class="text-center">Connexion</h1>
+		<div class="card-body">
+			<form action="loginPage/" method="post">
+				{% csrf_token %}
+				<label>Adresse email:</label>
+				<div class="input-group mb-3">
+					<input type="email" class="form-control" id="mail" placeholder="" name="email">
+					<div class="input-group-append">
+						<div class="input-group-text">
+							<span class="fas fa-envelope"></span>
+						</div>
+					</div>
+				</div>
+				<label>Mot de passe:</label>
+				<div class="input-group mb-3">
+					<input type="password" class="form-control" id="password" placeholder="" name="password">
+					<span class="fas fa-eye" id="show-password" style="cursor: pointer;"></span>
+					<div class="input-group-append">
+						<div class="input-group-text">
+							<span class="fas fa-lock"></span>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-12">
+						<div class="icheck-primary mb-4">
+							<input type="checkbox" id="rememberme">
+							<label for="remember">
+								Remember Me
+							</label>
+						</div>
+						<button type="submit" class="btn btn-outline-primary btn-block">Se connecter</button>
+					</div>
+					<!-- /.col -->
+				</div>
+			</form>
+		</div>
+		<!-- /.card-body -->
+	</div>
+	<!-- /.card -->
+</div>
+<script>
+	const togglePassword = document.querySelector("#show-password");
+	const password = document.querySelector("#password");
+	togglePassword.addEventListener("click", function () {
+		const type = password.getAttribute("type") === "password" ? "text" : "password";
+		password.setAttribute("type", type);
+		this.classList.toggle('fa-eye');
+		this.classList.toggle('fa-eye-slash');
+	});
+	const rmCheck = document.getElementById("rememberme"),
+    emailInput = document.getElementById("mail");
+	if (localStorage.checkbox && localStorage.checkbox !== "") {
+	rmCheck.setAttribute("checked", "checked");
+	emailInput.value = localStorage.username;
+	} else {
+	rmCheck.removeAttribute("checked");
+	emailInput.value = "";
+	}
+
+	function lsRememberMe() {
+	if (rmCheck.checked && emailInput.value !== "") {
+		localStorage.username = emailInput.value;
+		localStorage.checkbox = rmCheck.value;
+	} else {
+		localStorage.username = "";
+		localStorage.checkbox = "";
+	}
+	}
+</script>
+{% endblock content %}

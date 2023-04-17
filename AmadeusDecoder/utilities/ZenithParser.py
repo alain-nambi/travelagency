@@ -384,7 +384,7 @@ class ZenithParser():
     def read_main_text_file(self):
         file = None
         try:
-            file = open(self.get_main_txt_path(), "r+", encoding="utf-8")
+            file = open(self.get_main_txt_path(), "r+", encoding="utf-8", errors='replace')
             content = file.readlines()
             contents = []
             for line in content:
@@ -400,9 +400,21 @@ class ZenithParser():
     # get main text file path from pdf file path
     def get_txt_path_from_pdf(self, pdf_path):
         # file {'email_date': 'Mon, 21 Nov 2022 08:08:07 +0000', 'attachment': ['H:/Famenontsoa/Light/S5-S6/Stage/Project/TravelAgency/DjangoTravelAgency/EmailFetcher/utilities/attachments_dir/4678_issoufali.pnr@outlook.com/E-ticket 00CHUM-ANFAOUDINE RUN  .pdf']}
-        txt_folder_path = pdf_path.removesuffix(pdf_path.split("/")[-1]).removesuffix('/')
-        txt_file_name = txt_folder_path.split("/")[-1]
-        return txt_folder_path + "/" + txt_file_name + '.txt'
+        needed_part = ''
+        txt_folder_path = ''
+        txt_path = ''
+        if len(pdf_path.split("/")) > 1:
+            needed_part = pdf_path.split("/")[-1]
+            txt_folder_path = pdf_path.removesuffix(needed_part).removesuffix('/')
+            txt_file_name = txt_folder_path.split("/")[-1]
+            txt_path = txt_folder_path + "/" + txt_file_name + '.txt'
+        else:
+            needed_part = pdf_path.split("\\")[-1]
+            txt_folder_path = pdf_path.removesuffix(needed_part).removesuffix('\\')
+            txt_file_name = txt_folder_path.split("\\")[-1]
+            txt_path = txt_folder_path + "\\" + txt_file_name + '.txt'
+            
+        return txt_path
     
     # for issued PNR: get PNR creator, emitter
     def get_creator_emitter(self):
@@ -425,7 +437,7 @@ class ZenithParser():
             if temp_pnr is not None:
                 if len(to_list) > 1:
                     temp_user = User.objects.filter(email=to_list[-1][1]).first()
-                    if temp_user is not None:
+                    if temp_user is not None and to_list[-1][1] != 'issoufali.pnr@outlook.com' and to_list[-1][1] != 'issoufali.pnr@outlook.com'.upper():
                         # assign creator agent
                         temp_pnr.agent = temp_user
                         temp_pnr.save()
@@ -434,12 +446,12 @@ class ZenithParser():
                         for ticket in pnr_tickets:
                             ticket.emitter = temp_user
                             ticket.save()
-                    else:
-                        if to_list[-1][1] != 'issoufali.pnr@outlook.com' and to_list[-1][1] != 'issoufali.pnr@outlook.com'.upper():
-                            temp_pnr.agent_code = to_list[-1][1]
-                        else:
-                            temp_pnr.agent_code = ''
-                        temp_pnr.save()
+                    # else:
+                    #     if to_list[-1][1] != 'issoufali.pnr@outlook.com' and to_list[-1][1] != 'issoufali.pnr@outlook.com'.upper():
+                    #         temp_pnr.agent_code = to_list[-1][1]
+                    #     else:
+                    #         temp_pnr.agent_code = ''
+                    #     temp_pnr.save()
     
     # EMD parsing
     def parse_emd(self, content, email_date):
@@ -1188,10 +1200,29 @@ class ZenithParser():
             ancillary_segments.append(temp_ancillary_segment)
         
         return ancillaries, ancillary_segments
+    
+    # process taxes
+    def process_taxes(self, taxes_part_string):
+        # pattern: MG : 637,50; YQ : 1 020,00; YT: 359,21; O4 : 51,00; FR :414,80; F9 : 76,50; IZ : 77,35;A5 : 289,00; G9 : 707,20; O3 :117,30;
+        taxes = 0
+        # get each tax part
+        tax_parts = taxes_part_string.split(";")
+        for part in tax_parts:
+            # one part pattern: 'MG : 637,50'
+            part_split = part.split(":")
+            if len(part_split) > 1:
+                temp_normalizer = part_split[-1].strip().replace(",", ".").replace(" ", "")
+                try:
+                    taxes += decimal.Decimal(temp_normalizer)
+                except Exception as e:
+                    print(e)
         
+        return taxes
+    
     # get other PNR's details: payment option, emit date, emit office, ...
     def get_other_info(self, other_info_part):
         payment_option = ''
+        taxes_part = ''
         issuing_date = None
         issuing_office = ''
         ancillaries = []
@@ -1200,12 +1231,14 @@ class ZenithParser():
             temp_info = other_info_part[i]
             if i < len(other_info_part) - 1:
                 temp_info_next = other_info_part[i + 1]
-                
+            
+            # form of payment
             if temp_info.startswith('Forme de'):
                 if temp_info_next.startswith('paiement'):
                     payment_option = other_info_part[i + 2]
                 else:
                     payment_option = temp_info_next
+            # issuing date
             if temp_info.startswith("Date d'émission"):
                 temp_issuing_date = ''
                 if temp_info_next != ':':
@@ -1223,6 +1256,7 @@ class ZenithParser():
                             issuing_date = datetime.datetime(date_format.year, date_format.month, date_format.day)
                 except:
                     pass
+            # issuing agency
             if temp_info.startswith("Lieu d'émission"):
                 j = i + 1
                 while True:
@@ -1230,6 +1264,7 @@ class ZenithParser():
                         break
                     issuing_office += other_info_part[j] + ' '
                     j += 1
+            # modification state
             if temp_info.startswith("Différence tarifaire") or temp_info.startswith("Pénalité d'échange"):
                 temp_ancillary = OthersFee()
                 temp_ancillary.fee_type = 'TKT'
@@ -1251,8 +1286,23 @@ class ZenithParser():
                         traceback.print_exc(file=error_file)
                         error_file.write('\n')
                 j += 1
-                    
-        return payment_option, issuing_date, issuing_office, ancillaries
+            # taxes
+            if temp_info.startswith("Taxes"):
+                try:
+                    index_of_taxes = other_info_part.index("Taxes") + 1
+                    for a in range(index_of_taxes, len(other_info_part)):
+                        if other_info_part[a] == "Total":
+                            break
+                        taxes_part += other_info_part[a]
+                except:
+                    with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
+                        error_file.write('{}: \n'.format(datetime.datetime.now()))
+                        traceback.print_exc(file=error_file)
+                        error_file.write('\n')
+        
+        # get taxes
+        taxes = self.process_taxes(taxes_part)
+        return payment_option, issuing_date, issuing_office, ancillaries, taxes
             
     # save data
     def parse_pnr(self, email_date):
@@ -1282,7 +1332,7 @@ class ZenithParser():
                         pnr_passenger.save()
                         
                     other_info_part = self.get_part(content, 'Reçu de paiement')
-                    payment_option, issuing_date, issuing_office, other_ancillaries = self.get_other_info(other_info_part)
+                    payment_option, issuing_date, issuing_office, other_ancillaries, taxes = self.get_other_info(other_info_part)
                     if issuing_office != '':
                         pnr.agency_name = issuing_office
                         pnr.save()
@@ -1353,6 +1403,16 @@ class ZenithParser():
                         ancillary.save()
                     for ancillary_segment in ancillaries_segment:
                         ancillary_segment.save()
+                        
+                    # check if PNR has grouped passenger
+                    temp_pnr_invoice_detail = InvoiceDetails.objects.filter(invoice__pnr=pnr).first()
+                    if temp_pnr_invoice_detail is not None:
+                        if temp_pnr_invoice_detail.total == 0:
+                            shared_tax = taxes/(len(tickets))
+                            for ticket in tickets:
+                                temp_ticket = Ticket.objects.filter(number=ticket.number, pnr=pnr).first()
+                                temp_ticket.tax = shared_tax
+                                temp_ticket.save()
                         
                     # other ancillaries
                     # for ancillary in other_ancillaries:
@@ -1442,7 +1502,7 @@ class ZenithParser():
                     #     pnr_passenger.save()
                         
                     other_info_part = self.get_part(content, 'Reçu de paiement')
-                    payment_option, issuing_date, issuing_office, other_ancillaries= self.get_other_info(other_info_part)
+                    payment_option, issuing_date, issuing_office, other_ancillaries, taxes= self.get_other_info(other_info_part)
                     if issuing_office != '':
                         pnr.agency_name = issuing_office
                         pnr.save()
@@ -1578,7 +1638,16 @@ class ZenithParser():
                             ancillary_segment.passenger = temp_passenger
                             ancillary_segment.segment = temp_segment
                             ancillary_segment.save()
-                        
+                    
+                    # check if PNR has grouped passenger
+                    temp_pnr_invoice_detail = InvoiceDetails.objects.filter(invoice__pnr=pnr).first()
+                    if temp_pnr_invoice_detail is not None:
+                        if temp_pnr_invoice_detail.total == 0:
+                            shared_tax = taxes/(len(tickets))
+                            for ticket in tickets:
+                                temp_ticket = Ticket.objects.filter(number=ticket.number, pnr=pnr).first()
+                                temp_ticket.tax = shared_tax
+                                temp_ticket.save()
                         
                     
                     # other ancillaries

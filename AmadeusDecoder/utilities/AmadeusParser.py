@@ -3,7 +3,6 @@ Created on 31 Aug 2022
 
 @author: Famenontsoa
 '''
-import email.utils
 import traceback
 import datetime
 import time
@@ -53,35 +52,7 @@ class AmadeusParser(PnrOnlyParser, TicketOnlyParser, PnrCostParser, EMDOnlyParse
         else:
             raise ValueError('Path cannot be none')
         
-    """def set_email_date(self, email_date):
-        temp_date = datetime.datetime.now()
-        if email_date != '' and email_date is not None:
-            try:
-                date = email.utils.parsedate(email_date)
-                REMOTE_TIME_ZONE_OFFSET = +6 * 60 * 60
-                timestamp = time.mktime(date) + REMOTE_TIME_ZONE_OFFSET
-                self.__email_date = datetime.datetime.fromtimestamp(timestamp, pytz.UTC)
-            except Exception:
-                self.__email_date = datetime.datetime(temp_date.year, temp_date.month, temp_date.day, temp_date.hour, temp_date.minute, temp_date.second, temp_date.microsecond, pytz.UTC)
-        else:
-            self.__email_date = datetime.datetime(temp_date.year, temp_date.month, temp_date.day, temp_date.hour, temp_date.minute, temp_date.second, temp_date.microsecond, pytz.UTC)
-    """
-
-    """def set_email_date(self, email_date):
-        temp_date = datetime.datetime.now()
-        date_utc = datetime.datetime(temp_date.year, temp_date.month, temp_date.day, temp_date.hour, temp_date.minute, temp_date.second, temp_date.microsecond, pytz.UTC)
-    
-        try:
-            date_utc = datetime.datetime(email_date.year, email_date.month, email_date.day, email_date.hour, email_date.minute, email_date.second, email_date.microsecond, pytz.UTC)
-        except Exception as e:
-            print(e)
-            print("-------------------- Set email date error -------------------")
-            pass
-        
-        self.__email_date = date_utc"""
-
     def set_email_date(self, email_date):
-        print("set_email_date --- ", email_date)
         temp_date = datetime.datetime.now()
         date_utc = datetime.datetime(temp_date.year, temp_date.month, temp_date.day, temp_date.hour, temp_date.minute, temp_date.second, temp_date.microsecond, pytz.UTC)
     
@@ -90,13 +61,11 @@ class AmadeusParser(PnrOnlyParser, TicketOnlyParser, PnrCostParser, EMDOnlyParse
             REMOTE_TIME_ZONE_OFFSET = +3 * 60 * 60
             timestamp = time.mktime(date_utc.timetuple()) + REMOTE_TIME_ZONE_OFFSET
             date_utc = datetime.datetime.fromtimestamp(timestamp, pytz.UTC)
-            print("date_utc ---- ", date_utc)
         except Exception as e:
-            print("error ----- ", e)
-            pass
+            print(e)
         
         self.__email_date = date_utc
-
+        
     def set_is_archived(self, is_archived_status):
         self.__is_archived = is_archived_status
     

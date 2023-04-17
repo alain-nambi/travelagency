@@ -314,8 +314,8 @@ class TicketOnlyParser():
                     print('IT not found')
             
             # prime
-            """if not temp_ticket.is_no_adc and temp_ticket.transport_cost == 0 and fare_type != 'IT':
-                temp_ticket.is_prime = True"""
+            # if not temp_ticket.is_no_adc and temp_ticket.transport_cost == 0 and fare_type != 'IT':
+            #    temp_ticket.is_prime = True
             if (temp_ticket.transport_cost == 0 or pnr.is_archived) and (temp_ticket.transport_cost != transport_cost or temp_ticket.is_prime):
                 temp_ticket.transport_cost = transport_cost
                 temp_ticket.tax = ticket_tax

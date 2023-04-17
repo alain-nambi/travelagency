@@ -105,7 +105,7 @@ class ZenithParserReceipt():
     # check if part has been issued by current Travel Agency
     def check_part_emitter(self, current_part):
         is_emitted = False
-        if current_part[1].find("ISSOUFALI") > -1 or current_part[1].find("Issoufali") > -1 or current_part[2].find("ISSOUFALI") > -1 or current_part[1].find("Issoufali") > -1:
+        if current_part[1].find("ISSOUFALI") > -1 or current_part[1].find("Issoufali") > -1 or current_part[2].find("ISSOUFALI") > -1 or current_part[1].find("Issoufali") > -1 or current_part[1].find("Mayotte ATO") > -1:
             return True
         
         # check agent
@@ -171,7 +171,12 @@ class ZenithParserReceipt():
                 part_passenger = passenger
         
         if part_passenger is None:
-            part_passenger = passengers[0]
+            for passenger in passengers:
+                if passenger.types != 'Adulte(s)':
+                    part_passenger = passenger
+                    break
+            if part_passenger is None:
+                part_passenger = passengers[0]
             
         return part_passenger, next_index
     
@@ -275,19 +280,51 @@ class ZenithParserReceipt():
             current_passenger, next_index = self.get_passenger_assigned_on_part(passengers, part)
             is_created_by_us = self.check_part_emitter(part)
             
-            tickets = Ticket.objects.filter(pnr=pnr, passenger=current_passenger).all()
+            ticket_total = 0
+            try:
+                ticket_total = decimal.Decimal(part[next_index+1].split(' ')[0].replace(',','.'))
+            except:
+                traceback.print_exc()
+            
+            ticket = Ticket.objects.filter(pnr=pnr, passenger=current_passenger, total=0).first()
             try:
                 payment_option = part[next_index]
-                for ticket in tickets:
+                if ticket is not None:
                     ticket.payment_option = payment_option
-                    if ticket.total == 0:
-                        ticket.total = decimal.Decimal(part[next_index+1].split(' ')[0].replace(',','.'))
-                        ticket.transport_cost = decimal.Decimal(part[next_index+1].split(' ')[0].replace(',','.')) - ticket.tax
+                    if ticket.total == 0 and ticket_total > 0:
+                        ticket.total = ticket_total
+                        ticket.transport_cost = ticket_total - ticket.tax
                         ticket.issuing_date  = date_time.date()
                     if not is_created_by_us or self.check_issuing_date(date_time.date()) or (pnr.system_creation_date.date() > date_time.date() and self.check_is_invoiced_status(ticket, None)):
                         ticket.state = 0
                         ticket.ticket_status = 3
                     ticket.save()
+                # PNR has been modified and old ticket record has been removed by Zenith
+                # So, the ticket payment will be saved as other fees with designation as "Paiement billet - 1"
+                else:
+                    ticket = Ticket.objects.filter(pnr=pnr, passenger=current_passenger, total=ticket_total).first()
+                    if ticket is None and ticket_total > 0:
+                        designation = "Paiement Billet"
+                        
+                        new_payment = OthersFee()
+                        new_payment.pnr = pnr
+                        new_payment.cost = ticket_total
+                        new_payment.total = ticket_total
+                        new_payment.passenger = current_passenger
+                        new_payment.creation_date = date_time
+                        new_payment.designation = designation
+                        new_payment.is_subjected_to_fee = True
+                        
+                        # check if it has been already saved
+                        temp_new_payment = OthersFee.objects.filter(passenger=current_passenger, total=ticket_total, pnr=pnr, designation=designation).first()
+                        if temp_new_payment is not None:
+                            new_payment = temp_new_payment
+                        
+                        if not is_created_by_us or self.check_issuing_date(date_time.date()) or (pnr.system_creation_date.date() > date_time.date() and self.check_is_invoiced_status(None, new_payment)):
+                            new_payment.other_fee_status = 3
+                        
+                        new_payment.fee_type = 'TKT'
+                        new_payment.save()
             except Exception as e:
                 traceback.print_exc()
                 print(e)
@@ -315,62 +352,54 @@ class ZenithParserReceipt():
         for part in adjustment_part: 
             date_time = self.get_issuing_date_on_part(part)
             current_passenger, next_index = self.get_passenger_assigned_on_part(passengers, part)
-            # new ticket to be inserted
-            new_ticket = Ticket()
-            new_ticket.passenger = current_passenger
-            new_ticket.pnr = pnr
             is_created_by_us = self.check_part_emitter(part)
             # make current tickets as flown
             temp_ticket = Ticket.objects.filter(pnr=pnr, passenger=current_passenger, ticket_type='TKT').order_by('-id').first()
-            ticket_segments = []
             if temp_ticket is not None:
                 if self.check_is_invoiced_status(temp_ticket, None):
                     temp_ticket.ticket_status = 3
                     temp_ticket.save()
-                # get old ticket segments
-                ticket_segments = temp_ticket.ticket_parts.all()
                             
             # get adjustment
             # for element in part:
             #     for prefix in _TICKET_NUMBER_PREFIX_:
             #         if element.startswith(prefix):
             #             new_ticket.number = element.removeprefix(prefix).strip().removeprefix('[').removesuffix(']').removeprefix(':')
-            new_ticket.number = self.get_ticket_emd_number_on_part(part)
+            original_ticket_number = self.get_ticket_emd_number_on_part(part)
             
-            if new_ticket.number is not None:
-                if not is_created_by_us or self.check_issuing_date(date_time.date()):
-                #or (pnr.system_creation_date.date() > date_time.date()):
-                    new_ticket.ticket_status = 3
+            if original_ticket_number is not None:
                 # check if it has been already saved
-                ticket_saved_checker = Ticket.objects.filter(number=new_ticket.number, pnr=pnr).first()
+                # ⚠️⚠️⚠️ Ticket adjustment always come with the number 
+                # of the original ticket and must be preceded by a PNR with a new ticket number under the old original cost 
+                #
+                ticket_saved_checker = Ticket.objects.filter(number=original_ticket_number, pnr=pnr).first() # we don't touch this one
                 if ticket_saved_checker != None:
-                    new_ticket = ticket_saved_checker
-                    if is_created_by_us:
-                        new_ticket.ticket_status = 1
-                    if ((pnr.system_creation_date.date() > date_time.date()) and self.check_is_invoiced_status(new_ticket, None)) or self.check_issuing_date(date_time.date()):
-                        new_ticket.ticket_status = 3
-                        
-                try:
-                    new_ticket.transport_cost = decimal.Decimal(part[next_index+1].split(' ')[0].replace(',','.'))
-                    new_ticket.tax = 0
-                    new_ticket.total = decimal.Decimal(part[next_index+1].split(' ')[0].replace(',','.'))
-                except:
-                    pass
-                
-                if new_ticket.total == 0:
-                    new_ticket.is_no_adc = True
-                    new_ticket.tax = 0
+                    # check if is invoiced
+                    # if ticket_saved_checker.is_invoiced:
+                    #    continue
                     
-                new_ticket.ticket_type = 'TKT'
-                new_ticket.issuing_date = date_time
-                new_ticket.emitter = pnr.agent
-                new_ticket.save()
-                if ticket_saved_checker is None:
-                    for segment in ticket_segments:
-                        ticket_segment = TicketPassengerSegment()
-                        ticket_segment.ticket = new_ticket
-                        ticket_segment.segment = segment.segment
-                        ticket_segment.save()
+                    previous_ticket = Ticket.objects.filter(total=ticket_saved_checker.total, pnr=pnr, passenger=ticket_saved_checker.passenger).exclude(number=original_ticket_number).last()
+                    
+                    if previous_ticket is not None:
+                        try:
+                            previous_ticket.transport_cost = decimal.Decimal(part[next_index+1].split(' ')[0].replace(',','.'))
+                            previous_ticket.tax = 0
+                            previous_ticket.total = decimal.Decimal(part[next_index+1].split(' ')[0].replace(',','.'))
+                        except:
+                            pass    
+                    
+                        if previous_ticket.total == 0:
+                            previous_ticket.is_no_adc = True
+                            previous_ticket.tax = 0
+                        
+                        if not is_created_by_us:
+                            #or (pnr.system_creation_date.date() > date_time.date()):
+                            previous_ticket.ticket_status = 3
+                        
+                        if ((pnr.system_creation_date.date() > date_time.date()) and self.check_is_invoiced_status(previous_ticket, None)) or self.check_issuing_date(date_time.date()):
+                            previous_ticket.ticket_status = 3
+                        
+                        previous_ticket.save()
     
     # emd cancellation
     def handle_emd_cancellation(self, pnr, passengers, cancellation_part):

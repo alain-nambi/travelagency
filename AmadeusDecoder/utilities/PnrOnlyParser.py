@@ -1374,6 +1374,7 @@ class PnrOnlyParser():
             info_part_split = info_part[0].split('/')
             transport_cost = 0
             ticket_total = 0
+            is_pnr_archived = False
             is_no_adc = False
             try:
                 if info_part_split[1].startswith('DT'):
@@ -1402,6 +1403,7 @@ class PnrOnlyParser():
                         if self.get_is_archived():
                             transport_cost = decimal.Decimal(info_part_split[2][3:])
                             ticket_total = decimal.Decimal(info_part_split[2][3:])
+                            is_pnr_archived = True
                         # is no adc status
                         if decimal.Decimal(info_part_split[2][3:]) == 0:
                             is_no_adc = True
@@ -1420,8 +1422,10 @@ class PnrOnlyParser():
             temp_ticket.issuing_date = issuing_date
             temp_ticket.issuing_agency = issuing_office
             temp_ticket.is_no_adc = is_no_adc
-            if is_no_adc:
+            
+            if is_no_adc or (is_pnr_archived and ticket_total > 0):
                 temp_ticket.state = 0
+            
             tickets.append(temp_ticket)
             
         return tickets, tickets_segments, tickets_ssrs

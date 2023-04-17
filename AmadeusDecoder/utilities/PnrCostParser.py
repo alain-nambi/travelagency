@@ -139,8 +139,23 @@ class PnrCostParser():
                     temp_passenger.surname = surname.strip()
                     if line_space_split[-1] in all_designation:
                         temp_passenger.designation = line_space_split[-1]
+                # if the passenger is himself an infant
+                elif len(line_split) > 1 and line_split[-1].removesuffix(')') == 'INF':
+                    name_part = []
+                    for temp_space_split in line_split:
+                        if temp_space_split.removesuffix(')') not in all_designation:
+                            name_part.append(temp_space_split)
+                    temp_passenger.name = name_part[0].split('/')[0].strip()
+                    surname = ''
+                    if len(name_part[0].split('/')) > 1:
+                        surname += name_part[0].split('/')[1]
+                    for i in range(1, len(name_part)):
+                        surname += ' ' + name_part[i]
+                    temp_passenger.surname = surname.strip()
+                    if line_split[-1].removesuffix(')') in all_designation:
+                        temp_passenger.designation = line_split[-1].removesuffix(')')
                 # if the passenger is associated with an infant
-                if len(line_split) > 1 and line.find('INF') > 0:
+                elif len(line_split) > 1 and line.find('INF') > 0:
                     temp_passenger_inf = Passenger()
                     name_part = line_split[0]
                     temp_passenger.name = name_part.split('/')[0].strip()
@@ -423,7 +438,7 @@ class PnrCostParser():
                     temp_passenger_tst = TicketPassengerTST.objects.filter(passenger__id=temp_passenger_obj.id, ticket__number=ticket.number).all()
                     if len(temp_passenger_tst) == 1:
                         tst_ticket_segment = TicketPassengerSegment.objects.filter(ticket__id=ticket.id).all()
-                        ticket_segment = TicketPassengerSegment.objects.filter(segment__id=tst_ticket_segment[0].segment.id, ticket__ticket_type='TKT', ticket__passenger=temp_passenger_obj).first()
+                        ticket_segment = TicketPassengerSegment.objects.filter(segment__id=tst_ticket_segment[0].segment.id, ticket__ticket_type='TKT', ticket__passenger=temp_passenger_obj).last()
                         if ticket_segment is not None:
                             temp_ticket = Ticket.objects.filter(id=ticket_segment.ticket.id).first()
                             if temp_ticket is not None:

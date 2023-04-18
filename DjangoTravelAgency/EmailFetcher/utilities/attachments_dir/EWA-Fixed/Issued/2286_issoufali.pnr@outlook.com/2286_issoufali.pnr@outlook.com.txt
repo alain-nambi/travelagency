@@ -1,0 +1,85 @@
+Subject
+
+FW: Confirmation d'émission - Dossier n° 00CE89.
+
+
+Plain_Text
+
+
+________________________________
+From: dzaoudzi@agences-issoufali.com <dzaoudzi@agences-issoufali.com>
+Sent: Friday, October 28, 2022 5:11:53 PM (UTC+03:00) Nairobi
+To: issoufali.pnr@outlook.com <issoufali.pnr@outlook.com>
+Subject: Confirmation d'émission - Dossier n° 00CE89.
+
+[Ewa Air]<http://www.ewa-air.com/>
+
+
+Nous vous confirmons la réservation de vos billets.
+
+Veuillez vous reporter au billet ci-joint afin de connaître l'heure à laquelle vous présenter à l'enregistrement.
+Munissez-vous de votre numéro de dossier et de votre passeport, pour chaque passager.
+
+ATTENTION : Tout passager voyageant sur les lignes EWA AIR doit être en possession d'un passeport valide au moins 6 mois après la date de retour. Le passeport doit comporter 2 pages blanches en face à face.
+
+Votre référence de réservation est : 00CE89
+
+Les passagers
+
+M. FANOMEZANA RAKOTOARISOA
+M. EMMANUEL MOUHAMADI
+M. MIANDRY RANDRIHANTINA
+
+
+Votre voyage
+
+
+  *   Vol ZD N° 244 mardi 1 novembre 2022 - Départ Dzaoudzi-Mayotte - DZA à 08:45 - Arrivée Mahajanga (Majunga)  MJN à 09:45
+
+  *   Vol ZD N° 245 jeudi 17 novembre 2022 - Départ Mahajanga (Majunga)  MJN à 17:30 - Arrivée Dzaoudzi-Mayotte - DZA à 18:30
+
+
+Coût total de votre dossier : 1 223,34
+
+EWA Air vous souhaite un excellent voyage.
+
+
+________________________________
+
+Your booking has been confirmed.
+
+
+Please check the ticket attached to know at what hour you must present yourself at the check-in.
+
+Present yourself with your dossier number and your passport, for each passenger.
+
+ATTENTION: All passengers traveling on EWA AIR must be in possession of a valid passport at least up to 6 months after the date of return. The passport must have 2 blank pages face to face.
+
+Your booking reference is 00CE89
+
+Passengers
+
+M. FANOMEZANA RAKOTOARISOA
+M. EMMANUEL MOUHAMADI
+M. MIANDRY RANDRIHANTINA
+
+
+Votre voyage
+
+
+  *   Vol ZD N° 244 mardi 1 novembre 2022 - Départ Dzaoudzi-Mayotte - DZA à 08:45 - Arrivée Mahajanga (Majunga)  MJN à 09:45
+
+  *   Vol ZD N° 245 jeudi 17 novembre 2022 - Départ Mahajanga (Majunga)  MJN à 17:30 - Arrivée Dzaoudzi-Mayotte - DZA à 18:30
+
+
+Booking total cost : 1 223,34
+
+EWA Air wishes you a nice flight.
+
+
+
+
+
+attachments
+
+C:\travel\Test\TravelAgency\DjangoTravelAgency\EmailFetcher\utilities\attachments_dir\2286_issoufali.pnr@outlook.com\E-ticket 00CE89-RAKOTOARISOA DZA  .pdf

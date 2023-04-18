@@ -1,0 +1,32 @@
+Subject
+
+Your travel information
+
+
+Plain_Text
+
+EMD-7609010242805     TYPE-S                                 SYS-1A  LOC-MZST2V
+INT-D          FCI-0  0         POI-DZA        DOI-28OCT22         IOI-66480094
+PAX- MAZELIN/SOPHIE MS                                                      ADT
+RFIC-D  FINANCIAL IMPACT
+REMARKS- 
+CPN-1  RFISC-0LA  UU DZA     S-F   SAC- 760K4JGRXY705  VALUE-199.00
+ DESCRIPTION-DISCOUNT CARD
+ NON-REFUNDABLE
+ NON-EXCHANGEABLE
+ NON-INTERLINEABLE
+ CONSUMED AT ISSUANCE
+ PRESENT TO-  
+ PRESENT AT-  
+ SERVICE REMARKS-RENOUVELLEMENT CARTE ABONNEMENT CC7776016346
+FARE   F    EUR         199.00                                                 
+EXCH VAL EUR     199.00      RFND VAL
+TAX-
+TOTAL       EUR         199.00 
+/FC  
+FP CHECK
+FOID-
+NON-ENDORSABLE
+
+
+

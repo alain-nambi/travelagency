@@ -1,0 +1,31 @@
+Subject
+
+Your travel information
+
+
+Plain_Text
+
+EMD-7609010242792     TYPE-A                                 SYS-1A  LOC-RIUN2Q
+INT-I          FCI-0  0         POI-DZA        DOI-28OCT22         IOI-66480094
+PAX- NONNON/FLORENCE MS                                                     ADT
+RFIC-A  AIR TRANSPORTATION
+REMARKS- 
+CPN-1  RFISC-0B5  UU DZARUN  S-O                      
+ DESCRIPTION-SEAT ASSIGNMENT
+ NON-INTERLINEABLE
+ PRESENT TO-  
+ PRESENT AT-  
+ ICW-7602404532140E1           (A)
+ SERVICE REMARKS-CHARACTERISTICS: L
+FARE   F    EUR          20.00                                                 
+EXCH VAL EUR      20.00      RFND VAL
+TAX-
+TOTAL       EUR          20.00 
+/FC DZA UU RUN20.00EUR20.00END
+FP CASH
+FOID-
+FREQUENT FLYER UU  7774153605
+NON-ENDORSABLE
+
+
+

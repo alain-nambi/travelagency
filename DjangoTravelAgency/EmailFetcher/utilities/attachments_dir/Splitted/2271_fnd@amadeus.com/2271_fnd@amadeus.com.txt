@@ -1,0 +1,24 @@
+Subject
+
+Your travel information
+
+
+Plain_Text
+
+TKT-7602404532152        RCI-                     1A  LOC-UYW2M6
+ OD-TNRDZA  SI-      FCPI-0   POI-DZA  DOI-28OCT22  IOI-66480094
+   1.VALERO/EDGARD             ADT            S I
+ 1 OTNR UU 612   N 04DEC1715 OK KLOWSM        O              1PC
+ 2 ORUN UU 274   K 07DEC1330 OK KLOWSM        O              1PC
+    DZA
+FARE   F USD       345.00
+EQUIV    EUR       345.00       BSR     0.997719
+TOTALTAX EUR       225.89
+TOTAL    EUR       570.89 
+/FC TNR UU RUN UU DZA345.00NUC345.00END ROE1.000000
+FE NON REF/VALID UU ONLY
+FP CASH
+FOR TAX/FEE DETAILS USE TWD/TAX
+
+
+

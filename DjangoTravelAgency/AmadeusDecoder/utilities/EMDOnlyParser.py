@@ -80,19 +80,19 @@ class EMDOnlyParser():
             is_emitted_in_airport = False
             emd_issuing_date = emd.issuing_date.date()
             emitter = pnr.get_emit_agent()
+            # test by agent
             if emitter is not None:
-                # test by agent
                 try:
                     if emitter.office.code in _AIRPORT_AGENCY_CODE_:
                         is_emitted_in_airport = True
                 except:
                     pass
-                # test by current emd issuing agency
-                try:
-                    if emd.issuing_agency.code in _AIRPORT_AGENCY_CODE_:
-                        is_emitted_in_airport = True
-                except:
-                    pass
+            # test by current emd issuing agency
+            try:
+                if emd.issuing_agency.code in _AIRPORT_AGENCY_CODE_:
+                    is_emitted_in_airport = True
+            except:
+                pass
             
             if emd.ticket_ssrs.first() is not None:
                 emd_related_segment = emd.ticket_ssrs.first().ssr.segments.first().segment

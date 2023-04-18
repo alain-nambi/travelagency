@@ -1,0 +1,79 @@
+{% extends 'layout.html' %}
+{% load pnr_comments %}
+{% block content %}
+<div class="content-wrapper">
+	<section class="content-header p-0">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-sm-6">
+					<h1 class="text-primary">Détail de l'anomalie</h1>
+				</div>
+	</section>
+	<section class="content">
+		<form method='POST' action=''>
+			{% csrf_token %}
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-md-12 mt-1">
+						<div class="card card-primary card-outline">
+							<div class="card-body p-0">
+								<div class="mailbox-read-info">
+									<h5>PNR: <a href="{% url 'pnr_details' comments.pnr_id_id %}" style="font-size: 1.25rem;">{{ comments.pnr_id.number }}</a>
+										<div class="anomalie-pager float-right pr-2">
+											<a id="prev-pnr" class="mr-4" role="button" onclick="prev()"
+												title="précédent"><i class="fa fa-chevron-left"></i></a>
+											<a id="next-pnr" class="ml-4" role="button" onclick="next()"
+												title="suivant"><i class="fa fa-chevron-right"></i></a>
+										</div>
+									</h5>
+									<h6>Reporté par: {{ comments.user_id.username }}</h6>
+									<h6>Mail: {{ comments.user_id.email }}
+										<span class="mailbox-read-time float-right">{{comments.creation_date|add_hours_plus_three|date:"d, M Y G:i"}}</span>
+									</h6>
+									<span hidden id="anomalie_id" data-id="{{ comments.id }}"></span>
+								</div>
+
+								<div class="mailbox-read-message">
+									<p>{{comments.comment}}</p>
+								</div>
+
+							</div>
+
+							
+							<div class="card-footer">
+								<div class="col-md-12 p-0">
+								<div class="form-group">
+									<textarea class="form-control" rows="3" placeholder="Répondre ..." name="comment-response"></textarea>
+								</div>
+							</div>
+							<div class="row-md-2">
+								<button type="submit" class="btn btn-success" id="comment-response-button"><i class="fas fa-paper-plane"></i>
+									Repondre</button>
+								{% if comments.state == False  %}
+								<button class="btn btn-danger" name="comment_state" id="comment-state" onclick="event.stopPropagation(); event.preventDefault(); updateStateDetail(event, {{comments.id}});"><i class="fas fa-question"></i> Non traité</button>
+								{% else %}
+								<button class="btn btn-success" name="comment_state" id="comment-state" onclick="event.stopPropagation(); event.preventDefault(); updateStateDetail(event, {{comments.id}});">Traité</button>
+								{% endif %}
+							</div>
+							</div>
+
+						</div>
+					</div>
+				</div>
+				<p>Réponses:</p>
+				{% for response in responses %}
+				<div class="container-response" style="border-radius: 0%; background-color: #f1f1f1; color: #000 !important; border: 2px solid #dedede; margin-bottom: 0.5rem;">
+					<i class="fa fa-user" style="font-size: 10px;"></i> 
+					<span style="font-size: 11px;">{{ response.user_id }}</span>
+					<p class="m-0" style="font-size: 0.9rem;">{{response.response}}</p>
+					<p class="m-0 text-right" style="font-size: 12px;">{{response.creation_date|add_hours_plus_three|date:"d, M Y G:i"}}</p>
+				</div>
+				{% endfor %}
+			</div>
+			
+		</section>
+	</form>
+</div>
+
+
+{% endblock content %}

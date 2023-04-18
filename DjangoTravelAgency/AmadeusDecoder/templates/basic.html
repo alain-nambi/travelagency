@@ -1,0 +1,354 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Homepage</h1>
+<main style="margin-top: 20px">
+  <div class="container p-4">
+    <div class="row justify-content-center">
+      <div class="card card-pnr mb-3">
+        <div class="card-header mb-1">
+          <div class="row">
+            <div class="col-8">
+              <h3 class="text-primary"> <i class="fas fa-clipboard-list text-primary"></i>
+                Gestion PNR</h3>
+            </div>
+
+            <!-- Search form -->
+            <div class="col-4">
+              <form class="d-none d-md-flex input-group w-auto my-auto">
+                <input autocomplete="off" type="search" class="form-control rounded" placeholder='Recherche utilisateur'
+                  style="min-width: 225px" />
+                <span class="input-group-text border-0"><i class="fas fa-search"></i></span>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle" id="list-users" width="100%" cellspacing="0">
+              <thead>
+                <tr>
+                  <th width="10%">Numéro</th>
+                  <th width="20%">Client</th>
+                  <th>Date de création(PNR)</th>
+                  <th>Date d'émission</th>
+                  <th>Date d'écheance</th>
+                  <th width="15%">Montant</th>
+                  <th>Statut</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <!-- <a type="button" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                      <i class="fa fa-filter" aria-hidden="true"></i>
+                    </a>
+                    <div class="dropdown-menu px-2" role="menu">
+                      <span>Date de création</span>
+                      <input type="date" class="form-control mb-2" id="datefilterfrom"/>
+                      <input type="date" class="form-control" id="datefilterto"/>
+                    </div> -->
+                    <!-- <li class="dropdown-submenu">
+                      <a class="dropdown-item dropdown-toggle" href="#">Subsubmenu</a>
+                                                      <ul class="dropdown-menu">
+                                                        <li><a class="dropdown-item" href="#">Subsubmenu action</a></li>
+                                                        <li><a class="dropdown-item" href="#">Another subsubmenu action</a></li>
+                                                      </ul>
+                                                    </li>
+                                                    <li class="dropdown-submenu"><a class="dropdown-item dropdown-toggle" href="#">Second subsubmenu</a>
+                                                      <ul class="dropdown-menu">
+                                                        <li><a class="dropdown-item" href="#">Subsubmenu action</a></li>
+                                                        <li><a class="dropdown-item" href="#">Another subsubmenu action</a></li>
+                                                      </ul>
+                                                    </li>               -->
+              <!-- <tr>
+                  <th width="5%"><input type="text" class="form form-control sm-height"/></th>
+                  <th><input type="text" class="form form-control sm-height"/></th>
+                  <th width="5%"><input type="text" class="form form-control sm-height"/></th>
+                  <th width="8%">
+                    <div class="btn-group sm-height w-100 show">
+                      <button type="button" class="btn btn-default sm-height w-50" data-toggle="dropdown" aria-expanded="true">
+                      </button>
+                      <div class="dropdown-menu" role="menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(67px, 37px, 0px);">
+                      
+                      </div>
+                    </div>
+                  </th>
+                  <th width="8%">
+                    <div class="btn-group sm-height w-100 show">
+                      <button type="button" class="btn btn-default sm-height w-50" data-toggle="dropdown" aria-expanded="true">
+                      </button>
+                      <div class="dropdown-menu" role="menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(67px, 37px, 0px);">
+                      
+                      </div>
+                    </div>
+                  </th>
+                  <th width="8%"><input type="text" class="form form-control sm-height"/></th>
+                  <th width="5%">
+                    <div class="form-group mb-0">
+                    <select class="form-control sm-height">
+                      <option>Emis</option>
+                      <option>Non-émis</option>
+                    </select>
+                    </div>
+                  </th>
+                  <th width="8%">
+                    <div class="btn-group sm-height w-100 show">
+                      <button type="button" class="btn btn-default sm-height w-50" data-toggle="dropdown" aria-expanded="true">
+                      </button>
+                      <div class="dropdown-menu" role="menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(67px, 37px, 0px);">
+                      
+                      </div>
+                    </div>
+                  </th>
+                  <th width="5%">
+                    <div class="form-group mb-0">
+                    <select class="form-control sm-height">
+                      <option>Emis</option>
+                      <option>Non-émis</option>
+                    </select>
+                    </div>
+                  </th>
+                  <th width="10%"><input type="text" class="form form-control sm-height"/></th>
+                  <th width="10%"><input type="text" class="form form-control sm-height"/></th>
+                  <th width="20%"><input type="text" class="form form-control sm-height"/></th>
+                </tr> -->
+              <tbody>
+                <tr>
+                  <td>Num PNR</td>
+                  <td>Client PNRererterter</td>
+                  <td>yyyy/mm/dd</td>
+                  <td>yyyy/mm/dd</td>
+                  <td>yyyy/mm/dd</td>
+                  <td>Montant PNR</td>
+                  <td>Statut PNR</td>
+                  <td style="text-align: center;">
+                    <a class="btn btn-info" href="#" data-mdb-toggle="modal" data-mdb-target="#view_pnr_client"
+                      title="Modifier">
+                      <i class="fas fa-eye"></i> Voir</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="card card-user mb-3">
+        <div class="card-header mb-1">
+          <div class="row">
+            <div class="col-8">
+              <h3 class="text-primary"> <i class="fas fa-clipboard-list text-primary"></i>
+                Liste des clients</h3>
+            </div>
+
+            <!-- Search form -->
+            <div class="col-4">
+              <form class="d-none d-md-flex input-group w-auto my-auto">
+                <input autocomplete="off" type="search" class="form-control rounded" placeholder='Recherche utilisateur'
+                  style="min-width: 225px" />
+                <span class="input-group-text border-0"><i class="fas fa-search"></i></span>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle" id="list-users" width="100%" cellspacing="0">
+              <thead>
+                <tr>
+                  <th>Nom</th>
+                  <th>Adresse</th>
+                  <th>Type</th>
+                  <th>Pays</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Username</td>
+                  <td>address user</td>
+                  <td>type user</td>
+                  <td>countrie user</td>
+                  <td style="text-align: center;">
+                    <a class="btn btn-info" href="#" data-mdb-toggle="modal" data-mdb-target="#edit_user"
+                      title="Modifier">
+                      <i class="fas fa-edit"></i> Modifier</a>
+                    <a class="btn btn-danger" href="#" data-mdb-toggle="modal" data-mdb-target="#delete_user"
+                      title="Supprimer">
+                      <i class="fas fa-trash-alt"></i> Supprimer</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row mb-4 ">
+
+      <div class="col-4">
+        <!-- Tab navs -->
+        <div class="nav flex-column nav-tabs text-center" id="v-tabs-tab" role="tablist" aria-orientation="vertical">
+          <a class="nav-link active" id="v-tabs-home-tab" data-mdb-toggle="tab" href="#v-tabs-home" role="tab"
+            aria-controls="v-tabs-home" aria-selected="true">Upload vers Odoo</a>
+          <a class="nav-link" id="v-tabs-profile-tab" data-mdb-toggle="tab" href="#v-tabs-profile" role="tab"
+            aria-controls="v-tabs-profile" aria-selected="false">Export liste des clients</a>
+          <a class="nav-link" id="v-tabs-messages-tab" data-mdb-toggle="tab" href="#v-tabs-messages" role="tab"
+            aria-controls="v-tabs-messages" aria-selected="false">Source PNR XML</a>
+        </div>
+        <!-- Tab navs -->
+      </div>
+
+      <div class="col-8">
+        <div class="card card-config">
+          <!-- Tab content -->
+          <div class="tab-content" id="v-tabs-tabContent">
+            <div class="tab-pane fade show active" id="v-tabs-home" role="tabpanel" aria-labelledby="v-tabs-home-tab">
+
+              <div class="row justify-content-center">
+                <h4 class="text-primary px-4">Configuration de l'accès au serveur FTP</h4>
+                <h6 class="text-center">Upload vers Odoo</h6>
+                <div class="col-6">
+                  <form class="">
+                    <div class="mb-2">
+                      <label class="form-label">Hôte</label>
+                      <input type="text" class="form-control" placeholder="" />
+                    </div>
+                    <div class="mb-2">
+                      <label class="form-label">Port</label>
+                      <input type="text" class="form-control" placeholder="" />
+                    </div>
+                    <div class="mb-2">
+                      <label class="form-label">utilisateur</label>
+                      <input type="text" class="form-control" placeholder="" />
+                    </div>
+                    <div class="mb-2">
+                      <label class="form-label">Mot de passe</label>
+                      <input type="password" class="form-control" placeholder="" />
+                    </div>
+                    <div class="mb-4">
+                      <label class="form-label">Dossier</label>
+                      <input type="text" class="form-control" placeholder="" />
+                    </div>
+                    <div class="row mb-2 text-end">
+                      <div class="col-12">
+                        <button type="submit" class="btn btn-success">Tester la connexion</button>
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="v-tabs-profile" role="tabpanel" aria-labelledby="v-tabs-profile-tab">
+              <div class="row justify-content-center">
+                <h4 class="text-primary px-4">Configuration de l'accès au serveur FTP</h4>
+                <h6 class="text-center">Export liste des clients</h6>
+                <div class="col-6">
+                  <form class="">
+                    <div class="mb-2">
+                      <label class="form-label">Hôte</label>
+                      <input type="text" class="form-control" placeholder="" />
+                    </div>
+                    <div class="mb-2">
+                      <label class="form-label">Port</label>
+                      <input type="text" class="form-control" placeholder="" />
+                    </div>
+                    <div class="mb-2">
+                      <label class="form-label">utilisateur</label>
+                      <input type="text" class="form-control" placeholder="" />
+                    </div>
+                    <div class="mb-2">
+                      <label class="form-label">Mot de passe</label>
+                      <input type="password" class="form-control" placeholder="" />
+                    </div>
+                    <div class="mb-4">
+                      <label class="form-label">Dossier</label>
+                      <input type="text" class="form-control" placeholder="" />
+                    </div>
+                    <div class="row mb-2 text-end">
+                      <div class="col-12">
+                        <button type="submit" class="btn btn-success">Tester la connexion</button>
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="v-tabs-messages" role="tabpanel" aria-labelledby="v-tabs-messages-tab">
+              <div class="row justify-content-center">
+                <h4 class="text-primary px-4">Configuration de l'accès au serveur FTP</h4>
+                <h6 class="text-center">Source PNR XML</h6>
+                <div class="col-6">
+                  <form class="">
+                    <div class="mb-2">
+                      <label class="form-label">Hôte</label>
+                      <input type="text" class="form-control" placeholder="" />
+                    </div>
+                    <div class="mb-2">
+                      <label class="form-label">Port</label>
+                      <input type="text" class="form-control" placeholder="" />
+                    </div>
+                    <div class="mb-2">
+                      <label class="form-label">utilisateur</label>
+                      <input type="text" class="form-control" placeholder="" />
+                    </div>
+                    <div class="mb-2">
+                      <label class="form-label">Mot de passe</label>
+                      <input type="password" class="form-control" placeholder="" />
+                    </div>
+                    <div class="mb-4">
+                      <label class="form-label">Dossier</label>
+                      <input type="text" class="form-control" placeholder="" />
+                    </div>
+                    <div class="row mb-2 text-end">
+                      <div class="col-12">
+                        <button type="submit" class="btn btn-success">Tester la connexion</button>
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Tab content -->
+        </div>
+      </div>
+
+    </div>
+    <div class="row">
+      <div class="col-xl-3 col-sm-6 col-12 mb-4">
+        <div class="card mini-card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between px-md-1">
+              <div>
+                <h3 class="text-info">278</h3>
+                <p class="mb-0">Upload vers Odoo</p>
+              </div>
+              <div class="align-self-center">
+                <i class="fas fa-book-open text-info fa-3x"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-sm-6 col-12 mb-4">
+        <div class="card mini-card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between px-md-1">
+              <div>
+                <h3 class="text-warning">156</h3>
+                <p class="mb-0">New Comments</p>
+              </div>
+              <div class="align-self-center">
+                <i class="far fa-comments text-warning fa-3x"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <label class="form-label" for="customFile">file input example</label>
+      <input type="file" class="form-control" id="customFile" />
+    </div>
+  </div>
+</main>
+{% endblock content %}

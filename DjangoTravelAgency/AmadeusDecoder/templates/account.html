@@ -1,0 +1,90 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="content-wrapper">
+  <section class="content-header p-0">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1 class="text-primary">Mon compte</h1>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row justify-content-center">
+        <div class="col-6">
+          <div class="card card-primary card-outline px-4">
+            <div class="box-body box-profile">
+              <h3 class="profile-username text-center"><i class="fas fa-user-circle fa-2x"></i></h3>
+              <h3 class="profile-username text-center">{{request.user.username}}</h3>
+              <ul class="list-group list-group-unbordered">
+                <li class="list-group-item">
+                  <b>Nom:</b> <a class="pull-right">{{request.user.name}}</a>
+                </li>
+                <li class="list-group-item">
+                  <b>Prénom:</b> <a class="pull-right">{{request.user.first_name}}</a>
+                </li>
+                <li class="list-group-item">
+                  <b>Email:</b> <a class="pull-right">{{request.user.email}}</a>
+                </li>
+                <li class="list-group-item mb-2">
+                  <b>Role:</b> <a class="pull-right">{{request.user.role}}</a>
+                </li>
+              </ul>
+              <a class="btn btn-outline-primary btn-block mb-2" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample"><b>Modifier le mot de passe</b></a>
+        
+              <div class="collapse" id="collapseExample">
+                <div class="card card-body">
+                  <label>Mot de passe actuel:</label>
+                  <div class="input-group mb-3">
+                    <input type="password" class="form-control" id="current-password" placeholder="" name="current-password">
+                    <span class="fas fa-eye" id="show-current-password" style="cursor: pointer;"></span>
+                    <div class="input-group-append">
+                      <div class="input-group-text">
+                        <span class="fas fa-lock"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <label>Nouveau mot de passe:</label>
+                  <div class="input-group mb-3">
+                    <input type="password" class="form-control" id="new-password" placeholder="" name="new-password">
+                    <span class="fas fa-eye" id="show-new-password" style="cursor: pointer;"></span>
+                    <div class="input-group-append">
+                      <div class="input-group-text">
+                        <span class="fas fa-lock"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary sm-block">Confirmer</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+<script>
+	const c_togglePassword = document.querySelector("#show-current-password");
+	const c_password = document.querySelector("#current-password");
+	c_togglePassword.addEventListener("click", function () {
+		const type = c_password.getAttribute("type") === "password" ? "text" : "password";
+		c_password.setAttribute("type", type);
+		this.classList.toggle('fa-eye');
+		this.classList.toggle('fa-eye-slash');
+	});
+</script>
+<script>
+	const n_togglePassword = document.querySelector("#show-new-password");
+	const n_password = document.querySelector("#new-password");
+	n_togglePassword.addEventListener("click", function () {
+		const type = n_password.getAttribute("type") === "password" ? "text" : "password";
+		n_password.setAttribute("type", type);
+		this.classList.toggle('fa-eye');
+		this.classList.toggle('fa-eye-slash');
+	});
+</script>
+{% endblock content %}

@@ -1,0 +1,67 @@
+<div class="row" id="initialPagination">
+  <div class="d-flex align-items-center">
+    <ul class="pagination pagination-sm m-0">
+      <span id="lastPageNumber" data-page-number="{{ page_obj.paginator.num_pages }}"></span>
+      {% if page_obj.has_previous %}
+        <li class="page-item">
+          <a href="?page={{ page_obj.previous_page_number }}" class="page-link">« Précédent</a>
+        </li>
+        {% if page_obj.number > 3 %}
+          <li class="page-item">
+            <a href="?page=1" class="page-link">1</a>
+          </li>
+          {% if page_obj.number > 4 %}
+            <span>...</span>
+          {% endif %}
+        {% endif %}
+      {% endif %}
+      
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+          <li class="page-item active">
+            <a href="?page={{ num }}" class="page-link">{{ num }}</a>
+          </li>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+          <li class="page-item"><a href="?page={{ num }}" class="page-link">{{ num }}</a></li>
+        {% endif %}
+      {% endfor %}
+      
+      {% if page_obj.has_next %}
+        {% if page_obj.number < page_obj.paginator.num_pages|add:'-3' %}
+          <span class="page-link">...</span>
+          <li class="page-item">
+            <a href="?page={{ page_obj.paginator.num_pages }}" class="page-link">
+              {{ page_obj.paginator.num_pages }}
+            </a> 
+          </li>
+        {% elif page_obj.number < page_obj.paginator.num_pages|add:'-2' %}
+          <li class="page-item">
+            <a href="?page={{ page_obj.paginator.num_pages }}" class="page-link" >
+              {{ page_obj.paginator.num_pages }}
+            </a>
+          </li>
+        {% endif %}
+      
+        <li class="page-item">
+          <a href="?page={{ page_obj.next_page_number }}" class="page-link">Suivant »</a>
+        </li>
+      {% endif %}
+      </ul>
+  </div>
+  <div class="ml-2" style="max-width: 26.33%">
+    <div class="input-group input-group float-sm-right mt-1 mb-1">
+      <input 
+        type="text" 
+        id="input__setPageNumber" 
+        class="form-control form-control-sm"
+        placeholder="ex: 54"
+        title="Numéro de page"
+      />
+      <div class="input-group-append">
+        <button type="button" id="button__navigateToPageNumber" class="btn btn-default py-0" title="Accéder au numéro de page indiqué"">
+          <i class="fa fa-arrow-right-from-bracket"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

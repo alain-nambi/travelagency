@@ -9,6 +9,7 @@ import secrets
 from datetime import datetime
 import requests
 import random
+import pandas as pd
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render
@@ -735,24 +736,24 @@ def get_order(request, pnr_id):
     vendor_user = None
     user_copy = None
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
-    order_dest_dir = '/export/tests/orders'
-    customer_dest_dir = '/export/tests/clients'
+    # order_dest_dir = '/export/tests/orders'
+    # customer_dest_dir = '/export/tests/clients'
     file_dir =''
     customer_dir = ''
 
     
-    file_dir = '/opt/odoo/issoufali-addons/import_saleorder/data/source'
-    customer_dir = '/opt/odoo/issoufali-addons/contacts_from_incadea/data/source'
+    # file_dir = '/opt/odoo/issoufali-addons/import_saleorder/data/source'
+    # customer_dir = '/opt/odoo/issoufali-addons/contacts_from_incadea/data/source'
     
 
-    # 'create a local folder called "export" to store the csv file'
-    # if not os.path.exists(os.path.join(parent_dir, 'export')):
-    #     os.makedirs(os.path.join(parent_dir, 'export'))
-    #     file_dir = os.path.join(parent_dir, 'export')
-    #     customer_dir = os.path.join(parent_dir, 'export')
-    # else:
-    #     file_dir = os.path.join(parent_dir, 'export')
-    #     customer_dir = os.path.join(parent_dir, 'export')
+    'create a local folder called "export" to store the csv file'
+    if not os.path.exists(os.path.join(parent_dir, 'export')):
+        os.makedirs(os.path.join(parent_dir, 'export'))
+        file_dir = os.path.join(parent_dir, 'export')
+        customer_dir = os.path.join(parent_dir, 'export')
+    else:
+        file_dir = os.path.join(parent_dir, 'export')
+        customer_dir = os.path.join(parent_dir, 'export')
 
     customer_row = {}
     fieldnames_order = [
@@ -797,6 +798,7 @@ def get_order(request, pnr_id):
     ]
 
     if request.method== 'POST':
+        segments_parts = []
         if 'pnrId' and 'customerIdsChecked' in request.POST:
             pnr_id = request.POST.get('pnrId')
             reference = request.POST.get('refCde')
@@ -880,25 +882,36 @@ def get_order(request, pnr_id):
                     pnr_order = Pnr.objects.get(pk=order.pnr.id)
                     if order.ticket is not None:
                         ticket = Ticket.objects.get(pk=order.ticket.id)
-
-                        segments_parts = ticket.ticket_parts.all().order_by('segment__id')
+                        ticket_ssr = ticket.ticket_ssrs.all()
                         # segment
+                        if ticket.ticket_type != 'EMD':
+                            segments_parts.append(ticket.ticket_parts.all().order_by('segment__id'))
+                        elif ticket.ticket_type == 'EMD':
+                            if ticket_ssr.exists():
+                                for ticket_segment in ticket_ssr:
+                                    segments_parts.append(ticket_segment.ssr.segments.all().order_by('id'))
+                            else:
+                                segments_parts.append(ticket.ticket_parts.all().order_by('segment__id'))
                         
                         air_segments = []
                         segment_names = []
                         segment_dates = []
-                        for part in segments_parts:
-                            if part.segment.segment_type == 'Flight' :
-                                _segment = {
-                                    'Name': part.segment.segmentorder,
-                                    'Fly': '%s %s' % (part.segment.servicecarrier.iata, part.segment.flightno),
-                                    'Class': part.segment.flightclass if part.segment.flightclass is not None else '',
-                                    'Departure': part.segment.codeorg.iata_code,
-                                    'Arrival': part.segment.codedest.iata_code,
-                                    'DepartureDatetime' : part.segment.departuretime.strftime('%d/%m/%Y %H:%M') if part.segment.segment_state == 0 and part.segment.departuretime else part.segment.departuretime.strftime('%d/%m/%Y %H:%M') if part.segment.departuretime else '',
-                                    'ArrivalDatetime' : part.segment.arrivaltime.strftime('%d/%m/%Y %H:%M') if part.segment.segment_state == 0 and part.segment.arrivaltime else '',   
-                                }
-                                air_segments.append(_segment)
+
+                        print("Segment part: " + str(segments_parts))
+                        
+                        for segment in segments_parts:
+                            for part in segment:
+                                if part.segment.segment_type == 'Flight' :
+                                    _segment = {
+                                        'Name': part.segment.segmentorder,
+                                        'Fly': '%s %s' % (part.segment.servicecarrier.iata, part.segment.flightno),
+                                        'Class': part.segment.flightclass if part.segment.flightclass is not None else '',
+                                        'Departure': part.segment.codeorg.iata_code,
+                                        'Arrival': part.segment.codedest.iata_code,
+                                        'DepartureDatetime' : part.segment.departuretime.strftime('%d/%m/%Y %H:%M') if part.segment.segment_state == 0 and part.segment.departuretime else part.segment.departuretime.strftime('%d/%m/%Y %H:%M') if part.segment.departuretime else '',
+                                        'ArrivalDatetime' : part.segment.arrivaltime.strftime('%d/%m/%Y %H:%M') if part.segment.segment_state == 0 and part.segment.arrivaltime else '',   
+                                    }
+                                    air_segments.append(_segment)
 
                         csv_writer.writerow({
                             'LineID': order.id,

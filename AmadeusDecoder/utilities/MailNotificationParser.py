@@ -269,7 +269,7 @@ class MailNotification():
                 no_anomaly_pnr_ids_after_afternoon.append(pnr.id)
 
         # Imprimer les PNRs ayant des anomalies
-        """if anomaly_pnr_ids:
+        """if len(anomaly_pnr_ids) > 0:
             print(f"*********** Les PNRs suivants ont des anomalies : {anomaly_pnr_ids} ***********")
             print("\n")
         else:
@@ -303,9 +303,9 @@ class MailNotification():
         
         for pnr in no_anomaly_pnrs_after_afternoon:
             if not str(pnr.get_emit_agent()) in administrator_username:
-                no_anomaly_pnrs_after_afternoon_for_administrator.append(pnr)
-            else:
                 no_anomaly_pnrs_after_afternoon_after_processing.append(pnr)
+            else:
+                no_anomaly_pnrs_after_afternoon_for_administrator.append(pnr)
         
         
         ISSOUFALI_URL = 'https://pnr.issoufali.phidia.fr'

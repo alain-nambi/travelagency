@@ -6,6 +6,7 @@ Created on 3 Feb 2023
 import decimal
 import traceback
 from datetime import datetime
+from django.db.models import Q
 
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.invoice.Ticket import Ticket
@@ -286,7 +287,7 @@ class ZenithParserReceipt():
             except:
                 traceback.print_exc()
             
-            ticket = Ticket.objects.filter(pnr=pnr, passenger=current_passenger, total=0).first()
+            ticket = Ticket.objects.filter(pnr=pnr, passenger=current_passenger).filter(Q(total=ticket_total) | Q(total=0)).first()
             try:
                 payment_option = part[next_index]
                 if ticket is not None:

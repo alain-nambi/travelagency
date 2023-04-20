@@ -974,7 +974,7 @@ def get_order(request, pnr_id):
                             if item.fee_type == 'EMD' and item.fee_type == 'TKT':
                                 type_other_fee = item.fee_type
                             else:
-                                type_other_fee = item.designation
+                                type_other_fee = 'EMD'#item.designation
                             csv_writer.writerow({
                                 'LineID': order.id,
                                 'Type': type_other_fee,

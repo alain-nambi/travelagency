@@ -22,6 +22,7 @@ class Passenger(models.Model, BaseModel):
     passeport = models.CharField(max_length=200, null=True)
     types = models.CharField(max_length=200, null=True) # For EWA 
     order = models.CharField(max_length=200, null=True) # P1 ou P2 ou .....
+    passenger_status = models.IntegerField(default=1) # 0: void, 1: active, ...
     
     # get passenger by pnr and pnr passenger
     def get_passenger_by_pnr_passenger(self, pnr):
@@ -29,6 +30,7 @@ class Passenger(models.Model, BaseModel):
         return passenger
     
     # compare current PNR's passengers with newly parsed passengers and delete those who doesn't appear on new PNR
+    # now, delete is moved to status updated 
     def compare_and_delete(self, pnr, new_passenger_list):
         current_passenger_list = Passenger.objects.filter(passenger__pnr=pnr).all()
         for current_passenger in current_passenger_list:
@@ -39,7 +41,19 @@ class Passenger(models.Model, BaseModel):
                         current_passenger.designation == new_passenger.designation:
                     tester = True
             if not tester:
-                current_passenger.delete()
+                current_passenger.passenger_status = 0
+                current_passenger.save()
+                
+                current_passenger_ticket = current_passenger.ticket.all()
+                for ticket in current_passenger_ticket:
+                    ticket.ticket_status = 0
+                    ticket.state = 0
+                    ticket.save()
+                
+                current_passenger_other_fees = current_passenger.other_fees.all()
+                for other_fee in current_passenger_other_fees:
+                    other_fee.other_fee_status = 0
+                    other_fee.save()
     
     # update ticket passenger
     def update_ticket_passenger(self, pnr):

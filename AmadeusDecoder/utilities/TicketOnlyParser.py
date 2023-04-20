@@ -316,7 +316,7 @@ class TicketOnlyParser():
             # prime
             # if not temp_ticket.is_no_adc and temp_ticket.transport_cost == 0 and fare_type != 'IT':
             #    temp_ticket.is_prime = True
-            if (temp_ticket.transport_cost == 0 or pnr.is_archived) and (temp_ticket.transport_cost != transport_cost or temp_ticket.is_prime):
+            if (temp_ticket.transport_cost == 0 or pnr.is_archived) and (decimal.Decimal(temp_ticket.total) != decimal.Decimal(total) or temp_ticket.is_prime):
                 temp_ticket.transport_cost = transport_cost
                 temp_ticket.tax = ticket_tax
                 temp_ticket.total = decimal.Decimal(temp_ticket.transport_cost) + decimal.Decimal(temp_ticket.tax)
@@ -333,6 +333,9 @@ class TicketOnlyParser():
             try:
                 # check prime status
                 self.check_ticket_prime_status(file_contents, temp_ticket)
+                # prime
+                if not temp_ticket.is_no_adc and temp_ticket.transport_cost == 0 and fare_type != 'IT':
+                    temp_ticket.is_prime = True
                 # check is_subjected_to_fees status
                 self.check_is_subjected_to_fees(file_contents, temp_ticket)
                 # update is regional status

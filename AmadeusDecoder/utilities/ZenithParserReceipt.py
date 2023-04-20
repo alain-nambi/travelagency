@@ -6,6 +6,7 @@ Created on 3 Feb 2023
 import decimal
 import traceback
 from datetime import datetime
+from django.db.models import Q
 
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.invoice.Ticket import Ticket
@@ -286,7 +287,7 @@ class ZenithParserReceipt():
             except:
                 traceback.print_exc()
             
-            ticket = Ticket.objects.filter(pnr=pnr, passenger=current_passenger, total=0).first()
+            ticket = Ticket.objects.filter(pnr=pnr, passenger=current_passenger).filter(Q(total=ticket_total) | Q(total=0)).first()
             try:
                 payment_option = part[next_index]
                 if ticket is not None:
@@ -373,7 +374,7 @@ class ZenithParserReceipt():
                 # of the original ticket and must be preceded by a PNR with a new ticket number under the old original cost 
                 #
                 ticket_saved_checker = Ticket.objects.filter(number=original_ticket_number, pnr=pnr).first() # we don't touch this one
-                if ticket_saved_checker != None:
+                if ticket_saved_checker is not None:
                     # check if is invoiced
                     # if ticket_saved_checker.is_invoiced:
                     #    continue
@@ -396,10 +397,53 @@ class ZenithParserReceipt():
                             #or (pnr.system_creation_date.date() > date_time.date()):
                             previous_ticket.ticket_status = 3
                         
-                        if ((pnr.system_creation_date.date() > date_time.date()) and self.check_is_invoiced_status(previous_ticket, None)) or self.check_issuing_date(date_time.date()):
+                        # if ((pnr.system_creation_date.date() > date_time.date()) and self.check_is_invoiced_status(previous_ticket, None)) or self.check_issuing_date(date_time.date()):
+                        if self.check_is_invoiced_status(previous_ticket, None) or self.check_issuing_date(date_time.date()):
                             previous_ticket.ticket_status = 3
                         
                         previous_ticket.save()
+                
+                # if ticket is not saved 
+                # PNR has no history
+                else:
+                    designation = 'Reissuance Adjustment: ' + original_ticket_number
+                    current_segment = self.get_segments_assigned_on_part(part)
+                    cost = 0
+                    tax = 0
+                    total = 0
+                    
+                    try:
+                        cost = decimal.Decimal(part[next_index+1].split(' ')[0].replace(',','.'))
+                        tax = 0
+                        total = decimal.Decimal(part[next_index+1].split(' ')[0].replace(',','.'))
+                    except:
+                        pass
+                    
+                    adjustment_tester = OthersFee.objects.filter(designation=designation, pnr=pnr, passenger=current_passenger, total=total).first()
+                    
+                    if adjustment_tester is None:
+                        new_other_fee = OthersFee()
+                        new_other_fee.designation = designation
+                        new_other_fee.cost = cost
+                        new_other_fee.tax = tax
+                        new_other_fee.total = total
+                        new_other_fee.pnr = pnr
+                        new_other_fee.fee_type = 'TKT'
+                        
+                        if not is_created_by_us:
+                            new_other_fee.other_fee_status = 0
+                        
+                        if self.check_issuing_date(date_time.date()):
+                            new_other_fee.ticket_status = 3
+                        
+                        new_other_fee.save()
+                        
+                        other_fee_passenger_segment = OtherFeeSegment()
+                        other_fee_passenger_segment.other_fee = new_other_fee
+                        other_fee_passenger_segment.passenger = current_passenger
+                        other_fee_passenger_segment.segment = current_segment[0]
+                        other_fee_passenger_segment.save()
+                    
     
     # emd cancellation
     def handle_emd_cancellation(self, pnr, passengers, cancellation_part):

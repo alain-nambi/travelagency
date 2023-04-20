@@ -255,9 +255,10 @@ class Ticket(models.Model, BaseModel):
             if ticket.issuing_agency is not None:
                 temp_subcontractor = OfficeSubcontractor.objects.filter(code=self.issuing_agency.code).first()
                 
-            if ticket.issuing_agency is None:
+            if ticket.issuing_agency is None and temp_subcontractor is None:
                 ticket.state = 0
                 ticket.ticket_status = 3
+                ticket.is_issued_outside = True
                 ticket.save()
             elif ticket.issuing_agency.company is None and temp_subcontractor is None:
                 ticket.state = 0

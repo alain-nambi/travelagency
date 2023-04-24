@@ -287,6 +287,10 @@ class EMDOnlyParser():
         
         if pnr.gds_creation_date == emd_issuing_date.date() or pnr.system_creation_date.date() == emd_issuing_date.date():
             emd_status = 1
+            
+        # temp
+        if emd_status not in [0, 3]:
+            emd_status = 1
         
         emd.number = emd_number
         emd.pnr = pnr

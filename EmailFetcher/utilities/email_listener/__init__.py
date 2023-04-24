@@ -389,7 +389,7 @@ class EmailListener:
             # Check for a new response every 1 seconds
             try:
                 responses = self.server.idle_check(timeout=1)
-                # print("Server sent:", responses if responses else "nothing")
+                print("Server sent:", responses if responses else "nothing")
                 # If there is a response
                 if (responses):
                     # Suspend the idling

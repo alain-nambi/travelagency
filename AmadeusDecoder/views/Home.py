@@ -222,7 +222,7 @@ def pnr_details(request, pnr_id):
     print(pnr_detail.id)
     pnr_detail.update_read_status()
     context['pnr'] = pnr_detail
-    context['passengers'] = pnr_detail.passengers.all().order_by('id')
+    context['passengers'] = pnr_detail.passengers.filter(passenger__passenger_status=1).all().order_by('id')
     context['contacts'] = pnr_detail.contacts.all()
     context['air_segments'] = pnr_detail.segments.filter(segment_type='Flight', air_segment_status=1).all().order_by('segmentorder')
     context['tickets'] = pnr_detail.tickets.filter(ticket_status=1).filter(Q(total__gt=0) | Q(is_no_adc=True) | Q(is_refund=True)).all().order_by('passenger_id')
@@ -505,11 +505,11 @@ def reduce_fee(request) :
             Sending.send_email_request(
                 "feerequest.issoufali.pnr@gmail.com",
                 [
-                    # "superviseur@agences-issoufali.com",
-                    # "pp@phidia.onmicrosoft.com",
+                    "superviseur@agences-issoufali.com",
+                    "pp@phidia.onmicrosoft.com",
                     "mihaja@phidia.onmicrosoft.com",
-                    # "tahina@phidia.onmicrosoft.com",
-                    # "famenontsoa@outlook.com"
+                    "tahina@phidia.onmicrosoft.com",
+                    "famenontsoa@outlook.com"
                 ],
                 subject,
                 message

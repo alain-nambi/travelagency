@@ -127,7 +127,7 @@ class ZenithParserReceipt():
     # get target part index: find target inside strings
     def get_target_part_index_extended(self, current_part, target):
         for i in range(len(current_part)):
-            if (current_part[i].find(target.capitalize()) > -1 or current_part[i].find(target) > -1):
+            if (current_part[i].find(target.capitalize()) > -1 or current_part[i].find(target) > -1 or current_part[i].find(target.upper()) > -1):
                 return i
         return 0
     
@@ -521,8 +521,9 @@ class ZenithParserReceipt():
             
             # check is it has been already saved
             otherfee_saved_checker = OthersFee.objects.filter(designation=new_emd.designation, pnr=pnr, related_segments__passenger=current_passenger).first()
-            if otherfee_saved_checker != None:
+            if otherfee_saved_checker is not None:
                 new_emd = otherfee_saved_checker
+                new_emd.other_fee_status = 1
                 if is_created_by_us:
                     new_emd.other_fee_status = 1
                 if self.check_is_invoiced_status(None, otherfee_saved_checker):

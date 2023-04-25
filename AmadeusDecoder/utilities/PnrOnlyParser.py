@@ -1790,6 +1790,7 @@ class PnrOnlyParser():
                                             ticket.transport_cost = -1 * temp_ticket_obj.transport_cost
                                             ticket.tax = -1 * temp_ticket_obj.tax
                                             ticket.total = -1 * temp_ticket_obj.total
+                                            ticket.passenger = temp_ticket_obj.passenger
                                                 
                                     ticket.save()
                                     # check subcontractor
@@ -2137,6 +2138,7 @@ class PnrOnlyParser():
                                             ticket.transport_cost = -1 * temp_ticket_obj.transport_cost
                                             ticket.tax = -1 * temp_ticket_obj.tax
                                             ticket.total = -1 * temp_ticket_obj.total
+                                            ticket.passenger = temp_ticket_obj.passenger
                                     ticket.save()
                                     # check subcontractor
                                     ticket.process_subcontract()

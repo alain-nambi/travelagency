@@ -32,6 +32,8 @@ class ZenithParserReceipt():
         Constructor
         '''
         self.content = content
+        
+        self.ajustment_total = []
     
     # get PNR
     def get_pnr(self):
@@ -312,7 +314,6 @@ class ZenithParserReceipt():
                         new_payment.cost = ticket_total
                         new_payment.total = ticket_total
                         new_payment.passenger = current_passenger
-                        new_payment.creation_date = date_time
                         new_payment.designation = designation
                         new_payment.is_subjected_to_fee = True
                         
@@ -324,6 +325,7 @@ class ZenithParserReceipt():
                         if not is_created_by_us or self.check_issuing_date(date_time.date()) or (pnr.system_creation_date.date() > date_time.date() and self.check_is_invoiced_status(None, new_payment)):
                             new_payment.other_fee_status = 3
                         
+                        new_payment.creation_date = date_time
                         new_payment.fee_type = 'TKT'
                         new_payment.save()
             except Exception as e:
@@ -360,12 +362,28 @@ class ZenithParserReceipt():
                 if self.check_is_invoiced_status(temp_ticket, None):
                     temp_ticket.ticket_status = 3
                     temp_ticket.save()
+            
+            # amount
+            transport_cost = 0
+            tax = 0
+            total = 0
+            
+            try:
+                transport_cost = decimal.Decimal(part[next_index+1].split(' ')[0].replace(',','.'))
+                tax = 0
+                total = decimal.Decimal(part[next_index+1].split(' ')[0].replace(',','.'))
+                self.ajustment_total.append(total)
+            except:
+                pass   
                             
             # get adjustment
             # for element in part:
             #     for prefix in _TICKET_NUMBER_PREFIX_:
             #         if element.startswith(prefix):
             #             new_ticket.number = element.removeprefix(prefix).strip().removeprefix('[').removesuffix(']').removeprefix(':')
+            
+            is_untracked_reajustment = False
+            
             original_ticket_number = self.get_ticket_emd_number_on_part(part)
             
             if original_ticket_number is not None:
@@ -382,13 +400,11 @@ class ZenithParserReceipt():
                     previous_ticket = Ticket.objects.filter(total=ticket_saved_checker.total, pnr=pnr, passenger=ticket_saved_checker.passenger).exclude(number=original_ticket_number).last()
                     
                     if previous_ticket is not None:
-                        try:
-                            previous_ticket.transport_cost = decimal.Decimal(part[next_index+1].split(' ')[0].replace(',','.'))
-                            previous_ticket.tax = 0
-                            previous_ticket.total = decimal.Decimal(part[next_index+1].split(' ')[0].replace(',','.'))
-                        except:
-                            pass    
-                    
+                        # amount
+                        previous_ticket.transport_cost = transport_cost
+                        previous_ticket.tax = tax
+                        previous_ticket.total = total
+                
                         if previous_ticket.total == 0:
                             previous_ticket.is_no_adc = True
                             previous_ticket.tax = 0
@@ -401,11 +417,16 @@ class ZenithParserReceipt():
                         if self.check_is_invoiced_status(previous_ticket, None) or self.check_issuing_date(date_time.date()):
                             previous_ticket.ticket_status = 3
                         
+                        previous_ticket.ticket_description = 'modif'
                         previous_ticket.save()
+                    else:
+                        is_untracked_reajustment = True
+                else:
+                    is_untracked_reajustment = True
                 
                 # if ticket is not saved 
                 # PNR has no history
-                else:
+                if is_untracked_reajustment:
                     designation = 'Reissuance Adjustment: ' + original_ticket_number
                     current_segment = self.get_segments_assigned_on_part(part)
                     cost = 0
@@ -562,6 +583,11 @@ class ZenithParserReceipt():
             current_segment = self.get_segments_assigned_on_part(part)
             part_name_index = self.get_target_part_index(part, "Pénalité")
             
+            # skip Frais d'agence
+            internal_fee = self.get_target_part_index(part, "Frais d'agence")
+            if internal_fee != 0:
+                continue
+            
             if part_name_index == 0:
                 # new emd to be inserted
                 new_emd = Ticket()
@@ -689,21 +715,32 @@ class ZenithParserReceipt():
                             otherfee_saved_checker.other_fee_status = 3
                     new_emd.fee_type = 'TKT'
                     new_emd.is_subjected_to_fee = False
-                    new_emd.save()
-                    if otherfee_saved_checker is None:
-                        if isinstance(current_segment, list):
-                            for segment in current_segment:
+                    
+                    # check if current penalty has been saved under ticket number added with DE
+                    is_already_saved = False
+                    current_ticket_modif = Ticket.objects.filter(pnr=pnr, ticket_description='modif').all()
+                    for ticket_modif in current_ticket_modif:
+                        for total in self.ajustment_total:
+                            if ticket_modif.total == (total+new_emd.total):
+                                is_already_saved = True
+                                break
+                    
+                    if not is_already_saved:
+                        new_emd.save()
+                        if otherfee_saved_checker is None:
+                            if isinstance(current_segment, list):
+                                for segment in current_segment:
+                                    other_fee_passenger_segment = OtherFeeSegment()
+                                    other_fee_passenger_segment.other_fee = new_emd
+                                    other_fee_passenger_segment.passenger = current_passenger
+                                    other_fee_passenger_segment.segment = segment
+                                    other_fee_passenger_segment.save()
+                            else:
                                 other_fee_passenger_segment = OtherFeeSegment()
                                 other_fee_passenger_segment.other_fee = new_emd
                                 other_fee_passenger_segment.passenger = current_passenger
-                                other_fee_passenger_segment.segment = segment
+                                other_fee_passenger_segment.segment = current_segment
                                 other_fee_passenger_segment.save()
-                        else:
-                            other_fee_passenger_segment = OtherFeeSegment()
-                            other_fee_passenger_segment.other_fee = new_emd
-                            other_fee_passenger_segment.passenger = current_passenger
-                            other_fee_passenger_segment.segment = current_segment
-                            other_fee_passenger_segment.save()
         
     # get each value by type and value
     def get_each_value(self):
@@ -744,5 +781,6 @@ class ZenithParserReceipt():
             print(temp)
         
         self.get_each_value()
+        self.ajustment_total = []
                      
         

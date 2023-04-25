@@ -13,7 +13,7 @@ from AmadeusDecoder.models.data.RawData import RawData
 
 _AIRPORT_AGENCY_CODE_ = ['DZAUU000B']
 _SPECIAL_EMD_DESCRIPTION_ = ['DEPOSIT']
-_NOT_FEED_ = ['RESIDUAL VALUE']
+_NOT_FEED_ = ['RESIDUAL VALUE', 'DISCOUNT CARD']
 
 class EMDOnlyParser():
     '''

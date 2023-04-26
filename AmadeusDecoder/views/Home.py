@@ -797,6 +797,8 @@ def get_order(request, pnr_id):
         'CT_Site'
     ]
 
+    order_df = pd.DataFrame(columns=fieldnames_order)
+    customer_df = pd.DataFrame(columns=fieldnames_customer)
     if request.method== 'POST':
         segments_parts = []
         if 'pnrId' and 'customerIdsChecked' in request.POST:
@@ -936,6 +938,7 @@ def get_order(request, pnr_id):
                             'IssueDate': ticket.issuing_date.strftime('%d/%m/%Y') if ticket.issuing_date is not None else '',
                             'OrderNumber': order_invoice_number,
                             'OtherFeeId': '',
+                            'Designation':'',
                         })
                         
                         order.is_invoiced = True
@@ -971,6 +974,7 @@ def get_order(request, pnr_id):
                                     'IssueDate': '',
                                     'OrderNumber': order_invoice_number,
                                     'OtherFeeId': '',
+                                    'Designation': '',
                                 })
                                 
                                 order.is_invoiced = True
@@ -987,7 +991,7 @@ def get_order(request, pnr_id):
                             if item.fee_type == 'EMD' and item.fee_type == 'TKT':
                                 type_other_fee = item.fee_type
                             else:
-                                type_other_fee = item.designation
+                                type_other_fee = 'EMD'
                             csv_writer.writerow({
                                 'LineID': order.id,
                                 'Type': type_other_fee,
@@ -1010,7 +1014,8 @@ def get_order(request, pnr_id):
                                 'TicketId': '',
                                 'IssueDate': item.creation_date.strftime('%d/%m/%Y') if item.creation_date is not None else '',
                                 'OrderNumber': order_invoice_number,
-                                'OtherFeeId': item.id if item is not None else ''
+                                'OtherFeeId': item.id if item is not None else '',
+                                'Designation': item.designation,
                             })
                             
                             order.is_invoiced = True

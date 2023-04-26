@@ -15,7 +15,7 @@ from AmadeusDecoder.models.invoice.TicketPassengerSegment import TicketPassenger
 from AmadeusDecoder.models.invoice.Fee import OthersFee
 from AmadeusDecoder.models.user.Users import User
 
-_PAYMENT_OPTIONS_ = ['Comptant', 'En compte']
+_PAYMENT_OPTIONS_ = ['Comptant', 'En compte', 'Virement']
 _TICKET_NUMBER_PREFIX_ = ['Echange billet', 'EMD']
 _TO_BE_EXCLUDED_KEY_KEYWORDS_ = ['Encaissement transaction', 'Encaissement Modification', 'Encaissement des suppléments']
 _AIRPORT_AGENCY_CODE_ = ['DZAUU000B']
@@ -306,8 +306,8 @@ class ZenithParserReceipt():
                 # So, the ticket payment will be saved as other fees with designation as "Paiement billet - 1"
                 else:
                     ticket = Ticket.objects.filter(pnr=pnr, passenger=current_passenger, total=ticket_total).first()
-                    if ticket is None and ticket_total > 0:
-                        designation = "Paiement Billet"
+                    if ticket is None and ticket_total > 0 and current_passenger is not None:
+                        designation = "Paiement Billet - " + str(current_passenger)
                         
                         new_payment = OthersFee()
                         new_payment.pnr = pnr
@@ -324,6 +324,9 @@ class ZenithParserReceipt():
                         
                         if not is_created_by_us or self.check_issuing_date(date_time.date()) or (pnr.system_creation_date.date() > date_time.date() and self.check_is_invoiced_status(None, new_payment)):
                             new_payment.other_fee_status = 3
+                            
+                        if current_passenger.passenger_status == 0:
+                            new_payment.other_fee_status = 0
                         
                         new_payment.creation_date = date_time
                         new_payment.fee_type = 'TKT'

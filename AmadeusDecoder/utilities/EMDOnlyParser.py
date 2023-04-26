@@ -80,19 +80,19 @@ class EMDOnlyParser():
             is_emitted_in_airport = False
             emd_issuing_date = emd.issuing_date.date()
             emitter = pnr.get_emit_agent()
+            # test by agent
             if emitter is not None:
-                # test by agent
                 try:
                     if emitter.office.code in _AIRPORT_AGENCY_CODE_:
                         is_emitted_in_airport = True
                 except:
                     pass
-                # test by current emd issuing agency
-                try:
-                    if emd.issuing_agency.code in _AIRPORT_AGENCY_CODE_:
-                        is_emitted_in_airport = True
-                except:
-                    pass
+            # test by current emd issuing agency
+            try:
+                if emd.issuing_agency.code in _AIRPORT_AGENCY_CODE_:
+                    is_emitted_in_airport = True
+            except:
+                pass
             
             if emd.ticket_ssrs.first() is not None:
                 emd_related_segment = emd.ticket_ssrs.first().ssr.segments.first().segment
@@ -286,6 +286,9 @@ class EMDOnlyParser():
         fare, exch_val, rfnd_val, total, is_no_adc = self.get_emd_fares(fare_line, exch_val_line, rfnd_val_line, total_line)
         
         if pnr.gds_creation_date == emd_issuing_date.date() or pnr.system_creation_date.date() == emd_issuing_date.date():
+            emd_status = 1
+
+        if emd_status not in [0,3] :
             emd_status = 1
         
         emd.number = emd_number

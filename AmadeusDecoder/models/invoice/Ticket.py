@@ -97,6 +97,10 @@ class Ticket(models.Model, BaseModel):
     is_issued_outside = models.BooleanField(default=0)
     # for other signification than FA
     is_not_fa_line = models.BooleanField(default=0)
+    # this filed has been added to handle ticket modification status
+    is_ticket_modification = models.BooleanField(default=0) # true: current ticket is a modification
+    # temp ticket status field to store original ticket status
+    original_ticket_status = models.IntegerField(default=1) 
     
     # update ticket status if PNR has been reissued with different tickets
     def update_ticket_status_PNR_reissued(self, pnr, new_ticket_list):
@@ -155,7 +159,8 @@ class Ticket(models.Model, BaseModel):
                     normal_count += 1
             
             if flown_count > 0 and normal_count == 0 and not pnr.is_archived and not ticket.is_deposit and not ticket.is_refund:
-                ticket.ticket_status = 3
+                # ticket.ticket_status = 3
+                ticket.original_ticket_status = 3
                 ticket.state = 0
                 ticket.save()
                     
@@ -214,6 +219,7 @@ class Ticket(models.Model, BaseModel):
             if date_difference.days > 1:
                 ticket.state = 0
                 # ticket.ticket_status = 3
+                ticket.original_ticket_status = 3
                 ticket.save()
             
             first_accepted_date = datetime(2023, 1, 1).date()
@@ -232,6 +238,7 @@ class Ticket(models.Model, BaseModel):
             if (issuing_date < pnr.gds_creation_date and issuing_date_day != 'Saturday' \
                 and issuing_date_day != 'Sunday' and pnr_creation_date_day != 'Monday') or date_difference.days > 2:
                     self.state = 0
+                    self.original_ticket_status = 3
                     # self.ticket_status = 3
             
             
@@ -248,9 +255,10 @@ class Ticket(models.Model, BaseModel):
             if ticket.issuing_agency is not None:
                 temp_subcontractor = OfficeSubcontractor.objects.filter(code=self.issuing_agency.code).first()
                 
-            if ticket.issuing_agency is None:
+            if ticket.issuing_agency is None and temp_subcontractor is None:
                 ticket.state = 0
                 ticket.ticket_status = 3
+                ticket.is_issued_outside = True
                 ticket.save()
             elif ticket.issuing_agency.company is None and temp_subcontractor is None:
                 ticket.state = 0
@@ -276,6 +284,12 @@ class Ticket(models.Model, BaseModel):
                 temp_other_fee_obj.creation_date = self.issuing_date
                 temp_other_fee_obj.is_subjected_to_fee = False
                 temp_other_fee_obj.other_fee_status = self.ticket_status
+                
+                # check if record already exists
+                temp_other_fee_obj_record = OthersFee.objects.filter(ticket=self, designation='FRAIS DE SOUS-TRAITANCE', pnr=self.pnr).first()
+                if temp_other_fee_obj_record is not None:
+                    temp_other_fee_obj = temp_other_fee_obj_record
+                    
                 temp_other_fee_obj.save()
                 
                 self.ticket_status = 1

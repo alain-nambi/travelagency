@@ -550,7 +550,7 @@ class MailNotification():
                 )
             
             if len(no_anomaly_pnrs_before_afternoon_for_administrator) > 0:
-                subject = f"PNR non envoyé dans Odoo pour les administrateurs entre 08h et 12h, ce {dt_now.strftime('%d-%m-%Y')}"                    
+                subject = f"PNR non envoyé dans Odoo pour les directions entre 08h et 12h, ce {dt_now.strftime('%d-%m-%Y')}"                    
                 message = f"""        
                     <!DOCTYPE html>
                     <html>
@@ -635,7 +635,7 @@ class MailNotification():
                 )
                 
             if len(no_anomaly_pnrs_after_afternoon_for_administrator) > 0:
-                subject = f"PNR non envoyé dans Odoo pour les administrateurs entre 12h et 15h, ce {dt_now.strftime('%d-%m-%Y')}"                
+                subject = f"PNR non envoyé dans Odoo pour les directions entre 12h et 15h, ce {dt_now.strftime('%d-%m-%Y')}"                
                 message = f"""        
                     <!DOCTYPE html>
                     <html>

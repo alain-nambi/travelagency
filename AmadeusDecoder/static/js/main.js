@@ -1124,6 +1124,12 @@ function searchFunction(pageSize, isDateOrderByAsc, isDateOrderByChecked) {
             }
           });
 
+          let pnrAfterSearch = SEARCH_RESULT.map((pnr, index) => {
+            return {id: pnr.id, position: index, number: pnr.number}
+          })
+
+          localStorage.setItem("pnrAfterSearch", JSON.stringify(pnrAfterSearch));
+
           $("tbody.tbody-pnr").remove()
           $("#all-pnr").remove()
           $("#all-pnr-after-search").show()
@@ -2833,11 +2839,26 @@ const managePnrToSwitch = document.getElementById("managePnrToSwitch");
 const buttonPreviousPNR = document.getElementById("previousPNR");
 const buttonNextPNR     = document.getElementById("nextPNR");
 
+// Supprimer le l'objet pnrAfterSearch du localStorage si la page a été rechargé
+if (!window.location.href.includes("/home/pnr/")) {
+  window.addEventListener("load", () => {
+    localStorage.removeItem("pnrAfterSearch")
+  })
+}
+
 // Vérifier si l'élément "managePnrToSwitch" existe et possède un attribut "data-pnr-to-switch"
 if (managePnrToSwitch && managePnrToSwitch.getAttribute("data-pnr-to-switch")) {
   try {
     // Récupérer les informations des PNR depuis l'attribut "data-pnr-to-switch" et les stocker dans "pnrData"
-    const pnrData = JSON.parse(managePnrToSwitch.getAttribute("data-pnr-to-switch"));
+    let pnrData = JSON.parse(managePnrToSwitch.getAttribute("data-pnr-to-switch"));
+
+    // Récupérer les données du localStorage s'il y en existe
+    const pnrDataFromLocalStorage = localStorage.getItem('pnrAfterSearch');
+    if (pnrDataFromLocalStorage) {
+      Object.assign(pnrData, JSON.parse(pnrDataFromLocalStorage));
+    }
+
+    // console.table(pnrData);
 
     // Récupérer l'URL actuelle et la stocker dans "currentUrl"
     const currentUrl = window.location.href;

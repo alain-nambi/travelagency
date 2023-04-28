@@ -601,7 +601,6 @@ class PnrOnlyParser():
                 # segment is a flight END
             # Segment is a SVC
             elif flight_info[1].endswith('SVC'):
-                print("FFFFFFFFFF", flight_info)
                 flight_class = 'Y'
                 airline_code = flight_info[2]
                 other_segment_description = ''

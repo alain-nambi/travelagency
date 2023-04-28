@@ -18,7 +18,7 @@ from AmadeusDecoder.models.user.Users import User
 _PAYMENT_OPTIONS_ = ['Comptant', 'En compte', 'Virement']
 _TICKET_NUMBER_PREFIX_ = ['Echange billet', 'EMD']
 _TO_BE_EXCLUDED_KEY_KEYWORDS_ = ['Encaissement transaction', 'Encaissement Modification', 'Encaissement des suppléments']
-_AIRPORT_AGENCY_CODE_ = ['DZAUU000B']
+_AIRPORT_AGENCY_CODE_ = ['DZAUU000B', 'Mayotte ATO']
 _STARTED_PROCESS_DATE_ = datetime(2023, 1, 1, 0, 0, 0, 0).date()
 
 class ZenithParserReceipt():
@@ -244,10 +244,11 @@ class ZenithParserReceipt():
         return False
     
     # fee subjection status
-    def check_fee_subjection_status(self, date_time, current_segment, pnr, ticket, other_fee):
+    def check_fee_subjection_status(self, date_time, current_segment, pnr, ticket, other_fee, part):
         emitter = pnr.get_emit_agent()
         tester = False
         segment_departuretime = None
+                
         if emitter is not None:
             if isinstance(current_segment, list):
                 for segment in current_segment:
@@ -261,12 +262,27 @@ class ZenithParserReceipt():
                 if emitter.office.code in _AIRPORT_AGENCY_CODE_ and segment_departuretime is not None:
                     if segment_departuretime.date() == date_time.date():
                         tester = True
-            
-            if tester:
-                if ticket is not None:
-                    ticket.is_subjected_to_fees = False
-                elif other_fee is not None:
-                    other_fee.is_subjected_to_fee = False
+        
+        if part[2] in _AIRPORT_AGENCY_CODE_:
+            if isinstance(current_segment, list):
+                for segment in current_segment:
+                    segment_departuretime = segment.departuretime
+                    if segment_departuretime is not None:
+                        if segment_departuretime.date() == date_time.date():
+                            tester = True
+                            break
+            else:
+                segment_departuretime = current_segment.departuretime
+                if segment_departuretime is not None:
+                    if segment_departuretime.date() == date_time.date():
+                        tester = True
+        
+        if tester:
+            if ticket is not None:
+                ticket.is_subjected_to_fees = False
+            elif other_fee is not None:
+                other_fee.is_subjected_to_fee = False
+        
                     
     # check issuing date
     def check_issuing_date(self, date_time):
@@ -558,7 +574,7 @@ class ZenithParserReceipt():
             new_emd.fee_type = 'EMD'
             # check fee subjection
             try:
-                self.check_fee_subjection_status(date_time, current_segment, pnr, None, new_emd)
+                self.check_fee_subjection_status(date_time, current_segment, pnr, None, new_emd, emd_single_part)
             except:
                 traceback.print_exc()
             new_emd.creation_date = date_time
@@ -648,7 +664,7 @@ class ZenithParserReceipt():
                     new_emd.issuing_date = date_time
                     # check fee subjection
                     try:
-                        self.check_fee_subjection_status(date_time, current_segment, pnr, new_emd, None)
+                        self.check_fee_subjection_status(date_time, current_segment, pnr, new_emd, None, part)
                     except:
                         traceback.print_exc()
                     new_emd.save()

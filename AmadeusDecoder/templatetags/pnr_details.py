@@ -1432,3 +1432,116 @@ def get_find_fee_reduce_request(pnr, fee):
     else:
         return False
         
+@register.filter(name='manage_pnr_switch_with_button')
+def get_all_pnr_to_switch(request):
+    from AmadeusDecoder.models.pnr.Pnr import Pnr
+    try:
+        if request.COOKIES.get('filter_pnr') == "True":
+            is_invoiced = True
+        if request.COOKIES.get('filter_pnr') == "False":
+            is_invoiced = False
+        if request.COOKIES.get('filter_pnr') == "None":
+            is_invoiced = None
+        if request.COOKIES.get('filter_pnr') is None:
+            is_invoiced = False
+    except:
+        is_invoiced = False
+
+    creation_date_order_by = request.COOKIES.get('creation_date_order_by')
+
+    # desc : date order by descending
+    # asc : date order by ascending
+    try:
+        if creation_date_order_by == "desc":
+            date_order_by = "-"
+        elif creation_date_order_by == "asc":
+            date_order_by = ""
+        else:
+            date_order_by = "-"
+    except:
+        date_order_by = "-"
+
+    # Set max timezone
+    maximum_timezone = "2023-01-01 01:00:00.000000+03:00"
+    filtered_creator = request.COOKIES.get('creator_pnr_filter')
+
+    if request.user.id in [4, 5]: #==> [Farida et Mouniati peuvent voir chacun l'ensemble de leurs pnr]
+        pnr_list = []
+        issuing_users = request.user.copied_documents.all()
+
+        if is_invoiced is None:
+            for issuing_user in issuing_users:
+                pnr = Pnr.objects.filter(number=issuing_user.document).filter(Q(system_creation_date__gt=maximum_timezone)).first()
+                if pnr not in pnr_list and pnr is not None:
+                    pnr_list.append(pnr)
+
+            pnr_obj = Pnr.objects.filter(Q(agent_id=filtered_creator)).filter(Q(system_creation_date__gt=maximum_timezone), Q(status_value=0)).all().order_by(date_order_by + 'system_creation_date')
+
+            for pnr in pnr_obj:
+                if pnr not in pnr_list:
+                    pnr_list.append(pnr)
+
+            if date_order_by == "-" :
+                pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=True)
+            else :
+                pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=False)
+
+        else:
+            for issuing_user in issuing_users:
+                pnr = Pnr.objects.filter(number=issuing_user.document).filter(Q(system_creation_date__gt=maximum_timezone)).filter(is_invoiced=is_invoiced).first()
+                if pnr not in pnr_list and pnr is not None:
+                    pnr_list.append(pnr)
+
+            pnr_obj = Pnr.objects.filter(Q(agent_id=filtered_creator)).filter(Q(system_creation_date__gt=maximum_timezone)).filter(is_invoiced=is_invoiced).all().order_by(date_order_by + 'system_creation_date')
+
+            for pnr in pnr_obj:
+                if pnr not in pnr_list:
+                    pnr_list.append(pnr)
+
+            if date_order_by == "-" :
+                pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=True)
+            else :
+                pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=False)
+
+        list_pnr_with_position = [{'id': pnr.id, 'position': index, 'number': pnr.number} for index, pnr in enumerate(pnr_list)]
+        return json.dumps(list_pnr_with_position)
+
+    if request.user.role_id == 3:
+        pnr_list = []
+        issuing_users = request.user.copied_documents.all()
+
+        if is_invoiced is not None:
+            for issuing_user in issuing_users:
+                pnr = Pnr.objects.filter(number=issuing_user.document).filter(Q(system_creation_date__gt=maximum_timezone)).filter(is_invoiced=is_invoiced).first()
+                if pnr not in pnr_list and pnr is not None:
+                    pnr_list.append(pnr)
+
+            pnr_obj = Pnr.objects.filter(Q(agent_id=filtered_creator) | Q(agent_id=None)).filter(Q(system_creation_date__gt=maximum_timezone)).filter(is_invoiced=is_invoiced).all().order_by(date_order_by + 'system_creation_date')
+            for pnr in pnr_obj:
+                if pnr not in pnr_list:
+                    pnr_list.append(pnr)
+
+            if date_order_by == "-" :
+                pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=True)
+            else :
+                pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=False)
+
+        list_pnr_with_position = [{'id': pnr.id, 'position': index, 'number': pnr.number} for index, pnr in enumerate(pnr_list)]
+        return json.dumps(list_pnr_with_position)
+
+    else:
+        if filtered_creator != '0' and filtered_creator is not None: 
+            if is_invoiced == None:
+                pnr_list = Pnr.objects.filter(Q(agent_id=filtered_creator)).all().order_by(date_order_by + 'system_creation_date').filter(Q(system_creation_date__gt=maximum_timezone)) # <======= IMPORTANT
+            else:
+                pnr_list = Pnr.objects.filter(Q(agent_id=filtered_creator)).all().order_by(date_order_by + 'system_creation_date').filter(Q(system_creation_date__gt=maximum_timezone)).filter(is_invoiced=is_invoiced)
+            print('Not all')
+        elif filtered_creator == '0' or filtered_creator is None: ##### Si 'Tout' est sélectionner dans le filtre créateur
+            if is_invoiced == None:
+                pnr_list = Pnr.objects.all().order_by(date_order_by + 'system_creation_date').filter(Q(system_creation_date__gt=maximum_timezone)) # <======= IMPORTANT
+            else:
+                pnr_list = Pnr.objects.all().order_by(date_order_by + 'system_creation_date').filter(Q(system_creation_date__gt=maximum_timezone)).filter(is_invoiced=is_invoiced)
+            print('All')
+
+        list_pnr_with_position = [{'id': pnr.id, 'position': index, 'number': pnr.number} for index, pnr in enumerate(pnr_list)]
+        return json.dumps(list_pnr_with_position)

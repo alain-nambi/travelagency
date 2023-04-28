@@ -20,6 +20,7 @@ _TICKET_NUMBER_PREFIX_ = ['Echange billet', 'EMD']
 _TO_BE_EXCLUDED_KEY_KEYWORDS_ = ['Encaissement transaction', 'Encaissement Modification', 'Encaissement des suppléments']
 _AIRPORT_AGENCY_CODE_ = ['DZAUU000B', 'Mayotte ATO']
 _STARTED_PROCESS_DATE_ = datetime(2023, 1, 1, 0, 0, 0, 0).date()
+_CURRENT_TRAVEL_AGENCY_IDENTIFIER_ = ['Issoufali', 'ISSOUFALI', 'Mayotte ATO']
 
 class ZenithParserReceipt():
     '''
@@ -108,8 +109,9 @@ class ZenithParserReceipt():
     # check if part has been issued by current Travel Agency
     def check_part_emitter(self, current_part):
         is_emitted = False
-        if current_part[1].find("ISSOUFALI") > -1 or current_part[1].find("Issoufali") > -1 or current_part[2].find("ISSOUFALI") > -1 or current_part[1].find("Issoufali") > -1 or current_part[1].find("Mayotte ATO") > -1:
-            return True
+        for identifier in _CURRENT_TRAVEL_AGENCY_IDENTIFIER_:
+            if current_part[1].find(identifier) > -1 or current_part[2].find(identifier) > -1:
+                return True
         
         # check agent
         if len(current_part[1].split('.')) > 1:

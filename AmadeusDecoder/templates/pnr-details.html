@@ -112,32 +112,25 @@
 										{% endif %}
 										</div>
 										<div id="pnr_id" data-id="{{pnr.id}}" hidden></div>
-										<div class="col-md-2 pl-0">
-											<div class="pager-pnr mt-1 px-0 float-right">
-												{% with pnr|get_prev as pnr_prev %}
-													{% if pnr_prev is not None %}
-													<a href="{% url 'pnr_details' pnr_prev.id %}" id="prev-pnr" class="prev1 mr-4" role="button"
-													title="précédent"><i class="fa fa-chevron-left"></i></a>
-													<a id="prev-pnr" class="prev2 mr-4" role="button"
-													title="précédent" style="cursor: not-allowed;" hidden><i class="fa fa-chevron-left"></i></a>
-													{% endif %}
-													{% if pnr_prev is None %}
-													<a href="#" id="prev-pnr" class="prev mr-4" 
-													title="précédent" style="cursor: not-allowed;"><i class="fa fa-chevron-left"></i></a>
-													{% endif %}
+										<div class="col-md-2 pl-0 d-flex justify-content-center">
+											<div class="pager-pnr mt-1 px-0 float-right d-flex align-items-center justify-content-center">
+												{% with request|manage_pnr_switch_with_button as manage_pnr_switch_with_button %}
+													<div id="managePnrToSwitch" data-pnr-to-switch="{{ manage_pnr_switch_with_button }}"></div>
 												{% endwith %}
-												{% with pnr|get_next as pnr_next %} 
-													{% if pnr_next is not None %}
-													<a href="{% url 'pnr_details' pnr_next.id %}" id="next-pnr" class="next1 ml-4" role="button"
-													title="suivant"><i class="fa fa-chevron-right"></i></a>
-													<a id="next-pnr" class="next2 ml-4" role="button"
-													title="suivant" hidden style="cursor: not-allowed;"><i class="fa fa-chevron-right"></i></a>
-													{% endif %}
-													{% if pnr_next is None %}
-													<a href="#" id="next-pnr" class="ml-4" 
-													title="suivant" style="cursor: not-allowed;"><i class="fa fa-chevron-right"></i></a>
-													{% endif %}
-												{% endwith %}
+
+												<button type="button" id="previousPNR" class="prev-pnr mr-2 btn btn-sm btn-primary" title="Précedent">
+													<i class="fa fa-chevron-left"></i>
+												</button>
+
+												<span id="pnrPosition" class="text-sm">
+													<div class="spinner-border spinner-border-sm" role="status">
+														<span class="sr-only">Loading...</span>
+													</div>
+												</span>
+
+												<button type="button" id="nextPNR" class="next-pnr ml-2 btn btn-sm btn-primary" title="Suivant">
+													<i class="fa fa-chevron-right"></i>
+												</button>
 											</div>
 										</div>
 									</div>

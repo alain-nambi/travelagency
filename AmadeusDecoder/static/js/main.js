@@ -2853,9 +2853,11 @@ if (managePnrToSwitch && managePnrToSwitch.getAttribute("data-pnr-to-switch")) {
     let pnrData = JSON.parse(managePnrToSwitch.getAttribute("data-pnr-to-switch"));
 
     // Récupérer les données du localStorage s'il y en existe
-    const pnrDataFromLocalStorage = localStorage.getItem('pnrAfterSearch');
+    const pnrDataFromLocalStorage = JSON.parse(localStorage.getItem('pnrAfterSearch'));
     if (pnrDataFromLocalStorage) {
-      Object.assign(pnrData, JSON.parse(pnrDataFromLocalStorage));
+      pnrData = pnrDataFromLocalStorage
+    } else {
+      pnrData = pnrData
     }
 
     // console.table(pnrData);

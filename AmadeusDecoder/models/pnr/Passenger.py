@@ -57,10 +57,11 @@ class Passenger(models.Model, BaseModel):
     
     # update ticket passenger
     def update_ticket_passenger(self, pnr):
-        temp_ticket = Ticket.objects.filter(pnr=pnr, related_passenger_order=self.order).first()
-        if temp_ticket is not None:
-            temp_ticket.passenger = self
-            temp_ticket.save()
+        temp_tickets = Ticket.objects.filter(pnr=pnr, related_passenger_order=self.order).all()
+        for ticket in temp_tickets:
+            if ticket.passenger is None:
+                ticket.passenger = self
+                ticket.save()
         
     def __str__(self):
         displayed_name = ''

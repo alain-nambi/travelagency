@@ -234,19 +234,19 @@ class PnrCostParser():
             
             if temp_space_free_line[1] != 'O' and temp_space_free_line[1] != 'X':
                 temp_origin = temp_space_free_line[1] 
-                temp_airline_code = temp_space_free_line[2] 
-                temp_flight_number = temp_space_free_line[3]
-                temp_flight_class = temp_space_free_line[4]
                 try:
+                    temp_airline_code = temp_space_free_line[2] 
+                    temp_flight_number = temp_space_free_line[3]
+                    temp_flight_class = temp_space_free_line[4]
                     departure_date_time = temp_space_free_line[5] + '2023' + ' ' + temp_space_free_line[6] + '00'
                 except:
                     print('Index out of range')
             elif temp_space_free_line[1] == 'O' or temp_space_free_line[1] == 'X':
                 temp_origin = temp_space_free_line[2]
-                temp_airline_code = temp_space_free_line[3]
-                temp_flight_number = temp_space_free_line[4] 
-                temp_flight_class = temp_space_free_line[5] 
                 try:
+                    temp_airline_code = temp_space_free_line[3]
+                    temp_flight_number = temp_space_free_line[4] 
+                    temp_flight_class = temp_space_free_line[5] 
                     departure_date_time = temp_space_free_line[6] + '2023' + ' ' + temp_space_free_line[7] + '00'
                 except:
                     print('Index out of range')

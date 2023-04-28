@@ -32,8 +32,7 @@ from AmadeusDecoder.models.invoice.TicketPassengerSegment import TicketPassenger
 from AmadeusDecoder.models.pnrelements.ConfirmationDeadline import ConfirmationDeadline
 from AmadeusDecoder.models.invoice.InvoiceDetails import InvoiceDetails
 from AmadeusDecoder.models.user.Users import User
-from AmadeusDecoder.models.invoice.Fee import OthersFee, Fee
-from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
+from AmadeusDecoder.models.invoice.Fee import OthersFee
 
 _passenger_types_ = ['Adulte(s)', 'Enfant(s)', 'Bébé(s)', 'Mineur(s) non accompagné']
 _passenger_designations_ = ['M.', 'Mme', 'Enfant', 'Bébé', 'Mlle', 'Ms.']
@@ -1422,7 +1421,6 @@ class ZenithParser():
                 # elif is_saved and pnr.status_value == 1:
                 elif is_saved:
                     is_invoiced_status = pnr.is_invoiced
-                    initial_is_invoiced_status = is_invoiced_status
                     psg_invoice_ticket_fee_other = []
                     if is_invoiced_status:
                         passenger_invoices = pnr.passenger_invoice.all()
@@ -1548,11 +1546,14 @@ class ZenithParser():
                     
                     for ticket in tickets:
                         temp_ticket = Ticket.objects.filter(number=ticket.number).first()
+                        temp_passenger = Passenger.objects.filter(name=ticket.passenger.name, designation=ticket.passenger.designation, passenger__pnr=pnr).first()
+                    
                         if temp_ticket is not None:
                             ticket = temp_ticket
+                            
+                        if temp_passenger is not None:
+                            ticket.passenger = temp_passenger
                         
-                        if ticket.passenger is not None:
-                            ticket.passenger = Passenger.objects.filter(name=ticket.passenger.name, designation=ticket.passenger.designation, passenger__pnr=pnr).first()
                         if payment_option != '':
                             ticket.payment_option = payment_option
                         if issuing_date is not None:
@@ -1654,7 +1655,8 @@ class ZenithParser():
                     # for ancillary in other_ancillaries:
                     #     ancillary.pnr = pnr
                     #     ancillary.save()
-                        
+                    
+                    '''
                     # re-save passenger invoice
                     if initial_is_invoiced_status:
                         for temp_data in psg_invoice_ticket_fee_other:
@@ -1725,7 +1727,7 @@ class ZenithParser():
                             temp_passenger_invoice_obj.date_creation = passenger_invoice.date_creation
                             temp_passenger_invoice_obj.control = passenger_invoice.control
                             # temp_passenger_invoice_obj.save()
-                        
+                    '''
             transaction.savepoint_commit(sid)
         except Exception as e:
             transaction.savepoint_rollback(sid)

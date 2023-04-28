@@ -87,7 +87,7 @@ def checking_pnr_not_uploaded_in_pnr_management():
     from AmadeusDecoder.utilities.MailNotificationParser import MailNotification
     now = datetime.now(timezone.utc).replace(microsecond=0) + timedelta(hours=3)
     
-    print("⚙️  PNR update checking...")
+    print("âš™ï¸�  PNR update checking...")
     MailNotification.pnr_upload_notification(now)
     
 def checking_pnr_not_sent_to_odoo():

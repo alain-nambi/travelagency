@@ -461,7 +461,7 @@ class ZenithParserReceipt():
                     except:
                         pass
                     
-                    adjustment_tester = OthersFee.objects.filter(designation=designation, pnr=pnr, passenger=current_passenger, total=total).first()
+                    adjustment_tester = OthersFee.objects.filter(designation=designation, pnr=pnr, total=total).first()
                     
                     if adjustment_tester is None:
                         new_other_fee = OthersFee()

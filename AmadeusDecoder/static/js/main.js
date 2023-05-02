@@ -2974,7 +2974,40 @@ if (managePnrToSwitch && managePnrToSwitch.getAttribute("data-pnr-to-switch")) {
   } catch (error) {
     console.log(`Une erreur lors de la récupération des données : ${error}`);
     console.log(error);
-    $("#pnrPosition").text(`Erreur`);
+
+    // Remove loading effect
+    $("#pnrPosition").text('');
+
+    // Get the span element with the id "pnrPosition"
+    const pnrPosition = document.getElementById("pnrPosition");
+
+    // Create a new div element
+    const newDiv = document.createElement("div");
+
+    // Add a button to the new div
+    newDiv.innerHTML += `
+      <button id="goBackHome" class="btn btn-sm btn-secondary" title="Revenir dans le menu principal"> Cliquer ici </button>
+    `
+
+    // Append the new div element to the span element
+    pnrPosition.appendChild(newDiv);
+
+    // Disabled buttons
+    buttonNextPNR.setAttribute("disabled", true)
+    buttonPreviousPNR.setAttribute("disabled", true)
+
+    // Redirect to home page on click button
+    $("#goBackHome").click(function (e) {
+      e.preventDefault()
+      goBackHome()
+    })
+
+    function goBackHome () {
+      const url = window.location.href;
+      const baseUrl = url.split("/").slice(0, 4).join("/")
+      // Redirect to home page
+      window.location.href = baseUrl
+    }
   }
 } else {
   console.log("L'élément 'managePnrToSwitch' n'existe pas ou ne contient pas d'attribut 'data-pnr-to-switch'");

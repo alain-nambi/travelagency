@@ -87,7 +87,7 @@ def checking_pnr_not_uploaded_in_pnr_management():
     from AmadeusDecoder.utilities.MailNotificationParser import MailNotification
     now = datetime.now(timezone.utc).replace(microsecond=0) + timedelta(hours=3)
     
-    print("⚙️  PNR update checking...")
+    print("âš™ï¸�  PNR update checking...")
     MailNotification.pnr_upload_notification(now)
     
 def checking_pnr_not_sent_to_odoo():
@@ -126,7 +126,7 @@ class AmadeusdecoderConfig(AppConfig):
         #     repeat_timer_for_pnr_upload_notification = 60 * 180
         #     pnr_upload_repeat_timer(repeat_timer_for_pnr_upload_notification)
         
-        # # print("==================== Mail notification for pnr not sent to Odoo ====================")
+        # print("==================== Mail notification for pnr not sent to Odoo ====================")
         # timer_update_check = RepeatTimer(1, checking_pnr_not_sent_to_odoo)
         # timer_update_check.start()
         

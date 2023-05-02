@@ -10,11 +10,11 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='passengerinvoice',
-            name='invoice_number',
-            field=models.CharField(default=None, max_length=100, null=True),
-        ),
+        # migrations.AddField(
+        #     model_name='passengerinvoice',
+        #     name='invoice_number',
+        #     field=models.CharField(default=None, max_length=100, null=True),
+        # ),
         migrations.AlterField(
             model_name='othersfee',
             name='creation_date',

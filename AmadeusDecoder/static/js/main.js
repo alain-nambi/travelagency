@@ -1124,6 +1124,12 @@ function searchFunction(pageSize, isDateOrderByAsc, isDateOrderByChecked) {
             }
           });
 
+          let pnrAfterSearch = SEARCH_RESULT.map((pnr, index) => {
+            return {id: pnr.id, position: index, number: pnr.number}
+          })
+
+          localStorage.setItem("pnrAfterSearch", JSON.stringify(pnrAfterSearch));
+
           $("tbody.tbody-pnr").remove()
           $("#all-pnr").remove()
           $("#all-pnr-after-search").show()
@@ -2821,4 +2827,156 @@ if (span__passengerName.length > 0) {
       span.textContent = `${spanTextContent}`
     }
   })
+}
+
+
+/**
+ * BOUTON PRECEDENT ET SUIVANT DANS LA PAGE D'AFFICHAGE DETAIL PNR
+ */
+
+// Récupérer les éléments HTML nécessaires
+const managePnrToSwitch = document.getElementById("managePnrToSwitch");
+const buttonPreviousPNR = document.getElementById("previousPNR");
+const buttonNextPNR     = document.getElementById("nextPNR");
+
+// Supprimer le l'objet pnrAfterSearch du localStorage si la page a été rechargé
+if (!window.location.href.includes("/home/pnr/")) {
+  window.addEventListener("load", () => {
+    localStorage.removeItem("pnrAfterSearch")
+  })
+}
+
+// Vérifier si l'élément "managePnrToSwitch" existe et possède un attribut "data-pnr-to-switch"
+if (managePnrToSwitch && managePnrToSwitch.getAttribute("data-pnr-to-switch")) {
+  try {
+    // Récupérer les informations des PNR depuis l'attribut "data-pnr-to-switch" et les stocker dans "pnrData"
+    let pnrData = JSON.parse(managePnrToSwitch.getAttribute("data-pnr-to-switch"));
+
+    // Récupérer les données du localStorage s'il y en existe
+    const pnrDataFromLocalStorage = JSON.parse(localStorage.getItem('pnrAfterSearch'));
+    
+    if (pnrDataFromLocalStorage) {
+      pnrData = pnrDataFromLocalStorage
+    } else {
+      pnrData = pnrData
+    }
+
+    // console.table(pnrData);
+
+    // Récupérer l'URL actuelle et la stocker dans "currentUrl"
+    const currentUrl = window.location.href;
+
+    // Séparer l'URL en un tableau de chaînes de caractères en utilisant "/" comme séparateur
+    const splitUrl = currentUrl.split("/");
+
+    // Récupérer l'ID du PNR à partir de l'URL et le convertir en entier
+    const pnrId = parseInt(splitUrl[splitUrl.length - 2]);
+
+    // Vérifier si "pnrData" contient des PNR
+    if (pnrData.length > 0) {
+
+      // Récupérer les informations du PNR actuel en utilisant son ID
+      const currentPnr = pnrData.find(pnr => pnr.id === pnrId);
+
+      // Récupérer le premier PNR
+      const firstPnr = pnrData.find(pnr => pnr.position === 0);
+
+      // Récupérer le dernier PNR
+      const lastPnr = pnrData.find(pnr => pnr.position === pnrData.length - 1);
+
+      // Désactiver le bouton "Précédent" s'il n'y a pas de PNR précédent et ajouter un titre à la place
+      if (currentPnr.position === firstPnr.position) {
+        buttonPreviousPNR.setAttribute("disabled", "true");
+        buttonPreviousPNR.title = `Le PNR ${currentPnr.number} est le premier PNR dans la liste`;
+      }
+
+      // Désactiver le bouton "Suivant" s'il n'y a pas de PNR suivant et ajouter un titre à la place
+      if (currentPnr.position === lastPnr.position) {
+        buttonNextPNR.setAttribute("disabled", "true");
+        buttonNextPNR.title = `Le PNR ${currentPnr.number} est le dernier PNR dans la liste`;
+      } 
+
+      // Désactiver le bouton "Suivant" et "Précédent" s'il y a qu'un seul PNR
+      // Vérifie si le premier PNR et le dernier PNR ont la même position
+      if (firstPnr.position === lastPnr.position) {
+        // Désactive les boutons "précédent" et "suivant"
+        buttonPreviousPNR.setAttribute("disabled", "true");
+        buttonNextPNR.setAttribute("disabled", "true");
+
+        // Définit le titre des boutons comme "Il n'y a que le pnr {numéro de PNR courant}"
+        buttonPreviousPNR.title = `Il n'y a que le pnr ${currentPnr.number}`;
+        buttonNextPNR.title = `Il n'y a que le pnr ${currentPnr.number}`;
+      } else {
+        // Récupère le PNR précédent et le PNR suivant dans la liste par rapport à la position du PNR en cours
+        let prevPnr = pnrData.find(pnr => pnr.position === currentPnr.position - 1)
+        let nextPnr = pnrData.find(pnr => pnr.position === currentPnr.position + 1)
+
+        // Si un PNR précédent existe, définit le titre du bouton "précédent" avec son numéro de PNR
+        if (prevPnr) {
+          buttonPreviousPNR.title = `PNR précédent : ${prevPnr.number}`;
+        }
+
+        // Si un PNR suivant existe, définit le titre du bouton "suivant" avec son numéro de PNR
+        if (nextPnr) {
+          buttonNextPNR.title = `PNR suivant : ${nextPnr.number}`;
+        }
+      }
+      
+
+      // Ajouter des gestionnaires d'événements pour les clics sur les boutons "Précédent" et "Suivant"
+      // Ajoute un écouteur d'événements "click" au bouton "Précédent"
+      buttonPreviousPNR.addEventListener("click", (e) => {
+        // Empêche le comportement par défaut du clic sur un lien
+        e.preventDefault();
+
+        // Vérifie si le PNR en cours n'est pas déjà le premier PNR de la liste
+        if (currentPnr.position > firstPnr.position) {
+          // Trouve le PNR précédent dans la liste
+          const pnr = pnrData.find(pnr => pnr.position === currentPnr.position - 1);
+
+          // Met à jour l'ID du PNR précédent dans l'URL de la page
+          splitUrl[5] = pnr.id;
+
+          // Rejoint les éléments de l'URL mis à jour pour former une nouvelle URL
+          let newUrl = splitUrl.join("/");
+
+          // Redirige vers la nouvelle URL
+          window.location.href = newUrl;
+        }
+      });
+
+      // Ajoute un écouteur d'événements "click" au bouton "Suivant"
+      buttonNextPNR.addEventListener("click", (e) => {
+        // Empêche le comportement par défaut du clic sur un lien
+        e.preventDefault();
+
+        // Vérifie si le PNR en cours n'est pas déjà le dernier PNR de la liste
+        if (currentPnr.position < lastPnr.position) {
+          // Trouve le PNR suivant dans la liste
+          const pnr = pnrData.find(pnr => pnr.position === currentPnr.position + 1);
+
+          // Met à jour l'ID du PNR suivant dans l'URL de la page
+          splitUrl[5] = pnr.id;
+
+          // Rejoint les éléments de l'URL mis à jour pour former une nouvelle URL
+          let newUrl = splitUrl.join("/");
+
+          // Redirige vers la nouvelle URL
+          window.location.href = newUrl;
+        }
+      });
+
+      // Afficher la position du PNR actuel dans la liste
+      $("#pnrPosition").text(`${currentPnr.position + 1} sur ${lastPnr.position + 1}`);
+
+    } else {
+      console.log("Aucune donnée n'a été récupérée");
+    }
+  } catch (error) {
+    console.log(`Une erreur lors de la récupération des données : ${error}`);
+    console.log(error);
+    $("#pnrPosition").text(`Erreur`);
+  }
+} else {
+  console.log("L'élément 'managePnrToSwitch' n'existe pas ou ne contient pas d'attribut 'data-pnr-to-switch'");
 }

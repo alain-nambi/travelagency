@@ -874,8 +874,8 @@ def get_order(request, pnr_id):
                 if order.status == 'sale':
 
                     pnr_order = Pnr.objects.get(pk=order.pnr.id)
-                    if order.ticket is not None:
-                        ticket = Ticket.objects.get(pk=order.ticket.id, ticket_status=1)
+                    if order.ticket is not None and order.ticket.ticket_status == 1:
+                        ticket = Ticket.objects.get(pk=order.ticket.id)
                         ticket_ssr = ticket.ticket_ssrs.all()
                         # segment
                         if ticket.ticket_type != 'EMD':
@@ -980,8 +980,8 @@ def get_order(request, pnr_id):
                                     order.fee.save()
 
                     type_other_fee = ''
-                    if order.other_fee is not None:
-                        other_fee = OthersFee.objects.filter(pk=order.other_fee.id, other_fee_status=1)
+                    if order.other_fee is not None and order.other_fee.other_fee_status == 1:
+                        other_fee = OthersFee.objects.filter(pk=order.other_fee.id)
                         for item in other_fee:
                             if item.fee_type == 'EMD' or item.fee_type == 'TKT':
                                 type_other_fee = item.fee_type

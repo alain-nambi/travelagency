@@ -872,7 +872,7 @@ def get_order(request, pnr_id):
             order_invoice_number = datetime.now().strftime('%Y%m%d%H%M') + str(random.randint(1,9)) # SET ORDER NUMBER
             for order in orders:
                 if order.status == 'sale':
-                    
+
                     pnr_order = Pnr.objects.get(pk=order.pnr.id)
                     if order.ticket is not None:
                         ticket = Ticket.objects.get(pk=order.ticket.id, ticket_status=1)

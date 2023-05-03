@@ -9,6 +9,7 @@ import secrets
 from datetime import datetime
 import requests
 import random
+import pandas as pd
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render
@@ -505,8 +506,8 @@ def reduce_fee(request) :
             Sending.send_email_request(
                 "feerequest.issoufali.pnr@gmail.com",
                 [
-                    "superviseur@agences-issoufali.com",
-                    "pp@phidia.onmicrosoft.com",
+                    # "superviseur@agences-issoufali.com",
+                    # "pp@phidia.onmicrosoft.com",
                     "mihaja@phidia.onmicrosoft.com",
                     "tahina@phidia.onmicrosoft.com",
                     "famenontsoa@outlook.com"
@@ -725,7 +726,6 @@ def save_pnr_detail_modification(request, pnr_id):
 
     return JsonResponse(context)
 
-
 @login_required(login_url='index')
 def get_order(request, pnr_id):
     context = {}
@@ -735,8 +735,7 @@ def get_order(request, pnr_id):
     vendor_user = None
     user_copy = None
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
-    order_dest_dir = '/export/tests/orders'
-    customer_dest_dir = '/export/tests/clients'
+    
     file_dir =''
     customer_dir = ''
 
@@ -745,14 +744,6 @@ def get_order(request, pnr_id):
     customer_dir = '/opt/odoo/issoufali-addons/contacts_from_incadea/data/source'
     
 
-    # 'create a local folder called "export" to store the csv file'
-    # if not os.path.exists(os.path.join(parent_dir, 'export')):
-    #     os.makedirs(os.path.join(parent_dir, 'export'))
-    #     file_dir = os.path.join(parent_dir, 'export')
-    #     customer_dir = os.path.join(parent_dir, 'export')
-    # else:
-    #     file_dir = os.path.join(parent_dir, 'export')
-    #     customer_dir = os.path.join(parent_dir, 'export')
 
     customer_row = {}
     fieldnames_order = [
@@ -796,7 +787,14 @@ def get_order(request, pnr_id):
         'CT_Site'
     ]
 
+    order_df = pd.DataFrame(columns=fieldnames_order)
+    customer_df = pd.DataFrame(columns=fieldnames_customer)
+
+    csv_order_lines = []
+    csv_customer_lines = []
+
     if request.method== 'POST':
+        segments_parts = []
         if 'pnrId' and 'customerIdsChecked' in request.POST:
             pnr_id = request.POST.get('pnrId')
             reference = request.POST.get('refCde')
@@ -815,16 +813,6 @@ def get_order(request, pnr_id):
 
         if invoice.exists():
             invoice.update(reference=reference)
-
-        'Creation of csv file with the order data'
-        file = open(os.path.join(file_dir, 'FormatsSaleOrderExportOdoo{}.csv'.format(today)), 'w', encoding='utf-8', newline='')
-        csv_writer = csv.DictWriter(file, fieldnames=fieldnames_order, delimiter=';')
-        csv_writer.writeheader()
-
-        'Creation of the csv file with customer data'
-        file_2 = open(os.path.join(customer_dir, 'CustomerExport{}.csv'.format(today)), 'w', encoding='utf-8', newline='')
-        csv_writer_2 = csv.DictWriter(file_2, fieldnames=fieldnames_customer, delimiter=';')
-        csv_writer_2.writeheader()
         
         pnr_quotation = PassengerInvoice.objects.filter(status='quotation', is_quotation=True, pnr=pnr_id)
         if pnr_quotation.exists():
@@ -869,38 +857,46 @@ def get_order(request, pnr_id):
                             fee_item.is_invoiced = True
                             fee_item.save()
 
-
         for customer_id in customer_ids:
             "update the line of order of the current PNR to state invoiced"
             orders = PassengerInvoice.objects.filter(pnr=pnr_id, client=customer_id, is_invoiced=False)
             order_invoice_number = datetime.now().strftime('%Y%m%d%H%M') + str(random.randint(1,9)) # SET ORDER NUMBER
             for order in orders:
                 if order.status == 'sale':
-                    
-                    pnr_order = Pnr.objects.get(pk=order.pnr.id)
-                    if order.ticket is not None:
-                        ticket = Ticket.objects.get(pk=order.ticket.id)
 
-                        segments_parts = ticket.ticket_parts.all().order_by('segment__id')
+                    pnr_order = Pnr.objects.get(pk=order.pnr.id)
+                    if order.ticket is not None and order.ticket.ticket_status == 1:
+                        ticket = Ticket.objects.get(pk=order.ticket.id)
+                        ticket_ssr = ticket.ticket_ssrs.all()
                         # segment
+                        if ticket.ticket_type != 'EMD':
+                            segments_parts.append(ticket.ticket_parts.all().order_by('segment__id'))
+                        elif ticket.ticket_type == 'EMD':
+                            if ticket_ssr.exists():
+                                for ticket_segment in ticket_ssr:
+                                    segments_parts.append(ticket_segment.ssr.segments.all().order_by('id'))
+                            else:
+                                segments_parts.append(ticket.ticket_parts.all().order_by('segment__id'))
                         
                         air_segments = []
                         segment_names = []
                         segment_dates = []
-                        for part in segments_parts:
-                            if part.segment.segment_type == 'Flight' :
-                                _segment = {
-                                    'Name': part.segment.segmentorder,
-                                    'Fly': '%s %s' % (part.segment.servicecarrier.iata, part.segment.flightno),
-                                    'Class': part.segment.flightclass if part.segment.flightclass is not None else '',
-                                    'Departure': part.segment.codeorg.iata_code,
-                                    'Arrival': part.segment.codedest.iata_code,
-                                    'DepartureDatetime' : part.segment.departuretime.strftime('%d/%m/%Y %H:%M') if part.segment.segment_state == 0 and part.segment.departuretime else part.segment.departuretime.strftime('%d/%m/%Y %H:%M') if part.segment.departuretime else '',
-                                    'ArrivalDatetime' : part.segment.arrivaltime.strftime('%d/%m/%Y %H:%M') if part.segment.segment_state == 0 and part.segment.arrivaltime else '',   
-                                }
-                                air_segments.append(_segment)
+                        
+                        for segment in segments_parts:
+                            for part in segment:
+                                if part.segment.segment_type == 'Flight' :
+                                    _segment = {
+                                        'Name': part.segment.segmentorder,
+                                        'Fly': '%s %s' % (part.segment.servicecarrier.iata, part.segment.flightno),
+                                        'Class': part.segment.flightclass if part.segment.flightclass is not None else '',
+                                        'Departure': part.segment.codeorg.iata_code,
+                                        'Arrival': part.segment.codedest.iata_code,
+                                        'DepartureDatetime' : part.segment.departuretime.strftime('%d/%m/%Y %H:%M') if part.segment.segment_state == 0 and part.segment.departuretime else part.segment.departuretime.strftime('%d/%m/%Y %H:%M') if part.segment.departuretime else '',
+                                        'ArrivalDatetime' : part.segment.arrivaltime.strftime('%d/%m/%Y %H:%M') if part.segment.segment_state == 0 and part.segment.arrivaltime else '',   
+                                    }
+                                    air_segments.append(_segment)
 
-                        csv_writer.writerow({
+                        csv_order_lines.append({
                             'LineID': order.id,
                             'Type': ticket.ticket_type,
                             'PNRNumber': pnr_order.number,
@@ -923,19 +919,23 @@ def get_order(request, pnr_id):
                             'IssueDate': ticket.issuing_date.strftime('%d/%m/%Y') if ticket.issuing_date is not None else '',
                             'OrderNumber': order_invoice_number,
                             'OtherFeeId': '',
+                            'Designation':'',
                         })
-                        
-                        order.is_invoiced = True
-                        order.invoice_number = order_invoice_number
-                        order.save()
-                        order.ticket.is_invoiced = True
-                        order.ticket.save()
+
+                        if len(csv_order_lines) == 0:
+                            break
+                        else:
+                            order.is_invoiced = True
+                            order.invoice_number = order_invoice_number
+                            order.save()
+                            order.ticket.is_invoiced = True
+                            order.ticket.save()
 
                     if order.fee is not None:
                         fee = Fee.objects.filter(pk=order.fee.id)
                         for item in fee:
                             if order.fee.ticket is not None and order.fee.ticket.id == item.ticket.id:
-                                csv_writer.writerow({
+                                csv_order_lines.append({
                                     'LineID': order.id,
                                     'Type': item.type,
                                     'PNRNumber': pnr_order.number,
@@ -958,24 +958,27 @@ def get_order(request, pnr_id):
                                     'IssueDate': '',
                                     'OrderNumber': order_invoice_number,
                                     'OtherFeeId': '',
+                                    'Designation': '',
                                 })
                                 
-                                order.is_invoiced = True
-                                order.invoice_number = order_invoice_number
-                                order.save()
-                                order.fee.is_invoiced =True
-                                
-                                order.fee.save()
+                                if len(csv_order_lines) == 0:
+                                    break
+                                else:
+                                    order.is_invoiced = True
+                                    order.invoice_number = order_invoice_number
+                                    order.save()
+                                    order.fee.is_invoiced =True
+                                    order.fee.save()
 
                     type_other_fee = ''
-                    if order.other_fee is not None:
+                    if order.other_fee is not None and order.other_fee.other_fee_status == 1:
                         other_fee = OthersFee.objects.filter(pk=order.other_fee.id)
                         for item in other_fee:
-                            if item.fee_type == 'EMD' and item.fee_type == 'TKT':
+                            if item.fee_type == 'EMD' or item.fee_type == 'TKT':
                                 type_other_fee = item.fee_type
                             else:
-                                type_other_fee = 'EMD'#item.designation
-                            csv_writer.writerow({
+                                type_other_fee = 'EMD'
+                            csv_order_lines.append({
                                 'LineID': order.id,
                                 'Type': type_other_fee,
                                 'PNRNumber': pnr_order.number,
@@ -997,20 +1000,24 @@ def get_order(request, pnr_id):
                                 'TicketId': '',
                                 'IssueDate': item.creation_date.strftime('%d/%m/%Y') if item.creation_date is not None else '',
                                 'OrderNumber': order_invoice_number,
-                                'OtherFeeId': item.id if item is not None else ''
+                                'OtherFeeId': item.id if item is not None else '',
+                                'Designation': item.designation,
                             })
                             
-                            order.is_invoiced = True
-                            order.invoice_number = order_invoice_number
-                            order.save()
-                            order.other_fee.is_invoiced = True
-                            order.other_fee.save()
+                            if len(csv_order_lines) == 0:
+                                break
+                            else:
+                                order.is_invoiced = True
+                                order.invoice_number = order_invoice_number
+                                order.save()
+                                order.other_fee.is_invoiced = True
+                                order.other_fee.save()
 
                     if order.fee is not None:
                         fee = Fee.objects.filter(pk=order.fee.id)
                         for item in fee:
                             if order.fee.other_fee is not None and order.fee.other_fee.id == item.other_fee.id:
-                                csv_writer.writerow({
+                                csv_order_lines.append({
                                     'LineID': order.id,
                                     'Type': item.type,
                                     'PNRNumber': pnr_order.number,
@@ -1032,14 +1039,18 @@ def get_order(request, pnr_id):
                                     'TicketId': '',
                                     'IssueDate': '',
                                     'OrderNumber': order_invoice_number,
-                                    'OtherFeeId': item.other_fee.id if item.other_fee is not None else ''
+                                    'OtherFeeId': item.other_fee.id if item.other_fee is not None else '',
+                                    'Designation': ''
                                 })
                                 
-                                order.is_invoiced = True
-                                order.invoice_number = order_invoice_number
-                                order.save()
-                                order.fee.is_invoiced = True
-                                order.fee.save()
+                                if len(csv_order_lines) == 0:
+                                    break
+                                else:
+                                    order.is_invoiced = True
+                                    order.invoice_number = order_invoice_number
+                                    order.save()
+                                    order.fee.is_invoiced = True
+                                    order.fee.save()
                 
             customers = Client.objects.filter(pk=int(customer_id))
             for customer in customers:
@@ -1084,21 +1095,18 @@ def get_order(request, pnr_id):
                     customer_row['CT_Pays'] = customer.country.strip().replace('\n', '') if customer.country is not None else ''
                 else:
                     customer_row['CT_Pays'] = ''
-                csv_writer_2.writerow(customer_row)
+                csv_customer_lines.append(customer_row)
 
-            
-        file_2.close()
-        file.close()
+        order_df = pd.concat([order_df, pd.DataFrame(csv_order_lines)])
+        customer_df = pd.concat([customer_df, pd.DataFrame(csv_customer_lines)])
 
-        # 'Uploading the file to the FTP Server'
-        # upload_file(os.path.join(file_dir, 'CustomerExport{}.csv'.format(today)), customer_dest_dir, 'CustomerExport{}.csv'.format(today))
-        # upload_file(os.path.join(file_dir, 'FormatsSaleOrderExportOdoo{}.csv'.format(today)), order_dest_dir, 'FormatsSaleOrderExportOdoo{}.csv'.format(today))
-        # Call Odoo import
+        if not order_df.empty and not customer_df.empty:
+            order_df.to_csv(os.path.join(file_dir, 'FormatsSaleOrderExportOdoo{}.csv'.format(today)), index=False, sep=';')
+            customer_df.to_csv(os.path.join(customer_dir, 'CustomerExport{}.csv'.format(today)), index=False, sep=';')
+
         print("------------------Call Odoo import-----------------------")
         response = requests.get("https://odoo.issoufali.phidia.fr/web/syncorders")
-        
-        # print(response)
-        
+
         ticket_not_order = Ticket.objects.filter(pnr=pnr_id, is_invoiced=False, ticket_status=1).exclude(total=0)
         ticket_no_adc_order = Ticket.objects.filter(pnr=pnr_id, is_invoiced=False, ticket_status=1).filter(Q(total=0) & Q(is_no_adc=True))
         other_fee_order = OthersFee.objects.filter(pnr=pnr_id, is_invoiced=False, other_fee_status=1).filter(Q(total__gt=0))

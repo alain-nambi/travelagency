@@ -393,7 +393,6 @@ class ZenithParserReceipt():
                 transport_cost = decimal.Decimal(part[next_index+1].split(' ')[0].replace(',','.'))
                 tax = 0
                 total = decimal.Decimal(part[next_index+1].split(' ')[0].replace(',','.'))
-                self.ajustment_total.append(total)
             except:
                 pass   
                             
@@ -440,6 +439,7 @@ class ZenithParserReceipt():
                         
                         previous_ticket.ticket_description = 'modif'
                         previous_ticket.save()
+                        self.ajustment_total.append({'ticket': previous_ticket, 'total': total})
                     else:
                         is_untracked_reajustment = True
                 else:
@@ -479,6 +479,7 @@ class ZenithParserReceipt():
                             new_other_fee.ticket_status = 3
                         
                         new_other_fee.save()
+                        self.ajustment_total.append({'other_fee': new_other_fee, 'total': total})
                         
                         other_fee_passenger_segment = OtherFeeSegment()
                         other_fee_passenger_segment.other_fee = new_other_fee
@@ -742,7 +743,7 @@ class ZenithParserReceipt():
                     current_ticket_modif = Ticket.objects.filter(pnr=pnr, ticket_description='modif').all()
                     for ticket_modif in current_ticket_modif:
                         for total in self.ajustment_total:
-                            if ticket_modif.total == (total+new_emd.total):
+                            if ticket_modif.total == (total['total']+new_emd.total):
                                 is_already_saved = True
                                 break
                     
@@ -794,6 +795,34 @@ class ZenithParserReceipt():
         for emd_cancelled_part in emd_cancellation_part:
             receipt_parts.remove(emd_cancelled_part)
         self.handle_emd(pnr, passengers, receipt_parts)
+        
+        # re-check if re-adjustment has been saved
+        self.recheck_saved_adjustment(pnr)
+    
+    # re-check if re-adjustment has been saved
+    def recheck_saved_adjustment(self, pnr):
+        current_ticket_modif = Ticket.objects.filter(pnr=pnr, ticket_description='modif').all()
+        current_penalty = OthersFee.objects.filter(pnr=pnr, fee_type='TKT', designation__contains='.énalité.').all()
+        for modif in current_ticket_modif:
+            tester = False
+            for total in self.ajustment_total:
+                if 'other_fee' in total:
+                    if len(current_penalty) > 0:
+                        for penalty in current_penalty:
+                            if modif.total == (total['total'] + penalty.total):
+                                total['other_fee'].other_fee_status = 0
+                                total['other_fee'].save()
+                                tester = True
+                                break
+                    else:
+                        if modif.total == total['total']:
+                            total['other_fee'].other_fee_status = 0
+                            total['other_fee'].save()
+                            tester = True
+                            break
+            if tester:
+                break
+                    
     
     # get all passengers's ticket fares
     def parseReceipt(self):

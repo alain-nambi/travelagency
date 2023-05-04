@@ -546,7 +546,7 @@ class MailNotification():
                 # Envoyer le mail pour toutes les utilisateurs d'Isssoufali 
                 Sending.send_email(
                     "issoufali.pnr@outlook.com", 
-                    administrator_users_mail + other_users_mail + mgbi_users_mail, 
+                    administrator_users_mail + other_users_mail + mgbi_users_mail,  
                     subject, 
                     message
                 )
@@ -631,7 +631,7 @@ class MailNotification():
                 # Envoyer le mail pour toutes les utilisateurs d'Isssoufali 
                 Sending.send_email(
                     "issoufali.pnr@outlook.com", 
-                    administrator_users_mail + other_users_mail + mgbi_users_mail, 
+                    administrator_users_mail + other_users_mail + mgbi_users_mail,
                     subject, 
                     message
                 )
@@ -668,7 +668,7 @@ class MailNotification():
                 # Envoyer le mail pour les administrateurs d'Isssoufali 
                 Sending.send_email(
                     "issoufali.pnr@outlook.com", 
-                    administrator_users_mail + mgbi_users_mail, 
+                    administrator_users_mail + mgbi_users_mail,  
                     subject, 
                     message
                 )

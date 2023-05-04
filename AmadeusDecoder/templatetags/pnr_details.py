@@ -1432,7 +1432,6 @@ def get_find_fee_reduce_request(pnr, fee):
     else:
         return False
         
-
 @register.filter(name='manage_pnr_switch_with_button')
 def get_all_pnr_to_switch(request):
     from AmadeusDecoder.models.pnr.Pnr import Pnr
@@ -1447,7 +1446,6 @@ def get_all_pnr_to_switch(request):
             is_invoiced = False
     except:
         is_invoiced = False
-    
     creation_date_order_by = request.COOKIES.get('creation_date_order_by')
 
     # desc : date order by descending
@@ -1465,19 +1463,19 @@ def get_all_pnr_to_switch(request):
     # Set max timezone
     maximum_timezone = "2023-01-01 01:00:00.000000+03:00"
     filtered_creator = request.COOKIES.get('creator_pnr_filter')
-    
+
     if request.user.id in [4, 5]: #==> [Farida et Mouniati peuvent voir chacun l'ensemble de leurs pnr]
         pnr_list = []
         issuing_users = request.user.copied_documents.all()
-        
+
         if is_invoiced is None:
             for issuing_user in issuing_users:
                 pnr = Pnr.objects.filter(number=issuing_user.document).filter(Q(system_creation_date__gt=maximum_timezone)).first()
                 if pnr not in pnr_list and pnr is not None:
                     pnr_list.append(pnr)
-        
+
             pnr_obj = Pnr.objects.filter(Q(agent_id=filtered_creator)).filter(Q(system_creation_date__gt=maximum_timezone), Q(status_value=0)).all().order_by(date_order_by + 'system_creation_date')
-            
+
             for pnr in pnr_obj:
                 if pnr not in pnr_list:
                     pnr_list.append(pnr)
@@ -1492,9 +1490,9 @@ def get_all_pnr_to_switch(request):
                 pnr = Pnr.objects.filter(number=issuing_user.document).filter(Q(system_creation_date__gt=maximum_timezone)).filter(is_invoiced=is_invoiced).first()
                 if pnr not in pnr_list and pnr is not None:
                     pnr_list.append(pnr)
-        
+
             pnr_obj = Pnr.objects.filter(Q(agent_id=filtered_creator)).filter(Q(system_creation_date__gt=maximum_timezone)).filter(is_invoiced=is_invoiced).all().order_by(date_order_by + 'system_creation_date')
-            
+
             for pnr in pnr_obj:
                 if pnr not in pnr_list:
                     pnr_list.append(pnr)
@@ -1503,20 +1501,17 @@ def get_all_pnr_to_switch(request):
                 pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=True)
             else :
                 pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=False)
-        
         list_pnr_with_position = [{'id': pnr.id, 'position': index, 'number': pnr.number} for index, pnr in enumerate(pnr_list)]
         return json.dumps(list_pnr_with_position)
 
     if request.user.role_id == 3:
         pnr_list = []
         issuing_users = request.user.copied_documents.all()
-        
         if is_invoiced is not None:
             for issuing_user in issuing_users:
                 pnr = Pnr.objects.filter(number=issuing_user.document).filter(Q(system_creation_date__gt=maximum_timezone)).filter(is_invoiced=is_invoiced).first()
                 if pnr not in pnr_list and pnr is not None:
                     pnr_list.append(pnr)
-                    
             pnr_obj = Pnr.objects.filter(Q(agent_id=filtered_creator) | Q(agent_id=None)).filter(Q(system_creation_date__gt=maximum_timezone)).filter(is_invoiced=is_invoiced).all().order_by(date_order_by + 'system_creation_date')
             for pnr in pnr_obj:
                 if pnr not in pnr_list:
@@ -1526,10 +1521,10 @@ def get_all_pnr_to_switch(request):
                 pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=True)
             else :
                 pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=False)
-    
+
         list_pnr_with_position = [{'id': pnr.id, 'position': index, 'number': pnr.number} for index, pnr in enumerate(pnr_list)]
         return json.dumps(list_pnr_with_position)
-    
+
     else:
         if filtered_creator != '0' and filtered_creator is not None: 
             if is_invoiced == None:

@@ -726,7 +726,7 @@ def save_pnr_detail_modification(request, pnr_id):
 
     return JsonResponse(context)
 
-
+@login_required(login_url='index')
 def get_order(request, pnr_id):
     context = {}
     today = datetime.now().strftime('%Y%m%d%H%M%S') 
@@ -735,24 +735,12 @@ def get_order(request, pnr_id):
     vendor_user = None
     user_copy = None
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
-    # order_dest_dir = '/export/tests/orders'
-    # customer_dest_dir = '/export/tests/clients'
     file_dir =''
     customer_dir = ''
 
     
-    # file_dir = '/opt/odoo/issoufali-addons/import_saleorder/data/source'
-    # customer_dir = '/opt/odoo/issoufali-addons/contacts_from_incadea/data/source'
-    
-
-    'create a local folder called "export" to store the csv file'
-    if not os.path.exists(os.path.join(parent_dir, 'export')):
-        os.makedirs(os.path.join(parent_dir, 'export'))
-        file_dir = os.path.join(parent_dir, 'export')
-        customer_dir = os.path.join(parent_dir, 'export')
-    else:
-        file_dir = os.path.join(parent_dir, 'export')
-        customer_dir = os.path.join(parent_dir, 'export')
+    file_dir = 'D:\\Projects\\Django\\Issoufali\\travelagency\\AmadeusDecoder\\export'
+    customer_dir = 'D:\\Projects\Django\\Issoufali\\travelagency\\AmadeusDecoder\\export'
 
     customer_row = {}
     fieldnames_order = [
@@ -1110,8 +1098,8 @@ def get_order(request, pnr_id):
         customer_df = pd.concat([customer_df, pd.DataFrame(csv_customer_lines)])
 
         if not order_df.empty and not customer_df.empty:
-            order_df.to_csv(os.path.join(file_dir, 'FormatsSaleOrderExportOdoo{}.csv'.format(today)), index=False)
-            customer_df.to_csv(os.path.join(customer_dir, 'CustomerExport{}.csv'.format(today)), index=False)
+            order_df.to_csv(os.path.join(file_dir, 'FormatsSaleOrderExportOdoo{}.csv'.format(today)), index=False, sep=';')
+            customer_df.to_csv(os.path.join(customer_dir, 'CustomerExport{}.csv'.format(today)), index=False, sep=';')
 
         print("------------------Call Odoo import-----------------------")
         response = requests.get("https://odoo.issoufali.phidia.fr/web/syncorders")

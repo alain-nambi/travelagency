@@ -3,6 +3,7 @@ __pycache__/
 *.pyc
 settings.py
 error.txt
+EmailFetcher/utilities/attachments_dir/
 venv
 *.bash
 env

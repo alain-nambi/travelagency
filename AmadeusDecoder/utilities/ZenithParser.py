@@ -539,10 +539,14 @@ class ZenithParser():
             pnr.state = 0
             for i in range(len(content)):
                 if content[i].startswith('Dossier N'):
-                    if len(content[i-1]) == 6:
-                        pnr.number = content[i-1]
-                    else:
-                        pnr.number = content[i-1]
+                    document_name_split = content[i].strip().split(' ')
+                    if len(document_name_split) == 2:
+                        if len(content[i-1]) == 6:
+                            pnr.number = content[i-1]
+                        else:
+                            pnr.number = content[i-1]
+                    elif len(document_name_split) > 2 and len(document_name_split[-1]) == 6:
+                        pnr.number = document_name_split[-1]
             temp_pnr = Pnr.objects.filter(number=pnr.number).first()
             if temp_pnr is not None:
                 temp_pnr.system_creation_date = email_date

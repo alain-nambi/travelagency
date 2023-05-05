@@ -1,0 +1,19 @@
+Subject
+
+Your travel information
+
+
+Plain_Text
+
+TKT-7602404591947        RCI-                     1A  LOC-OJLUJZ
+ OD-DZADZA  SI-      FCPI-0   POI-DZA  DOI-17DEC22  IOI-66480094
+   1.MADJID/AICHA              INF            S I
+ 1 ODZA UU 275   E 17DEC1540 NS EHRTSMIN      A              1PC
+ 2 ORUN UU 274   E 10JAN1330 NS EHRTSMIN      O   18DEC      1PC
+    DZA
+FARE   F EUR        28.00
+TOTALTAX EUR         7.55
+TOTAL    EUR        35.55
+/FC DZA UU RUN13.73UU DZA13.73NUC27.46END ROE1.004460
+FE NON REF/VALID UU ONLY
+FP CASH

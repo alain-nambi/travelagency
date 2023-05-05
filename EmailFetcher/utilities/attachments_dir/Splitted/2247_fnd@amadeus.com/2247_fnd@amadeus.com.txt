@@ -1,0 +1,29 @@
+Subject
+
+Your travel information
+
+
+Plain_Text
+
+TST00001     DZAUU01A3 KO/28OCT I 0                  OD PARPAR                 
+T-E                                                                            
+FXB/S2/S4/SBF                                                                  
+   1.ABDALLAH/YLIANE MR(CHD)                                                   
+ 1   CDG UU  976 L 19DEC 1945  OK LH5PRSPCH            19FEB 1PC               
+ 2   DZA    ARNK                                                               
+ 3 O RUN UU  975 N 05JAN 2100  OK NHXRTSMCH       25DEC19FEB 1PC               
+     CDG                                                                       
+FARE  F EUR     651.00                                                         
+TX001 X EUR   415.00-YQAC TX002 X EUR     4.00-YQAD TX003 X EUR     9.46-FRSE  
+TX004 X EUR    26.50-FRTI TX005 X EUR     2.26-IZEB TX006 X EUR     3.00-O4VC  
+TX007 X EUR    13.30-QXAP TX008 X EUR     3.05-REDP TX009 X EUR    20.37-RJAE  
+TOTAL   EUR    1147.94                                                         
+GRAND TOTAL EUR    1147.94                                                     
+PAR UU DZA191.86/-RUN UU PAR455.35NUC647.21END ROE1.005682                     
+                                                                               
+ 28.FE VALID UU ONLY TARIFGADIAMB/NONREF/NONEND                                
+ 30.FP CA                                                                      
+ 31.FV UU                                                                      
+
+
+

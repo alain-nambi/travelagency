@@ -506,8 +506,8 @@ def reduce_fee(request) :
             Sending.send_email_request(
                 "feerequest.issoufali.pnr@gmail.com",
                 [
-                    # "superviseur@agences-issoufali.com",
-                    # "pp@phidia.onmicrosoft.com",
+                    "superviseur@agences-issoufali.com",
+                    "pp@phidia.onmicrosoft.com",
                     "mihaja@phidia.onmicrosoft.com",
                     "tahina@phidia.onmicrosoft.com",
                     "famenontsoa@outlook.com"

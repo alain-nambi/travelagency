@@ -5,25 +5,24 @@ Your travel information
 
 Plain_Text
 
-EMD-7609010562020     TYPE-S                                 SYS-1A  LOC-ND7R7R
-INT-D          FCI-0  0         POI-DZA        DOI-01MAY23         IOI-66480094
-PAX- RAKOTOARIVELO/NOROMALALA MS                                            ADT
-RFIC-D  FINANCIAL IMPACT
+EMD-7609010526546     TYPE-A                                 SYS-1A  LOC-KLQGYA
+INT-I          FCI-1  1         POI-DZA        DOI-16APR23         IOI-66480050
+PAX- AHAMADA/MOIDJOUMOI MRS                                                 ADT
+RFIC-C  BAGGAGE
 REMARKS-
-CPN-1  RFISC-0LA  UU RUN     S-F   SAC- 760LY48LPKXK4  VALUE-199.00
- DESCRIPTION-DISCOUNT CARD
- NON-REFUNDABLE
- NON-EXCHANGEABLE
- NON-INTERLINEABLE
- CONSUMED AT ISSUANCE
+CPN-1  RFISC-HBS  UU DZARUN  S-F   SAC- 760LST7HA2O9E
+ DESCRIPTION-HEAVY PIECE CHARGE
  PRESENT TO- 
  PRESENT AT- 
+ ICW-7602404729381E1           (A)
+ EXCESS BAGGAGE-    1 N RATE PER UNIT-EUR           0.00                       
  SERVICE REMARKS-
-FARE   F    EUR         199.00                                                 
-EXCH VAL EUR     199.00      RFND VAL
+FARE   F    EUR          50.00                                                 
+EXCH VAL EUR      50.00      RFND VAL
 TAX-
-TOTAL       EUR         199.00
-/FC 
-FP CHECK
+TOTAL       EUR          50.00
+/FC DZA UU RUN50.00EUR50.00END
+FP CASH
 FOID-
-NON-ENDORSABLEs
+NON-ENDORSABLE
+

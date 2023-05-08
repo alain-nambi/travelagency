@@ -740,8 +740,8 @@ def get_order(request, pnr_id):
     customer_dir = ''
 
     
-    file_dir = '/media/mgbi/Données/dev/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
-    customer_dir = '/media/mgbi/Données/dev/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
+    file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
+    customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
     
 
 

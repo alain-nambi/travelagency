@@ -794,7 +794,7 @@ def get_order(request, pnr_id):
     csv_customer_lines = []
 
     if request.method== 'POST':
-        segments_parts = []
+        # segments_parts = []
         if 'pnrId' and 'customerIdsChecked' in request.POST:
             pnr_id = request.POST.get('pnrId')
             reference = request.POST.get('refCde')
@@ -862,6 +862,7 @@ def get_order(request, pnr_id):
             orders = PassengerInvoice.objects.filter(pnr=pnr_id, client=customer_id, is_invoiced=False)
             order_invoice_number = datetime.now().strftime('%Y%m%d%H%M') + str(random.randint(1,9)) # SET ORDER NUMBER
             for order in orders:
+                segments_parts = []
                 if order.status == 'sale':
 
                     pnr_order = Pnr.objects.get(pk=order.pnr.id)
@@ -880,6 +881,7 @@ def get_order(request, pnr_id):
                         
                         air_segments = []
                         segment_names = []
+                        
                         segment_dates = []
                         
                         for segment in segments_parts:

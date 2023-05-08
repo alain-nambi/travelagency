@@ -1,0 +1,23 @@
+Subject
+
+Your travel information
+
+
+Plain_Text
+
+TKT-7602404790762        RCI-                     1A  LOC-W8U738
+ OD-PARPAR  SI-      FCPI-N   POI-DZA  DOI-21APR23  IOI-66480050
+   1.NEIER/GUILLAUME ERIK MR   ADT            S I
+ 1 OCDG UU 976   L 01MAY2025 OK LLAWEBSP      O              1PC
+ 2  DZA    ARNK
+ 3 ORUN UU 975   V 16DEC2100 OK VHWRTSM       O   07MAY      1PC
+    CDG
+FARE   I               IT
+TOTALTAX EUR       505.39
+TOTAL                  IT
+/FC PAR UU DZA M/IT /-RUN UU PAR M/IT END
+FE VALID UU ONLY NONREF/NONEND
+FP EC
+FT WEBUU
+FOR TAX/FEE DETAILS USE TWD/TAX
+NET REPORTING IT/BT                                            

@@ -137,7 +137,9 @@ class EMDOnlyParser():
                 if temp.startswith('S') and len_temp_split > 1:
                     statuses = {'O': 1, 'A': 2, 'F': 3, 'V': 0, 'R': 4, 'E': 5, 'P':6}
                     if temp_split[1] in statuses:
-                        emd_status = statuses[temp_split[1]]
+                        # currently not taken into account as regular PNR status not followed
+                        # emd_status = statuses[temp_split[1]]
+                        pass
                 if temp.startswith('RFIC'):
                     if len_content_split > 1:
                         emd_description += '('

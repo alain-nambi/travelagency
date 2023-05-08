@@ -1,0 +1,27 @@
+Subject
+
+Your travel information
+
+
+Plain_Text
+
+TST00002     DZAUU01A3 KO/28OCT I 0                  OD DZARUN                 
+T-                                                                             
+FXB/S3                                                                         
+   1.ABDALLAH/YLIANE MR(CHD)                                                   
+ 1   DZA UU  275 M 05JAN 1540  OK MHOWSMCH                   1PC               
+     RUN                                                                       
+FARE  F EUR      72.00                                                         
+TX001 X EUR    52.00-YQAC TX002 X EUR     4.50-F9AD TX003 X EUR    15.90-FRTI  
+TX004 X EUR     4.73-FRSE TX005 X EUR     1.13-IZAC TX006 X EUR     1.50-O4VC  
+TX007 X EUR    21.13-YTAP                                                      
+TOTAL   EUR     172.89                                                         
+GRAND TOTAL EUR     172.89                                                     
+DZA UU RUN71.28NUC71.28END ROE1.005682                                         
+                                                                               
+ 29.FE NON REF/VALID UU ONLY                                                   
+ 30.FP CA                                                                      
+ 32.FV UU                                                                      
+
+
+

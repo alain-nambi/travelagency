@@ -1,0 +1,30 @@
+Subject
+
+Your travel information
+
+
+Plain_Text
+
+TST00001     DZAUU01A4 BS/03NOV F N                  OD DZADZA                 
+T-E                                                                            
+FXB/R,P,UU010804/SBF                                                           
+   1.AMADI BAO/MARGUERITTE MRS                                                 
+ 1   DZA UU  979 L 12NOV 0925  OK LLWEB6SP                   1PC               
+ 2 O CDG UU  976 X 03DEC 2115  OK XLWRTSM         13NOV      1PC               
+     DZA                                                                       
+FARE  I EUR     438.00                                                         
+TX001 X EUR   430.00-YQAC TX002 X EUR     4.00-YQAD TX003 X EUR     4.50-F9AD  
+TX004 X EUR    27.60-FRTI TX005 X EUR     9.46-FRSE TX006 X EUR     1.13-IZAC  
+TX007 X EUR     3.00-O4VC TX008 X EUR    28.48-YTAP TX009 X EUR     1.13-IZEB  
+TX010 X EUR    13.30-QXAP                                                      
+TOTAL   EUR     960.60                                                         
+GRAND TOTAL EUR     960.60                                                     
+DZA UU PAR M/IT UU DZA M/IT END                                                
+                                                                               
+ 17.FE VALID UU ONLY NONREF/NONMOD/NONEND                                      
+ 18.FP CH                                                                      
+ 19.FT *F*WEBUU                                                                
+ 20.FV *F*UU                                                                   
+
+
+

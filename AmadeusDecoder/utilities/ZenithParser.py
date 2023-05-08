@@ -48,6 +48,7 @@ _months_ = {'janv':'01', 'févr':'02', 'mars':'03', 'avr':'04', 'mai':'05', 'jui
 _months_type_2_ = {'janvier':'01', 'février':'02', 'mars':'03', 'avril':'04', 'mai':'05', 'juin':'06', 'juillet':'07', 'août':'08', 'septembre':'09', 'octobre':'10', 'novembre':'11', 'décembre':'12'}
 _week_days_ = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi']
 _AIRPORT_AGENCY_CODE_ = ['DZAUU000B']
+_CURRENT_TRAVEL_AGENCY_IDENTIFIER_ = ['Issoufali', 'ISSOUFALI', 'Mayotte ATO']
 
 class ZenithParser():
     '''
@@ -539,10 +540,14 @@ class ZenithParser():
             pnr.state = 0
             for i in range(len(content)):
                 if content[i].startswith('Dossier N'):
-                    if len(content[i-1]) == 6:
-                        pnr.number = content[i-1]
-                    else:
-                        pnr.number = content[i-1]
+                    document_name_split = content[i].strip().split(' ')
+                    if len(document_name_split) == 2:
+                        if len(content[i-1]) == 6:
+                            pnr.number = content[i-1]
+                        else:
+                            pnr.number = content[i-1]
+                    elif len(document_name_split) > 2 and len(document_name_split[-1]) == 6:
+                        pnr.number = document_name_split[-1]
             temp_pnr = Pnr.objects.filter(number=pnr.number).first()
             if temp_pnr is not None:
                 temp_pnr.system_creation_date = email_date
@@ -1387,7 +1392,13 @@ class ZenithParser():
                     if len(other_ancillaries) > 0:
                         for ticket in tickets:
                             temp_ticket_obj = Ticket.objects.filter(number=ticket.number).first()
-                            temp_ticket_obj.ticket_status = 1
+                            if pnr.agency_name is not None:
+                                for identifier in _CURRENT_TRAVEL_AGENCY_IDENTIFIER_:
+                                    if pnr.agency_name.find(identifier) > -1:
+                                        temp_ticket_obj.ticket_status = 1
+                                        break
+                                    else:
+                                        temp_ticket_obj.ticket_status = 3
                             temp_ticket_obj.transport_cost = modification_fee
                             temp_ticket_obj.tax = 0.0
                             temp_ticket_obj.total = modification_fee
@@ -1606,7 +1617,13 @@ class ZenithParser():
                     if len(other_ancillaries) > 0:
                         for ticket in tickets:
                             temp_ticket_obj = Ticket.objects.filter(number=ticket.number).first()
-                            temp_ticket_obj.ticket_status = 1
+                            if pnr.agency_name is not None:
+                                for identifier in _CURRENT_TRAVEL_AGENCY_IDENTIFIER_:
+                                    if pnr.agency_name.find(identifier) > -1:
+                                        temp_ticket_obj.ticket_status = 1
+                                        break
+                                    else:
+                                        temp_ticket_obj.ticket_status = 3
                             temp_ticket_obj.transport_cost = modification_fee;
                             temp_ticket_obj.tax = 0.0;
                             temp_ticket_obj.total = modification_fee;

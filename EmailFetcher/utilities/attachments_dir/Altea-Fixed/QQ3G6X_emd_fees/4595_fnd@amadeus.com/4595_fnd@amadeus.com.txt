@@ -1,0 +1,31 @@
+Subject
+
+Your travel information
+
+
+Plain_Text
+
+EMD-7609010432686     TYPE-A                                 SYS-1A  LOC-QQ3G6X
+INT-I          FCI-0  0         POI-DZA        DOI-19NOV22         IOI-66480050
+PAX- SAINDOU/DHOIRIFIA MRS                                                  ADT
+RFIC-C  BAGGAGE
+REMARKS- 
+CPN-1  RFISC-0CC  UU DZACDG  S-C                      
+ DESCRIPTION-FIRST EXCESS BAG
+ PRESENT TO-  
+ PRESENT AT-  
+ ICW-7602404578991E1           (A)
+ EXCESS BAGGAGE-    1 N RATE PER UNIT-EUR           0.00                       
+ SERVICE REMARKS-B1
+FARE   F    EUR         100.00                                                 
+EXCH VAL EUR     100.00      RFND VAL
+TAX-
+TOTAL       EUR         100.00 
+/FC DZA UU PAR100.00EUR100.00END
+FP CCVIXXXXXXXXXXXX0365/0925/N309
+FOID-
+FREQUENT FLYER UU  7773457222
+NON-ENDORSABLE
+
+
+

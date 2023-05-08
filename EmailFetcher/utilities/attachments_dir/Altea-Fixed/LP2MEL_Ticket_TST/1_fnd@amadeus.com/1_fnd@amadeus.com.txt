@@ -1,0 +1,27 @@
+Subject
+
+Your travel information
+
+
+Plain_Text
+
+TST00003     DZAUU01A4 AI/04JAN F N                  OD PARPAR                 
+T-                                                                             
+FXP/R,P,U010804,*BD                                                           
+   1.BIZOUARNE/CELIA MME                                                       
+ 1   CDG UU  976 X 16JAN 1945  OK XLXRTSM                    1PC               
+ 2 O DZA UU  979 L 28JAN 1100  OK LLFWEBSP        22JAN      1PC               
+     CDG                                                                       
+FARE  I EUR     428.00                                                         
+TX001 X EUR   430.00-YQAC TX002 X EUR     4.00-YQAD TX003 X EUR     4.50-F9AD 
+TX004 X EUR    27.60-FRTI TX005 X EUR     9.46-FRSE TX006 X EUR     1.13-IZAC 
+TX007 X EUR     3.00-O4VC TX008 X EUR    28.48-YTAP TX009 X EUR     1.13-IZEB 
+TX010 X EUR    13.30-QXAP                                                     
+TOTAL   EUR     950.60                                                         
+GRAND TOTAL EUR     950.60                                                     
+PAR UU DZA M/IT UU PAR M/IT END                                               
+
+ 17.FE VALID UU ONLY NONREF/NONEND                                             
+ 18.FP CH                                                                     
+ 19.FT *F*WEBUU                                                               
+ 20.FV *F*UU                             

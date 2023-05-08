@@ -1,0 +1,29 @@
+Subject
+
+Your travel information
+
+
+Plain_Text
+
+EMD-7609010562020     TYPE-S                                 SYS-1A  LOC-ND7R7R
+INT-D          FCI-0  0         POI-DZA        DOI-01MAY23         IOI-66480094
+PAX- RAKOTOARIVELO/NOROMALALA MS                                            ADT
+RFIC-D  FINANCIAL IMPACT
+REMARKS-
+CPN-1  RFISC-0LA  UU RUN     S-F   SAC- 760LY48LPKXK4  VALUE-199.00
+ DESCRIPTION-DISCOUNT CARD
+ NON-REFUNDABLE
+ NON-EXCHANGEABLE
+ NON-INTERLINEABLE
+ CONSUMED AT ISSUANCE
+ PRESENT TO- 
+ PRESENT AT- 
+ SERVICE REMARKS-
+FARE   F    EUR         199.00                                                 
+EXCH VAL EUR     199.00      RFND VAL
+TAX-
+TOTAL       EUR         199.00
+/FC 
+FP CHECK
+FOID-
+NON-ENDORSABLEs

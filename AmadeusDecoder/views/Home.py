@@ -794,7 +794,7 @@ def get_order(request, pnr_id):
     csv_customer_lines = []
 
     if request.method== 'POST':
-        segments_parts = []
+        # segments_parts = []
         if 'pnrId' and 'customerIdsChecked' in request.POST:
             pnr_id = request.POST.get('pnrId')
             reference = request.POST.get('refCde')
@@ -880,6 +880,7 @@ def get_order(request, pnr_id):
                         
                         air_segments = []
                         segment_names = []
+                        segments_parts = []
                         segment_dates = []
                         
                         for segment in segments_parts:

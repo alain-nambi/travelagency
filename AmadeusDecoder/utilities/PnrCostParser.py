@@ -225,6 +225,7 @@ class PnrCostParser():
     
     # format airsegments from segment_line
     def format_airsegments(self, segment_line):
+        print('segment_line ', segment_line)
         air_segments = []
         i = 0
         while i < len(segment_line) - 1:
@@ -232,7 +233,15 @@ class PnrCostParser():
             temp_space_free_line = self.remove_space(segment_line[i].split(' '))
             next_space_free_line = self.remove_space(segment_line[i + 1].split(' '))
             
-            if temp_space_free_line[1] != 'O' and temp_space_free_line[1] != 'X':
+            if i == len(segment_line) - 2:
+                temp_destination = next_space_free_line[0]
+            else:
+                if next_space_free_line[1] != 'O' and next_space_free_line[1] != 'X':
+                    temp_destination = next_space_free_line[1]
+                else:
+                    temp_destination = next_space_free_line[2]
+            
+            if temp_space_free_line[1] != 'O' and temp_space_free_line[1] != 'X' and 'ARNK' not in temp_space_free_line:
                 temp_origin = temp_space_free_line[1] 
                 try:
                     temp_airline_code = temp_space_free_line[2] 
@@ -250,21 +259,44 @@ class PnrCostParser():
                     departure_date_time = temp_space_free_line[6] + '2023' + ' ' + temp_space_free_line[7] + '00'
                 except:
                     print('Index out of range')
+            # if ARNK
+            elif 'ARNK' in temp_space_free_line:
+                temp_origin = temp_space_free_line[1]
+                
+                if next_space_free_line[1] != 'O' and next_space_free_line[1] != 'X' and 'ARNK' not in next_space_free_line:
+                    try:
+                        temp_airline_code_arnk = next_space_free_line[2]
+                    except:
+                        print('Index out of range')
+                elif next_space_free_line[1] == 'O' or next_space_free_line[1] == 'X':
+                    try:
+                        temp_airline_code_arnk = next_space_free_line[3]
+                    except:
+                        print('Index out of range')
+                
+                try:
+                    temp_eventual_flight = PnrAirSegments.objects.filter(codeorg=Airport.objects.filter(iata_code=temp_origin).first(),
+                                                                         codedest=Airport.objects.filter(iata_code=temp_destination).first(),
+                                                                         servicecarrier=Airline.objects.filter(iata=temp_airline_code_arnk).first(),
+                                                                         id=1).last()
+                    try:
+                        temp_airline_code = temp_eventual_flight.servicecarrier.iata
+                        temp_flight_number = temp_eventual_flight.flightno
+                        temp_flight_class = temp_eventual_flight.flightclass
+                        departure_date_time = temp_eventual_flight.departuretime
+                    except Exception as e:
+                        raise e
+                        print('Index out of range')
+                except Exception as e:
+                    raise e
+                    print('ARNK part could not be parsed')
                     
-            if i == len(segment_line) - 2:
-                temp_destination = next_space_free_line[0]
-            else:
-                if next_space_free_line[1] != 'O' and next_space_free_line[1] != 'X':
-                    temp_destination = next_space_free_line[1]
-                else:
-                    temp_destination = next_space_free_line[2]
-            
             # departure time
             try:
                 temp_pnr_aisegment.departuretime = datetime.strptime(departure_date_time, '%d%b%Y %H%M%S')
             except:
                 print('Date format invalid')
-            
+                
             temp_pnr_aisegment.codeorg = Airport.objects.filter(iata_code=temp_origin).first()
             temp_pnr_aisegment.codedest = Airport.objects.filter(iata_code=temp_destination).first()
             temp_pnr_aisegment.servicecarrier = Airline.objects.filter(iata=temp_airline_code).first()

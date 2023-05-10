@@ -8,10 +8,10 @@ class ProductParser():
 
     def import_product(file):
         is_deleted = False
-        df = pd.read_csv(file, dtype=str, encoding='utf-8', sep=';')
+        df = pd.read_csv(file, encoding='utf-8', sep=';')
         df.replace({np.nan: None}, inplace=True)
-        for i, j in df.iterrows():
-            product_id, designation, code, cost, status, type = j[0], j[1] , j[2] , j[3], j[5], j[6]
+        for index, row in df.iterrows():
+            product_id, designation, code, cost, status, type = row['id'], row['name'] , row['code'] , row['price'], row['active'], row['deleted']
             product = Product.objects.filter(product_id=product_id)
             if status == "1":
                 is_deleted = True
@@ -23,3 +23,11 @@ class ProductParser():
             else:
                 new_product = Product(designation=designation, code=code, cost=cost, tax=0, total=cost, product_id=product_id, type=type)
                 new_product.save()
+
+
+class CustomerParse():
+
+    '''Class used when importing customer create from Odoo via csv file'''
+
+    def import_customer(file):
+        return None

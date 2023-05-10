@@ -735,11 +735,7 @@ def get_order(request, pnr_id):
     vendor_user = None
     user_copy = None
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
-    
-    file_dir =''
-    customer_dir = ''
 
-    
     file_dir = 'D:\\Projects\\Django\\Issoufali\\travelagency\\AmadeusDecoder\\export'
     customer_dir = 'D:\\Projects\Django\\Issoufali\\travelagency\\AmadeusDecoder\\export'
 
@@ -792,7 +788,6 @@ def get_order(request, pnr_id):
     csv_customer_lines = []
 
     if request.method== 'POST':
-        segments_parts = []
         if 'pnrId' and 'customerIdsChecked' in request.POST:
             pnr_id = request.POST.get('pnrId')
             reference = request.POST.get('refCde')
@@ -861,7 +856,7 @@ def get_order(request, pnr_id):
             order_invoice_number = datetime.now().strftime('%Y%m%d%H%M') + str(random.randint(1,9)) # SET ORDER NUMBER
             for order in orders:
                 if order.status == 'sale':
-
+                    segments_parts = []
                     pnr_order = Pnr.objects.get(pk=order.pnr.id)
                     if order.ticket is not None and order.ticket.ticket_status == 1:
                         ticket = Ticket.objects.get(pk=order.ticket.id)
@@ -972,7 +967,7 @@ def get_order(request, pnr_id):
                     if order.other_fee is not None and order.other_fee.other_fee_status == 1:
                         other_fee = OthersFee.objects.filter(pk=order.other_fee.id)
                         for item in other_fee:
-                            if item.fee_type == 'EMD' or item.fee_type == 'TKT':
+                            if item.fee_type == 'EMD' or item.fee_type == 'TKT' or item.fee_type == 'Cancellation':
                                 type_other_fee = item.fee_type
                             else:
                                 type_other_fee = 'EMD'
@@ -999,7 +994,7 @@ def get_order(request, pnr_id):
                                 'IssueDate': item.creation_date.strftime('%d/%m/%Y') if item.creation_date is not None else '',
                                 'OrderNumber': order_invoice_number,
                                 'OtherFeeId': item.id if item is not None else '',
-                                'Designation': item.designation,
+                                'Designation': item.designation if item is not None else '',
                             })
                             
                             if len(csv_order_lines) == 0:
@@ -1124,21 +1119,12 @@ def get_quotation(request, pnr_id):
     ticket = ''
     vendor_user = None
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
-    order_dest_dir = '/export/tests/orders'
-    customer_dest_dir = '/export/tests/clients'
-    # file_dir = ''
-    # customer_dir = ''
-    file_dir = '/opt/odoo/issoufali-addons/import_saleorder/data/source'
-    customer_dir = '/opt/odoo/issoufali-addons/contacts_from_incadea/data/source'
 
-    # 'create a local folder called "export" to store the csv file'
-    # if not os.path.exists(os.path.join(parent_dir, 'export')):
-    #     os.makedirs(os.path.join(parent_dir, 'export'))
-    #     file_dir = os.path.join(parent_dir, 'export')
-    #     customer_dir = os.path.join(parent_dir, 'export')
-    # else:
-    #     file_dir = os.path.join(parent_dir, 'export')
-    #     customer_dir = os.path.join(parent_dir, 'export')
+    file_dir = 'D:\\Projects\\Django\\Issoufali\\travelagency\\AmadeusDecoder\\export'
+    customer_dir = 'D:\\Projects\Django\\Issoufali\\travelagency\\AmadeusDecoder\\export'
+
+    quotation_df = pd.DataFrame(columns=fieldnames_order)
+    customer_df = pd.DataFrame(columns=fieldnames_customer)
 
     customer_row = {}
     fieldnames_order = [
@@ -1181,6 +1167,9 @@ def get_quotation(request, pnr_id):
         'CT_Email',
         'CT_Site'
     ]
+
+    csv_quotation_lines = []
+    csv_customer_lines = []
 
     if request.method== 'POST':
         if 'pnrId' in request.POST:
@@ -1241,7 +1230,7 @@ def get_quotation(request, pnr_id):
                                 }
                                 air_segments.append(_segment)
                         
-                    csv_writer.writerow({
+                    csv_quotation_lines.append({
                         'LineID': order.id,
                         'Type': order.type,
                         'PNRNumber': pnr_order.number,
@@ -1272,7 +1261,7 @@ def get_quotation(request, pnr_id):
                     fee = Fee.objects.filter(pk=order.fee.id)
                     for item in fee:
                         if order.fee.ticket is not None and order.fee.ticket.id == item.ticket.id:
-                            csv_writer.writerow({
+                            csv_quotation_lines.append({
                                 'LineID': order.id,
                                 'Type': item.type,
                                 'PNRNumber': pnr_order.number,
@@ -1306,7 +1295,7 @@ def get_quotation(request, pnr_id):
                             type_other_fee = item.fee_type
                         else:
                             type_other_fee = item.designation
-                        csv_writer.writerow({
+                        csv_quotation_lines.append({
                             'LineID': order.id,
                             'Type': type_other_fee,
                             'PNRNumber': pnr_order.number,
@@ -1349,7 +1338,7 @@ def get_quotation(request, pnr_id):
                                 segment_dates.append(part.departuretime.strftime('%d/%m/%Y %H:%M') if part.segment_state == 0 else part.departuretime.strftime('%d/%m/%Y'))
                                 segment_dates.append(part.arrivaltime.strftime('%d/%m/%Y %H:%M') if part.segment_state == 0 else '')
                     
-                    csv_writer.writerow({
+                    csv_quotation_lines.append({
                         'LineID': order.id,
                         'Type': 'Billet',
                         'PNRNumber': pnr_order.number,

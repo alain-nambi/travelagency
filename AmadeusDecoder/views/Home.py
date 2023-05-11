@@ -873,7 +873,6 @@ def get_order(request, pnr_id):
                         
                         air_segments = []
                         segment_names = []
-                        
                         segment_dates = []
                         
                         for segment in segments_parts:
@@ -928,7 +927,7 @@ def get_order(request, pnr_id):
                     if order.fee is not None:
                         fee = Fee.objects.filter(pk=order.fee.id)
                         for item in fee:
-                            if order.fee.ticket is not None and order.fee.ticket.id == item.ticket.id:
+                            if order.fee.ticket is not None and order.fee.ticket.ticket_status == 1 and order.fee.ticket.id == item.ticket.id:
                                 csv_order_lines.append({
                                     'LineID': order.id,
                                     'Type': item.type,
@@ -1010,7 +1009,7 @@ def get_order(request, pnr_id):
                     if order.fee is not None:
                         fee = Fee.objects.filter(pk=order.fee.id)
                         for item in fee:
-                            if order.fee.other_fee is not None and order.fee.other_fee.id == item.other_fee.id:
+                            if order.fee.other_fee is not None and order.fee.other_fee.other_fee_status == 1 and order.fee.other_fee.id == item.other_fee.id:
                                 csv_order_lines.append({
                                     'LineID': order.id,
                                     'Type': item.type,

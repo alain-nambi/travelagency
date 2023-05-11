@@ -22,6 +22,12 @@ _AIRPORT_AGENCY_CODE_ = ['DZAUU000B', 'Mayotte ATO']
 _STARTED_PROCESS_DATE_ = datetime(2023, 1, 1, 0, 0, 0, 0).date()
 _CURRENT_TRAVEL_AGENCY_IDENTIFIER_ = ['Issoufali', 'ISSOUFALI', 'Mayotte ATO']
 
+# part types
+TICKET_PAYMENT_PART = ["Paiement Billet"]
+ADJUSTMENT_PART = ["Reissuance Adjustment"]
+EMD_CANCELLATION_PART = ["Annulation ancillaries"]
+TICKET_CANCELLATION_PART = ["Ticket void"]
+
 class ZenithParserReceipt():
     '''
     classdocs
@@ -99,12 +105,13 @@ class ZenithParserReceipt():
         return parts
     
     # get each part by type
-    def get_parts_by_type(self, receipt_parts, part_type):
-        part_types = []
+    def get_parts_by_type(self, receipt_parts, part_types):
+        matching_part_types = []
         for part in receipt_parts:
-            if part_type in part:
-                part_types.append(part)
-        return part_types
+            for part_type in part_types:
+                if part_type in part:
+                    matching_part_types.append(part)
+        return matching_part_types
      
     # check if part has been issued by current Travel Agency
     def check_part_emitter(self, current_part):
@@ -122,17 +129,19 @@ class ZenithParserReceipt():
         return is_emitted
     
     # get target part index
-    def get_target_part_index(self, current_part, target):
+    def get_target_part_index(self, current_part, targets):
         for i in range(len(current_part)):
-            if current_part[i].strip() == target:
-                return i
+            for target in targets:
+                if current_part[i].strip() == target:
+                    return i
         return 0
     
     # get target part index: find target inside strings
-    def get_target_part_index_extended(self, current_part, target):
+    def get_target_part_index_extended(self, current_part, targets):
         for i in range(len(current_part)):
-            if (current_part[i].find(target.capitalize()) > -1 or current_part[i].find(target) > -1 or current_part[i].find(target.upper()) > -1):
-                return i
+            for target in targets:
+                if (current_part[i].find(target.capitalize()) > -1 or current_part[i].find(target) > -1 or current_part[i].find(target.upper()) > -1):
+                    return i
         return 0
     
     # get passenger assigned on part
@@ -487,7 +496,6 @@ class ZenithParserReceipt():
                         other_fee_passenger_segment.segment = current_segment[0]
                         other_fee_passenger_segment.save()
                     
-    
     # emd cancellation
     def handle_emd_cancellation(self, pnr, passengers, cancellation_part):
         for part in cancellation_part:
@@ -497,7 +505,7 @@ class ZenithParserReceipt():
             # new emd to be inserted
             new_emd = OthersFee()
             new_emd.pnr = pnr
-            part_name_index = self.get_target_part_index(part, "Annulation ancillaries")
+            part_name_index = self.get_target_part_index(part, ["Annulation ancillaries"])
             if part_name_index is not None:
                 new_emd.designation = part[part_name_index + 1]
             
@@ -535,6 +543,7 @@ class ZenithParserReceipt():
                 if not is_created_by_us or self.check_issuing_date(date_time.date()):
                     new_emd.other_fee_status = 3
                 new_emd.fee_type = 'Cancellation'
+                new_emd.creation_date = date_time.date()
                 new_emd.save()
                 if otherfee_saved_checker is None:
                     other_fee_passenger_segment = OtherFeeSegment()
@@ -542,10 +551,66 @@ class ZenithParserReceipt():
                     other_fee_passenger_segment.passenger = current_passenger
                     other_fee_passenger_segment.segment = current_segment[0]
                     other_fee_passenger_segment.save()
-    
+                    
+    # ticket cancellation
+    def handle_ticket_cancellation(self, pnr, passengers, cancellation_part):
+        for part in cancellation_part:
+            date_time = self.get_issuing_date_on_part(part)
+            current_passenger, next_index = self.get_passenger_assigned_on_part(passengers, part)
+            current_segment = self.get_segments_assigned_on_part(part)
+            # new emd to be inserted
+            new_emd = OthersFee()
+            new_emd.pnr = pnr
+            part_name_index = self.get_target_part_index(part, ["Ticket void"])
+            if part_name_index is not None:
+                new_emd.designation = part[part_name_index + 1]
+            
+            is_created_by_us = self.check_part_emitter(part)
+            
+            # make current other_fee as flown
+            temp_emd = Ticket.objects.filter(pnr=pnr, passenger=current_passenger, ticket_type='EMD').order_by('-id').first()
+            if temp_emd is not None:
+                if self.check_is_invoiced_status(temp_emd, None):
+                    temp_emd.ticket_status = 3
+                    temp_emd.save()
+            
+            temp_other_fees = OthersFee.objects.filter(pnr=pnr, related_segments__passenger=current_passenger).all()
+            for other_fee in temp_other_fees:
+                if self.check_is_invoiced_status(None, other_fee):
+                    other_fee.other_fee_status = 3
+                    other_fee.save()
+                
+            # get cancellation
+            if new_emd.designation is not None:
+                try:
+                    new_emd.cost = decimal.Decimal(part[next_index+1].split(' ')[0].replace(',','.'))
+                    new_emd.total = decimal.Decimal(part[next_index+1].split(' ')[0].replace(',','.'))
+                except:
+                    pass
+                
+                # check is it has been already saved
+                otherfee_saved_checker = OthersFee.objects.filter(designation=new_emd.designation, pnr=pnr, related_segments__passenger=current_passenger).first()
+                if otherfee_saved_checker != None:
+                    new_emd = otherfee_saved_checker
+                    if is_created_by_us:
+                        new_emd.other_fee_status = 1
+                    if (pnr.system_creation_date.date() > date_time.date()) and self.check_is_invoiced_status(otherfee_saved_checker, None):
+                        otherfee_saved_checker.other_fee_status = 3
+                if not is_created_by_us or self.check_issuing_date(date_time.date()):
+                    new_emd.other_fee_status = 3
+                new_emd.fee_type = 'Cancellation'
+                new_emd.creation_date = date_time.date()
+                new_emd.save()
+                if otherfee_saved_checker is None:
+                    other_fee_passenger_segment = OtherFeeSegment()
+                    other_fee_passenger_segment.other_fee = new_emd
+                    other_fee_passenger_segment.passenger = current_passenger
+                    other_fee_passenger_segment.segment = current_segment[0]
+                    other_fee_passenger_segment.save()
+
     # emd when no ticket number provided
     def handle_emd_no_number(self, pnr, current_passenger, current_segment, is_created_by_us, cost, total, date_time, emd_single_part):
-        designation_index = self.get_target_part_index_extended(emd_single_part, 'bagage')
+        designation_index = self.get_target_part_index_extended(emd_single_part, ['bagage'])
         designation = None
         if designation_index > 0:
             designation = emd_single_part[designation_index]
@@ -603,10 +668,10 @@ class ZenithParserReceipt():
             date_time = self.get_issuing_date_on_part(part)
             current_passenger, next_index = self.get_passenger_assigned_on_part(passengers, part)
             current_segment = self.get_segments_assigned_on_part(part)
-            part_name_index = self.get_target_part_index(part, "Pénalité")
+            part_name_index = self.get_target_part_index(part, ["Pénalité"])
             
             # skip Frais d'agence
-            internal_fee = self.get_target_part_index(part, "Frais d'agence")
+            internal_fee = self.get_target_part_index(part, ["Frais d'agence"])
             if internal_fee != 0:
                 continue
             
@@ -771,18 +836,24 @@ class ZenithParserReceipt():
         pnr = self.get_pnr()
         # get ticket payment
         # Marked with: "Paiement Billet"
-        ticket_payment_parts = self.get_parts_by_type(receipt_parts, "Paiement Billet")
+        ticket_payment_parts = self.get_parts_by_type(receipt_parts, TICKET_PAYMENT_PART)
         self.handle_ticket_payment(pnr, passengers, ticket_payment_parts)
         
         # get ticket adjustment
         # Marked with: "Reissuance Adjustment"
-        ticket_adjustment_part = self.get_parts_by_type(receipt_parts, "Reissuance Adjustment")
+        ticket_adjustment_part = self.get_parts_by_type(receipt_parts, ADJUSTMENT_PART)
         self.handle_ticket_adjustment(pnr, passengers, ticket_adjustment_part)
         
         # emd cancellation
         # Marked with: "Annulation ancillaries"
-        emd_cancellation_part = self.get_parts_by_type(receipt_parts, "Annulation ancillaries")
+        emd_cancellation_part = self.get_parts_by_type(receipt_parts, EMD_CANCELLATION_PART)
         self.handle_emd_cancellation(pnr, passengers, emd_cancellation_part)
+        
+        # ticket cancellation
+        # ticket void
+        # refund
+        ticket_cancellation_part = self.get_parts_by_type(receipt_parts, TICKET_CANCELLATION_PART)
+        self.handle_ticket_cancellation(pnr, passengers, ticket_cancellation_part)
         
         # emd
         # Marked with any other flags to signal EMD like "1er BAGAGE 23kg"
@@ -794,6 +865,9 @@ class ZenithParserReceipt():
             
         for emd_cancelled_part in emd_cancellation_part:
             receipt_parts.remove(emd_cancelled_part)
+            
+        for ticket_cancelled_part in ticket_cancellation_part:
+            receipt_parts.remove(ticket_cancelled_part)
         self.handle_emd(pnr, passengers, receipt_parts)
         
         # re-check if re-adjustment has been saved

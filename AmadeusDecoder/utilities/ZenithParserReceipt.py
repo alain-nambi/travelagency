@@ -580,7 +580,7 @@ class ZenithParserReceipt():
                 self.check_fee_subjection_status(date_time, current_segment, pnr, None, new_emd, emd_single_part)
             except:
                 traceback.print_exc()
-            new_emd.creation_date = date_time
+            new_emd.creation_date = date_time.date()
             new_emd.save()
             if otherfee_saved_checker is None:
                 if isinstance(current_segment, list):

@@ -30,8 +30,6 @@ def upload_file(file, des_path, des_file):
     with open(file, 'rb') as f:
         session.storbinary('STOR {}'.format(des_file), f)
 
-    
-
     # Call Odoo import
     print("------------------Call Odoo import-----------------------")
     response = requests.get("http://5.135.136.201:8075/web/syncorders")

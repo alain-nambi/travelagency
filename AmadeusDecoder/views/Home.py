@@ -1191,10 +1191,6 @@ def get_quotation(request, pnr_id):
         orders = PassengerInvoice.objects.filter(pnr=pnr_id, status='quotation')
         customers = Client.objects.all()
 
-        'Creation of csv file with the order data'
-        file = open(os.path.join(file_dir, 'FormatsSaleOrderExportOdoo{}.csv'.format(today)), 'w', encoding='utf-8', newline='')
-        csv_writer = csv.DictWriter(file, fieldnames=fieldnames_order, delimiter=';')
-        csv_writer.writeheader()
         for order in orders:
             if order.is_quotation == False:
                 pnr_order = Pnr.objects.get(pk=order.pnr.id)
@@ -1252,10 +1248,13 @@ def get_quotation(request, pnr_id):
                         'TicketId': ticket.id if ticket is not None else '',
                         'IssueDate': '',
                         'OrderNumber': '',
-                        'OtherFeeId': ''
+                        'OtherFeeId': '',
+                        'OPC': pnr_order.get_min_opc()
                     })
-                    order.is_quotation = True
-                    order.save()
+                    
+                    if len(csv_quotation_lines) > 0 :
+                        order.is_quotation = True
+                        order.save()
 
                 if order.fee is not None:
                     fee = Fee.objects.filter(pk=order.fee.id)
@@ -1283,10 +1282,13 @@ def get_quotation(request, pnr_id):
                                 'TicketId': item.ticket.id if item.ticket is not None else '',
                                 'IssueDate': '',
                                 'OrderNumber': '',
-                                'OtherFeeId': ''
+                                'OtherFeeId': '',
+                                'OPC': pnr_order.get_min_opc()
                             })
-                            order.is_quotation = True
-                            order.save()
+                            
+                            if len(csv_quotation_lines) > 0 :
+                                order.is_quotation = True
+                                order.save()
                             
                 if order.other_fee is not None:
                     other_fee = OthersFee.objects.filter(pk=order.other_fee.id)
@@ -1318,9 +1320,12 @@ def get_quotation(request, pnr_id):
                             'IssueDate': '',
                             'OrderNumber': '',
                             'OtherFeeId': item.id if item is not None else '',
+                            'OPC': pnr_order.get_min_opc()
                         })
-                        order.is_quotation = True
-                        order.save()
+                        
+                        if len(csv_quotation_lines) > 0 :
+                            order.is_quotation = True
+                            order.save()
 
                 if order.invoice_id is not None:
                     segments_parts = PnrAirSegments.objects.filter(pnr=pnr_id)
@@ -1360,16 +1365,14 @@ def get_quotation(request, pnr_id):
                         'TicketId': '',
                         'IssueDate': '',
                         'OrderNumber': '',
-                        'OtherFeeId': item.other_fee.id if item.other_fee is not None else ''
+                        'OtherFeeId': item.other_fee.id if item.other_fee is not None else '',
+                        'OPC': pnr_order.get_min_opc()
                     })
-                    order.is_quotation = True
-                    order.save() 
-        file.close()
+                    
+                    if len(csv_quotation_lines) > 0 :
+                        order.is_quotation = True
+                        order.save()
 
-        'Creation of the csv file with customer data'
-        file_2 = open(os.path.join(customer_dir, 'CustomerExport{}.csv'.format(today)), 'w', encoding='utf-8', newline='')
-        csv_writer = csv.DictWriter(file_2, fieldnames=fieldnames_customer, delimiter=';')
-        csv_writer.writeheader()
         customers = Client.objects.filter(pk=int(customer_object))
         if customers.exists():
             customer = customers.first()
@@ -1414,12 +1417,15 @@ def get_quotation(request, pnr_id):
                 customer_row['CT_Pays'] = customer.country
             else:
                 customer_row['CT_Pays'] = ''
-            csv_writer.writerow(customer_row)
-        file_2.close()
+            csv_customer_lines.append(customer_row)
 
-        'Uploading the file to the FTP Server'
-        # upload_file(os.path.join(file_dir, 'CustomerExport{}.csv'.format(today)), customer_dest_dir, 'CustomerExport{}.csv'.format(today))
-        # upload_file(os.path.join(file_dir, 'FormatsSaleOrderExportOdoo{}.csv'.format(today)), order_dest_dir, 'FormatsSaleOrderExportOdoo{}.csv'.format(today))
+        quotation_df = pd.concat([quotation_df, pd.DataFrame(csv_quotation_lines)])
+        customer_df = pd.concat([customer_df, pd.DataFrame(csv_customer_lines)])
+
+        if not quotation_df.empty and not customer_df.empty:
+            quotation_df.to_csv(os.path.join(file_dir, 'FormatsSaleOrderExportOdoo{}.csv'.format(today)), index=False, sep=';')
+            customer_df.to_csv(os.path.join(customer_dir, 'CustomerExport{}.csv'.format(today)), index=False, sep=';')
+
         print("------------------Call Odoo import-----------------------")
         response = requests.get("https://odoo.issoufali.phidia.fr/web/syncorders")
         print(response.content)

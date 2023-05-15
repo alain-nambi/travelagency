@@ -734,8 +734,8 @@ def get_order(request, pnr_id):
     user_copy = None
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
 
-    file_dir = 'D:\\Projects\\Django\\Issoufali\\travelagency\\AmadeusDecoder\\export'
-    customer_dir = 'D:\\Projects\Django\\Issoufali\\travelagency\\AmadeusDecoder\\export'
+    file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
+    customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
 
     customer_row = {}
     fieldnames_order = [

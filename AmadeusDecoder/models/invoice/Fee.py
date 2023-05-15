@@ -78,7 +78,7 @@ class OthersFee(models.Model, BaseModel):
     fee_type = models.CharField(max_length=100, default='Other_fee')
     reference = models.CharField(max_length=100, default=None, null=True)
     passenger_segment = models.CharField(max_length=100, default=None, null=True)
-    creation_date = models.DateField(auto_now=True, null=True)
+    creation_date = models.DateField(null=True)
     is_subjected_to_fee = models.BooleanField(default='1') # True when the other will have some fees False when not
     is_invoiced = models.BooleanField(default=False)
     product_id = models.IntegerField(default=None, null=True)

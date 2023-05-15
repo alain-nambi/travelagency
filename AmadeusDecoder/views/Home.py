@@ -1132,8 +1132,8 @@ def get_quotation(request, pnr_id):
     customer_dest_dir = '/export/tests/clients'
     # file_dir = ''
     # customer_dir = ''
-    file_dir = '/opt/odoo/issoufali-addons/import_saleorder/data/source'
-    customer_dir = '/opt/odoo/issoufali-addons/contacts_from_incadea/data/source'
+    file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
+    customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
 
     # 'create a local folder called "export" to store the csv file'
     # if not os.path.exists(os.path.join(parent_dir, 'export')):
@@ -1436,7 +1436,7 @@ def get_quotation(request, pnr_id):
         # upload_file(os.path.join(file_dir, 'CustomerExport{}.csv'.format(today)), customer_dest_dir, 'CustomerExport{}.csv'.format(today))
         # upload_file(os.path.join(file_dir, 'FormatsSaleOrderExportOdoo{}.csv'.format(today)), order_dest_dir, 'FormatsSaleOrderExportOdoo{}.csv'.format(today))
         print("------------------Call Odoo import-----------------------")
-        response = requests.get("https://odoo.issoufali.phidia.fr/web/syncorders")
+        response = requests.get("https://testodoo.issoufali.phidia.fr/web/syncorders")
         print(response.content)
         
 

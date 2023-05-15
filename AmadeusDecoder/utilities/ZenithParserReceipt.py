@@ -26,7 +26,7 @@ _CURRENT_TRAVEL_AGENCY_IDENTIFIER_ = ['Issoufali', 'ISSOUFALI', 'Mayotte ATO']
 TICKET_PAYMENT_PART = ["Paiement Billet"]
 ADJUSTMENT_PART = ["Reissuance Adjustment"]
 EMD_CANCELLATION_PART = ["Annulation ancillaries"]
-TICKET_CANCELLATION_PART = ["Ticket void"]
+TICKET_CANCELLATION_PART = ["Ticket void", "Remboursement"]
 
 class ZenithParserReceipt():
     '''
@@ -480,6 +480,7 @@ class ZenithParserReceipt():
                         new_other_fee.total = total
                         new_other_fee.pnr = pnr
                         new_other_fee.fee_type = 'TKT'
+                        new_other_fee.creation_date = date_time.date()
                         
                         if not is_created_by_us:
                             new_other_fee.other_fee_status = 0
@@ -561,7 +562,7 @@ class ZenithParserReceipt():
             # new emd to be inserted
             new_emd = OthersFee()
             new_emd.pnr = pnr
-            part_name_index = self.get_target_part_index(part, ["Ticket void"])
+            part_name_index = self.get_target_part_index(part, TICKET_CANCELLATION_PART)
             if part_name_index is not None:
                 new_emd.designation = part[part_name_index + 1]
             

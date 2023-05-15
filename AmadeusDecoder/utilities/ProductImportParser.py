@@ -39,12 +39,11 @@ class CustomerParser():
             customer = Client.objects.filter(odoo_id=odoo_id)
 
             if customer.exists():
-                if customer_id is not None and customer.filter(pk=customer_id).exists():
-                    customer.update(intitule=intitule, type=customer_type, address_1=address, city=city, country=country, telephone=telephone, email=mail, code_postal=zipcode)
-                elif customer_id is not None and customer.filter(pk=customer_id).exists():
+                customer.update(intitule=intitule, type=customer_type, address_1=address, city=city, country=country, telephone=telephone, email=mail, code_postal=zipcode)
+            else:
+                if customer_id is not None and customer.objects.filter(pk=customer_id).exists():
+                    customer.update(intitule=intitule, type=customer_type, address_1=address, city=city, country=country, telephone=telephone, email=mail, code_postal=zipcode, odoo_id=odoo_id)
+                else:
                     new_customer = Client(intitule=intitule, type=customer_type, address_1=address, city=city, country=country, telephone=telephone, email=mail, code_postal=zipcode)
                     new_customer.save()
-            elif customer_id is not None and not customer.exists() and customer.filter(pk=customer_id).exists():
-                new_customer = Client(intitule=intitule, type=customer_type, address_1=address, city=city, country=country, telephone=telephone, email=mail, code_postal=zipcode)
-                new_customer.save()
 

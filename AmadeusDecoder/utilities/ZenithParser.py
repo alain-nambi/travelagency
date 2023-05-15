@@ -568,12 +568,12 @@ class ZenithParser():
             for psg_type in _passenger_types_:
                 if passenger_content[i].startswith(psg_type) and passenger_content[i] != psg_type:
                     new_content.append(psg_type)
-                    new_content.append(passenger_content[i].removeprefix(psg_type))
+                    new_content.append(passenger_content[i].removeprefix(psg_type).strip())
                     skip = True
                 elif len((passenger_content[i].strip()).split(psg_type)) > 1 and passenger_content[i].strip() != psg_type:
-                    new_content.append((passenger_content[i].strip()).split(psg_type)[0])
+                    new_content.append((passenger_content[i].strip()).split(psg_type)[0].strip())
                     new_content.append(psg_type)
-                    new_content.append((passenger_content[i].strip()).split(psg_type)[1])
+                    new_content.append((passenger_content[i].strip()).split(psg_type)[1].strip())
                     skip = True
             if not skip:
                 new_content.append(passenger_content[i])
@@ -585,11 +585,27 @@ class ZenithParser():
             for psg_type in _passenger_types_:
                 if new_content[i].strip() == psg_type:
                     if not new_content[i-1].strip().isnumeric() and len(new_content[i-1].strip()) > 13:
-                        new_content_ticket_separated.pop()
-                        new_content_ticket_separated.append(new_content[i-1].removesuffix(new_content[i-1].split(' ')[-1]).strip())
-                        new_content_ticket_separated.append(new_content[i-1].split(' ')[-1])
-                        new_content_ticket_separated.append(psg_type)
-                        skip = True
+                        previous_element_space_split = new_content[i-1].split(' ')
+                        
+                        # 'Mme MARIE CHARLOTTE RAZAFIMANDIMBY 7322415445929', 'Adulte(s)'
+                        if previous_element_space_split[0].strip() in _passenger_designations_:
+                            new_content_ticket_separated.pop()
+                            new_content_ticket_separated.append(new_content[i-1].removesuffix(previous_element_space_split[-1]).strip())
+                            new_content_ticket_separated.append(previous_element_space_split[-1])
+                            new_content_ticket_separated.append(psg_type)
+                            skip = True
+                        # 'Mme MARIE CHARLOTTE RAZAFIMANDIMBY 7322415445929', 'INFT (LANDRIO/KHAIRANELYA 06DEC21)', 'Adulte(s)'
+                        # or 'Mme KAMARIA YOUSSOUF', '7322415447799', 'INFT (SAID/CAMELIA 24MAY22)', 'Adulte(s)',
+                        else:
+                            temp_head_element_space_split = new_content[i-2].split(' ')
+                            if temp_head_element_space_split[0].strip() in _passenger_designations_ \
+                                and temp_head_element_space_split[-1].strip().isnumeric():
+                                new_content_ticket_separated.pop()
+                                new_content_ticket_separated.pop()
+                                new_content_ticket_separated.append(new_content[i-2].removesuffix(temp_head_element_space_split[-1]).strip())
+                                new_content_ticket_separated.append(temp_head_element_space_split[-1])
+                                new_content_ticket_separated.append(psg_type)
+                                skip = True
                     # e.g: Mme MARIA HELENA MARCOS DO AMARAL 7322415433868INFT (DEBRITOAMARAL/AVAGABRIELLEHELENA', '03MAY21)', 'Adulte(s)'
                     elif not new_content[i-1].strip().isnumeric() and len(new_content[i-1].strip()) < 13:
                         temp_content_split_space = new_content[i-2].split(' ')
@@ -616,6 +632,7 @@ class ZenithParser():
                 new_content_ticket_separated.append(new_content[i])
         
         new_content = new_content_ticket_separated
+        print("Current content: ", new_content)
         
         # separate ticket number from services
         new_content_service_separated_ticket = []
@@ -726,8 +743,6 @@ class ZenithParser():
             elif content[i].startswith('Dossier N'):
                 index_end = i - 2
                 break
-        
-        print('PASSENGER_CONTENT_ORIGINAL', content[index_start: index_end])
         
         def get_passenger_index(content, index_start, index_end):
             passenger_index = []
@@ -1403,6 +1418,7 @@ class ZenithParser():
                             temp_ticket_obj.tax = 0.0
                             temp_ticket_obj.total = modification_fee
                             temp_ticket_obj.ticket_description = 'modif'
+                            temp_ticket_obj.ticket_status = ticket_status
                             temp_ticket_obj.save()
                     
                     ancillaries_part = self.get_part(content, 'Ancillaries')
@@ -1628,6 +1644,7 @@ class ZenithParser():
                             temp_ticket_obj.tax = 0.0;
                             temp_ticket_obj.total = modification_fee;
                             temp_ticket_obj.ticket_description = 'modif'
+                            temp_ticket_obj.ticket_status = ticket_status
                             temp_ticket_obj.save()
                     
                     ancillaries_part = self.get_part(content, 'Ancillaries')

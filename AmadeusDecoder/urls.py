@@ -7,7 +7,7 @@ from .views.Dashboard import dashboard
 from .views.Manage_customers import customers, create_customer, modify_customer_info, modify_customer_in_passenger_invoice, delete_customer
 from .views.Manage_users import users, register
 from .views.Account import account
-from .views.Tools import tools
+from .views.Tools import tools, call_customer_import, call_product_import
 from .views.Setting import setting
 from .views.Login import *
 from .views.Home import *
@@ -50,6 +50,8 @@ urlpatterns = [
     path('home/pnr/<int:pnr_id>/import_product/', import_product, name='import_product'),
     path('home/pnr/<int:pnr_id>/delete-customer/', delete_customer, name='delete_customer'),
     path('home/pnr/<int:pnr_id>/find-customer/', find_customer, name='find_customer'),
+    path('home/customer/import_customer/', call_customer_import, name='import_customer'),
+    path('home/product/import_product_odoo/', call_product_import, name='import_product_odoo'),
 ]
 
 # assign current company to local variable 'session_variable'

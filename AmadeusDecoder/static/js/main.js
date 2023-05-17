@@ -11,6 +11,223 @@ $(document).ready(function () {
   }, 2000);
 });
 
+$(function() {
+  // Initialise un élément "select" avec l'ID "normalize" en utilisant la bibliothèque Selectize et ajoute le plugin de bouton de suppression. L'option normalize est activée.
+  $('#normalize').selectize({
+    plugins: ["clear_button"],
+    normalize: true,
+  });
+  
+  const SELECTION_CLASS = ".selectize-input.items.not-full.has-options.dropdown-active.focus.input-active, .selectize-input.items.not-full.has-options, .selectize-input.items.not-full.has-options.dropdown-active, #normalize-selectized"
+
+  $(SELECTION_CLASS).on("click", () => {
+    const $selectizeDropDownContent = $(".selectize-dropdown-content .option")
+    $selectizeDropDownContent.on("click", (e) => {
+      let $creatorId = $(".selectize-input .item")
+      document.cookie = `creator_pnr_filter=${$creatorId.data("value")}; SameSite=Lax`
+    })
+  });
+  
+  /* 
+    L'évènement "blur" est déclenché lorsqu'un élément perd le focus, 
+    c'est-à-dire que l'utilisateur a cliqué sur un autre élément de la page ou qu'il a quitté l'élément en question 
+    (par exemple en appuyant sur la touche Tab).
+  */
+
+  $(SELECTION_CLASS).on("blur", () => {
+    const $selectizeDropDownContent = $(".selectize-dropdown-content .option")
+    $selectizeDropDownContent.on("click", (e) => {
+      let $creatorId = $(".selectize-input .item")
+      document.cookie = `creator_pnr_filter=${$creatorId.data("value")}; SameSite=Lax`
+    })
+  });
+  
+
+  // Convertit l'objet Date actuel en une chaîne de caractères représentant la date actuelle au format spécifié ("day month year") et spécifie la locale française.
+  const currentDateToString = new Date(Date.now());
+  const options             = { year: 'numeric', month: 'long', day: 'numeric' };
+  const localeDateString    = currentDateToString.toLocaleDateString('fr-FR', options);
+
+  // Cache tous les éléments de menu de filtre lors du chargement de la page.
+  const $wrapperMenuFilter = $(".wrapper-menu-filter");
+  const $pnrMenu           = $(".pnr-menu")
+  const $dateRangeMenu     = $(".date-range-menu");
+  const $creatorMenu       = $(".creator-group-menu")
+  const liElements         = $(".filter-menu > .list");
+  const $pnrLiElements     = $(".pnr-menu .pnr-list");
+
+  $wrapperMenuFilter.hide();
+  $pnrMenu.hide();
+  $dateRangeMenu.hide();
+  $creatorMenu.hide();
+
+  // Initialise des variables booléennes pour suivre l'état des menus ouverts et les filtres sélectionnés.
+  let isMenuOpen = false;
+  let isPnrSelected = false;
+  let isDateCreationSelected = false;
+  let isCreatorSelected = false;
+
+  // Attache un gestionnaire d'événements pour afficher/cacher le menu de filtre lorsqu'on clique sur le bouton Menu Filter. Il bascule également la classe CSS active sur le bouton pour refléter son état.
+  $("#buttonMenuFilter").click(function(e) {
+    isMenuOpen = !isMenuOpen;
+    isMenuOpen ? $wrapperMenuFilter.show() : $wrapperMenuFilter.hide();
+    $(this).toggleClass("active", isMenuOpen);
+    liElements.removeClass("active");
+    $pnrMenu.hide();
+    $dateRangeMenu.hide();
+    $creatorMenu.hide();
+  });
+
+  // Attache un gestionnaire d'événements pour chaque élément de menu de filtre afin de sélectionner/désélectionner les filtres et d'afficher/cacher les menus correspondants.
+  liElements.click(function(li) {
+    liElements.removeClass("active");
+
+    if (this.classList.contains("list-one")) {
+      isPnrSelected = true;
+      $pnrMenu.show();
+      $dateRangeMenu.hide();
+      $creatorMenu.hide();
+    }
+
+    if (this.classList.contains("list-two")) {
+      isDateCreationSelected = true;
+      $dateRangeMenu.show();
+      $pnrMenu.hide();
+      $creatorMenu.hide();
+    }
+
+    if (this.classList.contains("list-three")) {
+      isCreatorSelected = true
+      $dateRangeMenu.hide();
+      $pnrMenu.hide();
+      $creatorMenu.show();
+    }
+    
+    this.classList.add("active");
+  });
+
+  // Ajoute la classe CSS opacity-0 à l'icône de coche dans le menu PNR pour la cacher.
+  $(".pnr-menu i.fa-check").addClass("opacity-0");
+
+  // Sélectionne toutes les icônes de coche dans le menu PNR et stocke-les dans la variable $pnrCheckIcons. 
+  const $pnrCheckIcons = $pnrLiElements.find('i.fa-check');
+
+  // console.log($pnrCheckIcons);
+
+  // Récupère le type de filtre actuel à partir de l'objet localStorage.
+  const filterType = localStorage.getItem('filterPnrBy');
+
+  // Initialise un objet qui associe chaque type de filtre à son sélecteur CSS correspondant afin d'éviter la duplication de code.
+  const filterSelectors = {
+    'all': '#showAllPnr i.fa-check',
+    'not send': '#showNotInvoicedPnr i.fa-check',
+    'send': '#showInvoicedPnr i.fa-check',
+  };
+  
+  // Nous pouvons utiliser l'opérateur ternaire pour simplifier la logique conditionnelle.
+  const selector = filterSelectors[filterType] ? filterSelectors[filterType] : filterSelectors['not send'];
+
+  // Au lieu d'utiliser addClass et removeClass séparément, nous pouvons les chaîner ensemble.
+  $pnrCheckIcons.removeClass('opacity-100').addClass('opacity-0');
+  
+  // Si un sélecteur a été trouvé, nous pouvons appliquer la classe d'opacité aux éléments correspondants.
+  if (selector) {
+    const $visibleIcons = $pnrCheckIcons.filter(selector);
+    $visibleIcons.addClass('opacity-100').removeClass('opacity-0');
+  }
+
+  // console.log($($pnrLiElements).find("i.fa-check"));
+
+  $pnrLiElements.click(function() {
+    // Retirer la classe "opacity-100" de tous les éléments i
+    $(".pnr-menu i.fa-check").removeClass("opacity-100");
+    $(".pnr-menu i.fa-check").addClass("opacity-0");
+  
+    // Ajouter la classe "opacity-100" à l'élément i du clic en cours
+    $(this).find("i.fa-check").addClass("opacity-100");
+    $(this).find("i.fa-check").removeClass("opacity-0");
+  
+    if (this.classList.contains("list-one")) {
+      // Faire quelque chose pour le premier élément de la liste
+      localStorage.setItem("filterPnrBy", "all")
+      document.cookie = `filter_pnr=None; SameSite=Lax`
+    }
+  
+    if (this.classList.contains("list-two")) {
+      // Faire quelque chose pour le deuxième élément de la liste
+      localStorage.setItem("filterPnrBy", "send")
+      document.cookie = `filter_pnr=True; SameSite=Lax`
+    }
+  
+    if (this.classList.contains("list-three")) {
+      // Faire quelque chose pour le troisième élément de la liste
+      localStorage.setItem("filterPnrBy", "not send")
+      document.cookie = `filter_pnr=False; SameSite=Lax`
+    }
+
+    window.location.reload()
+  });
+
+  // Ajoutez la date locale dans les éléments HTML avec l'ID "dateRangeBegin" et "dateRangeEnd"
+  $('#dateRangeBegin, #dateRangeEnd').text(localeDateString);
+
+  // Définit une fonction de rappel pour le choix de date
+  function cb(start, end) {
+    // Récupère la date de début et de fin depuis localStorage s'ils existent
+    const startDateFromLocalStorage = JSON.parse(localStorage.getItem("startDate"));
+    const endDateFromLocalStorage = JSON.parse(localStorage.getItem("endDate"));
+
+    // Affiche la plage de dates sélectionnée dans l'élément avec l'ID "reportrange"
+    // Si aucune date n'a été récupérée depuis localStorage, affiche la plage de dates courante
+    const displayStartDate = startDateFromLocalStorage || start;
+    const displayEndDate = endDateFromLocalStorage || end;
+    $('#reportrange span').html(displayStartDate + ' - ' + displayEndDate);
+  }
+
+  // Initialise le plugin DateRangePicker sur l'élément avec l'ID "reportrange"
+  $('#reportrange').daterangepicker({
+    opens: 'right'
+  }, function(start, end, label) {
+    // Formate les dates de début et de fin pour l'affichage et le stockage
+    const displayFormat = 'DD/MM/YYYY';
+    const storageFormat = 'YYYY-MM-DD';
+
+    const startDateDisplay = start._d.toLocaleDateString('fr-FR', options);
+    const endDateDisplay = end._d.toLocaleDateString('fr-FR', options);
+
+    const startDateStorage = start.format(storageFormat);
+    const endDateStorage = end.format(storageFormat);
+
+    // Met à jour les éléments HTML avec les dates sélectionnées
+    $('#dateRangeBegin').text(startDateDisplay);
+    $('#dateRangeEnd').text(endDateDisplay);
+
+    // Stocke la plage de dates sélectionnée dans un cookie
+    document.cookie = `dateRangeFilter=${startDateStorage} * ${endDateStorage}; SameSite=Lax`;
+
+    // Stocke la date de début et de fin sélectionnée dans localStorage
+    localStorage.setItem("startDate", JSON.stringify(startDateDisplay));
+    localStorage.setItem("endDate", JSON.stringify(endDateDisplay));
+
+    // Met à jour la plage de dates affichée en appelant la fonction de rappel
+    cb(startDateDisplay, endDateDisplay);
+  });
+
+  // Initialise la plage de dates affichée en appelant la fonction de rappel avec la date courante
+  cb(localeDateString, localeDateString);
+
+  // Ajoute un gestionnaire d'événements pour le bouton de filtre pour forcer le rechargement de la page
+  function reloadCurrentPage(attr) {
+    $(attr).on("click", (e) => {
+      e.preventDefault()
+      window.location.reload()
+    })
+  }
+
+  reloadCurrentPage("#buttonMenuFilterByCreator")
+  reloadCurrentPage("#buttonMenuFilterByCreationDateRange")
+});
+
 //local storage sidebar
 var $toggleButton = $("#pushed-sidebar");
 var $pushSelectors = $("#pushed-content");
@@ -2332,7 +2549,7 @@ if (pnrFilteredByOrder != null) {
   }
   if (pnrFilteredByOrder != null) {
     pnrFilteredByOrder.addEventListener("change", (e) => {
-      document.cookie = `filter_pnr=${e.target.value}`
+      document.cookie = `filter_pnr=${e.target.value}; SameSite=Lax`
       location.reload()
     })
   }
@@ -2355,7 +2572,7 @@ if (pnrCreatorFilter != null) {
   }
 
   pnrCreatorFilter.addEventListener('change', e=> {
-    document.cookie = `creator_pnr_filter=${e.target.value}`;
+    document.cookie = `creator_pnr_filter=${e.target.value}; SameSite=Lax`;
     location.reload();
   })
 }
@@ -2371,15 +2588,15 @@ $(".pnr-creation-date").click((e) => {
   e.preventDefault()
   if (isOrderedByDateCreated == null) {
     localStorage.setItem("isOrderedByDateCreated", "false")
-    document.cookie = `creation_date_order_by="asc"`
+    document.cookie = `creation_date_order_by="asc"; SameSite=Lax`
   } else {
     if (isOrderedByDateCreated == "false") {
       localStorage.setItem("isOrderedByDateCreated", "true")
-      document.cookie = `creation_date_order_by="desc"`
+      document.cookie = `creation_date_order_by="desc"; SameSite=Lax`
     }
     if (isOrderedByDateCreated == "true") {
       localStorage.setItem("isOrderedByDateCreated", "false")
-      document.cookie = `creation_date_order_by="asc"`
+      document.cookie = `creation_date_order_by="asc"; SameSite=Lax`
     }
   }
   window.location.reload()

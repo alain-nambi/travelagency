@@ -786,7 +786,6 @@ def get_order(request, pnr_id):
     csv_customer_lines = []
 
     if request.method== 'POST':
-        # segments_parts = []
         if 'pnrId' and 'customerIdsChecked' in request.POST:
             pnr_id = request.POST.get('pnrId')
             reference = request.POST.get('refCde')
@@ -1149,7 +1148,8 @@ def get_quotation(request, pnr_id):
         'TicketId',
         'IssueDate',
         'OrderNumber',
-        'OtherFeeId'
+        'OtherFeeId',
+        'OPC',
     ]
     fieldnames_customer = [
         'id',

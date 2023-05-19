@@ -734,8 +734,8 @@ def get_order(request, pnr_id):
     user_copy = None
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
 
-    file_dir = 'D:\\Projects\\Django\\Issoufali\\travelagency\\AmadeusDecoder\\export'
-    customer_dir = 'D:\\Projects\Django\\Issoufali\\travelagency\\AmadeusDecoder\\export'
+    file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
+    customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
 
     customer_row = {}
     fieldnames_order = [
@@ -1119,11 +1119,10 @@ def get_quotation(request, pnr_id):
     vendor_user = None
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
 
-    file_dir = 'D:\\Projects\\Django\\Issoufali\\travelagency\\AmadeusDecoder\\export'
-    customer_dir = 'D:\\Projects\Django\\Issoufali\\travelagency\\AmadeusDecoder\\export'
+    file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
+    customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
 
-    quotation_df = pd.DataFrame(columns=fieldnames_order)
-    customer_df = pd.DataFrame(columns=fieldnames_customer)
+    
 
     customer_row = {}
     fieldnames_order = [
@@ -1167,6 +1166,9 @@ def get_quotation(request, pnr_id):
         'CT_Email',
         'CT_Site'
     ]
+
+    quotation_df = pd.DataFrame(columns=fieldnames_order)
+    customer_df = pd.DataFrame(columns=fieldnames_customer)
 
     csv_quotation_lines = []
     csv_customer_lines = []
@@ -1427,7 +1429,7 @@ def get_quotation(request, pnr_id):
             customer_df.to_csv(os.path.join(customer_dir, 'CustomerExport{}.csv'.format(today)), index=False, sep=';')
 
         print("------------------Call Odoo import-----------------------")
-        response = requests.get("https://odoo.issoufali.phidia.fr/web/syncorders")
+        response = requests.get("https://testodoo.issoufali.phidia.fr/web/syncorders")
         print(response.content)
         
 

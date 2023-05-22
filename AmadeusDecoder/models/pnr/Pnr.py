@@ -111,7 +111,7 @@ class Pnr(models.Model, BaseModel):
     def get_emit_agent(self):
         from AmadeusDecoder.models.user.Users import User
         try:
-            issuing_user = User.objects.filter(copied_documents__document=self.number).order_by('-id').first()
+            issuing_user = User.objects.filter(copied_documents__document=self.number).order_by('-copied_documents__id').first()
             if issuing_user is not None:
                 return issuing_user
             elif issuing_user is None and self.agent is not None:

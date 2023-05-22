@@ -224,7 +224,7 @@ class PnrCostParser():
             ticket.ticket_status = 1
     
     # format airsegments from segment_line
-    def format_airsegments(self, segment_line):
+    def format_airsegments(self, segment_line, passengers):
         air_segments = []
         i = 0
         while i < len(segment_line) - 1:
@@ -232,7 +232,7 @@ class PnrCostParser():
             temp_space_free_line = self.remove_space(segment_line[i].split(' '))
             next_space_free_line = self.remove_space(segment_line[i + 1].split(' '))
             
-            if temp_space_free_line[1] != 'O' and temp_space_free_line[1] != 'X':
+            if temp_space_free_line[1] != 'O' and temp_space_free_line[1] != 'X' and 'ARNK' not in temp_space_free_line:
                 temp_origin = temp_space_free_line[1] 
                 try:
                     temp_airline_code = temp_space_free_line[2] 
@@ -250,11 +250,55 @@ class PnrCostParser():
                     departure_date_time = temp_space_free_line[6] + '2023' + ' ' + temp_space_free_line[7] + '00'
                 except:
                     print('Index out of range')
+            elif 'ARNK' in temp_space_free_line:
+                # 2   DZA    ARNK                                                               
+                # 3 O RUN UU  975 V 16DEC 2100  OK VHWRTSM         07MAY      1PC  
+                if next_space_free_line[1] == 'O' or next_space_free_line[1] == 'X':
+                    temp_origin = temp_space_free_line[1]
+                    try:
+                        # the following information will be fetched from destination
+                        temp_destination_dest = next_space_free_line[2]
+                        dest_flight_no = next_space_free_line[4]
+                        destination_departure_date_time = datetime.strptime(next_space_free_line[6] + '2023' + ' ' + next_space_free_line[7] + '00', '%d%b%Y %H%M%S')
+                        # reduce error by adding passenger on search
+                        temp_nearest_current_flight = None
+                        temp_last_saved_destination_flight = None
+                        for passenger in passengers:
+                            temp_passenger_obj = Passenger.objects.filter(name=passenger.name, surname=passenger.surname).all()
+                            for one_passenger_match in temp_passenger_obj:
+                                temp_ticket_obj = Ticket.objects.filter(passenger=one_passenger_match).all()
+                                for one_ticket_match in temp_ticket_obj:
+                                    temp_last_saved_destination_flight = PnrAirSegments.objects.filter(codeorg=Airport.objects.filter(iata_code=temp_destination_dest).first(),
+                                                                                                       departuretime=destination_departure_date_time,
+                                                                                                       flightno=dest_flight_no, tickets__ticket=one_ticket_match).last()
+                                    if temp_last_saved_destination_flight is not None:
+                                        temp_nearest_current_flight = PnrAirSegments.objects.filter(codeorg=Airport.objects.filter(iata_code=temp_origin).first(),
+                                                                                                    codedest=Airport.objects.filter(iata_code=temp_destination_dest).first(),
+                                                                                                    pnr=temp_last_saved_destination_flight.pnr, 
+                                                                                                    servicecarrier=temp_last_saved_destination_flight.servicecarrier).exclude(segmentorder=temp_last_saved_destination_flight.segmentorder).last()
+                                        
+                                    try:
+                                        if temp_nearest_current_flight is not None:
+                                            temp_airline_code = temp_nearest_current_flight.servicecarrier.iata
+                                            temp_flight_number = temp_nearest_current_flight.flightno
+                                            temp_flight_class = temp_nearest_current_flight.flightclass
+                                            departure_date_time = str(temp_nearest_current_flight.departuretime)
+                                            break
+                                    except:
+                                        print("Error when parsing 'ARNK'")
+                                else:
+                                    continue
+                                break
+                            else:
+                                continue
+                            break
+                    except:
+                        print("Error when parsing 'ARNK'")
                     
             if i == len(segment_line) - 2:
                 temp_destination = next_space_free_line[0]
             else:
-                if next_space_free_line[1] != 'O' and next_space_free_line[1] != 'X':
+                if (next_space_free_line[1] != 'O' and next_space_free_line[1] != 'X') or 'ARNK' in next_space_free_line:
                     temp_destination = next_space_free_line[1]
                 else:
                     temp_destination = next_space_free_line[2]
@@ -272,10 +316,11 @@ class PnrCostParser():
             air_segments.append(temp_pnr_aisegment)  
             i += 1
         
+        print(air_segments)
         return air_segments, temp_flight_class
     
     # get air segments
-    def get_air_segment_tst(self, content):
+    def get_air_segment_tst(self, content, passengers):
         segment_line = []
         
         last_index = 0
@@ -285,7 +330,7 @@ class PnrCostParser():
                 segment_line.append(content[i])
                 last_index = i
         segment_line.append(content[last_index + 1])
-        return self.format_airsegments(segment_line)
+        return self.format_airsegments(segment_line, passengers)
     
     # get fares
     def get_fares_tst(self, content):
@@ -343,7 +388,7 @@ class PnrCostParser():
     # save tst to ticket table
     def save_tst(self, content):
         passengers = self.get_passenger_tst(content)
-        air_segments, flight_class = self.get_air_segment_tst(content)
+        air_segments, flight_class = self.get_air_segment_tst(content, passengers)
         pnr = self.get_tst_related_pnr(passengers, air_segments)
         fare, tax, total = self.get_fares_tst(content)
         tst_number = self.get_header_info(content)[0]

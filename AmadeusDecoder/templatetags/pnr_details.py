@@ -508,18 +508,24 @@ def get_passenger_order_status(pnr):
 @register.filter(name='passenger_order_status_invoiced')
 def get_passenger_order_status_invoiced(pnr, customer_id):
     from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
-    passenger_invoices = PassengerInvoice.objects.filter(pnr=pnr.id, client=customer_id).exclude(Q(ticket=None) | Q(other_fee=None)).exclude(status='quotation')
+    passenger_invoices = PassengerInvoice.objects.filter(
+                            pnr_id=pnr.id, 
+                            client_id=customer_id
+                        ).exclude(status='quotation')
 
-    is_invoice = []
+    ticket_is_invoiced = []
+    other_fee_is_invoiced = []
 
     if passenger_invoices.exists():
         for passenger in passenger_invoices:
-            is_invoice.append(passenger.is_invoiced)
-        if False in is_invoice:
+            if passenger.other_fee is not None:
+                other_fee_is_invoiced.append(passenger.is_invoiced)
+            if passenger.ticket is not None:
+                ticket_is_invoiced.append(passenger.is_invoiced)
+        if False in ticket_is_invoiced or False in other_fee_is_invoiced:
             return False
         else:
             return True
-        
     else:
         return None
 

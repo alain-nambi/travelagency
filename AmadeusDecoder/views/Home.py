@@ -970,7 +970,7 @@ def get_order(request, pnr_id):
                     if order.other_fee is not None and order.other_fee.other_fee_status == 1:
                         other_fee = OthersFee.objects.filter(pk=order.other_fee.id)
                         for item in other_fee:
-                            if item.fee_type == 'EMD' or item.fee_type == 'TKT' or item.fee_type == 'Cancellation':
+                            if item.fee_type == 'EMD' or item.fee_type == 'TKT' or item.fee_type == 'Cancellation' or item.fee_type == 'AVOIR COMPAGNIE':
                                 type_other_fee = item.fee_type
                             else:
                                 type_other_fee = 'EMD'
@@ -1123,8 +1123,8 @@ def get_quotation(request, pnr_id):
     vendor_user = None
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
 
-    file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
-    customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
+    file_dir = '/opt/odoo/issoufali-addons/import_saleorder/data/source'
+    customer_dir = '/opt/odoo/issoufali-addons/contacts_from_incadea/data/source'
 
     
 
@@ -1151,7 +1151,8 @@ def get_quotation(request, pnr_id):
         'TicketId',
         'IssueDate',
         'OrderNumber',
-        'OtherFeeId'
+        'OtherFeeId',
+        'OPC'
     ]
     fieldnames_customer = [
         'id',
@@ -1432,7 +1433,7 @@ def get_quotation(request, pnr_id):
             customer_df.to_csv(os.path.join(customer_dir, 'CustomerExport{}.csv'.format(today)), index=False, sep=';')
 
         print("------------------Call Odoo import-----------------------")
-        response = requests.get("https://testodoo.issoufali.phidia.fr/web/syncorders")
+        response = requests.get("https://odoo.issoufali.phidia.fr/web/syncorders")
         print(response.content)
         
 

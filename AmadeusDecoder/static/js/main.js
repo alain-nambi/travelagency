@@ -217,15 +217,26 @@ $(function() {
   cb(localeDateString, localeDateString);
 
   // Ajoute un gestionnaire d'événements pour le bouton de filtre pour forcer le rechargement de la page
-  function reloadCurrentPage(attr) {
-    $(attr).on("click", (e) => {
-      e.preventDefault()
-      window.location.reload()
-    })
-  }
+  $("#buttonMenuFilterByCreationDateRange").on("click", () => {
+    window.location.reload()
+  })
 
-  reloadCurrentPage("#buttonMenuFilterByCreator")
-  reloadCurrentPage("#buttonMenuFilterByCreationDateRange")
+  $("#buttonMenuFilterByCreator").on("click", (e) => {
+    e.preventDefault()
+    const $item = $(".selectize-input .item")
+    if ($item.length > 0) {
+      window.location.reload()
+    } else {
+      $(".selectize-input.items").css({"border": "1px solid #dc3545"})
+      $(".creator-group ").append(`
+        <span class="text-sm text-danger mt-1 d-flex align-items-center" style="gap: 5px">
+         <i class="fa fa-circle-exclamation"></i>
+          Veuillez sélectionner le créateur
+        </span>
+      `
+      ) 
+    }
+  })
 });
 
 //local storage sidebar

@@ -1,0 +1,412 @@
+Email listener is starting
+Email listener is started
+Performing system checks...
+
+System check identified no issues (0 silenced).
+May 25, 2023 - 07:31:51
+Django version 3.2.15, using settings 'DjangoTravelAgency.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+Connection is now in IDLE mode.
+Creator: None
+<class 'NoneType'>
+All
+Connection is now in IDLE mode.
+55555
+16106
+16106
+*** DEBUGGING PNR INVOICE STATUS ***
+ticket_not_order: <QuerySet [<Ticket: 7322415443530>]>
+ticket_no_adc_order: <QuerySet []>
+other_fee_order: <QuerySet [<OthersFee: Paiement Billet - Laithidine BEN SAID M.>]>
+ticket_ordered: <QuerySet []>
+ticket_no_adc_ordered: <QuerySet []>
+other_fee_ordered: <QuerySet []>
+ticket_invoices: <QuerySet []>
+other_fee_invoices: <QuerySet []>
+total_line: 0
+total_invoice: 0
+All
+55555
+16106
+16106
+*** DEBUGGING PNR INVOICE STATUS ***
+ticket_not_order: <QuerySet [<Ticket: 7322415443530>]>
+ticket_no_adc_order: <QuerySet []>
+other_fee_order: <QuerySet [<OthersFee: Paiement Billet - Laithidine BEN SAID M.>]>
+ticket_ordered: <QuerySet []>
+ticket_no_adc_ordered: <QuerySet []>
+other_fee_ordered: <QuerySet []>
+ticket_invoices: <QuerySet []>
+other_fee_invoices: <QuerySet []>
+total_line: 0
+total_invoice: 0
+All
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Creator: None
+<class 'NoneType'>
+All
+55555
+16078
+16078
+*** DEBUGGING PNR INVOICE STATUS ***
+ticket_not_order: <QuerySet [<Ticket: 7602404790542>, <Ticket: 7602404790543>]>
+ticket_no_adc_order: <QuerySet []>
+other_fee_order: <QuerySet []>
+ticket_ordered: <QuerySet []>
+ticket_no_adc_ordered: <QuerySet []>
+other_fee_ordered: <QuerySet []>
+ticket_invoices: <QuerySet []>
+other_fee_invoices: <QuerySet []>
+total_line: 0
+total_invoice: 0
+All
+Connection is now in IDLE mode.
+55555
+16078
+16078
+*** DEBUGGING PNR INVOICE STATUS ***
+ticket_not_order: <QuerySet [<Ticket: 7602404790542>, <Ticket: 7602404790543>]>
+ticket_no_adc_order: <QuerySet []>
+other_fee_order: <QuerySet []>
+ticket_ordered: <QuerySet []>
+ticket_no_adc_ordered: <QuerySet []>
+other_fee_ordered: <QuerySet []>
+ticket_invoices: <QuerySet []>
+other_fee_invoices: <QuerySet []>
+total_line: 0
+total_invoice: 0
+All
+Connection is now in IDLE mode.
+Entry issuing part
+Enty to issuing second part with : ['33391', '33392']
+list other_fee: ['1885']
+customer_id 12523
+55555
+16078
+16078
+*** DEBUGGING PNR INVOICE STATUS ***
+ticket_not_order: <QuerySet [<Ticket: 7602404790542>, <Ticket: 7602404790543>]>
+ticket_no_adc_order: <QuerySet []>
+other_fee_order: <QuerySet []>
+ticket_ordered: <QuerySet []>
+ticket_no_adc_ordered: <QuerySet []>
+other_fee_ordered: <QuerySet []>
+ticket_invoices: <QuerySet []>
+other_fee_invoices: <QuerySet []>
+total_line: 0
+total_invoice: 0
+All
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+------------------Call Odoo import-----------------------
+55555
+16078
+16078
+*** DEBUGGING PNR INVOICE STATUS ***
+ticket_not_order: <QuerySet []>
+ticket_no_adc_order: <QuerySet []>
+other_fee_order: <QuerySet []>
+ticket_ordered: <QuerySet [<Ticket: 7602404790542>, <Ticket: 7602404790543>]>
+ticket_no_adc_ordered: <QuerySet []>
+other_fee_ordered: <QuerySet []>
+ticket_invoices: <QuerySet [<PassengerInvoice: PassengerInvoice object (33114)>, <PassengerInvoice: PassengerInvoice object (33116)>]>
+other_fee_invoices: <QuerySet [<PassengerInvoice: PassengerInvoice object (33118)>]>
+total_line: 2
+total_invoice: 3
+All
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.

@@ -967,7 +967,7 @@ def get_order(request, pnr_id):
                     if order.other_fee is not None and order.other_fee.other_fee_status == 1:
                         other_fee = OthersFee.objects.filter(pk=order.other_fee.id)
                         for item in other_fee:
-                            if item.fee_type == 'EMD' or item.fee_type == 'TKT' or item.fee_type == 'Cancellation':
+                            if item.fee_type == 'EMD' or item.fee_type == 'TKT' or item.fee_type == 'Cancellation' or item.fee_type == 'AVOIR COMPAGNIE':
                                 type_other_fee = item.fee_type
                             else:
                                 type_other_fee = 'EMD'

@@ -224,13 +224,15 @@ $(function() {
   $("#buttonMenuFilterByCreator").on("click", (e) => {
     e.preventDefault()
     const $item = $(".selectize-input .item")
+    const $alert = $("#alertEmptyCreator") // Add this line to select the alert element
+  
     if ($item.length > 0) {
       window.location.reload()
-    } else {
+    } else if ($alert.length === 0) { // Add this condition to check if the alert is already on the page
       $(".selectize-input.items").css({"border": "1px solid #dc3545"})
       $(".creator-group ").append(`
-        <span class="text-sm text-danger mt-1 d-flex align-items-center" style="gap: 5px">
-         <i class="fa fa-circle-exclamation"></i>
+        <span id="alertEmptyCreator" class="text-sm text-danger mt-1 d-flex align-items-center" style="gap: 5px">
+          <i class="fa fa-circle-exclamation"></i>
           Veuillez sélectionner le créateur
         </span>
       `

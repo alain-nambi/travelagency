@@ -49,23 +49,23 @@ $(function() {
   const localeDateString    = currentDateToString.toLocaleDateString('fr-FR', options);
 
   // Cache tous les éléments de menu de filtre lors du chargement de la page.
-  const $wrapperMenuFilter = $(".wrapper-menu-filter");
-  const $pnrMenu           = $(".pnr-menu")
-  const $dateRangeMenu     = $(".date-range-menu");
-  const $creatorMenu       = $(".creator-group-menu")
-  const liElements         = $(".filter-menu > .list");
-  const $pnrLiElements     = $(".pnr-menu .pnr-list");
+  const $wrapperMenuFilter   = $(".wrapper-menu-filter");
+  const $pnrMenu             = $(".pnr-menu")
+  const $pnrStatus           = $(".pnr-status")
+  const $dateRangeMenu       = $(".date-range-menu");
+  const $creatorMenu         = $(".creator-group-menu")
+  const liElements           = $(".filter-menu > .list");
+  const $pnrLiElements       = $(".pnr-menu .pnr-list");
+  const $pnrStatusLiElements = $(".pnr-status .pnr-list");
 
   $wrapperMenuFilter.hide();
   $pnrMenu.hide();
+  $pnrStatus.hide();
   $dateRangeMenu.hide();
   $creatorMenu.hide();
 
   // Initialise des variables booléennes pour suivre l'état des menus ouverts et les filtres sélectionnés.
   let isMenuOpen = false;
-  let isPnrSelected = false;
-  let isDateCreationSelected = false;
-  let isCreatorSelected = false;
 
   // Attache un gestionnaire d'événements pour afficher/cacher le menu de filtre lorsqu'on clique sur le bouton Menu Filter. Il bascule également la classe CSS active sur le bouton pour refléter son état.
   $("#buttonMenuFilter").click(function(e) {
@@ -74,6 +74,7 @@ $(function() {
     $(this).toggleClass("active", isMenuOpen);
     liElements.removeClass("active");
     $pnrMenu.hide();
+    $pnrStatus.hide();
     $dateRangeMenu.hide();
     $creatorMenu.hide();
   });
@@ -83,24 +84,31 @@ $(function() {
     liElements.removeClass("active");
 
     if (this.classList.contains("list-one")) {
-      isPnrSelected = true;
       $pnrMenu.show();
       $dateRangeMenu.hide();
       $creatorMenu.hide();
+      $pnrStatus.hide();
     }
 
     if (this.classList.contains("list-two")) {
-      isDateCreationSelected = true;
       $dateRangeMenu.show();
       $pnrMenu.hide();
       $creatorMenu.hide();
+      $pnrStatus.hide();
     }
 
     if (this.classList.contains("list-three")) {
-      isCreatorSelected = true
       $dateRangeMenu.hide();
       $pnrMenu.hide();
       $creatorMenu.show();
+      $pnrStatus.hide();
+    }
+
+    if (this.classList.contains("list-four")) {
+      $dateRangeMenu.hide();
+      $pnrMenu.hide();
+      $creatorMenu.hide();
+      $pnrStatus.show();
     }
     
     this.classList.add("active");
@@ -110,12 +118,14 @@ $(function() {
   $(".pnr-menu i.fa-check").addClass("opacity-0");
 
   // Sélectionne toutes les icônes de coche dans le menu PNR et stocke-les dans la variable $pnrCheckIcons. 
-  const $pnrCheckIcons = $pnrLiElements.find('i.fa-check');
+  const $pnrCheckIcons       = $pnrLiElements.find('i.fa-check');
+  const $pnrStatusCheckIcons = $pnrStatusLiElements.find('i.fa-check');
 
   // console.log($pnrCheckIcons);
 
   // Récupère le type de filtre actuel à partir de l'objet localStorage.
   const filterType = localStorage.getItem('filterPnrBy');
+  const filterStatus = localStorage.getItem('filterByPnrStatus')
 
   // Initialise un objet qui associe chaque type de filtre à son sélecteur CSS correspondant afin d'éviter la duplication de code.
   const filterSelectors = {
@@ -123,16 +133,32 @@ $(function() {
     'not send': '#showNotInvoicedPnr i.fa-check',
     'send': '#showInvoicedPnr i.fa-check',
   };
+
+  const filterStatusSelectors = {
+    'issued': '#showIssuedPnr i.fa-check',
+    'not_issued': '#showNotIssuedPnr i.fa-check'
+  }
   
   // Nous pouvons utiliser l'opérateur ternaire pour simplifier la logique conditionnelle.
   const selector = filterSelectors[filterType] ? filterSelectors[filterType] : filterSelectors['not send'];
+  const selectorStatus = filterStatusSelectors[filterStatus] ? filterStatusSelectors[filterStatus] : filterStatusSelectors['issued']
 
   // Au lieu d'utiliser addClass et removeClass séparément, nous pouvons les chaîner ensemble.
   $pnrCheckIcons.removeClass('opacity-100').addClass('opacity-0');
+  $pnrStatusCheckIcons.removeClass('opacity-100').addClass('opacity-0')
   
   // Si un sélecteur a été trouvé, nous pouvons appliquer la classe d'opacité aux éléments correspondants.
   if (selector) {
     const $visibleIcons = $pnrCheckIcons.filter(selector);
+    $visibleIcons.addClass('opacity-100').removeClass('opacity-0');
+  }
+
+  console.log('====================================');
+  console.log(filterStatusSelectors['issued']);
+  console.log('====================================');
+
+  if (selectorStatus) {
+    const $visibleIcons = $pnrStatusCheckIcons.filter(selectorStatus)
     $visibleIcons.addClass('opacity-100').removeClass('opacity-0');
   }
 
@@ -167,6 +193,30 @@ $(function() {
 
     window.location.reload()
   });
+
+  $pnrStatusLiElements.click(function () {
+    // Retirer la classe "opacity-100" de tous les éléments i
+    $(".pnr-status i.fa-check").removeClass("opacity-100");
+    $(".pnr-status i.fa-check").addClass("opacity-0");
+
+    // Ajouter la classe "opacity-100" à l'élément i du clic en cours
+    $(this).find("i.fa-check").addClass("opacity-100");
+    $(this).find("i.fa-check").removeClass("opacity-0");
+
+    if (this.classList.contains("list-one")) {
+      // Faire quelque chose pour le premier élément de la liste
+      localStorage.setItem("filterByPnrStatus", "issued")
+      document.cookie = `filter_pnr_by_status=0; SameSite=Lax`
+    }
+  
+    if (this.classList.contains("list-two")) {
+      // Faire quelque chose pour le deuxième élément de la liste
+      localStorage.setItem("filterByPnrStatus", "not_issued")
+      document.cookie = `filter_pnr_by_status=1; SameSite=Lax`
+    }
+
+    window.location.reload()
+  })
 
   // Ajoutez la date locale dans les éléments HTML avec l'ID "dateRangeBegin" et "dateRangeEnd"
   $('#dateRangeBegin, #dateRangeEnd').text(localeDateString);

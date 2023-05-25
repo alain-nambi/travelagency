@@ -87,6 +87,11 @@ def home(request):
     # print("Date de début:", start_date)
     # print("Date de fin:", end_date)
 
+    try:
+        status_value_from_cookie = int(request.COOKIES.get('filter_pnr_by_status'))
+    except:
+        status_value_from_cookie = 0
+
     creation_date_order_by = request.COOKIES.get('creation_date_order_by')
     # desc : date order by descending
     # asc : date order by ascending
@@ -113,31 +118,35 @@ def home(request):
         if is_invoiced is None:
             for issuing_user in issuing_users:
                 if start_date and end_date:
-                    pnr = Pnr.objects.filter(number=issuing_user.document).filter(
-                            Q(system_creation_date__gte=start_date), 
-                            Q(system_creation_date__lte=end_date),
-                            Q(system_creation_date__gt=maximum_timezone),
-                            Q(status_value=0)
-                        ).first()
+                    pnr   = Pnr.objects.filter(
+                                number=issuing_user.document, 
+                                status_value=status_value_from_cookie
+                            ).filter(
+                                Q(system_creation_date__gte=start_date), 
+                                Q(system_creation_date__lte=end_date),
+                                Q(system_creation_date__gt=maximum_timezone),
+                            ).first()
                 else:
-                    pnr = Pnr.objects.filter(number=issuing_user.document).filter(Q(system_creation_date__gt=maximum_timezone)).first()
+                    pnr = Pnr.objects.filter(number=issuing_user.document, status_value=status_value_from_cookie).filter(Q(system_creation_date__gt=maximum_timezone)).first()
                 if pnr not in pnr_list and pnr is not None:
                     pnr_list.append(pnr)
             
             if start_date and end_date:
-                pnr_obj = Pnr.objects.filter(
-                            Q(agent_id=filtered_creator),
-                            Q(system_creation_date__gte=start_date), 
-                            Q(system_creation_date__lte=end_date),
-                            Q(system_creation_date__gt=maximum_timezone), 
-                            Q(status_value=0)
-                        ).all().order_by(date_order_by + 'system_creation_date')
+                pnr_obj   = Pnr.objects.filter(
+                                status_value=status_value_from_cookie,
+                                agent_id=filtered_creator
+                            ).filter(
+                                Q(system_creation_date__gte=start_date), 
+                                Q(system_creation_date__lte=end_date),
+                                Q(system_creation_date__gt=maximum_timezone)
+                            ).all().order_by(date_order_by + 'system_creation_date')
             else:
-                pnr_obj = Pnr.objects.filter(
-                        Q(agent_id=filtered_creator),
-                        Q(system_creation_date__gt=maximum_timezone), 
-                        Q(status_value=0)
-                    ).all().order_by(date_order_by + 'system_creation_date')
+                pnr_obj   = Pnr.objects.filter(
+                                status_value=status_value_from_cookie,
+                                agent_id=filtered_creator
+                            ).filter(
+                                Q(system_creation_date__gt=maximum_timezone)
+                            ).all().order_by(date_order_by + 'system_creation_date')
                     
             for pnr in pnr_obj:
                 if pnr not in pnr_list:
@@ -153,31 +162,35 @@ def home(request):
         else:
             for issuing_user in issuing_users:
                 if start_date and end_date:
-                    pnr = Pnr.objects.filter(number=issuing_user.document).filter(
-                            Q(system_creation_date__gte=start_date), 
-                            Q(system_creation_date__lte=end_date),
-                            Q(system_creation_date__gt=maximum_timezone),
-                            Q(status_value=0)
-                        ).filter(is_invoiced=is_invoiced).first()
+                    pnr   = Pnr.objects.filter(
+                                number=issuing_user.document, 
+                                status_value=status_value_from_cookie
+                            ).filter(
+                                Q(system_creation_date__gte=start_date), 
+                                Q(system_creation_date__lte=end_date),
+                                Q(system_creation_date__gt=maximum_timezone)
+                            ).filter(is_invoiced=is_invoiced).first()
                 else:
-                    pnr = Pnr.objects.filter(number=issuing_user.document).filter(Q(system_creation_date__gt=maximum_timezone)).filter(is_invoiced=is_invoiced).first()
+                    pnr = Pnr.objects.filter(number=issuing_user.document, status_value=status_value_from_cookie).filter(Q(system_creation_date__gt=maximum_timezone)).filter(is_invoiced=is_invoiced).first()
                 if pnr not in pnr_list and pnr is not None:
                     pnr_list.append(pnr)
 
             if start_date and end_date:
-                pnr_obj = Pnr.objects.filter(
-                            Q(agent_id=filtered_creator), 
-                            Q(system_creation_date__gte=start_date), 
-                            Q(system_creation_date__lte=end_date),
-                            Q(system_creation_date__gt=maximum_timezone),
-                            Q(status_value=0)
-                        ).filter(is_invoiced=is_invoiced).all().order_by(date_order_by + 'system_creation_date')
+                pnr_obj   = Pnr.objects.filter(
+                                status_value=status_value_from_cookie,
+                                agent_id=filtered_creator
+                            ).filter( 
+                                Q(system_creation_date__gte=start_date), 
+                                Q(system_creation_date__lte=end_date),
+                                Q(system_creation_date__gt=maximum_timezone)
+                            ).filter(is_invoiced=is_invoiced).all().order_by(date_order_by + 'system_creation_date')
             else:
-                pnr_obj = Pnr.objects.filter(
-                            Q(agent_id=filtered_creator),
-                            Q(system_creation_date__gt=maximum_timezone),
-                            Q(status_value=0)
-                        ).filter(is_invoiced=is_invoiced).all().order_by(date_order_by + 'system_creation_date')
+                pnr_obj   = Pnr.objects.filter(
+                                status_value=status_value_from_cookie,
+                                agent_id=filtered_creator
+                            ).filter(
+                                Q(system_creation_date__gt=maximum_timezone)
+                            ).filter(is_invoiced=is_invoiced).all().order_by(date_order_by + 'system_creation_date')
             
             for pnr in pnr_obj:
                 if pnr not in pnr_list:
@@ -217,34 +230,31 @@ def home(request):
         if is_invoiced is not None:
             for issuing_user in issuing_users:
                 if start_date and end_date:
-                    pnr = Pnr.objects.filter(number=issuing_user.document).filter(
+                    pnr = Pnr.objects.filter(number=issuing_user.document, status_value=status_value_from_cookie).filter(
                             Q(system_creation_date__gte=start_date), 
                             Q(system_creation_date__lte=end_date),
-                            Q(system_creation_date__gt=maximum_timezone),
-                            Q(status_value=0)
+                            Q(system_creation_date__gt=maximum_timezone)
                         ).filter(is_invoiced=is_invoiced).first()
                 else:
-                    pnr = Pnr.objects.filter(number=issuing_user.document).filter(Q(system_creation_date__gt=maximum_timezone)).filter(is_invoiced=is_invoiced).first()
+                    pnr = Pnr.objects.filter(number=issuing_user.document, status_value=status_value_from_cookie).filter(Q(system_creation_date__gt=maximum_timezone)).filter(is_invoiced=is_invoiced).first()
                     
                 if pnr not in pnr_list and pnr is not None:
                     pnr_list.append(pnr)
 
             if start_date and end_date:
-                pnr_obj = Pnr.objects.filter(
-                            Q(agent_id=filtered_creator) | Q(agent_id=None)
-                        ).filter(
-                            Q(system_creation_date__gte=start_date), 
-                            Q(system_creation_date__lte=end_date),
-                            Q(system_creation_date__gt=maximum_timezone),
-                            Q(status_value=0)
-                        ).filter(is_invoiced=is_invoiced).all().order_by(date_order_by + 'system_creation_date')
+                pnr_obj   = Pnr.objects.filter(
+                                agent_id=filtered_creator
+                            ).filter(
+                                Q(system_creation_date__gte=start_date), 
+                                Q(system_creation_date__lte=end_date),
+                                Q(system_creation_date__gt=maximum_timezone)
+                            ).filter(is_invoiced=is_invoiced, status_value=status_value_from_cookie).all().order_by(date_order_by + 'system_creation_date')
             else:
-                pnr_obj = Pnr.objects.filter(
-                            Q(agent_id=filtered_creator) | Q(agent_id=None)
-                        ).filter(
-                            Q(system_creation_date__gt=maximum_timezone),
-                            Q(status_value=0)
-                        ).filter(is_invoiced=is_invoiced).all().order_by(date_order_by + 'system_creation_date')
+                pnr_obj   = Pnr.objects.filter(
+                                agent_id=filtered_creator
+                            ).filter(
+                                Q(system_creation_date__gt=maximum_timezone)
+                            ).filter(is_invoiced=is_invoiced, status_value=status_value_from_cookie).all().order_by(date_order_by + 'system_creation_date')
 
             for pnr in pnr_obj:
                 if pnr not in pnr_list:
@@ -281,21 +291,22 @@ def home(request):
         return render(request,'home.html', context)
     else:
         if filtered_creator != '0' and filtered_creator is not None: 
-            pnr_queryset = Pnr.objects.filter(
-                Q(agent_id=filtered_creator),
-                Q(system_creation_date__gt=maximum_timezone),
-                Q(status_value=0)
-            )
+            pnr_queryset  = Pnr.objects.filter(
+                                status_value=status_value_from_cookie,
+                                agent_id=filtered_creator
+                            ).filter(
+                                Q(system_creation_date__gt=maximum_timezone)
+                            )
 
             if start_date and end_date:
-                pnr_queryset = pnr_queryset.filter(
+                pnr_queryset = pnr_queryset.filter(status_value=status_value_from_cookie).filter(
                     Q(system_creation_date__gte=start_date), 
                     Q(system_creation_date__lte=end_date),
-                    Q(status_value=0)
+                    Q(status_value=status_value_from_cookie)
                 )
 
             if is_invoiced is not None:
-                pnr_queryset = pnr_queryset.filter(Q(is_invoiced=is_invoiced))
+                pnr_queryset = pnr_queryset.filter(Q(is_invoiced=is_invoiced)).filter(status_value=status_value_from_cookie)
 
             pnr_queryset = pnr_queryset.order_by(f'{date_order_by}system_creation_date')
             pnr_list = list(pnr_queryset)
@@ -303,19 +314,18 @@ def home(request):
 
             print('Not all')
         elif filtered_creator == '0' or filtered_creator is None: ##### Si 'Tout' est sélectionner dans le filtre créateur
-            pnr_queryset = Pnr.objects.filter(
+            pnr_queryset = Pnr.objects.filter(status_value=status_value_from_cookie).filter(
                 Q(system_creation_date__gt=maximum_timezone)
             )
 
             if start_date and end_date:
-                pnr_queryset = pnr_queryset.filter(
+                pnr_queryset = pnr_queryset.filter(status_value=status_value_from_cookie).filter(
                     Q(system_creation_date__gte=start_date), 
-                    Q(system_creation_date__lte=end_date),
-                    Q(status_value=0)
+                    Q(system_creation_date__lte=end_date)
                 )
 
             if is_invoiced is not None:
-                pnr_queryset = pnr_queryset.filter(Q(is_invoiced=is_invoiced))
+                pnr_queryset = pnr_queryset.filter(Q(is_invoiced=is_invoiced)).filter(status_value=status_value_from_cookie)
 
             pnr_queryset = pnr_queryset.order_by(f'{date_order_by}system_creation_date')
             pnr_list = list(pnr_queryset)

@@ -46,10 +46,17 @@
                               </div>
                               <i class="fa-solid fa-angle-right"></i>
                             </li>
-                            <li class="list list-three">
+                            <li class="list list-three mb-1">
                               <div class="filter-menu list" id="showFilterByCreator">
                                 <i class="fa-regular fa-user" style="padding-left: 1px !important;"></i>
                                 <span>Créateur</span>
+                              </div>
+                              <i class="fa-solid fa-angle-right"></i>
+                            </li>
+                            <li class="list list-four">
+                              <div class="filter-menu list" id="showFilterByPnrStatus">
+                                <i class="fas fa-sliders-h" style="padding-left: 1px !important;"></i>
+                                <span>Status</span>
                               </div>
                               <i class="fa-solid fa-angle-right"></i>
                             </li>
@@ -93,6 +100,25 @@
                                 </div>
                               </li>
                             {% endif %}
+                          </ul>
+                        </div>
+                      </div>
+
+                      <div class="pnr-status absolute">
+                        <div class="content">
+                          <ul class="filter-menu">
+                            <li class="pnr-list list-one mb-1">
+                              <div class="filter-menu list" id="showIssuedPnr">
+                                <i class="fa fa-check"></i>
+                                <span>PNR émis</span>
+                              </div>
+                            </li>
+                            <li class="pnr-list list-two">
+                              <div class="filter-menu list active" id="showNotIssuedPnr">
+                                <i class="fa fa-check"></i>
+                                <span>PNR non émis</span>
+                              </div>
+                            </li>
                           </ul>
                         </div>
                       </div>

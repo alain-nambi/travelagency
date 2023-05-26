@@ -328,6 +328,7 @@ class ZenithParserReceipt():
                     if not is_created_by_us or self.check_issuing_date(date_time.date()) or (pnr.system_creation_date.date() > date_time.date() and self.check_is_invoiced_status(ticket, None)):
                         ticket.state = 0
                         ticket.ticket_status = 3
+                    ticket.is_subjected_to_fees = True
                     ticket.save()
                 # PNR has been modified and old ticket record has been removed by Zenith
                 # So, the ticket payment will be saved as other fees with designation as "Paiement billet - 1"

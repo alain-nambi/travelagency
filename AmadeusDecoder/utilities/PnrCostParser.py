@@ -313,7 +313,7 @@ class PnrCostParser():
             temp_pnr_aisegment.codedest = Airport.objects.filter(iata_code=temp_destination).first()
             temp_pnr_aisegment.servicecarrier = Airline.objects.filter(iata=temp_airline_code).first()
             temp_pnr_aisegment.flightno = temp_flight_number
-            air_segments.append(temp_pnr_aisegment)  
+            air_segments.append(temp_pnr_aisegment)
             i += 1
         
         print(air_segments)

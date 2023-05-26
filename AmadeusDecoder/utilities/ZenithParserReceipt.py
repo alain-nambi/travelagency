@@ -611,7 +611,15 @@ class ZenithParserReceipt():
 
     # emd when no ticket number provided
     def handle_emd_no_number(self, pnr, current_passenger, current_segment, is_created_by_us, cost, total, date_time, emd_single_part):
+        is_balancing_statement = False
+        
         designation_index = self.get_target_part_index_extended(emd_single_part, ['bagage'])
+        
+        # check if current line is just an EMD Balancing Statement
+        if designation_index == 0 and self.get_target_part_index_extended(emd_single_part, ['Balancing']) > 0:
+            is_balancing_statement = True
+            designation_index = self.get_target_part_index_extended(emd_single_part, ['Balancing'])
+        
         designation = None
         if designation_index > 0:
             designation = emd_single_part[designation_index]
@@ -647,6 +655,11 @@ class ZenithParserReceipt():
             except:
                 traceback.print_exc()
             new_emd.creation_date = date_time.date()
+            
+            # remove fee if special condition
+            if is_balancing_statement:
+                new_emd.is_subjected_to_fee = False
+            
             new_emd.save()
             if otherfee_saved_checker is None:
                 if isinstance(current_segment, list):
@@ -736,6 +749,9 @@ class ZenithParserReceipt():
                         self.check_fee_subjection_status(date_time, current_segment, pnr, new_emd, None, part)
                     except:
                         traceback.print_exc()
+                    # set to refund when negative
+                    if new_emd.total < 0:
+                        new_emd.is_refund = True
                     new_emd.save()
                     if ticket_saved_checker is None:
                         if isinstance(current_segment, list):

@@ -286,12 +286,12 @@ class PnrCostParser():
                                             break
                                     except:
                                         print("Error when parsing 'ARNK'")
-                                else:
-                                    continue
-                                break
-                            else:
-                                continue
-                            break
+                            #     else:
+                            #         continue
+                            #     break
+                            # else:
+                            #     continue
+                            # break
                     except:
                         print("Error when parsing 'ARNK'")
                     

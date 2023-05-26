@@ -735,7 +735,7 @@ def get_order(request, pnr_id):
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
 
     
-    file_dir = '/opt/odoo/issoufali-addons/import_saleorder/data/source'
+    file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
     customer_dir = '/opt/odoo/issoufali-addons/contacts_from_incadea/data/source'
     
 
@@ -1101,7 +1101,7 @@ def get_order(request, pnr_id):
             customer_df.to_csv(os.path.join(customer_dir, 'CustomerExport{}.csv'.format(today)), index=False, sep=';')
 
         print("------------------Call Odoo import-----------------------")
-        response = requests.get("https://odoo.issoufali.phidia.fr/web/syncorders")
+        response = requests.get("https://testodoo.issoufali.phidia.fr/web/syncorders")
 
         ticket_not_order = Ticket.objects.filter(pnr=pnr_id, is_invoiced=False, ticket_status=1).exclude(total=0)
         ticket_no_adc_order = Ticket.objects.filter(pnr=pnr_id, is_invoiced=False, ticket_status=1).filter(Q(total=0) & Q(is_no_adc=True))
@@ -1123,8 +1123,8 @@ def get_quotation(request, pnr_id):
     vendor_user = None
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
 
-    file_dir = '/opt/odoo/issoufali-addons/import_saleorder/data/source'
-    customer_dir = '/opt/odoo/issoufali-addons/contacts_from_incadea/data/source'
+    file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
+    customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
 
     
 
@@ -1433,7 +1433,7 @@ def get_quotation(request, pnr_id):
             customer_df.to_csv(os.path.join(customer_dir, 'CustomerExport{}.csv'.format(today)), index=False, sep=';')
 
         print("------------------Call Odoo import-----------------------")
-        response = requests.get("https://odoo.issoufali.phidia.fr/web/syncorders")
+        response = requests.get("https://testodoo.issoufali.phidia.fr/web/syncorders")
         print(response.content)
         
 

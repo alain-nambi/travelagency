@@ -328,6 +328,7 @@ class ZenithParserReceipt():
                     if not is_created_by_us or self.check_issuing_date(date_time.date()) or (pnr.system_creation_date.date() > date_time.date() and self.check_is_invoiced_status(ticket, None)):
                         ticket.state = 0
                         ticket.ticket_status = 3
+                    ticket.is_subjected_to_fees = True
                     ticket.save()
                 # PNR has been modified and old ticket record has been removed by Zenith
                 # So, the ticket payment will be saved as other fees with designation as "Paiement billet - 1"
@@ -601,6 +602,21 @@ class ZenithParserReceipt():
                     new_emd.other_fee_status = 3
                 new_emd.fee_type = 'Cancellation'
                 new_emd.creation_date = date_time.date()
+                
+                # check if cancellation occurs at the same time as ticket arrival
+                # issuing date must be the same for both ticket or other fee
+                # both ticket or other fee must not be invoiced
+                # ticket or other fee's abs total cost must be the same as abs of current cancellation 
+                # after all above conditions checked, related ticket or other fee's fee must be removed from database
+                temp_related_ticket = Ticket.objects.filter(issuing_date=date_time.date(), is_invoiced=False, total=abs(new_emd.total)).last()
+                temp_related_other_fee = OthersFee.objects.filter(creation_date=date_time.date(), is_invoiced=False, total=abs(new_emd.total)).last()
+                if temp_related_ticket is not None:
+                    new_emd.ticket = temp_related_ticket
+                    temp_related_ticket.fee.first().delete()
+                elif temp_related_other_fee is not None:
+                    new_emd.other_fee = temp_related_other_fee
+                    temp_related_other_fee.fees.first().delete()
+                
                 new_emd.save()
                 if otherfee_saved_checker is None:
                     other_fee_passenger_segment = OtherFeeSegment()
@@ -611,7 +627,15 @@ class ZenithParserReceipt():
 
     # emd when no ticket number provided
     def handle_emd_no_number(self, pnr, current_passenger, current_segment, is_created_by_us, cost, total, date_time, emd_single_part):
+        is_balancing_statement = False
+        
         designation_index = self.get_target_part_index_extended(emd_single_part, ['bagage'])
+        
+        # check if current line is just an EMD Balancing Statement
+        if designation_index == 0 and self.get_target_part_index_extended(emd_single_part, ['Balancing']) > 0:
+            is_balancing_statement = True
+            designation_index = self.get_target_part_index_extended(emd_single_part, ['Balancing'])
+        
         designation = None
         if designation_index > 0:
             designation = emd_single_part[designation_index]
@@ -647,6 +671,11 @@ class ZenithParserReceipt():
             except:
                 traceback.print_exc()
             new_emd.creation_date = date_time.date()
+            
+            # remove fee if special condition
+            if is_balancing_statement:
+                new_emd.is_subjected_to_fee = False
+            
             new_emd.save()
             if otherfee_saved_checker is None:
                 if isinstance(current_segment, list):
@@ -736,6 +765,9 @@ class ZenithParserReceipt():
                         self.check_fee_subjection_status(date_time, current_segment, pnr, new_emd, None, part)
                     except:
                         traceback.print_exc()
+                    # set to refund when negative
+                    if new_emd.total < 0:
+                        new_emd.is_refund = True
                     new_emd.save()
                     if ticket_saved_checker is None:
                         if isinstance(current_segment, list):

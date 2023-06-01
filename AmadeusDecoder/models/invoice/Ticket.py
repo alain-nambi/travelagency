@@ -114,6 +114,7 @@ class Ticket(models.Model, BaseModel):
         for k in range(len(current_ticket_list)):
             if k not in common_ticket_index:
                 current_ticket_list[k].ticket_status = 0
+                current_ticket_list[k].state = 0
                 current_ticket_list[k].save()
             elif k in common_ticket_index:
                 current_ticket_list[k].ticket_status = 1

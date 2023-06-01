@@ -33,7 +33,7 @@ from AmadeusDecoder.models.invoice.Fee import Product
 from AmadeusDecoder.models.pnrelements.PnrAirSegments import PnrAirSegments
 from AmadeusDecoder.models.history.History import History
 
-from AmadeusDecoder.utilities.FtpConnection import upload_file
+# from AmadeusDecoder.utilities.FtpConnection import upload_file
 from AmadeusDecoder.utilities.SendMail import Sending
 from AmadeusDecoder.utilities.ServiceFeesDecreaseRequest import ServiceFeesDecreaseRequest
 import traceback

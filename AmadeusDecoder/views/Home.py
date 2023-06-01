@@ -736,7 +736,7 @@ def get_order(request, pnr_id):
 
     
     file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
-    customer_dir = '/opt/odoo/issoufali-addons/contacts_from_incadea/data/source'
+    customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
     
 
 

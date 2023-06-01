@@ -27,10 +27,10 @@ if __name__ == '__main__':
     # temp_pnr_delete = Pnr.objects.filter(number='OBHOVJ').first()
     # temp_pnr_delete.delete()
     
-    temp = AmadeusParser() 
-    file = '4_fnd@amadeus.com'
+    # temp = AmadeusParser() 
+    # file = '4_fnd@amadeus.com'
     # file = 12656_famenontsoa@outlook.com'
-    temp.set_path(os.getcwd() + '//EmailFetcher//utilities//attachments_dir//' + file + '//' + file.removeprefix('VK8PP7_Fixed/') + '.txt')
+    # temp.set_path(os.getcwd() + '//EmailFetcher//utilities//attachments_dir//' + file + '//' + file.removeprefix('VK8PP7_Fixed/') + '.txt')
 
-    temp = Pnr.objects.filter(id=17263).first()
+    temp = Pnr.objects.filter(id=6024).first()
     temp.delete()

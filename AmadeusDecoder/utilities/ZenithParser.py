@@ -1387,6 +1387,8 @@ class ZenithParser():
                         if issuing_date is not None:
                             ticket.issuing_date = issuing_date
                         ticket.ticket_status = ticket_status
+                        # set is_subjected_to_fees to False to prevent fee value error
+                        ticket.is_subjected_to_fees = False
                         ticket.save()
                         
                     itinerary_part = self.get_part(content, 'Itinéraire')
@@ -1402,7 +1404,14 @@ class ZenithParser():
                             ticket_segment.tax = 0
                             ticket_segment.total = 0
                         ticket_segment.save()
-                    
+                        
+                    # re-adjust is_subjected_to_fees to True to restore true fee
+                    for ticket in tickets:
+                        pre_saved_ticket = Ticket.objects.filter(number=ticket.number, pnr=pnr).first()
+                        if pre_saved_ticket is not None:
+                            pre_saved_ticket.is_subjected_to_fees = True
+                            pre_saved_ticket.save()
+                                            
                     # update ticket fare on PNR update/modification
                     if len(other_ancillaries) > 0:
                         for ticket in tickets:
@@ -1419,6 +1428,7 @@ class ZenithParser():
                             temp_ticket_obj.total = modification_fee
                             temp_ticket_obj.ticket_description = 'modif'
                             temp_ticket_obj.ticket_status = ticket_status
+                            temp_ticket_obj.is_subjected_to_fees = True
                             temp_ticket_obj.save()
                     
                     ancillaries_part = self.get_part(content, 'Ancillaries')

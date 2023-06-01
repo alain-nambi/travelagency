@@ -29,4 +29,8 @@ class CustomerAddress(models.Model, BaseModel):
     )
     
     address = models.CharField(max_length=255)
-        
+    
+    # get customer's address
+    def get_customer_address(self):
+        return CustomerAddress.objects.filter(pnr=self.pnr, passenger=self.passenger, address=self.address).first()
+    

@@ -23,6 +23,7 @@ delete from t_pnr_remark;
 delete from t_ticket_passenger_tst;
 delete from t_raw_data;
 delete from t_ticket;
+delete from t_customer_address;
 delete from t_passengers;
 -- delete from t_pnr_history;
 delete from t_history;

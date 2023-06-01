@@ -13,14 +13,14 @@ def tools(request):
 
 
 def call_product_import(request):
-    path_to_file = 'D:\Projects\Django\csv\Contacts20230503075040.csv'
+    path_to_file = '/opt/odoo/issoufali-addons/sync_products/data/exported/Products.csv'
     ProductParser.import_product(path_to_file)
 
     return None
 
 
 def call_customer_import(request):
-    path_to_file = 'D:\Projects\Django\csv\Contacts20230503075040.csv'
+    path_to_file = '/opt/odoo/issoufali-addons/sync_contacts/data/exported/Contacts.csv'
     CustomerParser.import_customer(path_to_file)
 
     return None

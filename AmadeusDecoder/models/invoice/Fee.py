@@ -62,6 +62,13 @@ class OthersFee(models.Model, BaseModel):
         null=True
     )
     
+    other_fee = models.ForeignKey(
+        "AmadeusDecoder.OthersFee",
+        on_delete=models.CASCADE,
+        related_name='others_fees',
+        null=True
+    )
+    
     passenger = models.ForeignKey(
         "AmadeusDecoder.Passenger",
         on_delete=models.CASCADE,

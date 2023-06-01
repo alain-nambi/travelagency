@@ -1295,7 +1295,7 @@ def get_quotation(request, pnr_id):
                 if order.other_fee is not None:
                     other_fee = OthersFee.objects.filter(pk=order.other_fee.id)
                     for item in other_fee:
-                        if item.fee_type == 'EMD' and item.fee_type == 'TKT':
+                        if item.fee_type == 'EMD' and item.fee_type == 'TKT' and item.fee_type == 'Cancellation' and item.fee_type == 'AVOIR COMPAGNIE':
                             type_other_fee = item.fee_type
                         else:
                             type_other_fee = item.designation

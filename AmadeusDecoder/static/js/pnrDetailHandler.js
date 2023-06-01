@@ -486,10 +486,6 @@ document.querySelectorAll(".other-fees-check").forEach((input) => {
   }
 });
 
-//Disable customer selection when all ticket ahve been asigned to a customer
-// if (count > 1) {
-//         customerListSelection.setAttribute('disabled', true);
-// }
 
 const TableTicketFeesBody = document.getElementById("table-ticket-fees-body");
 const ProductDropdown = document.querySelector(

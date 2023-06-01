@@ -505,8 +505,8 @@ def reduce_fee(request) :
             Sending.send_email_request(
                 "feerequest.issoufali.pnr@gmail.com",
                 [
-                    # "superviseur@agences-issoufali.com",
-                    # "pp@phidia.onmicrosoft.com",
+                    "superviseur@agences-issoufali.com",
+                    "pp@phidia.onmicrosoft.com",
                     "mihaja@phidia.onmicrosoft.com",
                     "tahina@phidia.onmicrosoft.com",
                     "famenontsoa@outlook.com"
@@ -734,8 +734,11 @@ def get_order(request, pnr_id):
     user_copy = None
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
 
+    
     file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
-    customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
+    customer_dir = '/opt/odoo/issoufali-addons/contacts_from_incadea/data/source'
+    
+
 
     customer_row = {}
     fieldnames_order = [
@@ -966,7 +969,7 @@ def get_order(request, pnr_id):
                     if order.other_fee is not None and order.other_fee.other_fee_status == 1:
                         other_fee = OthersFee.objects.filter(pk=order.other_fee.id)
                         for item in other_fee:
-                            if item.fee_type == 'EMD' or item.fee_type == 'TKT' or item.fee_type == 'Cancellation':
+                            if item.fee_type == 'EMD' or item.fee_type == 'TKT' or item.fee_type == 'Cancellation' or item.fee_type == 'AVOIR COMPAGNIE':
                                 type_other_fee = item.fee_type
                             else:
                                 type_other_fee = 'EMD'
@@ -1148,7 +1151,7 @@ def get_quotation(request, pnr_id):
         'IssueDate',
         'OrderNumber',
         'OtherFeeId',
-        'OPC',
+        'OPC'
     ]
     fieldnames_customer = [
         'id',

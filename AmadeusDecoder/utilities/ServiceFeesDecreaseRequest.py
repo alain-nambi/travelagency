@@ -326,9 +326,8 @@ class ServiceFeesDecreaseRequest():
             Sending.send_email_request(
                 "feerequest.issoufali.pnr@outlook.com",
                 [
-                    # recipient,
-                    # "superviseur@agences-issoufali.com",
-                    # "pp@phidia.onmicrosoft.com",
+                    recipient,
+                    "pp@phidia.onmicrosoft.com",
                     "mihaja@phidia.onmicrosoft.com",
                     "tahina@phidia.onmicrosoft.com",
                     "famenontsoa@outlook.com"

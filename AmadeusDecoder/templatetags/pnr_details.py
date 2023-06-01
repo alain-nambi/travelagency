@@ -5,6 +5,7 @@ Created on 29 Sep 2022
 '''
 
 from datetime import datetime, timezone
+import html
 from django import template
 from django.db.models import Q
 import json
@@ -14,6 +15,11 @@ from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.user.Users import User
 
 register = template.Library()
+
+@register.filter(name='get_all_username')
+def get_all_username(_userId):
+    user_obj = User.objects.all()
+    return json.dumps([{"id": user.id, "username": user.username} for user in user_obj])
 
 @register.filter(name='ticket_datetime_invoice_created')
 def get_ticket_datetime_invoice_created(pnr_id, ticket_id):

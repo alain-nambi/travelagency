@@ -11,6 +11,131 @@ $(document).ready(function () {
   }, 2000);
 });
 
+$(document).ready(function () {
+  const isPnrFilterSelected = getCookies("filter_pnr")
+  const isCreatorSelected   = getCookies("creator_pnr_filter")
+  const isDateRangeSelected = getCookies("dateRangeFilter")
+  const isStatusSelected    = getCookies("filter_pnr_by_status")
+
+  // console.log('====================================');
+  // console.log(isPnrFilterSelected);
+  // console.log(isCreatorSelected);
+  // console.log(isDateRangeSelected);
+  // console.log(isStatusSelected);
+  // console.log('====================================');
+
+  const isPnrFilterSelectedValue = (pnr) => {
+    return `
+      <span   
+        class="ml-2"
+        style="
+          font-size: 10px;
+          padding: 3px 6px 2px 6px;
+          color: #fff;
+          background: #17a2b8 !important;
+          border-radius: 6px;
+        "
+      >${pnr}</span>
+    `
+  }
+
+  const isCreatorSelectedValue = (creator) => {
+    const USERS_DATA = document.getElementById("getAllUsername")
+    let username = ""
+    if (USERS_DATA) {
+      const JSON_USERS_DATA = JSON.parse(USERS_DATA.getAttribute("data-users"))
+      try {
+        username = JSON_USERS_DATA.find((user) => user.id === parseInt(creator)).username
+      } catch (error) {
+        console.log('====================================');
+        console.log("JSON USERS DATA:" + error);
+        console.log('====================================');
+      }
+    }
+    return `
+      <span   
+        class="ml-2"
+        style="
+          font-size: 10px;
+          padding: 3px 6px 2px 6px;
+          color: #fff;
+          background: #17a2b8 !important;
+          border-radius: 6px;
+        "
+      >Créateur: ${username}</span>
+    `
+  }
+
+  const isDateRangeSelectedValue = (date) => {
+    const dateStart = date.split(" * ")[0];
+    const dateEnd   = date.split(" * ")[1];
+
+    // Convertir le chaine de caractère en objet Date() 
+    const objDateStart = new Date(dateStart);
+    const objDateEnd   = new Date(dateEnd);
+
+    // Fonction pour formater une date en format FR
+    function formatDateFR(date) {
+      const options = { day: 'numeric', month: 'long', year: 'numeric' };
+      return date.toLocaleDateString('fr-FR', options);
+    }
+
+    return `
+      <span   
+        class="ml-2"
+        style="
+          font-size: 10px;
+          padding: 3px 6px 2px 6px;
+          color: #fff;
+          background: #17a2b8 !important;
+          border-radius: 6px;
+        "
+      >Date de création: ${formatDateFR(objDateStart)} au ${formatDateFR(objDateEnd)}</span>
+    `
+  }
+
+  const isStatusSelectedValue = (status) => {
+    return `
+      <span   
+        class="ml-2"
+        style="
+          font-size: 10px;
+          padding: 3px 6px 2px 6px;
+          color: #fff;
+          background: #17a2b8 !important;
+          border-radius: 6px;
+        "
+      >${status}</span>
+    `
+  }
+
+  // Use JS object instead of if-else conditions or switch case
+  const pnrFilterSelectedValues = {
+    None  : "Tous les PNR",
+    False : "PNR: non envoyé",
+    True  : "PNR: envoyé",
+    null  : "PNR: non envoyé",
+  };
+  
+  const statusSelectedValues = {
+    0    : "PNR: émis",
+    1    : "PNR: non émis",
+    null : "PNR: émis",
+  };
+  
+  $("#buttonMenuFilter").append(`${isPnrFilterSelectedValue(pnrFilterSelectedValues[isPnrFilterSelected])}`);
+  $("#buttonMenuFilter").append(`${isStatusSelectedValue(statusSelectedValues[isStatusSelected])}`);
+  
+
+  if (isCreatorSelected !== null) {
+    $("#buttonMenuFilter").append(`${isCreatorSelectedValue(isCreatorSelected)}`)
+  }
+
+  if (isDateRangeSelected !== null) {
+    $("#buttonMenuFilter").append(`${isDateRangeSelectedValue(isDateRangeSelected)}`)
+  }
+})
+
 $(function() {
   // Initialise un élément "select" avec l'ID "normalize" en utilisant la bibliothèque Selectize et ajoute le plugin de bouton de suppression. L'option normalize est activée.
   $('#normalize').selectize({

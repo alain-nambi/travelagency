@@ -1126,7 +1126,7 @@ i.update-odoo {
 	color: #6e7584;
 	border-radius: 5px;
 	border: none;
-	width: 200px;
+	width: auto;
 	justify-content: center;
 }
 

@@ -17,17 +17,33 @@
             <!-- /.card-header -->
             <div class="card-header justify-content-between py-0">
               <div class="row">
-                <div class="col-md-2 float-left">
+                <div class="col-md-2 float-left" style="max-width: 10% !important">
                 <h4 class="text-primary title-all-pnr mt-1 mb-0">Gestion PNR</h4>
                 </div>
                 <div class="col-md-10 float-right">
-                  <div class="row d-flex justify-content-center">
-                    <div class="col-md-5 mr-4 px-0 d-flex align-items-center">
+                  <div class="row d-flex">
+                    <div class="col-md-7 mr-4 px-0 d-flex align-items-center">
 
                       <button type="submit" class="d-flex align-items-center mt-1 px-2 py-0" id="buttonMenuFilter">
                         <i class="fa fa-filter mr-2"></i>
                         <span>Filtres</span>
                       </button>
+                      
+
+                      {% with 1|get_all_username as get_all_username %}
+                        <span id="getAllUsername" data-users="{{get_all_username}}"></span>
+                      {% endwith %}
+
+                      <!-- <span   
+                        class="mt-1 ml-2"
+                        style="
+                          font-size: 10px;
+                          padding: 3px 6px 2px 6px;
+                          color: #64696c;
+                          background: #bdc3c754;
+                          border-radius: 6px;
+                        "
+                      >PNR non envoyé</span> -->
 
                       <div class="wrapper-menu-filter">
                         <div class="content">
@@ -198,40 +214,44 @@
                         {% endif %}
                       </select> -->
                     </div>
-                
-                    <div class="col-md-2 mr-4 px-0 d-flex align-items-center justify-content-center">
-                      <div class="input-group input-group float-sm-right mt-1 mb-1" style="position: relative;">
-                        <input type="text" name="table_search" id="input-pnr" class="form-control form-control-sm"
-                          placeholder="Recherche">
-                        <div 
-                          id="spinnerLoadingSearch" 
-                          class="spinner-border" 
-                          role="status" 
-                          style="width: 14px; height: 14px; position: absolute; right: 48px; bottom: 6px; z-index: 9999"
-                          title="Recherche en cours"
-                        >
-                          <span class="sr-only">Loading...</span>
-                        </div>
-                        <div class="input-group-append">
-                          <button type="submit" id="pnr-research" class="btn btn-default py-0" title="Bouton de recherche">
-                            <i class="fas fa-search text-primary"></i>
-                          </button>
-                        </div>
-                      </div>
-                    </div> 
-                    <div class="col-md-2">
-                      <div class="d-flex">  
-                      <form method="GET" class="d-flex align-items-center justify-content-between"> 
-                        <div class="d-flex" style="width: 10rem;">
-                          <input type="text" name="paginate_by" class="form-control form-control-sm mt-1 value_page p-0 pl-2" placeholder="{{ row_num }}" required title="Nombres des lignes"/>
-                          <input type="text" class="form-control form-control-sm mt-1 count_page p-0" disabled value=" / {{ request|pnr_count }}" id="pnrCounterOnSearch"/>
-                        </div>
 
-                        <button type="submit" class="btn btn-outline-primary mt-1 px-2 py-0" id="buttonShowPnrBySize">Afficher</button>
-                      </form>
-                      <button type="submit" class="btn btn-outline-primary mt-1 px-2 py-0" id="buttonShowPnrBySizeOnSearch">Afficher</button>
+                    <div class="col-md-3 d-flex">
+                      <div class="col-md-8 mr-4 px-0 d-flex align-items-center justify-content-center">
+                        <div class="input-group input-group float-sm-right mt-1 mb-1" style="position: relative;">
+                          <input type="text" name="table_search" id="input-pnr" class="form-control form-control-sm"
+                            placeholder="Recherche">
+                          <div 
+                            id="spinnerLoadingSearch" 
+                            class="spinner-border" 
+                            role="status" 
+                            style="width: 14px; height: 14px; position: absolute; right: 48px; bottom: 6px; z-index: 9999"
+                            title="Recherche en cours"
+                          >
+                            <span class="sr-only">Loading...</span>
+                          </div>
+                          <div class="input-group-append">
+                            <button type="submit" id="pnr-research" class="btn btn-default py-0" title="Bouton de recherche">
+                              <i class="fas fa-search text-primary"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </div> 
+                      <div class="col-md-3">
+                        <div class="d-flex">  
+                        <form method="GET" class="d-flex align-items-center justify-content-between"> 
+                          <div class="d-flex" style="width: 10rem;">
+                            <input type="text" name="paginate_by" class="form-control form-control-sm mt-1 value_page p-0 pl-2" placeholder="{{ row_num }}" required title="Nombres des lignes"/>
+                            <input type="text" class="form-control form-control-sm mt-1 count_page p-0" disabled value=" / {{ request|pnr_count }}" id="pnrCounterOnSearch"/>
+                          </div>
+  
+                          <button type="submit" class="btn btn-outline-primary mt-1 px-2 py-0" id="buttonShowPnrBySize">Afficher</button>
+                        </form>
+                        <button type="submit" class="btn btn-outline-primary mt-1 px-2 py-0" id="buttonShowPnrBySizeOnSearch">Afficher</button>
+                        </div>
                       </div>
                     </div>
+                
+                    
                   </div>
                 </div>
               </div>

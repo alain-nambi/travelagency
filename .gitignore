@@ -11,3 +11,4 @@ env
 *.xlsx
 *.ipynb
 *.pem
+*.json

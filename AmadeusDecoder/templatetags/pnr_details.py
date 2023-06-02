@@ -1587,7 +1587,7 @@ def get_find_fee_reduce_request(pnr, fee):
             if reduce_pnr_fee_request.status == 0:
                 return True
             else:
-                False
+                return False
     else:
         return False
         
@@ -1698,5 +1698,34 @@ def get_all_pnr_to_switch(request):
                 pnr_list = Pnr.objects.all().order_by(date_order_by + 'system_creation_date').filter(Q(system_creation_date__gt=maximum_timezone)).filter(is_invoiced=is_invoiced)
             print('All')
 
-        list_pnr_with_position = [{'id': pnr.id, 'position': index, 'number': pnr.number} for index, pnr in enumerate(pnr_list)]
+        list_pnr_with_position = [{'id': pnr.id, 'position': index, 'number': pnr.number} for index, pnr in enumerate(pnr_list)] # type: ignore
         return json.dumps(list_pnr_with_position)
+
+
+
+###### Use to block checkbox when ticket or service is cancel or void immedialty after being issued so it can't be ordered ######
+@register.filter(name='ticket_cancel_void_status')
+def get_ticket_cancel_void_status(ticket):
+    from AmadeusDecoder.models.invoice.Fee import OthersFee
+    is_cancelled = False
+    ticket_line_canceller = OthersFee.objects.filter(ticket_id=ticket.id)
+
+    if ticket_line_canceller.exists() and not ticket.is_subjected_to_fees and not ticket.is_invoiced:
+        is_cancelled = True
+    else:
+        is_cancelled= False
+        
+    return is_cancelled
+
+@register.filter(name='other_fee_cancel_void_status')
+def get_other_fee_cancel_void_status(other_fee):
+    from AmadeusDecoder.models.invoice.Fee import OthersFee
+    is_cancelled = False
+    other_fee_line_canceller = OthersFee.objects.filter(other_fee_id=other_fee.id) # type: ignore
+
+    if other_fee_line_canceller.exists() and not other_fee.is_subjected_to_fee and not other_fee.is_invoiced:
+        is_cancelled = True
+    else:
+        is_cancelled= False
+
+    return is_cancelled

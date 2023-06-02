@@ -12,3 +12,4 @@ env
 *.ipynb
 *.pem
 travelagency_env
+*.json

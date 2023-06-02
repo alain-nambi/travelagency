@@ -49,6 +49,7 @@ $(document).ready(function () {
       } catch (error) {
         console.log('====================================');
         console.log("JSON USERS DATA:" + error);
+        username = "Tout"
         console.log('====================================');
       }
     }

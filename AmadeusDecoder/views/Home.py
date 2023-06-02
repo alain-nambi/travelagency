@@ -122,8 +122,7 @@ def home(request):
                                 number=issuing_user.document, 
                                 status_value=status_value_from_cookie
                             ).filter(
-                                Q(system_creation_date__gte=start_date), 
-                                Q(system_creation_date__lte=end_date),
+                                Q(system_creation_date__range=[start_date, end_date]),
                                 Q(system_creation_date__gt=maximum_timezone),
                             ).first()
                 else:
@@ -136,8 +135,7 @@ def home(request):
                                 status_value=status_value_from_cookie,
                                 agent_id=filtered_creator
                             ).filter(
-                                Q(system_creation_date__gte=start_date), 
-                                Q(system_creation_date__lte=end_date),
+                                Q(system_creation_date__range=[start_date, end_date]),
                                 Q(system_creation_date__gt=maximum_timezone)
                             ).all().order_by(date_order_by + 'system_creation_date')
             else:
@@ -166,8 +164,7 @@ def home(request):
                                 number=issuing_user.document, 
                                 status_value=status_value_from_cookie
                             ).filter(
-                                Q(system_creation_date__gte=start_date), 
-                                Q(system_creation_date__lte=end_date),
+                                Q(system_creation_date__range=[start_date, end_date]),
                                 Q(system_creation_date__gt=maximum_timezone)
                             ).filter(is_invoiced=is_invoiced).first()
                 else:
@@ -180,8 +177,7 @@ def home(request):
                                 status_value=status_value_from_cookie,
                                 agent_id=filtered_creator
                             ).filter( 
-                                Q(system_creation_date__gte=start_date), 
-                                Q(system_creation_date__lte=end_date),
+                                Q(system_creation_date__range=[start_date, end_date]),
                                 Q(system_creation_date__gt=maximum_timezone)
                             ).filter(is_invoiced=is_invoiced).all().order_by(date_order_by + 'system_creation_date')
             else:
@@ -231,8 +227,7 @@ def home(request):
             for issuing_user in issuing_users:
                 if start_date and end_date:
                     pnr = Pnr.objects.filter(number=issuing_user.document, status_value=status_value_from_cookie).filter(
-                            Q(system_creation_date__gte=start_date), 
-                            Q(system_creation_date__lte=end_date),
+                            Q(system_creation_date__range=[start_date, end_date]),
                             Q(system_creation_date__gt=maximum_timezone)
                         ).filter(is_invoiced=is_invoiced).first()
                 else:
@@ -245,8 +240,7 @@ def home(request):
                 pnr_obj   = Pnr.objects.filter(
                                 agent_id=filtered_creator
                             ).filter(
-                                Q(system_creation_date__gte=start_date), 
-                                Q(system_creation_date__lte=end_date),
+                                Q(system_creation_date__range=[start_date, end_date]),
                                 Q(system_creation_date__gt=maximum_timezone)
                             ).filter(is_invoiced=is_invoiced, status_value=status_value_from_cookie).all().order_by(date_order_by + 'system_creation_date')
             else:
@@ -300,8 +294,7 @@ def home(request):
 
             if start_date and end_date:
                 pnr_queryset = pnr_queryset.filter(status_value=status_value_from_cookie).filter(
-                    Q(system_creation_date__gte=start_date), 
-                    Q(system_creation_date__lte=end_date),
+                    Q(system_creation_date__range=[start_date, end_date]),
                     Q(status_value=status_value_from_cookie)
                 )
 
@@ -320,8 +313,7 @@ def home(request):
 
             if start_date and end_date:
                 pnr_queryset = pnr_queryset.filter(status_value=status_value_from_cookie).filter(
-                    Q(system_creation_date__gte=start_date), 
-                    Q(system_creation_date__lte=end_date)
+                    Q(system_creation_date__range=[start_date, end_date]),
                 )
 
             if is_invoiced is not None:

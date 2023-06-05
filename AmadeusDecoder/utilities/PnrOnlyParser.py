@@ -1856,6 +1856,14 @@ class PnrOnlyParser():
                                             ticket.tax = -1 * temp_ticket_obj.tax
                                             ticket.total = -1 * temp_ticket_obj.total
                                             ticket.passenger = temp_ticket_obj.passenger
+                                        else:
+                                            temp_ticket_source = Ticket()
+                                            temp_ticket_source.number = ticket.number.removesuffix('-R')
+                                            temp_ticket_source.passenger = ticket.passenger
+                                            temp_ticket_source.related_passenger_order = ticket.related_passenger_order
+                                            temp_ticket_source.pnr = pnr
+                                            temp_ticket_source.ticket_type = ticket.ticket_type
+                                            temp_ticket_source.save()
                                                 
                                     ticket.save()
                                     # check subcontractor
@@ -2215,6 +2223,14 @@ class PnrOnlyParser():
                                             ticket.tax = -1 * temp_ticket_obj.tax
                                             ticket.total = -1 * temp_ticket_obj.total
                                             ticket.passenger = temp_ticket_obj.passenger
+                                        else:
+                                            temp_ticket_source = Ticket()
+                                            temp_ticket_source.number = ticket.number.removesuffix('-R')
+                                            temp_ticket_source.passenger = ticket.passenger
+                                            temp_ticket_source.related_passenger_order = ticket.related_passenger_order
+                                            temp_ticket_source.pnr = pnr
+                                            temp_ticket_source.ticket_type = ticket.ticket_type
+                                            temp_ticket_source.save()
                                     ticket.save()
                                     # check subcontractor
                                     ticket.process_subcontract()

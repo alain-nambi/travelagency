@@ -109,7 +109,7 @@ def fetch_email():
         # email_listener_obj.email = "central.dev19@gmail.com"
         # email_listener_obj.app_password = "aqygdmkcedxmimyk"
         email_listener_obj.email = "tjq.issoufali@gmail.com"
-        email_listener_obj.app_password = "aqygdmkcedxmimyk"
+        email_listener_obj.app_password = "sboptodqazliqabj"
         # email_listener_obj.email = "issoufali.pnr@outlook.com"
         # email_listener_obj.app_password = "Mgbi@261!+"
         email_listener_obj.folder = "Inbox"

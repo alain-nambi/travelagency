@@ -78,6 +78,7 @@ class Ticket(models.Model, BaseModel):
     payment_option = models.CharField(max_length=100, null=True)
     ticket_status = models.IntegerField(default=1) # 1 Open for use, 0 cancelled/void, 2 Airport control, 3 Flown, 4 refunded, 5 exchanged, 6 printed
     ticket_gp_status = models.CharField(max_length=10, default='OK') # SA, OK, NS....
+    is_gp = models.BooleanField(default=0) # true if ticket is GP (no fee)
     ticket_description = models.CharField(max_length=250, null=True) # used mostly on EMD ticket
     passenger_type = models.CharField(max_length=10, default='PAX') # PAX or INF
     is_prime = models.BooleanField(default=0) # true or false => true: prime, false: not prime

@@ -235,7 +235,11 @@ class TicketOnlyParser():
         if ticket.number.startswith('760901') or ticket.number.startswith('760-901'):
             ticket.ticket_type = 'Credit_Note'
             ticket.is_subjected_to_fees = False
-                    
+    
+    # check GP status
+    def check_gp_status(self, ticket):
+        1
+    
     # parse ticket data
     def parse_ticket(self, file_contents, email_date):
         print('TICKET FILE DETECTED')

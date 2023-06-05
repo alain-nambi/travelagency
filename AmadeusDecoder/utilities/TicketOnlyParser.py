@@ -235,7 +235,14 @@ class TicketOnlyParser():
         if ticket.number.startswith('760901') or ticket.number.startswith('760-901'):
             ticket.ticket_type = 'Credit_Note'
             ticket.is_subjected_to_fees = False
-                    
+    
+    # check GP status
+    def check_gp_status(self, file_contents, ticket):
+        for line in file_contents:
+            if line.startswith('FP OE'):
+                ticket.is_gp = True
+                break
+    
     # parse ticket data
     def parse_ticket(self, file_contents, email_date):
         print('TICKET FILE DETECTED')
@@ -291,6 +298,8 @@ class TicketOnlyParser():
                 # prime
                 if not ticket.is_no_adc and ticket.transport_cost == 0 and fare_type != 'IT':
                     ticket.is_prime = True
+                # gp
+                self.check_gp_status(file_contents, ticket)
             except:
                 pass
             ticket.save()
@@ -340,6 +349,8 @@ class TicketOnlyParser():
                 self.check_is_subjected_to_fees(file_contents, temp_ticket)
                 # update is regional status
                 temp_ticket.get_set_regional_status()
+                # GP
+                self.check_gp_status(file_contents, temp_ticket)
             except:
                 pass
             temp_ticket.save()

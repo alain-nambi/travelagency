@@ -197,7 +197,7 @@ class PnrOnlyParser():
                 new_content.append(needed_content[i])
             elif not self.is_regular_line(needed_content[i]) and (needed_content[i].startswith('* SP') or needed_content[i].startswith('* RR')) :
                 new_content.append(needed_content[i])
-            elif self.is_regular_line(needed_content[i]) == False and len(new_content) > 0 and not needed_content[i].startswith('OPERATED BY') and not needed_content[i].startswith('ETA'):
+            elif self.is_regular_line(needed_content[i]) == False and len(new_content) > 0 and not needed_content[i].startswith('OPERATED BY') and not needed_content[i].startswith('ETA') and not needed_content[i].startswith('FOR TAX/FEE'):
                 new_content[len(new_content) - 1] = new_content[len(new_content) - 1] + needed_content[i]
         
         upper_content, new_file_start = self.appropriated_start(new_content)

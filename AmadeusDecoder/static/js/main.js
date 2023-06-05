@@ -176,19 +176,31 @@ $(function() {
 
   // Cache tous les éléments de menu de filtre lors du chargement de la page.
   const $wrapperMenuFilter   = $(".wrapper-menu-filter");
-  const $pnrMenu             = $(".pnr-menu")
-  const $pnrStatus           = $(".pnr-status")
+  const $closeButtonFilter   = $(".close-button-filter");
+  const $pnrMenu             = $(".pnr-menu");
+  const $pnrStatus           = $(".pnr-status");
   const $dateRangeMenu       = $(".date-range-menu");
-  const $creatorMenu         = $(".creator-group-menu")
+  const $creatorMenu         = $(".creator-group-menu");
   const liElements           = $(".filter-menu > .list");
   const $pnrLiElements       = $(".pnr-menu .pnr-list");
   const $pnrStatusLiElements = $(".pnr-status .pnr-list");
-
+  
   $wrapperMenuFilter.hide();
   $pnrMenu.hide();
   $pnrStatus.hide();
   $dateRangeMenu.hide();
   $creatorMenu.hide();
+
+  $closeButtonFilter.on("click", function (e) {
+    isMenuOpen = !isMenuOpen;
+    isMenuOpen ? $wrapperMenuFilter.show() : $wrapperMenuFilter.hide();
+    $(this).toggleClass("active", isMenuOpen);
+    liElements.removeClass("active");
+    $pnrMenu.hide();
+    $pnrStatus.hide();
+    $dateRangeMenu.hide();
+    $creatorMenu.hide();
+  })
 
   // Initialise des variables booléennes pour suivre l'état des menus ouverts et les filtres sélectionnés.
   let isMenuOpen = false;
@@ -279,9 +291,9 @@ $(function() {
     $visibleIcons.addClass('opacity-100').removeClass('opacity-0');
   }
 
-  console.log('====================================');
-  console.log(filterStatusSelectors['issued']);
-  console.log('====================================');
+  // console.log('====================================');
+  // console.log(filterStatusSelectors['issued']);
+  // console.log('====================================');
 
   if (selectorStatus) {
     const $visibleIcons = $pnrStatusCheckIcons.filter(selectorStatus)

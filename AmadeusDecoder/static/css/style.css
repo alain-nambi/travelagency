@@ -1173,7 +1173,8 @@ ul.pnr-menu {
 .list-one,
 .list-two,
 .list-three, 
-.list-four {
+.list-four,
+.list-five {
 	border-radius: 5px;
     padding: 6px 10px 6px 10px;
     cursor: pointer;
@@ -1194,8 +1195,18 @@ ul.pnr-menu {
 	background-color: #e8eaf3b3;
 }
 
+.list-five {
+	background-color:#a3a0a9;
+	color: #fff;
+}
+
+.list-five:hover {
+	background-color:#a3a0a964;
+}
+
 .filter-menu li:nth-child(1) .filter-menu.list,
-.filter-menu li:nth-child(4) .filter-menu.list {
+.filter-menu li:nth-child(4) .filter-menu.list,
+.filter-menu li:nth-child(5) .filter-menu.list {
 	display: flex;
 	align-items: center;
 	gap: 8px;
@@ -1313,4 +1324,8 @@ ul.pnr-menu {
 .selectize-dropdown-content .option,
 .selectize-dropdown-content .option .highlight {
 	font-size: 12px !important;
+}
+
+.close-button-filter:hover {
+	background-color: hsla(354, 70%, 54%, 0.65) !important
 }

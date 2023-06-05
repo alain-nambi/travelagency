@@ -11,6 +11,424 @@ $(document).ready(function () {
   }, 2000);
 });
 
+$(document).ready(function () {
+  const isPnrFilterSelected = getCookies("filter_pnr")
+  const isCreatorSelected   = getCookies("creator_pnr_filter")
+  const isDateRangeSelected = getCookies("dateRangeFilter")
+  const isStatusSelected    = getCookies("filter_pnr_by_status")
+
+  // console.log('====================================');
+  // console.log(isPnrFilterSelected);
+  // console.log(isCreatorSelected);
+  // console.log(isDateRangeSelected);
+  // console.log(isStatusSelected);
+  // console.log('====================================');
+
+  const isPnrFilterSelectedValue = (pnr) => {
+    return `
+      <span   
+        class="ml-2"
+        style="
+          font-size: 10px;
+          padding: 3px 6px 2px 6px;
+          color: #fff;
+          background: #17a2b8 !important;
+          border-radius: 6px;
+        "
+      >${pnr}</span>
+    `
+  }
+
+  const isCreatorSelectedValue = (creator) => {
+    const USERS_DATA = document.getElementById("getAllUsername")
+    let username = ""
+    if (USERS_DATA) {
+      const JSON_USERS_DATA = JSON.parse(USERS_DATA.getAttribute("data-users"))
+      try {
+        username = JSON_USERS_DATA.find((user) => user.id === parseInt(creator)).username
+      } catch (error) {
+        console.log('====================================');
+        console.log("JSON USERS DATA:" + error);
+        username = "Tout"
+        console.log('====================================');
+      }
+    }
+    return `
+      <span   
+        class="ml-2"
+        style="
+          font-size: 10px;
+          padding: 3px 6px 2px 6px;
+          color: #fff;
+          background: #17a2b8 !important;
+          border-radius: 6px;
+        "
+      >Créateur: ${username}</span>
+    `
+  }
+
+  const isDateRangeSelectedValue = (date) => {
+    const dateStart = date.split(" * ")[0];
+    const dateEnd   = date.split(" * ")[1];
+
+    // Convertir le chaine de caractère en objet Date() 
+    const objDateStart = new Date(dateStart);
+    const objDateEnd   = new Date(dateEnd);
+
+    // Fonction pour formater une date en format FR
+    function formatDateFR(date) {
+      const options = { day: 'numeric', month: 'long', year: 'numeric' };
+      return date.toLocaleDateString('fr-FR', options);
+    }
+
+    return `
+      <span   
+        class="ml-2"
+        style="
+          font-size: 10px;
+          padding: 3px 6px 2px 6px;
+          color: #fff;
+          background: #17a2b8 !important;
+          border-radius: 6px;
+        "
+      >Date de création: ${formatDateFR(objDateStart)} au ${formatDateFR(objDateEnd)}</span>
+    `
+  }
+
+  const isStatusSelectedValue = (status) => {
+    return `
+      <span   
+        class="ml-2"
+        style="
+          font-size: 10px;
+          padding: 3px 6px 2px 6px;
+          color: #fff;
+          background: #17a2b8 !important;
+          border-radius: 6px;
+        "
+      >${status}</span>
+    `
+  }
+
+  // Use JS object instead of if-else conditions or switch case
+  const pnrFilterSelectedValues = {
+    None  : "Tous les PNR",
+    False : "PNR: non envoyé",
+    True  : "PNR: envoyé",
+    null  : "PNR: non envoyé",
+  };
+  
+  const statusSelectedValues = {
+    0    : "PNR: émis",
+    1    : "PNR: non émis",
+    null : "PNR: émis",
+  };
+  
+  $("#buttonMenuFilter").append(`${isPnrFilterSelectedValue(pnrFilterSelectedValues[isPnrFilterSelected])}`);
+  $("#buttonMenuFilter").append(`${isStatusSelectedValue(statusSelectedValues[isStatusSelected])}`);
+  
+
+  if (isCreatorSelected !== null) {
+    $("#buttonMenuFilter").append(`${isCreatorSelectedValue(isCreatorSelected)}`)
+  }
+
+  if (isDateRangeSelected !== null) {
+    $("#buttonMenuFilter").append(`${isDateRangeSelectedValue(isDateRangeSelected)}`)
+  }
+})
+
+$(function() {
+  // Initialise un élément "select" avec l'ID "normalize" en utilisant la bibliothèque Selectize et ajoute le plugin de bouton de suppression. L'option normalize est activée.
+  $('#normalize').selectize({
+    plugins: ["clear_button"],
+    normalize: true,
+  });
+  
+  const SELECTION_CLASS = ".selectize-input.items.not-full.has-options.dropdown-active.focus.input-active, .selectize-input.items.not-full.has-options, .selectize-input.items.not-full.has-options.dropdown-active, #normalize-selectized"
+
+  $(SELECTION_CLASS).on("click", () => {
+    const $selectizeDropDownContent = $(".selectize-dropdown-content .option")
+    $selectizeDropDownContent.on("click", (e) => {
+      let $creatorId = $(".selectize-input .item")
+      document.cookie = `creator_pnr_filter=${$creatorId.data("value")}; SameSite=Lax`
+    })
+  });
+  
+  /* 
+    L'évènement "blur" est déclenché lorsqu'un élément perd le focus, 
+    c'est-à-dire que l'utilisateur a cliqué sur un autre élément de la page ou qu'il a quitté l'élément en question 
+    (par exemple en appuyant sur la touche Tab).
+  */
+
+  $(SELECTION_CLASS).on("blur", () => {
+    const $selectizeDropDownContent = $(".selectize-dropdown-content .option")
+    $selectizeDropDownContent.on("click", (e) => {
+      let $creatorId = $(".selectize-input .item")
+      document.cookie = `creator_pnr_filter=${$creatorId.data("value")}; SameSite=Lax`
+    })
+  });
+  
+
+  // Convertit l'objet Date actuel en une chaîne de caractères représentant la date actuelle au format spécifié ("day month year") et spécifie la locale française.
+  const currentDateToString = new Date(Date.now());
+  const options             = { year: 'numeric', month: 'long', day: 'numeric' };
+  const localeDateString    = currentDateToString.toLocaleDateString('fr-FR', options);
+
+  // Cache tous les éléments de menu de filtre lors du chargement de la page.
+  const $wrapperMenuFilter   = $(".wrapper-menu-filter");
+  const $closeButtonFilter   = $(".close-button-filter");
+  const $pnrMenu             = $(".pnr-menu");
+  const $pnrStatus           = $(".pnr-status");
+  const $dateRangeMenu       = $(".date-range-menu");
+  const $creatorMenu         = $(".creator-group-menu");
+  const liElements           = $(".filter-menu > .list");
+  const $pnrLiElements       = $(".pnr-menu .pnr-list");
+  const $pnrStatusLiElements = $(".pnr-status .pnr-list");
+  
+  $wrapperMenuFilter.hide();
+  $pnrMenu.hide();
+  $pnrStatus.hide();
+  $dateRangeMenu.hide();
+  $creatorMenu.hide();
+
+  $closeButtonFilter.on("click", function (e) {
+    isMenuOpen = !isMenuOpen;
+    isMenuOpen ? $wrapperMenuFilter.show() : $wrapperMenuFilter.hide();
+    $(this).toggleClass("active", isMenuOpen);
+    liElements.removeClass("active");
+    $pnrMenu.hide();
+    $pnrStatus.hide();
+    $dateRangeMenu.hide();
+    $creatorMenu.hide();
+  })
+
+  // Initialise des variables booléennes pour suivre l'état des menus ouverts et les filtres sélectionnés.
+  let isMenuOpen = false;
+
+  // Attache un gestionnaire d'événements pour afficher/cacher le menu de filtre lorsqu'on clique sur le bouton Menu Filter. Il bascule également la classe CSS active sur le bouton pour refléter son état.
+  $("#buttonMenuFilter").click(function(e) {
+    isMenuOpen = !isMenuOpen;
+    isMenuOpen ? $wrapperMenuFilter.show() : $wrapperMenuFilter.hide();
+    $(this).toggleClass("active", isMenuOpen);
+    liElements.removeClass("active");
+    $pnrMenu.hide();
+    $pnrStatus.hide();
+    $dateRangeMenu.hide();
+    $creatorMenu.hide();
+  });
+
+  // Attache un gestionnaire d'événements pour chaque élément de menu de filtre afin de sélectionner/désélectionner les filtres et d'afficher/cacher les menus correspondants.
+  liElements.click(function(li) {
+    liElements.removeClass("active");
+
+    if (this.classList.contains("list-one")) {
+      $pnrMenu.show();
+      $dateRangeMenu.hide();
+      $creatorMenu.hide();
+      $pnrStatus.hide();
+    }
+
+    if (this.classList.contains("list-two")) {
+      $dateRangeMenu.show();
+      $pnrMenu.hide();
+      $creatorMenu.hide();
+      $pnrStatus.hide();
+    }
+
+    if (this.classList.contains("list-three")) {
+      $dateRangeMenu.hide();
+      $pnrMenu.hide();
+      $creatorMenu.show();
+      $pnrStatus.hide();
+    }
+
+    if (this.classList.contains("list-four")) {
+      $dateRangeMenu.hide();
+      $pnrMenu.hide();
+      $creatorMenu.hide();
+      $pnrStatus.show();
+    }
+    
+    this.classList.add("active");
+  });
+
+  // Ajoute la classe CSS opacity-0 à l'icône de coche dans le menu PNR pour la cacher.
+  $(".pnr-menu i.fa-check").addClass("opacity-0");
+
+  // Sélectionne toutes les icônes de coche dans le menu PNR et stocke-les dans la variable $pnrCheckIcons. 
+  const $pnrCheckIcons       = $pnrLiElements.find('i.fa-check');
+  const $pnrStatusCheckIcons = $pnrStatusLiElements.find('i.fa-check');
+
+  // console.log($pnrCheckIcons);
+
+  // Récupère le type de filtre actuel à partir de l'objet localStorage.
+  const filterType = localStorage.getItem('filterPnrBy');
+  const filterStatus = localStorage.getItem('filterByPnrStatus')
+
+  // Initialise un objet qui associe chaque type de filtre à son sélecteur CSS correspondant afin d'éviter la duplication de code.
+  const filterSelectors = {
+    'all': '#showAllPnr i.fa-check',
+    'not send': '#showNotInvoicedPnr i.fa-check',
+    'send': '#showInvoicedPnr i.fa-check',
+  };
+
+  const filterStatusSelectors = {
+    'issued': '#showIssuedPnr i.fa-check',
+    'not_issued': '#showNotIssuedPnr i.fa-check'
+  }
+  
+  // Nous pouvons utiliser l'opérateur ternaire pour simplifier la logique conditionnelle.
+  const selector = filterSelectors[filterType] ? filterSelectors[filterType] : filterSelectors['not send'];
+  const selectorStatus = filterStatusSelectors[filterStatus] ? filterStatusSelectors[filterStatus] : filterStatusSelectors['issued']
+
+  // Au lieu d'utiliser addClass et removeClass séparément, nous pouvons les chaîner ensemble.
+  $pnrCheckIcons.removeClass('opacity-100').addClass('opacity-0');
+  $pnrStatusCheckIcons.removeClass('opacity-100').addClass('opacity-0')
+  
+  // Si un sélecteur a été trouvé, nous pouvons appliquer la classe d'opacité aux éléments correspondants.
+  if (selector) {
+    const $visibleIcons = $pnrCheckIcons.filter(selector);
+    $visibleIcons.addClass('opacity-100').removeClass('opacity-0');
+  }
+
+  // console.log('====================================');
+  // console.log(filterStatusSelectors['issued']);
+  // console.log('====================================');
+
+  if (selectorStatus) {
+    const $visibleIcons = $pnrStatusCheckIcons.filter(selectorStatus)
+    $visibleIcons.addClass('opacity-100').removeClass('opacity-0');
+  }
+
+  // console.log($($pnrLiElements).find("i.fa-check"));
+
+  $pnrLiElements.click(function() {
+    // Retirer la classe "opacity-100" de tous les éléments i
+    $(".pnr-menu i.fa-check").removeClass("opacity-100");
+    $(".pnr-menu i.fa-check").addClass("opacity-0");
+  
+    // Ajouter la classe "opacity-100" à l'élément i du clic en cours
+    $(this).find("i.fa-check").addClass("opacity-100");
+    $(this).find("i.fa-check").removeClass("opacity-0");
+  
+    if (this.classList.contains("list-one")) {
+      // Faire quelque chose pour le premier élément de la liste
+      localStorage.setItem("filterPnrBy", "all")
+      document.cookie = `filter_pnr=None; SameSite=Lax`
+    }
+  
+    if (this.classList.contains("list-two")) {
+      // Faire quelque chose pour le deuxième élément de la liste
+      localStorage.setItem("filterPnrBy", "send")
+      document.cookie = `filter_pnr=True; SameSite=Lax`
+    }
+  
+    if (this.classList.contains("list-three")) {
+      // Faire quelque chose pour le troisième élément de la liste
+      localStorage.setItem("filterPnrBy", "not send")
+      document.cookie = `filter_pnr=False; SameSite=Lax`
+    }
+
+    window.location.reload()
+  });
+
+  $pnrStatusLiElements.click(function () {
+    // Retirer la classe "opacity-100" de tous les éléments i
+    $(".pnr-status i.fa-check").removeClass("opacity-100");
+    $(".pnr-status i.fa-check").addClass("opacity-0");
+
+    // Ajouter la classe "opacity-100" à l'élément i du clic en cours
+    $(this).find("i.fa-check").addClass("opacity-100");
+    $(this).find("i.fa-check").removeClass("opacity-0");
+
+    if (this.classList.contains("list-one")) {
+      // Faire quelque chose pour le premier élément de la liste
+      localStorage.setItem("filterByPnrStatus", "issued")
+      document.cookie = `filter_pnr_by_status=0; SameSite=Lax`
+    }
+  
+    if (this.classList.contains("list-two")) {
+      // Faire quelque chose pour le deuxième élément de la liste
+      localStorage.setItem("filterByPnrStatus", "not_issued")
+      document.cookie = `filter_pnr_by_status=1; SameSite=Lax`
+    }
+
+    window.location.reload()
+  })
+
+  // Ajoutez la date locale dans les éléments HTML avec l'ID "dateRangeBegin" et "dateRangeEnd"
+  $('#dateRangeBegin, #dateRangeEnd').text(localeDateString);
+
+  // Définit une fonction de rappel pour le choix de date
+  function cb(start, end) {
+    // Récupère la date de début et de fin depuis localStorage s'ils existent
+    const startDateFromLocalStorage = JSON.parse(localStorage.getItem("startDate"));
+    const endDateFromLocalStorage = JSON.parse(localStorage.getItem("endDate"));
+
+    // Affiche la plage de dates sélectionnée dans l'élément avec l'ID "reportrange"
+    // Si aucune date n'a été récupérée depuis localStorage, affiche la plage de dates courante
+    const displayStartDate = startDateFromLocalStorage || start;
+    const displayEndDate = endDateFromLocalStorage || end;
+    $('#reportrange span').html(displayStartDate + ' - ' + displayEndDate);
+  }
+
+  // Initialise le plugin DateRangePicker sur l'élément avec l'ID "reportrange"
+  $('#reportrange').daterangepicker({
+    opens: 'right'
+  }, function(start, end, label) {
+    // Formate les dates de début et de fin pour l'affichage et le stockage
+    const displayFormat = 'DD/MM/YYYY';
+    const storageFormat = 'YYYY-MM-DD';
+
+    const startDateDisplay = start._d.toLocaleDateString('fr-FR', options);
+    const endDateDisplay = end._d.toLocaleDateString('fr-FR', options);
+
+    const startDateStorage = start.format(storageFormat);
+    const endDateStorage = end.format(storageFormat);
+
+    // Met à jour les éléments HTML avec les dates sélectionnées
+    $('#dateRangeBegin').text(startDateDisplay);
+    $('#dateRangeEnd').text(endDateDisplay);
+
+    // Stocke la plage de dates sélectionnée dans un cookie
+    document.cookie = `dateRangeFilter=${startDateStorage} * ${endDateStorage}; SameSite=Lax`;
+
+    // Stocke la date de début et de fin sélectionnée dans localStorage
+    localStorage.setItem("startDate", JSON.stringify(startDateDisplay));
+    localStorage.setItem("endDate", JSON.stringify(endDateDisplay));
+
+    // Met à jour la plage de dates affichée en appelant la fonction de rappel
+    cb(startDateDisplay, endDateDisplay);
+  });
+
+  // Initialise la plage de dates affichée en appelant la fonction de rappel avec la date courante
+  cb(localeDateString, localeDateString);
+
+  // Ajoute un gestionnaire d'événements pour le bouton de filtre pour forcer le rechargement de la page
+  $("#buttonMenuFilterByCreationDateRange").on("click", () => {
+    window.location.reload()
+  })
+
+  $("#buttonMenuFilterByCreator").on("click", (e) => {
+    e.preventDefault()
+    const $item = $(".selectize-input .item")
+    const $alert = $("#alertEmptyCreator") // Add this line to select the alert element
+  
+    if ($item.length > 0) {
+      window.location.reload()
+    } else if ($alert.length === 0) { // Add this condition to check if the alert is already on the page
+      $(".selectize-input.items").css({"border": "1px solid #dc3545"})
+      $(".creator-group ").append(`
+        <span id="alertEmptyCreator" class="text-sm text-danger mt-1 d-flex align-items-center" style="gap: 5px">
+          <i class="fa fa-circle-exclamation"></i>
+          Veuillez sélectionner le créateur
+        </span>
+      `
+      ) 
+    }
+  })
+});
+
 //local storage sidebar
 var $toggleButton = $("#pushed-sidebar");
 var $pushSelectors = $("#pushed-content");
@@ -2480,9 +2898,9 @@ if (pnrFilteredByOrder != null) {
   }
   if (pnrFilteredByOrder != null) {
     pnrFilteredByOrder.addEventListener("change", (e) => {
-      document.cookie = `filter_pnr=${e.target.value}`;
-      location.reload();
-    });
+      document.cookie = `filter_pnr=${e.target.value}; SameSite=Lax`
+      location.reload()
+    })
   }
 }
 //========= ENF OF ADDING FILTER TO PNR ============>
@@ -2502,8 +2920,8 @@ if (pnrCreatorFilter != null) {
     }
   }
 
-  pnrCreatorFilter.addEventListener("change", (e) => {
-    document.cookie = `creator_pnr_filter=${e.target.value}`;
+  pnrCreatorFilter.addEventListener('change', e=> {
+    document.cookie = `creator_pnr_filter=${e.target.value}; SameSite=Lax`;
     location.reload();
   });
 }
@@ -2518,16 +2936,16 @@ const icon__pnrDateCreation = document.getElementById("icon__pnrDateCreation");
 $(".pnr-creation-date").click((e) => {
   e.preventDefault();
   if (isOrderedByDateCreated == null) {
-    localStorage.setItem("isOrderedByDateCreated", "false");
-    document.cookie = `creation_date_order_by="asc"`;
+    localStorage.setItem("isOrderedByDateCreated", "false")
+    document.cookie = `creation_date_order_by="asc"; SameSite=Lax`
   } else {
     if (isOrderedByDateCreated == "false") {
-      localStorage.setItem("isOrderedByDateCreated", "true");
-      document.cookie = `creation_date_order_by="desc"`;
+      localStorage.setItem("isOrderedByDateCreated", "true")
+      document.cookie = `creation_date_order_by="desc"; SameSite=Lax`
     }
     if (isOrderedByDateCreated == "true") {
-      localStorage.setItem("isOrderedByDateCreated", "false");
-      document.cookie = `creation_date_order_by="asc"`;
+      localStorage.setItem("isOrderedByDateCreated", "false")
+      document.cookie = `creation_date_order_by="asc"; SameSite=Lax`
     }
   }
   window.location.reload();

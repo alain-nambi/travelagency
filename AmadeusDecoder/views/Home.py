@@ -789,7 +789,6 @@ def get_order(request, pnr_id):
     csv_customer_lines = []
 
     if request.method== 'POST':
-        # segments_parts = []
         if 'pnrId' and 'customerIdsChecked' in request.POST:
             pnr_id = request.POST.get('pnrId')
             reference = request.POST.get('refCde')
@@ -892,19 +891,25 @@ def get_order(request, pnr_id):
                                     }
                                     air_segments.append(_segment)
 
+                        type_ticket = ''
+                        if ticket.is_refund:
+                            type_ticket = 'Remboursement'
+                        else:
+                            type_ticket = ticket.ticket_type
+
                         csv_order_lines.append({
-                            'LineID': order.id,
-                            'Type': ticket.ticket_type,
+                            'LineID': order.id, # type: ignore
+                            'Type': type_ticket,
                             'PNRNumber': pnr_order.number,
                             'PNRType': pnr_order.type,
-                            'CustomerId': order.client.id,
+                            'CustomerId': order.client.id, # type: ignore
                             'OrderRef': order.reference, 
                             'Agency': '%s: %s' % (pnr_order.agency.name, pnr_order.agency.code) if pnr_order.agency is not None else pnr_order.agency_name if pnr_order.type == 'EWA' else '',
                             'Follower': pnr_order.agent.username if pnr_order.agent is not None else pnr_order.agent_code if pnr_order.agent_code is not None else '',
                             'TicketNumber': ticket.number,
-                            'Civility': ticket.passenger.designation,
-                            'PassengerFirstname': ticket.passenger.name,
-                            'PassengerLastname': ticket.passenger.surname,
+                            'Civility': ticket.passenger.designation, # type: ignore
+                            'PassengerFirstname': ticket.passenger.name, # type: ignore
+                            'PassengerLastname': ticket.passenger.surname, # type: ignore
                             'Segments': json.dumps(air_segments),
                             'DocCurrency': 'EUR',
                             'Transport': ticket.transport_cost,
@@ -1299,7 +1304,7 @@ def get_quotation(request, pnr_id):
                 if order.other_fee is not None:
                     other_fee = OthersFee.objects.filter(pk=order.other_fee.id)
                     for item in other_fee:
-                        if item.fee_type == 'EMD' and item.fee_type == 'TKT':
+                        if item.fee_type == 'EMD' and item.fee_type == 'TKT' and item.fee_type == 'Cancellation' and item.fee_type == 'AVOIR COMPAGNIE':
                             type_other_fee = item.fee_type
                         else:
                             type_other_fee = item.designation

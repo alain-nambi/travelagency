@@ -172,9 +172,9 @@ class EmailfetcherConfig(AppConfig):
         timer = RepeatTimer(60, pnr_unissued_opc_checking)  
         timer.start()
         
-        print('Product synchronisation is starting')
-        timer_synchro = RepeatTimer(5, running_product_synhcro)
-        timer_synchro.start()
+        # print('Product synchronisation is starting')
+        # timer_synchro = RepeatTimer(5, running_product_synhcro)
+        # timer_synchro.start()
 
         # from AmadeusDecoder.utilities.FtpConnection import download_file
         # dest_dir = '/export/products'

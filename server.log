@@ -1,0 +1,17 @@
+Email listener is starting
+📢 Mail notification for pnr not updated in pnr management...
+==================== Mail notification for pnr not sent to Odoo ====================
+Mail notification is starting....
+Daily Pnr created starting
+Pnr unissued OPC checking is running...
+Email listener is started
+Performing system checks...
+
+System check identified no issues (0 silenced).
+June 02, 2023 - 13:52:34
+Django version 3.2.15, using settings 'DjangoTravelAgency.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+Connection is now in IDLE mode.
+OPC checking...
+Connection is now in IDLE mode.

@@ -106,6 +106,7 @@ def home(request):
         date_order_by = "-"
     # Set max timezone
     maximum_timezone = "2023-01-01 01:00:00.000000+03:00"
+    
     filtered_creator = request.COOKIES.get('creator_pnr_filter')
     print("Creator: " + str(filtered_creator))
     print(type(filtered_creator))

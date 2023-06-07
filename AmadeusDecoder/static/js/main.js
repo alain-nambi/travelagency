@@ -144,30 +144,44 @@ $(function() {
     normalize: true,
   });
   
-  const SELECTION_CLASS = ".selectize-input.items.not-full.has-options.dropdown-active.focus.input-active, .selectize-input.items.not-full.has-options, .selectize-input.items.not-full.has-options.dropdown-active, #normalize-selectized"
+  const selectInput = document.querySelector(".selectize-input");
+  const selectNormalize = document.querySelector("#normalize");
+  const selectInputNormalize = document.querySelector("#normalize-selectized");
+  const USERS_DATA = document.getElementById("getAllUsername");
 
-  $(SELECTION_CLASS).on("click", () => {
-    const $selectizeDropDownContent = $(".selectize-dropdown-content .option")
-    $selectizeDropDownContent.on("click", (e) => {
-      let $creatorId = $(".selectize-input .item")
-      document.cookie = `creator_pnr_filter=${$creatorId.data("value")}; SameSite=Lax`
-    })
-  });
-  
-  /* 
-    L'évènement "blur" est déclenché lorsqu'un élément perd le focus, 
-    c'est-à-dire que l'utilisateur a cliqué sur un autre élément de la page ou qu'il a quitté l'élément en question 
-    (par exemple en appuyant sur la touche Tab).
-  */
+  if (USERS_DATA) {
+    const JSON_USERS_DATA = JSON.parse(USERS_DATA.getAttribute("data-users"));
+    const userId = getCookies("creator_pnr_filter");
+    const username = JSON_USERS_DATA.find((user) => user.id === parseInt(userId))?.username;
 
-  $(SELECTION_CLASS).on("blur", () => {
-    const $selectizeDropDownContent = $(".selectize-dropdown-content .option")
-    $selectizeDropDownContent.on("click", (e) => {
-      let $creatorId = $(".selectize-input .item")
-      document.cookie = `creator_pnr_filter=${$creatorId.data("value")}; SameSite=Lax`
-    })
-  });
-  
+    if (username) {
+      selectInputNormalize.setAttribute("placeholder", username)
+    } else {
+      console.log("Could not find username for user ID:", userId);
+    }
+  } else {
+    console.log("Users data is not initialized");
+  }
+
+  if (selectInput) {
+    selectInput.addEventListener("click", () => {
+      const selectionType = document.querySelector(".single.selectize-dropdown");
+      const selectionList = document.querySelector(".selectize-dropdown-content").children;
+      const arrSelectionList = Array.from(selectionList);
+
+      selectionType.addEventListener("mousedown", () => {
+        setTimeout(() => {
+          console.log(selectNormalize);
+          if (selectNormalize.value) {
+            document.cookie = `creator_pnr_filter=${selectNormalize.value}; SameSite=Lax`;
+            localStorage.setItem("creator_pnr_filter", JSON.stringify(selectNormalize.value));
+          } else {
+            console.log(`La valeur est ${selectNormalize.value}`);
+          }
+        }, 100);
+      });
+    });
+  }
 
   // Convertit l'objet Date actuel en une chaîne de caractères représentant la date actuelle au format spécifié ("day month year") et spécifie la locale française.
   const currentDateToString = new Date(Date.now());

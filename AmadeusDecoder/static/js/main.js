@@ -171,15 +171,13 @@ $(function() {
       const arrSelectionList = Array.from(selectionList);
 
       selectionType.addEventListener("mousedown", () => {
-        setTimeout(() => {
-          console.log(selectNormalize);
-          if (selectNormalize.value) {
-            document.cookie = `creator_pnr_filter=${selectNormalize.value}; SameSite=Lax`;
-            localStorage.setItem("creator_pnr_filter", JSON.stringify(selectNormalize.value));
-          } else {
-            console.log(`La valeur est ${selectNormalize.value}`);
-          }
-        }, 100);
+        // console.log(selectNormalize);
+        if (selectNormalize.value) {
+          document.cookie = `creator_pnr_filter=${selectNormalize.value}; SameSite=Lax`;
+          localStorage.setItem("creator_pnr_filter", JSON.stringify(selectNormalize.value));
+        } else {
+          console.log(`La valeur est ${selectNormalize.value}`);
+        }
       });
     });
   }

@@ -54,7 +54,8 @@ $(document).ready(function () {
       }
     }
     return `
-      <span   
+      <span  
+        cy-data="span-creator-name" 
         class="ml-2"
         style="
           font-size: 10px;

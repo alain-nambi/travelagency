@@ -164,23 +164,18 @@ $(function() {
     console.log("Users data is not initialized");
   }
 
-  if (selectInput) {
-    selectInput.addEventListener("click", () => {
-      const selectionType = document.querySelector(".single.selectize-dropdown");
-      const selectionList = document.querySelector(".selectize-dropdown-content").children;
-      const arrSelectionList = Array.from(selectionList);
-
-      selectionType.addEventListener("mousedown", () => {
-        setTimeout(() => {
-          console.log(selectNormalize);
-          if (selectNormalize.value) {
-            document.cookie = `creator_pnr_filter=${selectNormalize.value}; SameSite=Lax`;
-            localStorage.setItem("creator_pnr_filter", JSON.stringify(selectNormalize.value));
-          } else {
-            console.log(`La valeur est ${selectNormalize.value}`);
-          }
-        }, 10);
-      });
+  const selectionType = document.querySelector(".single.selectize-dropdown");
+  if (selectionType) {
+    selectionType.addEventListener("mousedown", () => {
+      setTimeout(() => {
+        console.log(selectNormalize);
+        if (selectNormalize.value) {
+          document.cookie = `creator_pnr_filter=${selectNormalize.value}; SameSite=Lax`;
+          localStorage.setItem("creator_pnr_filter", JSON.stringify(selectNormalize.value));
+        } else {
+          console.log(`La valeur est ${selectNormalize.value}`);
+        }
+      }, 100);
     });
   }
 
@@ -344,7 +339,9 @@ $(function() {
       document.cookie = `filter_pnr=False; SameSite=Lax`
     }
 
-    window.location.reload()
+    setTimeout(() => {
+      window.location.reload()
+    }, 400)
   });
 
   $pnrStatusLiElements.click(function () {
@@ -368,7 +365,9 @@ $(function() {
       document.cookie = `filter_pnr_by_status=1; SameSite=Lax`
     }
 
-    window.location.reload()
+    setTimeout(() => {
+      window.location.reload()
+    }, 400)
   })
 
   // Ajoutez la date locale dans les éléments HTML avec l'ID "dateRangeBegin" et "dateRangeEnd"
@@ -421,7 +420,9 @@ $(function() {
 
   // Ajoute un gestionnaire d'événements pour le bouton de filtre pour forcer le rechargement de la page
   $("#buttonMenuFilterByCreationDateRange").on("click", () => {
-    window.location.reload()
+    setTimeout(() => {
+      window.location.reload()
+    }, 400)
   })
 
   $("#buttonMenuFilterByCreator").on("click", (e) => {
@@ -430,7 +431,9 @@ $(function() {
     const $alert = $("#alertEmptyCreator") // Add this line to select the alert element
   
     if ($item.length > 0) {
-      window.location.reload()
+      setTimeout(() => {
+        window.location.reload()
+      }, 400)
     } else if ($alert.length === 0) { // Add this condition to check if the alert is already on the page
       $(".selectize-input.items").css({"border": "1px solid #dc3545"})
       $(".creator-group ").append(`

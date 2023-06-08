@@ -13,3 +13,7 @@ env
 *.pem
 travelagency_env
 *.json
+node_modules
+cypress
+cypress.config.js
+yarn.lock

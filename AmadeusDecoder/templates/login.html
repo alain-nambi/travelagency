@@ -10,7 +10,7 @@
 				{% csrf_token %}
 				<label>Adresse email:</label>
 				<div class="input-group mb-3">
-					<input type="email" class="form-control" id="mail" placeholder="" name="email">
+					<input type="email" class="form-control" id="mail" placeholder="" name="email" cy-data="email">
 					<div class="input-group-append">
 						<div class="input-group-text">
 							<span class="fas fa-envelope"></span>
@@ -19,7 +19,7 @@
 				</div>
 				<label>Mot de passe:</label>
 				<div class="input-group mb-3">
-					<input type="password" class="form-control" id="password" placeholder="" name="password">
+					<input type="password" class="form-control" id="password" placeholder="" name="password" cy-data="password">
 					<span class="fas fa-eye" id="show-password" style="cursor: pointer;"></span>
 					<div class="input-group-append">
 						<div class="input-group-text">
@@ -35,7 +35,7 @@
 								Remember Me
 							</label>
 						</div>
-						<button type="submit" class="btn btn-outline-primary btn-block">Se connecter</button>
+						<button type="submit" class="btn btn-outline-primary btn-block" cy-data="button-login">Se connecter</button>
 					</div>
 					<!-- /.col -->
 				</div>

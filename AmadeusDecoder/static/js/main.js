@@ -54,7 +54,8 @@ $(document).ready(function () {
       }
     }
     return `
-      <span   
+      <span  
+        cy-data="span-creator-name" 
         class="ml-2"
         style="
           font-size: 10px;
@@ -138,36 +139,15 @@ $(document).ready(function () {
 })
 
 $(function() {
-  // Initialise un élément "select" avec l'ID "normalize" en utilisant la bibliothèque Selectize et ajoute le plugin de bouton de suppression. L'option normalize est activée.
-  $('#normalize').selectize({
-    plugins: ["clear_button"],
-    normalize: true,
-  });
-  
-  const SELECTION_CLASS = ".selectize-input.items.not-full.has-options.dropdown-active.focus.input-active, .selectize-input.items.not-full.has-options, .selectize-input.items.not-full.has-options.dropdown-active, #normalize-selectized"
-
-  $(SELECTION_CLASS).on("click", () => {
-    const $selectizeDropDownContent = $(".selectize-dropdown-content .option")
-    $selectizeDropDownContent.on("click", (e) => {
-      let $creatorId = $(".selectize-input .item")
-      document.cookie = `creator_pnr_filter=${$creatorId.data("value")}; SameSite=Lax`
+  const selectNormalize = document.querySelector("#normalize");
+  if (selectNormalize) {
+    selectNormalize.addEventListener("change", (e) => {
+      if (e.target.value !== "") {
+        document.cookie = `creator_pnr_filter=${e.target.value}; SameSite=Lax`;
+        localStorage.setItem("creator_pnr_filter", JSON.stringify(e.target.value));
+      }
     })
-  });
-  
-  /* 
-    L'évènement "blur" est déclenché lorsqu'un élément perd le focus, 
-    c'est-à-dire que l'utilisateur a cliqué sur un autre élément de la page ou qu'il a quitté l'élément en question 
-    (par exemple en appuyant sur la touche Tab).
-  */
-
-  $(SELECTION_CLASS).on("blur", () => {
-    const $selectizeDropDownContent = $(".selectize-dropdown-content .option")
-    $selectizeDropDownContent.on("click", (e) => {
-      let $creatorId = $(".selectize-input .item")
-      document.cookie = `creator_pnr_filter=${$creatorId.data("value")}; SameSite=Lax`
-    })
-  });
-  
+  }
 
   // Convertit l'objet Date actuel en une chaîne de caractères représentant la date actuelle au format spécifié ("day month year") et spécifie la locale française.
   const currentDateToString = new Date(Date.now());
@@ -329,7 +309,9 @@ $(function() {
       document.cookie = `filter_pnr=False; SameSite=Lax`
     }
 
-    window.location.reload()
+    setTimeout(() => {
+      window.location.reload()
+    }, 600)
   });
 
   $pnrStatusLiElements.click(function () {
@@ -353,7 +335,9 @@ $(function() {
       document.cookie = `filter_pnr_by_status=1; SameSite=Lax`
     }
 
-    window.location.reload()
+    setTimeout(() => {
+      window.location.reload()
+    }, 600)
   })
 
   // Ajoutez la date locale dans les éléments HTML avec l'ID "dateRangeBegin" et "dateRangeEnd"
@@ -406,25 +390,27 @@ $(function() {
 
   // Ajoute un gestionnaire d'événements pour le bouton de filtre pour forcer le rechargement de la page
   $("#buttonMenuFilterByCreationDateRange").on("click", () => {
-    window.location.reload()
+    setTimeout(() => {
+      window.location.reload()
+    }, 600)
   })
 
   $("#buttonMenuFilterByCreator").on("click", (e) => {
     e.preventDefault()
-    const $item = $(".selectize-input .item")
-    const $alert = $("#alertEmptyCreator") // Add this line to select the alert element
-  
-    if ($item.length > 0) {
-      window.location.reload()
-    } else if ($alert.length === 0) { // Add this condition to check if the alert is already on the page
-      $(".selectize-input.items").css({"border": "1px solid #dc3545"})
-      $(".creator-group ").append(`
-        <span id="alertEmptyCreator" class="text-sm text-danger mt-1 d-flex align-items-center" style="gap: 5px">
-          <i class="fa fa-circle-exclamation"></i>
-          Veuillez sélectionner le créateur
-        </span>
-      `
-      ) 
+    if (selectNormalize.value !== "") {
+      setTimeout(() => {
+        window.location.reload()
+      }, 600)
+    } else {
+      if ($("#alertEmptyCreator").length < 1) {
+        $(".creator-group ").append(`
+          <span id="alertEmptyCreator" class="text-sm text-danger mt-1 d-flex align-items-center" style="gap: 5px">
+            <i class="fa fa-circle-exclamation"></i>
+            Veuillez sélectionner le créateur
+          </span>
+        `
+        ) 
+      }
     }
   })
 });

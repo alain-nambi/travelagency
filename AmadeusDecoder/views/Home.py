@@ -34,7 +34,7 @@ from AmadeusDecoder.models.invoice.Fee import Product
 from AmadeusDecoder.models.pnrelements.PnrAirSegments import PnrAirSegments
 from AmadeusDecoder.models.history.History import History
 
-from AmadeusDecoder.utilities.FtpConnection import upload_file
+# from AmadeusDecoder.utilities.FtpConnection import upload_file
 from AmadeusDecoder.utilities.SendMail import Sending
 from AmadeusDecoder.utilities.ServiceFeesDecreaseRequest import ServiceFeesDecreaseRequest
 import traceback
@@ -355,7 +355,7 @@ def pnr_details(request, pnr_id):
     context['passengers'] = pnr_detail.passengers.filter(passenger__passenger_status=1).all().order_by('id')
     context['contacts'] = pnr_detail.contacts.all()
     context['air_segments'] = pnr_detail.segments.filter(segment_type='Flight', air_segment_status=1).all().order_by('segmentorder')
-    context['tickets'] = pnr_detail.tickets.filter(ticket_status=1).filter(Q(total__gt=0) | Q(is_no_adc=True) | Q(is_refund=True)).all().order_by('passenger_id')
+    context['tickets'] = pnr_detail.tickets.filter(ticket_status=1).filter(Q(total__gt=0) | Q(is_no_adc=True) | (Q(is_refund=True) & Q(total__lt=0))).all().order_by('passenger_id')
     # context['tickets'] = pnr_detail.tickets.filter().all()
     context['other_fees'] = pnr_detail.others_fees.filter(other_fee_status=1, ticket=None).all()
     context['clients'] = Client.objects.all().order_by('intitule')

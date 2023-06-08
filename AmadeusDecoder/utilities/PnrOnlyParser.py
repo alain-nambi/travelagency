@@ -31,6 +31,7 @@ from AmadeusDecoder.models.pnrelements.PnrRemark import PnrRemark
 from AmadeusDecoder.models.user.Users import User
 from AmadeusDecoder.models.data.RawData import RawData
 import decimal
+from AmadeusDecoder.models.invoice.CustomerAddress import CustomerAddress
 
 class PnrOnlyParser():
     '''
@@ -196,7 +197,7 @@ class PnrOnlyParser():
                 new_content.append(needed_content[i])
             elif not self.is_regular_line(needed_content[i]) and (needed_content[i].startswith('* SP') or needed_content[i].startswith('* RR')) :
                 new_content.append(needed_content[i])
-            elif self.is_regular_line(needed_content[i]) == False and len(new_content) > 0 and not needed_content[i].startswith('OPERATED BY') and not needed_content[i].startswith('ETA'):
+            elif self.is_regular_line(needed_content[i]) == False and len(new_content) > 0 and not needed_content[i].startswith('OPERATED BY') and not needed_content[i].startswith('ETA') and not needed_content[i].startswith('FOR TAX/FEE'):
                 new_content[len(new_content) - 1] = new_content[len(new_content) - 1] + needed_content[i]
         
         upper_content, new_file_start = self.appropriated_start(new_content)
@@ -1589,6 +1590,58 @@ class PnrOnlyParser():
         # return tickets, tickets_segments, tickets_ssrs
         return [], [], []
     
+    # parse am/ah
+    def get_am_ah(self, normalized_file, pnr, passengers):
+        customer_addresses = []
+        addresses_lines = []
+        
+        for line in normalized_file:
+            temp = line.split(' ')
+            if len(temp) > 2 and temp[0].isnumeric():
+                if temp[1].startswith('AM/H'):
+                    addresses_lines.append(line)
+                    
+        for address in addresses_lines:
+            address_part = address.split(' ')[2:]
+            
+            temp_customer_address = CustomerAddress()
+            
+            address_text = ''
+            passenger_part = ''
+            
+            for i in range(len(address_part)):
+                temp_address_part_split = address_part[i].split('/')
+                
+                if i == len(address_part)-1 and len(temp_address_part_split) > 1:
+                    if temp_address_part_split[-1].startswith('P'):
+                        address_text += ' '
+                        passenger_part = temp_address_part_split[-1]
+                        for j in range(len(temp_address_part_split) - 1):
+                            address_text += '/' + temp_address_part_split[j]
+                else:
+                    address_text += ' ' + address_part[i]
+            
+            address_text = address_text.replace('/', ' ')
+            temp_customer_address.address = address_text
+            temp_customer_address.pnr = pnr
+            
+            for passenger in passengers:
+                if passenger.order == passenger_part.strip():
+                    temp_customer_address.passenger = passenger
+            
+            if len(passengers) == 1:
+                temp_customer_address.passenger = passengers[0]
+            elif len(passengers) == 2:
+                if passengers[0].types == 'INF_ASSOC' or passengers[1].types == 'INF_ASSOC':
+                    if passengers[0].types == 'INF_ASSOC':
+                        temp_customer_address.passenger = passengers[0]
+                    else:
+                        temp_customer_address.passenger = passengers[1]
+            
+            customer_addresses.append(temp_customer_address)
+        
+        return customer_addresses
+    
     # save data
     def parse_pnr(self, contents, needed_content, email_date):
         print(self.get_path())
@@ -1642,6 +1695,9 @@ class PnrOnlyParser():
                 confirmation_deadlines = self.get_confirmation_deadline(normalized_file, pnr, air_segments, ssr_bases)
                 # remarks
                 pnr_remarks = self.get_remarks(pnr, normalized_file)
+                # customers' addresses
+                customer_addresses = self.get_am_ah(normalized_file, pnr, passengers)
+                
                 if len(air_segments) > 0 or len(ssr_bases) > 0 or len(contacts) > 0 or len(confirmation_deadlines) > 0 or len(pnr_remarks) > 0:
                     # check pnr confirmation or emission
                     self.get_pnr_status(pnr, normalized_file)
@@ -1720,6 +1776,16 @@ class PnrOnlyParser():
                             error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
                             traceback.print_exc(file=error_file)
                             error_file.write('\n')
+                    # customers' addresses
+                    for address in customer_addresses:
+                        try:
+                            address.save()
+                        except:
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
+                    
                     # credit notes
                     # credit_notes, credit_notes_related_segment, creadit_notes_related_ssrs = self.get_credit_note(normalized_file, pnr, passengers, air_segments, ssr_bases, flight_class)
                     # for credit_note in credit_notes:
@@ -1790,6 +1856,14 @@ class PnrOnlyParser():
                                             ticket.tax = -1 * temp_ticket_obj.tax
                                             ticket.total = -1 * temp_ticket_obj.total
                                             ticket.passenger = temp_ticket_obj.passenger
+                                        else:
+                                            temp_ticket_source = Ticket()
+                                            temp_ticket_source.number = ticket.number.removesuffix('-R')
+                                            temp_ticket_source.passenger = ticket.passenger
+                                            temp_ticket_source.related_passenger_order = ticket.related_passenger_order
+                                            temp_ticket_source.pnr = pnr
+                                            temp_ticket_source.ticket_type = ticket.ticket_type
+                                            temp_ticket_source.save()
                                                 
                                     ticket.save()
                                     # check subcontractor
@@ -2053,6 +2127,17 @@ class PnrOnlyParser():
                             error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
                             traceback.print_exc(file=error_file)
                             error_file.write('\n')
+                    # customers' addresses
+                    for address in customer_addresses:
+                        try:
+                            temp_address = address.get_customer_address   
+                            if temp_address is None:
+                                address.save()
+                        except:
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
                     # credit notes
                     # credit_notes, credit_notes_related_segment, creadit_notes_related_ssrs = self.get_credit_note(normalized_file, pnr, passengers, air_segments, ssr_bases, flight_class)
                     # for credit_note in credit_notes:
@@ -2138,6 +2223,14 @@ class PnrOnlyParser():
                                             ticket.tax = -1 * temp_ticket_obj.tax
                                             ticket.total = -1 * temp_ticket_obj.total
                                             ticket.passenger = temp_ticket_obj.passenger
+                                        else:
+                                            temp_ticket_source = Ticket()
+                                            temp_ticket_source.number = ticket.number.removesuffix('-R')
+                                            temp_ticket_source.passenger = ticket.passenger
+                                            temp_ticket_source.related_passenger_order = ticket.related_passenger_order
+                                            temp_ticket_source.pnr = pnr
+                                            temp_ticket_source.ticket_type = ticket.ticket_type
+                                            temp_ticket_source.save()
                                     ticket.save()
                                     # check subcontractor
                                     ticket.process_subcontract()

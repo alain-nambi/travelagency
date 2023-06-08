@@ -312,6 +312,7 @@ class EMDOnlyParser():
         emd.is_no_adc = is_no_adc
         
         temp_emd = Ticket.objects.filter(number=emd_number).first()
+        temp_emd_refund = Ticket.objects.filter(number=emd_number + "-R").first()
         trasaction_emd = None
         if temp_emd is None:
             trasaction_emd = emd
@@ -349,6 +350,13 @@ class EMDOnlyParser():
         
         # save emd
         trasaction_emd.save()
+        # refund amounr update
+        if temp_emd_refund is not None:
+            if temp_emd_refund.total == 0:
+                temp_emd_refund.transport_cost = -1 * trasaction_emd.transport_cost
+                temp_emd_refund.tax = -1 * trasaction_emd.tax
+                temp_emd_refund.total = -1 * trasaction_emd.total
+                temp_emd_refund.save()
         
         # save raw data
         try:

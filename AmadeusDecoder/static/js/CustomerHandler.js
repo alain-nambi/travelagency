@@ -136,7 +136,7 @@ CustomerSaveButton.addEventListener('click', (e) => {
         success: (response) => {
             console.log('AJAX success entered');
             console.log(response);
-            if (response.exist == 0) {
+            // if (response.exist == 0) {
                 CustomerList.innerHTML += `
                     <option value=${response.customer_id} selected="true"> ${response.intitule} </option> 
                 `
@@ -149,11 +149,11 @@ CustomerSaveButton.addEventListener('click', (e) => {
                 toastr.info('Client créé avec succès!');
 
                 $('#add-customer').modal('hide');
-            }
+            // }
 
-            else if (response.exist == 1) {
-                toastr.warning(`Le client ${response.intitule} existe déjà veuillez modifier le nom ou le prénom.`)
-            }
+            // else if (response.exist == 1) {
+            //     toastr.warning(`Le client ${response.intitule} existe déjà veuillez modifier le nom ou le prénom.`)
+            // }
             
         },
         error: (response) => {

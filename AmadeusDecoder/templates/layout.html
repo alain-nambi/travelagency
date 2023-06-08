@@ -304,34 +304,6 @@ old -->
           <strong class="text-center">&copy; 2023 <a href="https://phidia.fr">Phidia</a>.</strong> Tous droits réservés.
           <b>Version</b> 1.6.12 
         </div>
-        <!-- <div class="info-footer-pnr">
-          <div class="row">
-            <div class="col-md-2">
-              <strong class="text-primary"><u>Total PNR:</u> {{ None|pnr_count }}</strong>
-            </div>
-            <div class="col-md-6">
-              {% include "pagination.html" %}
-              <div class="pager">
-                <span class="right">
-                  <span class="prev">
-                    <i class="fa fa-angle-left"></i>
-                  </span>
-                  <span class="pagecount"></span>
-                  <span class="next">
-                    <i class="fa fa-angle-right"></i>
-                  </span>
-                </span>
-                <select class="form-control form-control-sm pagesize" style="display: inline; width: 40%;">
-                  <option value="" disabled selected>Nombres de lignes</option>
-                  <option value="20">20</option>
-                  <option value="50">50</option>
-                  <option value="100">100</option>
-                  <option value="{{ pnr_count }}">Tous</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </div> -->
       </footer>
       {% endblock footer%}
     </div>
@@ -364,6 +336,9 @@ old -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
     <!-- <script src="{% static 'plugins/toastr/toastr.min.js' %}"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/js/selectize.min.js" integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <script src="{% static 'js/main.js' %}"></script>
     <script src="{% static 'js/comment.js' %}"></script>

@@ -10,7 +10,7 @@ declare
 	passenger_type_ character varying(100);
 	ticket_type_ character varying(100);
 	ticket_passenger_type_ character varying(10);
-	ticket_gp_status_ character varying(10);
+	ticket_gp_status_ boolean;
 	ticket_is_regional_status_ boolean;
 	ticket_is_prime_status_ boolean;
 	ticket_status_ integer;
@@ -28,7 +28,7 @@ begin
 	select t_pnr.type into pnr_type_ from t_pnr where t_pnr.id = pnr_id_;
 	select t_passengers.types into passenger_type_ from t_passengers where id = (select passenger_id from t_ticket where id = new.id);
 	select t_ticket.ticket_type into ticket_type_ from t_ticket where t_ticket.id = new.id;
-	select t_ticket.ticket_gp_status into ticket_gp_status_ from t_ticket where t_ticket.id = new.id;
+	select t_ticket.is_gp into ticket_gp_status_ from t_ticket where t_ticket.id = new.id;
 	select t_ticket.is_regional into ticket_is_regional_status_ from t_ticket where t_ticket.id = new.id;
 	select t_ticket.is_prime into ticket_is_prime_status_ from t_ticket where t_ticket.id = new.id;
 	select t_ticket.ticket_status into ticket_status_ from t_ticket where t_ticket.id = new.id;
@@ -74,7 +74,7 @@ begin
 			case 
 				-- when ticket arrived from pnr
 				-- when (ticket_fare > 0 or ticket_is_prime_status_ or ticket_type_ = 'EMD')  and not is_saved and ticket_gp_status_ not like 'SA' then
-				when (ticket_fare > 0 or ticket_is_prime_status_ or ticket_is_adc) and not is_saved and ticket_gp_status_ not like 'SA' then
+				when (ticket_fare > 0 or ticket_is_prime_status_ or ticket_is_adc) and not is_saved and not ticket_gp_status_ then
 					insert into t_fee(pnr_id, ticket_id, type, designation, cost, tax, total, newest_cost, old_cost, is_invoiced) values (pnr_id_, new.id, 'FRAIS DE SERVICE', ' ', fee_value, 0, fee_value, fee_value, fee_value, false);
 				-- when is_saved and (ticket_gp_status_ like 'SA' or ticket_status_ = 0) then
 				-- when is_saved and (ticket_gp_status_ like 'SA' or ticket_status_ = 0 or ticket_status_ = 3) then

@@ -341,7 +341,7 @@ $(function() {
 
     setTimeout(() => {
       window.location.reload()
-    }, 400)
+    }, 600)
   });
 
   $pnrStatusLiElements.click(function () {
@@ -367,7 +367,7 @@ $(function() {
 
     setTimeout(() => {
       window.location.reload()
-    }, 400)
+    }, 600)
   })
 
   // Ajoutez la date locale dans les éléments HTML avec l'ID "dateRangeBegin" et "dateRangeEnd"
@@ -422,7 +422,7 @@ $(function() {
   $("#buttonMenuFilterByCreationDateRange").on("click", () => {
     setTimeout(() => {
       window.location.reload()
-    }, 400)
+    }, 600)
   })
 
   $("#buttonMenuFilterByCreator").on("click", (e) => {
@@ -433,7 +433,7 @@ $(function() {
     if ($item.length > 0) {
       setTimeout(() => {
         window.location.reload()
-      }, 400)
+      }, 600)
     } else if ($alert.length === 0) { // Add this condition to check if the alert is already on the page
       $(".selectize-input.items").css({"border": "1px solid #dc3545"})
       $(".creator-group ").append(`

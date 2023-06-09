@@ -938,63 +938,93 @@ if (button__createCustomer != null) {
         firstPassengerInformations.surname.trim(),
       ];
     }
-    button__createCustomer.addEventListener("click", () => {
-      $.ajax({
-        type: "POST",
-        dataType: "json",
-        url: `/home/pnr/${pnrIdNew}/find-customer/`,
-        data: {
-          csrfmiddlewaretoken: csrftoken,
-          value: JSON.stringify(valueToFind),
-        },
-        success: (response) => {
-          console.log(response);
-          if (response.isCustomerFind) {
-            setTimeout(() => {
-              removeModalAttribute();
-              $("#add-customer").modal("hide");
-            }, 0);
-            toastr.success(`Le client ${valueToFind} a été déja créé`);
-            $("#createNewClientForOtherPassenger").modal("show");
-            $("#clientIntituteInformation").text(response.clientIntitule);
-            $("#clientEmailInformation").text(response.clientEmail);
-            $("#clientPhoneInformation").text(response.clientPhone);
-            $("#clientAddressInformation").text(response.clientAddress);
-            $("#clientPostalCodeInformation").text(response.clientPostalCode);
-            $("#clientCityInformation").text(response.clientCity);
-            $("#clientDepartementInformation").text(response.clientDepartment);
-            $("#clientCountryInformation").text(response.clientCountry);
-            button__confirmSelectionCustomer.addEventListener("click", () => {
-              if (select__customersList.disabled == false) {
-                select__customersList.innerHTML += `
-                                    <option value=${response.clientId} selected="true"> ${response.clientIntitule} </option> 
-                                `;
-              }
-            });
-            button__createNewClientForOtherPassenger.addEventListener(
-              "click",
-              () => {
-                $("#createNewClientForOtherPassenger").modal("hide");
-              }
-            );
-          } else {
-            setTimeout(() => {
-              setModalAttribute();
-              $("#add-customer").modal("show");
-            }, 0);
-            toastr.info(`Le client ${valueToFind} n'est pas encore créé`);
+    button__createCustomer.addEventListener("click", async () => {
+      try {
+        const response = await $.ajax({
+          type: "POST",
+          dataType: "json",
+          url: `/home/pnr/${pnrIdNew}/find-customer/`,
+          data: {
+            csrfmiddlewaretoken: csrftoken,
+            value: JSON.stringify(valueToFind),
+          },
+        });
+        
+        console.log('====================================');
+        console.log("CLIENT FOUND")
+        console.log(response);
+        console.log('====================================');
+
+        if (response.isCustomerFind) {
+          setTimeout(() => {
+            removeModalAttribute();
+            $("#add-customer").modal("hide");
+          }, 0);
+          toastr.success(`Le client ${valueToFind} a été déja créé`);
+
+          $("#createNewClientForOtherPassenger").modal("show");
+          $("#clientIntituteInformation").text(response.clientIntitule);
+          $("#clientEmailInformation").text(response.clientEmail);
+          $("#clientPhoneInformation").text(response.clientPhone);
+          $("#clientAddressInformation").text(response.clientAddress);
+          $("#clientPostalCodeInformation").text(response.clientPostalCode);
+          $("#clientCityInformation").text(response.clientCity);
+          $("#clientDepartementInformation").text(response.clientDepartment);
+          $("#clientCountryInformation").text(response.clientCountry);
+
+          const findCreatorInformation = document.querySelector("#findCreatorInformation")
+          try {
+            findCreatorInformation.setAttribute("data-client", JSON.stringify(response))
+          } catch (exception) {
+            console.log('====================================');
+            console.log(exception);
+            console.log('====================================');
           }
-        },
-        error: (response) => {
-          console.log(response);
-        },
-      });
+
+        } else {
+          setTimeout(() => {
+            setModalAttribute();
+            $("#add-customer").modal("show");
+          }, 0);
+
+          toastr.info(`Le client ${valueToFind} n'est pas encore créé`);
+        }
+      } catch (error) {
+        console.log(error);
+      }
       removeModalAttribute();
     });
+
+    if (button__confirmSelectionCustomer) {
+      const findCreatorInformation = document.querySelector("#findCreatorInformation")
+      button__confirmSelectionCustomer.addEventListener("click", () => {
+        const getClientData = findCreatorInformation.getAttribute("data-client") 
+        const response = JSON.parse(getClientData)
+
+        try {
+          if (response) {
+            select__customersList.innerHTML += `
+              <option value=${response.clientId} selected="true"> ${response.clientIntitule} </option> 
+            `;
+          }
+        } catch (error) {
+          console.log('====================================');
+          console.log("CLIENT NOT FOUND")
+          console.log(error);
+          console.log('====================================');
+        }
+      });
+    }    
+
+    button__createNewClientForOtherPassenger.addEventListener("click", () => {
+      $("#createNewClientForOtherPassenger").modal("hide");
+    });
+
     function removeModalAttribute() {
       button__createCustomer.removeAttribute("data-target");
       button__createCustomer.removeAttribute("data-toggle");
     }
+
     function setModalAttribute() {
       button__createCustomer.setAttribute("data-target", "#add-customer");
       button__createCustomer.setAttribute("data-toggle", "modal");

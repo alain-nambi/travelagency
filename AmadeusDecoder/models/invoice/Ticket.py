@@ -252,10 +252,11 @@ class Ticket(models.Model, BaseModel):
     # udpate ticket status and state after checking their issuing office
     def update_ticket_status_from_office(self, pnr):
         tickets = Ticket.objects.filter(pnr=pnr).all()
+        
         for ticket in tickets:
             temp_subcontractor = None
             if ticket.issuing_agency is not None:
-                temp_subcontractor = OfficeSubcontractor.objects.filter(code=self.issuing_agency.code).first()
+                temp_subcontractor = OfficeSubcontractor.objects.filter(code=ticket.issuing_agency.code).first()
                 
             if ticket.issuing_agency is None and temp_subcontractor is None:
                 ticket.state = 0

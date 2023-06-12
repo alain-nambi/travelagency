@@ -100,6 +100,12 @@ class EMDOnlyParser():
                 if emd_issuing_date == emd_segment_flight_date and is_emitted_in_airport:
                     emd.is_subjected_to_fees = False
             
+            if emd.ticket_parts.first() is not None:
+                emd_related_segment = emd.ticket_parts.first().segment
+                emd_segment_flight_date = emd_related_segment.departuretime.date()
+                if emd_issuing_date == emd_segment_flight_date and is_emitted_in_airport:
+                    emd.is_subjected_to_fees = False
+            
             # check fee subjection based on description
             for element in _NOT_FEED_:
                 if emd.ticket_description.find(element) > -1:

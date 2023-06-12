@@ -110,11 +110,27 @@ def home(request):
     filtered_creator = request.COOKIES.get('creator_pnr_filter')
     print("Creator: " + str(filtered_creator))
     print(type(filtered_creator))
+
+    # Retrieve the value of the "isSortedByCreator" cookie from the request
+    is_sorter_by_creator = request.COOKIES.get('isSortedByCreator')
+
+    # Initialize the sort_creator variable to a default value
+    # Set order_by username ascendant
+    sort_creator = None
+
+    # Determine the value of "sort_creator" based on the value of the cookie
+    if is_sorter_by_creator is not None:
+        sort_creator = is_sorter_by_creator
+
+    # print(sort_creator)
     
     if request.user.id in [4, 5]: #==> [Farida et Mouniati peuvent voir chacun l'ensemble de leurs pnr]
         pnr_list = []
         pnr_count = 0
         issuing_users = request.user.copied_documents.all()
+
+        print("INVOICE TYPE")
+        print(is_invoiced)
         
         if is_invoiced is None:
             for issuing_user in issuing_users:
@@ -294,33 +310,59 @@ def home(request):
                             )
 
             if start_date and end_date:
-                pnr_queryset = pnr_queryset.filter(status_value=status_value_from_cookie).filter(
-                    Q(system_creation_date__range=[start_date, end_date]),
-                    Q(status_value=status_value_from_cookie)
-                )
+                pnr_queryset =  pnr_queryset.filter(
+                                    status_value=status_value_from_cookie
+                                ).filter(
+                                    Q(system_creation_date__range=[start_date, end_date]),
+                                    Q(status_value=status_value_from_cookie)
+                                )
 
             if is_invoiced is not None:
-                pnr_queryset = pnr_queryset.filter(Q(is_invoiced=is_invoiced)).filter(status_value=status_value_from_cookie)
+                pnr_queryset =  pnr_queryset.filter(
+                                    Q(is_invoiced=is_invoiced)
+                                ).filter(
+                                    status_value=status_value_from_cookie
+                                )
 
-            pnr_queryset = pnr_queryset.order_by(f'{date_order_by}system_creation_date')
+            if sort_creator is not None:
+                pnr_queryset =  pnr_queryset.order_by(sort_creator)
+            else:
+                pnr_queryset =  pnr_queryset.order_by(
+                                    f'{date_order_by}system_creation_date'
+                                )
+
             pnr_list = list(pnr_queryset)
             pnr_count = pnr_queryset.count()
 
             print('Not all')
         elif filtered_creator == '0' or filtered_creator is None: ##### Si 'Tout' est sélectionner dans le filtre créateur
-            pnr_queryset = Pnr.objects.filter(status_value=status_value_from_cookie).filter(
-                Q(system_creation_date__gt=maximum_timezone)
-            )
+            pnr_queryset =  Pnr.objects.filter(
+                                status_value=status_value_from_cookie
+                            ).filter(
+                                Q(system_creation_date__gt=maximum_timezone)
+                            )
 
             if start_date and end_date:
-                pnr_queryset = pnr_queryset.filter(status_value=status_value_from_cookie).filter(
-                    Q(system_creation_date__range=[start_date, end_date]),
-                )
+                pnr_queryset =  pnr_queryset.filter(
+                                    status_value=status_value_from_cookie
+                                ).filter(
+                                    Q(system_creation_date__range=[start_date, end_date]),
+                                )
 
             if is_invoiced is not None:
-                pnr_queryset = pnr_queryset.filter(Q(is_invoiced=is_invoiced)).filter(status_value=status_value_from_cookie)
+                pnr_queryset =  pnr_queryset.filter(
+                                    Q(is_invoiced=is_invoiced)
+                                ).filter(
+                                    status_value=status_value_from_cookie
+                                )
 
-            pnr_queryset = pnr_queryset.order_by(f'{date_order_by}system_creation_date')
+            if sort_creator is not None:
+                pnr_queryset =  pnr_queryset.order_by(sort_creator)
+            else:
+                pnr_queryset =  pnr_queryset.order_by(
+                                    f'{date_order_by}system_creation_date'
+                                )
+
             pnr_list = list(pnr_queryset)
             pnr_count = pnr_queryset.count()
 

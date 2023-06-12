@@ -12,6 +12,59 @@ $(document).ready(function () {
 });
 
 $(document).ready(function () {
+  // Retrieve the sorting information from local storage
+  let isSortedByCreator = localStorage.getItem('isSortedByCreator');
+
+  // Check if the sorting information is null (not set)
+  if (isSortedByCreator === null) {
+    // Set the default sorting order and update the icon classes accordingly
+    $("#icon__pnrCreator").addClass("fa-arrows-up-down");
+    $("#icon__pnrCreator").removeClass("fa-arrow-up");
+    $("#icon__pnrCreator").removeClass("fa-arrow-down");
+  }
+  // Check if the sorting order is ascending
+  else if (isSortedByCreator === 'asc') {
+    // Update the icon classes to indicate ascending sorting order
+    $("#icon__pnrCreator").removeClass("fa-arrows-up-down");
+    $("#icon__pnrCreator").removeClass("fa-arrow-up");
+    $("#icon__pnrCreator").addClass("fa-arrow-down");
+  }
+  // If the sorting order is not null and not ascending, assume it is descending
+  else {
+    // Update the icon classes to indicate descending sorting order
+    $("#icon__pnrCreator").removeClass("fa-arrows-up-down");
+    $("#icon__pnrCreator").removeClass("fa-arrow-down");
+    $("#icon__pnrCreator").addClass("fa-arrow-up");
+  }
+  
+  // Handle click event on '.pnr-creator-list' elements
+  $('.pnr-creator-list').on('click', function (event) {
+    event.preventDefault();
+
+    // Remove any previous sorting order information from Cookies
+    Cookies.remove('creation_date_order_by', { path: '/home' });
+    localStorage.removeItem('isOrderedByDateCreated');
+
+    // Determine the new sorting order based on the current sorting order
+    let newSortOrder;
+    if (isSortedByCreator === null || isSortedByCreator === 'asc') {
+      // If the current sorting order is null or ascending, set descending order
+      newSortOrder = 'desc';
+      localStorage.setItem('isSortedByCreator', newSortOrder);
+      Cookies.set('isSortedByCreator', '-agent__username');
+    } else {
+      // If the current sorting order is descending, set ascending order
+      newSortOrder = 'asc';
+      localStorage.setItem('isSortedByCreator', newSortOrder);
+      Cookies.set('isSortedByCreator', 'agent__username');
+    }
+    
+    // Reload the page to apply the new sorting order
+    window.location.reload();
+  });
+});
+
+$(document).ready(function () {
   const isPnrFilterSelected = getCookies("filter_pnr")
   const isCreatorSelected   = getCookies("creator_pnr_filter")
   const isDateRangeSelected = getCookies("dateRangeFilter")
@@ -493,15 +546,23 @@ $.tablesorter.addParser({
 // Appliquer la tablesorter à votre tableau avec l'analyseur de date personnalisé
 $("#all-pnr").tablesorter({
   headers: {
+    // Disable sorting for elements with the class "pnr-creation-date"
     ".pnr-creation-date": {
       sorter: false,
     },
+    // Disable sorting for elements with the class "pnr-creator-list"
+    ".pnr-creator-list": {
+      sorter: false,
+    },
+    // Use a custom date parser for elements with the class "pnr-issuing-date"
     ".pnr-issuing-date": {
       sorter: "customDateParser",
     },
   },
+  // Enable additional tablesorter widgets
   widgets: ["zebra", "columns", "stickyHeaders"],
 });
+
 $("#tableAnomaly").tablesorter({
   headers: {
     0: { sorter: "customDateTimeParser" },
@@ -1456,6 +1517,9 @@ $(function () {
       ".pnr-issuing-date": {
         sorter: "customDateParser",
       },
+      ".pnr-creator-list-after-search": {
+        sorter:  false,
+      },
     },
     widgets: ["zebra", "columns", "stickyHeaders"],
   });
@@ -1477,20 +1541,24 @@ $("#buttonShowPnrBySizeOnSearch").on("click", function () {
   searchFunction(PAGE_SIZE, isDateOrderByAsc, isDateOrderByChecked);
 });
 
-const icon__pnrDateCreationSearch = document.querySelector(
-  "#icon__pnrDateCreationSearch"
-);
+const icon__pnrDateCreationSearch = document.querySelector("#icon__pnrDateCreationSearch");
 
 $(document).ready(function () {
   $("#dateCreationOrder").on("click", function (e) {
     isDateOrderByAsc === true
       ? (isDateOrderByAsc = false)
       : (isDateOrderByAsc = true);
+      
     isDateOrderByChecked = true;
 
-    console.log(icon__pnrDateCreationSearch.classList);
+    let isOrderedByDateCreated = localStorage.getItem('isOrderedByDateCreated')
 
-    if (!isDateOrderByAsc) {
+    if (isOrderedByDateCreated === null) {
+      $("#icon__pnrDateCreationSearch").addClass("fa-arrows-up-down");
+      $("#icon__pnrDateCreationSearch").removeClass("fa-arrow-down");
+      $("#icon__pnrDateCreationSearch").removeClass("fa-arrow-up");
+    }
+    else if (isOrderedByDateCreated === 'asc') {
       $("#icon__pnrDateCreationSearch").removeClass("fa-arrows-up-down");
       $("#icon__pnrDateCreationSearch").removeClass("fa-arrow-up");
       $("#icon__pnrDateCreationSearch").addClass("fa-arrow-down");
@@ -2919,23 +2987,43 @@ if (pnrCreatorFilter != null) {
 // ================ Adds a filter to the list of dates created pnr ======================== //
 let isOrderedByDateCreated = localStorage.getItem("isOrderedByDateCreated");
 const icon__pnrDateCreation = document.getElementById("icon__pnrDateCreation");
+
 $(".pnr-creation-date").click((e) => {
   e.preventDefault();
+
+  // Remove the 'isSortedByCreator' cookie (obsolete code, can be removed)
+  Cookies.remove('isSortedByCreator', { path: '/' })
+
+  // Remove the 'isSortedByCreator' value from localStorage
+  localStorage.removeItem('isSortedByCreator')
+
+  // Check if the 'isOrderedByDateCreated' value is null
   if (isOrderedByDateCreated == null) {
+    // Set 'isOrderedByDateCreated' to false in localStorage
     localStorage.setItem("isOrderedByDateCreated", "false")
+    // Set the 'creation_date_order_by' cookie to "asc" with SameSite=Lax attribute
     document.cookie = `creation_date_order_by="asc"; SameSite=Lax`
   } else {
+    // Check if 'isOrderedByDateCreated' is currently false
     if (isOrderedByDateCreated == "false") {
+      // Set 'isOrderedByDateCreated' to true in localStorage
       localStorage.setItem("isOrderedByDateCreated", "true")
+      // Set the 'creation_date_order_by' cookie to "desc" with SameSite=Lax attribute
       document.cookie = `creation_date_order_by="desc"; SameSite=Lax`
     }
+    // Check if 'isOrderedByDateCreated' is currently true
     if (isOrderedByDateCreated == "true") {
+      // Set 'isOrderedByDateCreated' to false in localStorage
       localStorage.setItem("isOrderedByDateCreated", "false")
+      // Set the 'creation_date_order_by' cookie to "asc" with SameSite=Lax attribute
       document.cookie = `creation_date_order_by="asc"; SameSite=Lax`
     }
   }
+  
+  // Reload the page to apply the new sorting order
   window.location.reload();
 });
+
 if (isOrderedByDateCreated !== null) {
   if (isOrderedByDateCreated == "true") {
     if (icon__pnrDateCreation != null) {

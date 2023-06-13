@@ -352,14 +352,37 @@ def home(request):
                                     status_value=status_value_from_cookie
                                 )
 
+            # Sort the list based on the agent username or system creation date
             if sort_creator is not None:
-                pnr_queryset =  pnr_queryset.order_by(sort_creator)
+                if sort_creator == 'agent__username':
+                    # Sort Pnrs by agent's username and agent_id None in the last part of list
+                    pnr_list = sorted(
+                        pnr_queryset, 
+                        key=lambda pnr: (
+                            pnr.agent is None, 
+                            pnr.agent.username if pnr.agent else ''
+                        ), 
+                        reverse=False
+                    )
+                elif sort_creator == '-agent__username':
+                    # Sort Pnrs by agent's username in reverse order and agent_id None in the last part of list
+                    pnr_list = sorted(
+                        pnr_queryset, 
+                        key=lambda pnr: (
+                            pnr.agent.username if pnr.agent else ''
+                        ), 
+                        reverse=True
+                    )
             else:
-                pnr_queryset =  pnr_queryset.order_by(
-                                    f'{date_order_by}system_creation_date'
-                                )
+                # If no sorting parameter provided, sort by system creation date
+                if date_order_by == "-":
+                    # Sort Pnrs by system creation date in reverse order
+                    pnr_list = sorted(pnr_queryset, key=lambda pnr: pnr.system_creation_date, reverse=True)
+                else:
+                    # Sort Pnrs by system creation date in ascending order
+                    pnr_list = sorted(pnr_queryset, key=lambda pnr: pnr.system_creation_date, reverse=False)
 
-            pnr_list = list(pnr_queryset)
+            pnr_list = list(pnr_list)
             pnr_count = pnr_queryset.count()
 
             print('Not all')
@@ -384,14 +407,38 @@ def home(request):
                                     status_value=status_value_from_cookie
                                 )
 
-            if sort_creator is not None:
-                pnr_queryset =  pnr_queryset.order_by(sort_creator)
-            else:
-                pnr_queryset =  pnr_queryset.order_by(
-                                    f'{date_order_by}system_creation_date'
-                                )
 
-            pnr_list = list(pnr_queryset)
+            # Sort the list based on the agent username or system creation date
+            if sort_creator is not None:
+                if sort_creator == 'agent__username':
+                    # Sort Pnrs by agent's username and agent_id None in the last part of list
+                    pnr_list = sorted(
+                        pnr_queryset, 
+                        key=lambda pnr: (
+                            pnr.agent is None, 
+                            pnr.agent.username if pnr.agent else ''
+                        ), 
+                        reverse=False
+                    )
+                elif sort_creator == '-agent__username':
+                    # Sort Pnrs by agent's username in reverse order and agent_id None in the last part of list
+                    pnr_list = sorted(
+                        pnr_queryset, 
+                        key=lambda pnr: (
+                            pnr.agent.username if pnr.agent else ''
+                        ), 
+                        reverse=True
+                    )
+            else:
+                # If no sorting parameter provided, sort by system creation date
+                if date_order_by == "-":
+                    # Sort Pnrs by system creation date in reverse order
+                    pnr_list = sorted(pnr_queryset, key=lambda pnr: pnr.system_creation_date, reverse=True)
+                else:
+                    # Sort Pnrs by system creation date in ascending order
+                    pnr_list = sorted(pnr_queryset, key=lambda pnr: pnr.system_creation_date, reverse=False)
+
+            pnr_list = list(pnr_list)
             pnr_count = pnr_queryset.count()
 
             print('All')

@@ -427,7 +427,7 @@ class PnrOnlyParser():
                     inf_part_split = inf_part.split('/')
                     temp_passenger_inf.name = inf_part_split[0].removeprefix('INF').strip()
                     if len(inf_part_split) > 1:
-                        temp_passenger_inf.surname = inf_part_split[1].strip()
+                        temp_passenger_inf.surname = inf_part_split[1].strip().removesuffix(')')
                     if len(inf_part_split) > 2:
                         try:
                             temp_passenger_inf.birthdate = datetime.strptime(inf_part_split[2].split(")")[0], '%d%b%y')
@@ -605,11 +605,24 @@ class PnrOnlyParser():
                 flight_class = 'Y'
                 airline_code = flight_info[2]
                 other_segment_description = ''
+                departure_time = None
                 if len(flight_info) > 3:
                     for l in range (3, len(flight_info)):
                         if flight_info[l] != '':
                             other_segment_description += flight_info[l] + ' '
                     temp_flight.other_segment_description = other_segment_description
+                # date
+                try:
+                    for info in flight_info:
+                        if len(info.split('-')) > 1:
+                            departure_time = datetime.strptime(info.split('-')[0] + str(yearOfOperation) + ' ' + '00:00:00', '%d%b%Y %H:%M:%S')
+                            temp_flight.departuretime = datetime(departure_time.year, departure_time.month, departure_time.day, departure_time.hour, departure_time.minute, departure_time.second, departure_time.microsecond, pytz.UTC)
+                except:
+                    pass
+                if departure_time is None:
+                    departure_time = datetime.now()
+                temp_flight.departuretime = datetime(departure_time.year, departure_time.month, departure_time.day, departure_time.hour, departure_time.minute, departure_time.second, departure_time.microsecond, pytz.UTC)
+            
                 try:
                     temp_flight.servicecarrier = Airline.objects.filter(iata=airline_code).first()
                 except:

@@ -179,7 +179,7 @@ class PnrCostParser():
                     inf_part_split = inf_part.split('/')
                     temp_passenger_inf.name = inf_part_split[0].removeprefix('INF').strip()
                     if len(inf_part_split) > 1:
-                        temp_passenger_inf.surname = inf_part_split[1].strip()
+                        temp_passenger_inf.surname = inf_part_split[1].strip().removesuffix(')')
                     if len(inf_part_split) > 2:
                         try:
                             temp_passenger_inf.birthdate = datetime.strptime(inf_part_split[2].split(")")[0], '%d%b%y')

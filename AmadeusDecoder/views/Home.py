@@ -129,91 +129,133 @@ def home(request):
         pnr_count = 0
         issuing_users = request.user.copied_documents.all()
 
-        # print("INVOICE TYPE")
-        # print(is_invoiced)
+        # Create date filter query object or an empty query object if dates are absent
+        date_filter = Q(system_creation_date__range=[start_date, end_date]) if start_date and end_date else Q()
+        max_system_creation_date = Q(system_creation_date__gt=maximum_timezone)
         
         if is_invoiced is None:
             for issuing_user in issuing_users:
-                if start_date and end_date:
-                    pnr   = Pnr.objects.filter(
-                                number=issuing_user.document, 
-                                status_value=status_value_from_cookie
-                            ).filter(
-                                Q(system_creation_date__range=[start_date, end_date]),
-                                Q(system_creation_date__gt=maximum_timezone),
-                            ).first()
-                else:
-                    pnr = Pnr.objects.filter(number=issuing_user.document, status_value=status_value_from_cookie).filter(Q(system_creation_date__gt=maximum_timezone)).first()
+                pnr =   Pnr.objects.filter(
+                            number=issuing_user.document, 
+                            status_value=status_value_from_cookie
+                        ).filter(
+                            date_filter,
+                            max_system_creation_date,
+                        ).first()
+                    
                 if pnr not in pnr_list and pnr is not None:
                     pnr_list.append(pnr)
-            
-            if start_date and end_date:
-                pnr_obj   = Pnr.objects.filter(
-                                status_value=status_value_from_cookie,
-                                agent_id=filtered_creator
-                            ).filter(
-                                Q(system_creation_date__range=[start_date, end_date]),
-                                Q(system_creation_date__gt=maximum_timezone)
-                            ).all().order_by(date_order_by + 'system_creation_date')
+
+            agent = Q()
+            if filtered_creator is not None:
+                agent = Q(agent_id=filtered_creator)
             else:
-                pnr_obj   = Pnr.objects.filter(
-                                status_value=status_value_from_cookie,
-                                agent_id=filtered_creator
-                            ).filter(
-                                Q(system_creation_date__gt=maximum_timezone)
-                            ).all().order_by(date_order_by + 'system_creation_date')
+                agent = Q(agent_id=4) | Q(agent_id=5)
+
+            pnr_obj =   Pnr.objects.filter(
+                            status_value=status_value_from_cookie,
+                        ).filter(
+                            date_filter,
+                            agent,
+                            max_system_creation_date,
+                        ).order_by(date_order_by + 'system_creation_date')
                     
             for pnr in pnr_obj:
                 if pnr not in pnr_list:
                     pnr_list.append(pnr)
 
-            if date_order_by == "-" :
-                pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=True)
-            else :
-                pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=False)
+            # Sort the list based on the agent username or system creation date
+            if sort_creator is not None:
+                if sort_creator == 'agent__username':
+                    # Sort Pnrs by agent's username and agent_id None in the last part of list
+                    pnr_list = sorted(
+                        pnr_list, 
+                        key=lambda pnr: (
+                            pnr.agent is None, 
+                            pnr.agent.username if pnr.agent else ''
+                        ), 
+                        reverse=False
+                    )
+                elif sort_creator == '-agent__username':
+                    # Sort Pnrs by agent's username in reverse order and agent_id None in the last part of list
+                    pnr_list = sorted(
+                        pnr_list, 
+                        key=lambda pnr: (
+                            pnr.agent.username if pnr.agent else ''
+                        ), 
+                        reverse=True
+                    )
+            else:
+                # If no sorting parameter provided, sort by system creation date
+                if date_order_by == "-":
+                    # Sort Pnrs by system creation date in reverse order
+                    pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=True)
+                else:
+                    # Sort Pnrs by system creation date in ascending order
+                    pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=False)
 
-        
             pnr_count = len(pnr_list)
         else:
             for issuing_user in issuing_users:
-                if start_date and end_date:
-                    pnr   = Pnr.objects.filter(
-                                number=issuing_user.document, 
-                                status_value=status_value_from_cookie
-                            ).filter(
-                                Q(system_creation_date__range=[start_date, end_date]),
-                                Q(system_creation_date__gt=maximum_timezone)
-                            ).filter(is_invoiced=is_invoiced).first()
-                else:
-                    pnr = Pnr.objects.filter(number=issuing_user.document, status_value=status_value_from_cookie).filter(Q(system_creation_date__gt=maximum_timezone)).filter(is_invoiced=is_invoiced).first()
+                pnr   = Pnr.objects.filter(
+                            number=issuing_user.document, 
+                            status_value=status_value_from_cookie
+                        ).filter(
+                            date_filter,
+                            max_system_creation_date,
+                        ).filter(is_invoiced=is_invoiced).first()
+                
                 if pnr not in pnr_list and pnr is not None:
                     pnr_list.append(pnr)
 
-            if start_date and end_date:
-                pnr_obj   = Pnr.objects.filter(
-                                status_value=status_value_from_cookie,
-                                agent_id=filtered_creator
-                            ).filter( 
-                                Q(system_creation_date__range=[start_date, end_date]),
-                                Q(system_creation_date__gt=maximum_timezone)
-                            ).filter(is_invoiced=is_invoiced).all().order_by(date_order_by + 'system_creation_date')
+            agent = Q()
+            if filtered_creator is not None:
+                agent = Q(agent_id=filtered_creator)
             else:
-                pnr_obj   = Pnr.objects.filter(
-                                status_value=status_value_from_cookie,
-                                agent_id=filtered_creator
-                            ).filter(
-                                Q(system_creation_date__gt=maximum_timezone)
-                            ).filter(is_invoiced=is_invoiced).all().order_by(date_order_by + 'system_creation_date')
+                agent = Q(agent_id=4) | Q(agent_id=5)
+
+            pnr_obj   = Pnr.objects.filter(
+                            status_value=status_value_from_cookie,
+                        ).filter( 
+                            date_filter,
+                            agent,
+                            max_system_creation_date,
+                        ).filter(is_invoiced=is_invoiced).order_by(date_order_by + 'system_creation_date')
             
             for pnr in pnr_obj:
                 if pnr not in pnr_list:
                     pnr_list.append(pnr)
 
-            if date_order_by == "-" :
-                pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=True)
-            else :
-                pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=False)
-        
+            # Sort the list based on the agent username or system creation date
+            if sort_creator is not None:
+                if sort_creator == 'agent__username':
+                    # Sort Pnrs by agent's username and agent_id None in the last part of list
+                    pnr_list = sorted(
+                        pnr_list, 
+                        key=lambda pnr: (
+                            pnr.agent is None, 
+                            pnr.agent.username if pnr.agent else ''
+                        ), 
+                        reverse=False
+                    )
+                elif sort_creator == '-agent__username':
+                    # Sort Pnrs by agent's username in reverse order and agent_id None in the last part of list
+                    pnr_list = sorted(
+                        pnr_list, 
+                        key=lambda pnr: (
+                            pnr.agent.username if pnr.agent else ''
+                        ), 
+                        reverse=True
+                    )
+            else:
+                # If no sorting parameter provided, sort by system creation date
+                if date_order_by == "-":
+                    # Sort Pnrs by system creation date in reverse order
+                    pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=True)
+                else:
+                    # Sort Pnrs by system creation date in ascending order
+                    pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=False)
+
             pnr_count = len(pnr_list)
             
             print("PNR COUNT")

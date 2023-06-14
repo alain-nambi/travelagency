@@ -1505,9 +1505,6 @@ $("#spinnerLoadingSearch").hide();
 $("#buttonShowPnrBySizeOnSearch").hide();
 $("#all-pnr-after-search").hide();
 
-const dateCreationOrder = document.querySelector("#dateCreationOrder");
-let isDateOrderByAsc = false;
-let isDateOrderByChecked = false;
 
 $(function () {
   $("#all-pnr-after-search").tablesorter({
@@ -1528,6 +1525,11 @@ $(function () {
 
 let PAGE_SIZE = $("input[name='paginate_by']").val() || 50;
 
+const dateCreationOrder = document.querySelector("#dateCreationOrder");
+let isDateOrderByAsc = false;
+let isDateOrderByChecked = false;
+let isSortedByCreator = false;
+
 /* A function that is called when the user clicks on the button "Show PNR by size on search". */
 $("#buttonShowPnrBySizeOnSearch").on("click", function () {
   let sizeInput = parseInt($("input[name='paginate_by']").val()) || 0;
@@ -1539,7 +1541,7 @@ $("#buttonShowPnrBySizeOnSearch").on("click", function () {
   }
 
   PAGE_SIZE = $("input[name='paginate_by']").val();
-  searchFunction(PAGE_SIZE, isDateOrderByAsc, isDateOrderByChecked);
+  searchFunction(PAGE_SIZE, isDateOrderByAsc, isDateOrderByChecked, isSortedByCreator);
 });
 
 const icon__pnrDateCreationSearch = document.querySelector("#icon__pnrDateCreationSearch");
@@ -1552,28 +1554,65 @@ $(document).ready(function () {
       
     isDateOrderByChecked = true;
 
-    let isOrderedByDateCreated = localStorage.getItem('isOrderedByDateCreated')
+    isDateOrderByAsc 
+      ? localStorage.setItem('isOrderedByDateCreatedSearch', "true")
+      : localStorage.setItem('isOrderedByDateCreatedSearch', "false")
 
-    if (isOrderedByDateCreated === null) {
-      $("#icon__pnrDateCreationSearch").addClass("fa-arrows-up-down");
-      $("#icon__pnrDateCreationSearch").removeClass("fa-arrow-down");
-      $("#icon__pnrDateCreationSearch").removeClass("fa-arrow-up");
-    }
-    else if (isOrderedByDateCreated === 'asc') {
+    localStorage.setItem('isSortedByCreatorSearch', null)
+
+    const isOrderedByDateCreated = localStorage.getItem('isOrderedByDateCreatedSearch')
+
+    if (isOrderedByDateCreated === "false") {
       $("#icon__pnrDateCreationSearch").removeClass("fa-arrows-up-down");
       $("#icon__pnrDateCreationSearch").removeClass("fa-arrow-up");
       $("#icon__pnrDateCreationSearch").addClass("fa-arrow-down");
-    } else {
+    } else if (isOrderedByDateCreated === "true") {
       $("#icon__pnrDateCreationSearch").removeClass("fa-arrows-up-down");
       $("#icon__pnrDateCreationSearch").removeClass("fa-arrow-down");
       $("#icon__pnrDateCreationSearch").addClass("fa-arrow-up");
     }
 
-    searchFunction(PAGE_SIZE, isDateOrderByAsc, isDateOrderByChecked);
+    searchFunction(PAGE_SIZE, isDateOrderByAsc, isDateOrderByChecked, null);
   });
 });
 
-function searchFunction(pageSize, isDateOrderByAsc, isDateOrderByChecked) {
+$(document).ready(function () {
+  $("#creatorSorter").on("click", function (e) {
+    isSortedByCreator === true
+      ? (isSortedByCreator = false)
+      : (isSortedByCreator = true);
+
+    isSortedByCreator 
+      ? localStorage.setItem('isSortedByCreatorSearch', 'asc')
+      : localStorage.setItem('isSortedByCreatorSearch', 'desc')
+
+    localStorage.setItem('isOrderedByDateCreatedSearch', null)
+
+    const isSortedByCreatorStorage = localStorage.getItem('isSortedByCreatorSearch')
+
+    if (isSortedByCreatorStorage === 'asc') {
+      $("#icon__pnrCreatorSearch").removeClass("fa-arrows-up-down");
+      $("#icon__pnrCreatorSearch").removeClass("fa-arrow-up");
+      $("#icon__pnrCreatorSearch").addClass("fa-arrow-down");
+    } else if (isSortedByCreatorStorage === 'desc') {
+      $("#icon__pnrCreatorSearch").removeClass("fa-arrows-up-down");
+      $("#icon__pnrCreatorSearch").removeClass("fa-arrow-down");
+      $("#icon__pnrCreatorSearch").addClass("fa-arrow-up");
+    }
+  
+    searchFunction(PAGE_SIZE, null, false, isSortedByCreator);
+  });
+})
+
+function searchFunction(pageSize, isDateOrderByAsc, isDateOrderByChecked, isSortByCreator) {
+  console.log('====================================');
+  console.log({
+    isDateOrderByAsc: isDateOrderByAsc,
+    isDateOrderByChecked: isDateOrderByChecked,
+    isSortByCreator: isSortByCreator
+  });
+  console.log('====================================');
+
   var pnr_research = $("#input-pnr").val().toLowerCase();
   if (pnr_research.trim() != "") {
     $("#spinnerLoadingSearch").show();
@@ -1609,6 +1648,18 @@ function searchFunction(pageSize, isDateOrderByAsc, isDateOrderByChecked) {
             return date;
           }
 
+          function pnrSortedByCreator(isSortByCreator) {
+            if (isSortByCreator) {
+              SEARCH_RESULT.sort((a, b) => {
+                return a.agent.localeCompare(b.agent);
+              });
+            } else {
+              SEARCH_RESULT.sort((a, b) => {
+                return b.agent.localeCompare(a.agent);
+              });
+            }
+          }
+
           function dateCreationOrderByAsc(isDateOrderByAsc) {
             if (isDateOrderByAsc) {
               SEARCH_RESULT.sort((a, b) => {
@@ -1625,7 +1676,17 @@ function searchFunction(pageSize, isDateOrderByAsc, isDateOrderByChecked) {
             }
           }
 
-          dateCreationOrderByAsc(isDateOrderByAsc);
+          if (isSortByCreator === null) {
+            $("#icon__pnrCreatorSearch").addClass("fa-arrows-up-down");
+            $("#icon__pnrCreatorSearch").removeClass("fa-arrow-down");
+            $("#icon__pnrCreatorSearch").removeClass("fa-arrow-up");
+            dateCreationOrderByAsc(isDateOrderByAsc)
+          } else if (isDateOrderByAsc === null) {
+            $("#icon__pnrDateCreationSearch").addClass("fa-arrows-up-down");
+            $("#icon__pnrDateCreationSearch").removeClass("fa-arrow-down");
+            $("#icon__pnrDateCreationSearch").removeClass("fa-arrow-up");
+            pnrSortedByCreator(isSortByCreator)
+          }
 
           $(".request-pnr-counter").text(SEARCH_RESULT.length);
           $("#pnrCounterOnSearch").val(" / " + SEARCH_RESULT.length);

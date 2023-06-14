@@ -194,6 +194,7 @@ $(document).ready(function () {
 $(function() {
   const selectNormalize = document.querySelector("#normalize");
   if (selectNormalize) {
+    selectNormalize.value="";
     selectNormalize.addEventListener("change", (e) => {
       if (e.target.value !== "") {
         document.cookie = `creator_pnr_filter=${e.target.value}; SameSite=Lax`;

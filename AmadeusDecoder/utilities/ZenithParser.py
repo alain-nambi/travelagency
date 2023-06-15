@@ -49,6 +49,7 @@ _months_type_2_ = {'janvier':'01', 'février':'02', 'mars':'03', 'avril':'04', '
 _week_days_ = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi']
 _AIRPORT_AGENCY_CODE_ = ['DZAUU000B']
 _CURRENT_TRAVEL_AGENCY_IDENTIFIER_ = ['Issoufali', 'ISSOUFALI', 'Mayotte ATO']
+_PASSENGER_NON_RELEVANT_ = ['N° FFP']
 
 class ZenithParser():
     '''
@@ -558,10 +559,22 @@ class ZenithParser():
                 
         return pnr, False
     
+    # remove non relevant element from content
+    def clean_content_array(self, content, non_relevant):
+        cleaned_content = []
+        for item in content:
+            for element in non_relevant:
+                if not item.startswith(element):
+                    cleaned_content.append(item)
+        return cleaned_content
     
     # normalize passenger and ticket
     def normalize_passenger(self, passenger_content):
         new_content = []
+        
+        # remove some irrelevant content
+        passenger_content = self.clean_content_array(passenger_content, _PASSENGER_NON_RELEVANT_)
+        
         for i in range(len(passenger_content)):
             skip = False
             # separate "passenger type" and "contact" eg: 'Adulte(s)+262639693300', 'INFT (ANDRIAMAHEFA/ASSIASHANYLA 20JUN21)Adulte(s)+33766742803'

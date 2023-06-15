@@ -226,15 +226,16 @@ class ZenithParserReceipt():
             temp_part_split = current_part[i].split(' ')
             for segment in air_segments:
                 for temp_part in temp_part_split:
-                    if temp_part.split('>')[0].removeprefix('[').removesuffix(']').find(segment.codeorg.iata_code) > -1 and temp_part != '':
+                    if temp_part.split('>')[0].removeprefix('[').removesuffix(']').find(segment.codeorg.iata_code) > -1 \
+                        and temp_part.split('>')[1].removeprefix('[').removesuffix(']').find(segment.codedest.iata_code) > -1 \
+                        and temp_part != '':
                         return segment
-                    
-            if current_part[i].find("Aller Retour"):
-                segment = []
-                for temp in air_segments:
-                    segment.append(temp)
-                return segment
-        return None
+        
+        if segment is None:
+            segment = []
+            for temp in air_segments:
+                segment.append(temp)
+            return segment
     
     # get issuing date
     def get_issuing_date_on_part(self, current_part):
@@ -629,7 +630,7 @@ class ZenithParserReceipt():
     def handle_emd_no_number(self, pnr, current_passenger, current_segment, is_created_by_us, cost, total, date_time, emd_single_part):
         is_balancing_statement = False
         
-        designation_index = self.get_target_part_index_extended(emd_single_part, ['bagage'])
+        designation_index = self.get_target_part_index_extended(emd_single_part, ['bagage', 'equipement', 'instrument'])
         
         # check if current line is just an EMD Balancing Statement
         if designation_index == 0 and self.get_target_part_index_extended(emd_single_part, ['Balancing']) > 0:
@@ -653,7 +654,11 @@ class ZenithParserReceipt():
                 pass
             
             # check is it has been already saved
-            otherfee_saved_checker = OthersFee.objects.filter(designation=new_emd.designation, pnr=pnr, related_segments__passenger=current_passenger).first()
+            if isinstance(current_segment, list):
+                otherfee_saved_checker = OthersFee.objects.filter(designation=new_emd.designation, pnr=pnr, related_segments__passenger=current_passenger).first()
+            else:
+                otherfee_saved_checker = OthersFee.objects.filter(designation=new_emd.designation, pnr=pnr, related_segments__passenger=current_passenger, related_segments__segment=current_segment).first()
+                
             if otherfee_saved_checker is not None:
                 new_emd = otherfee_saved_checker
                 new_emd.other_fee_status = 1
@@ -700,7 +705,7 @@ class ZenithParserReceipt():
             current_segment = self.get_segments_assigned_on_part(part)
             part_name_index = self.get_target_part_index(part, ["Pénalité"])
             
-            # skip Frais d'agence
+            # skip "Frais d'agence"
             internal_fee = self.get_target_part_index(part, ["Frais d'agence"])
             if internal_fee != 0:
                 continue
@@ -725,10 +730,12 @@ class ZenithParserReceipt():
                         temp_emd.ticket_status = 3
                         temp_emd.save()
                 
-                temp_other_fees = OthersFee.objects.filter(pnr=pnr, related_segments__passenger=current_passenger, fee_type='EMD').all()
-                print('TRANSPORT COST', OthersFee.objects.filter(pnr=pnr, related_segments__passenger=current_passenger, fee_type='EMD').query)
+                if isinstance(current_segment, list):
+                    temp_other_fees = OthersFee.objects.filter(pnr=pnr, related_segments__passenger=current_passenger, fee_type='EMD').all()
+                else:
+                    temp_other_fees = OthersFee.objects.filter(pnr=pnr, related_segments__passenger=current_passenger, related_segments__segment=current_segment, fee_type='EMD').all()
                 for other_fee in temp_other_fees:
-                    if self.check_is_invoiced_status(None, other_fee) or other_fee.cost == transport_cost:
+                    if self.check_is_invoiced_status(None, other_fee) and other_fee.cost == transport_cost:
                         other_fee.other_fee_status = 3
                         other_fee.save()
                 
@@ -777,7 +784,7 @@ class ZenithParserReceipt():
                                 ticket_segment.segment = segment
                                 ticket_segment.save()
                         else:
-                            ticket_segment = OtherFeeSegment()
+                            ticket_segment = TicketPassengerSegment()
                             ticket_segment.ticket = new_emd
                             ticket_segment.segment = current_segment
                             ticket_segment.save()

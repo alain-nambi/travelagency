@@ -598,7 +598,7 @@ class ZenithParser():
             for psg_type in _passenger_designations_:
                 # 'M. soloniaina jean francis', 'RAKOTONDRAMANANA', '7322415442815 INFT (RAKOTONDRAMANANA/YNAIA', '18DEC21)', 'Adulte(s)', '+262639215396', 'A22X460328'
                 if i > 0:
-                    if new_content[i-1].startswith(psg_type) and new_content[i-1] != psg_type:
+                    if new_content[i-1].split(' ')[0].strip() == psg_type and new_content[i-1] != psg_type:
                         if not new_content[i][0].isnumeric():
                             new_content_passenger_name_assembled.pop()
                             new_content_passenger_name_assembled.append(new_content[i-1].strip() + ' ' + new_content[i].strip())

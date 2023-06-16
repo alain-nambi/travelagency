@@ -43,12 +43,13 @@ _itinerary_header_possible_format_ = [['Itinéraire', 'Vol', 'Enregistrement', '
                                       ['Itinéraire', 'Vol', 'Enregistrement', 'De', 'A', 'Départ', 'Arrivée', 'Cabine Escales'],
                                       ['Itinéraire', 'Vol', 'Enregistrement', 'De', 'A', 'Départ', 'Arrivée', 'Cabine', 'Escales']]
 _header_names_ = ['Itinéraire', 'Détails du tarif', 'Conditions tarifaires', 'Reçu de paiement']
-_service_carrier_ = ['ZD']
+_service_carrier_ = ['ZD', 'TZ']
 _months_ = {'janv':'01', 'févr':'02', 'mars':'03', 'avr':'04', 'mai':'05', 'juin':'06', 'juil':'07', 'août':'08', 'sept':'09', 'oct':'10', 'nov':'11', 'déc':'12'}
 _months_type_2_ = {'janvier':'01', 'février':'02', 'mars':'03', 'avril':'04', 'mai':'05', 'juin':'06', 'juillet':'07', 'août':'08', 'septembre':'09', 'octobre':'10', 'novembre':'11', 'décembre':'12'}
 _week_days_ = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi']
 _AIRPORT_AGENCY_CODE_ = ['DZAUU000B']
 _CURRENT_TRAVEL_AGENCY_IDENTIFIER_ = ['Issoufali', 'ISSOUFALI', 'Mayotte ATO']
+_PASSENGER_NON_RELEVANT_ = ['N° FFP']
 
 class ZenithParser():
     '''
@@ -558,10 +559,22 @@ class ZenithParser():
                 
         return pnr, False
     
+    # remove non relevant element from content
+    def clean_content_array(self, content, non_relevant):
+        cleaned_content = []
+        for item in content:
+            for element in non_relevant:
+                if not item.startswith(element):
+                    cleaned_content.append(item)
+        return cleaned_content
     
     # normalize passenger and ticket
     def normalize_passenger(self, passenger_content):
         new_content = []
+        
+        # remove some irrelevant content
+        passenger_content = self.clean_content_array(passenger_content, _PASSENGER_NON_RELEVANT_)
+        
         for i in range(len(passenger_content)):
             skip = False
             # separate "passenger type" and "contact" eg: 'Adulte(s)+262639693300', 'INFT (ANDRIAMAHEFA/ASSIASHANYLA 20JUN21)Adulte(s)+33766742803'
@@ -585,7 +598,7 @@ class ZenithParser():
             for psg_type in _passenger_designations_:
                 # 'M. soloniaina jean francis', 'RAKOTONDRAMANANA', '7322415442815 INFT (RAKOTONDRAMANANA/YNAIA', '18DEC21)', 'Adulte(s)', '+262639215396', 'A22X460328'
                 if i > 0:
-                    if new_content[i-1].startswith(psg_type) and new_content[i-1] != psg_type:
+                    if new_content[i-1].split(' ')[0].strip() == psg_type and new_content[i-1] != psg_type:
                         if not new_content[i][0].isnumeric():
                             new_content_passenger_name_assembled.pop()
                             new_content_passenger_name_assembled.append(new_content[i-1].strip() + ' ' + new_content[i].strip())
@@ -1086,21 +1099,39 @@ class ZenithParser():
         ancillary_lines = []
         segment_binding_index = []
         ancillary_same_type_part = []
+        
+        temp_ancillary_lines = [] # used to store modified ancillary lines
+        interval = 0
         for i in range(len(ancillaries_part)):
             current_value = ancillaries_part[i]
             current_value_split = current_value.split('-')
+            skip = False
             if current_value_split[0].strip() in destination_airports:
                 if ancillaries_part[i - 1].endswith('EUR'):
-                    segment_binding_index.append(i)
+                    segment_binding_index.append(i - interval)
                 else:
-                    segment_binding_index.append(i - 1)
-        
+                    if not ancillaries_part[i - 2].endswith('EUR') and 'passager' not in ancillaries_part[i - 2].split(' '):
+                        temp_ancillary_name = ancillaries_part[i - 2] + ' ' + ancillaries_part[i - 1]
+                        temp_ancillary_lines.pop()
+                        temp_ancillary_lines.pop()
+                        temp_ancillary_lines.append(temp_ancillary_name)
+                        temp_ancillary_lines.append(ancillaries_part[i])
+                        segment_binding_index.append(i - 2 - interval)
+                        interval += 1
+                        skip = True
+                    else:
+                        segment_binding_index.append(i - 1 - interval)
+            
+            if not skip:
+                temp_ancillary_lines.append(ancillaries_part[i])
+            
+        ancillaries_part = temp_ancillary_lines
         for len_segment_binding_index in range(len(segment_binding_index)):
             if len_segment_binding_index == len(segment_binding_index) - 1:
                 ancillary_same_type_part.append(ancillaries_part[segment_binding_index[len_segment_binding_index]:])
             else:
                 ancillary_same_type_part.append(ancillaries_part[segment_binding_index[len_segment_binding_index]:segment_binding_index[len_segment_binding_index + 1]])
-    
+        
         previsous_ancillary_name = ''
         for one_type_part in ancillary_same_type_part:
             if one_type_part[0].split('-')[0].strip() not in destination_airports:

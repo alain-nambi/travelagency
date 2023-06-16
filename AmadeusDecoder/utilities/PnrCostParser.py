@@ -111,7 +111,7 @@ class PnrCostParser():
                     
             # if the passenger is not a child
             # if the passenger has ADT or YCD marked and not associated with an infant
-            if len(line_split) > 1 and (line.find('ADT') > 0 or line.find('YCD') > 0) and line.find('INF') == -1:
+            if len(line_split) > 1 and (line.find('ADT') > 0 or line.find('YCD') > 0 or line.find('STU') > 0) and line.find('INF') == -1:
                 name_part = line_split[0]
                 
                 temp_passenger.name = name_part.split("/")[0]

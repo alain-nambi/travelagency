@@ -78,17 +78,48 @@ $(document).ready(function () {
   // console.log('====================================');
 
   const isPnrFilterSelectedValue = (pnr) => {
-    return `
-      <span   
-        class="ml-2"
+    const buttonPnrFilter = `
+      <button 
         style="
-          font-size: 10px;
-          padding: 3px 6px 2px 6px;
+          border: none; 
+          background: transparent; 
           color: #fff;
-          background: #17a2b8 !important;
+        " 
+        title="Supprimer le filtre PNR"
+        id="buttonPnrFilter"
+      >
+        <i 
+          id="iconCreatorFilter"
+          class="fas fa-times-circle pr-2 pl-1"
+          style="font-size: 14px;"
+        ></i>
+      </button>
+    `
+    const replaceButton = `
+      <div class="pr-2"></div>
+    `
+
+    const userRoleId = $("#listActiveFilter").data("user-role")
+    return `
+      <div
+        style="
+          color: #fff;
+          background: #17a2b8;
           border-radius: 6px;
+          cursor: pointer;
+          padding: 2px 1px;
         "
-      >${pnr}</span>
+        class="d-flex align-items-center ml-2"
+      >
+        <span  
+          cy-data="span-status-filter-name" 
+          style="font-size: 10px"
+          class="pl-2"
+        >
+          ${pnr}
+        </span>
+        ${userRoleId !== 3 ? buttonPnrFilter : replaceButton}
+      </div>
     `
   }
 
@@ -107,17 +138,39 @@ $(document).ready(function () {
       }
     }
     return `
-      <span  
-        cy-data="span-creator-name" 
-        class="ml-2"
+      <div
         style="
-          font-size: 10px;
-          padding: 3px 6px 2px 6px;
           color: #fff;
-          background: #17a2b8 !important;
+          background: #17a2b8;
           border-radius: 6px;
+          cursor: pointer;
+          padding: 2px 1px;
         "
-      >Créateur: ${username}</span>
+        class="d-flex align-items-center ml-2"
+      >
+        <span  
+          cy-data="span-creator-name" 
+          style="font-size: 10px"
+          class="pl-2"
+        >
+          Créateur: ${username}
+        </span>
+        <button 
+          style="
+            border: none; 
+            background: transparent; 
+            color: #fff;
+          " 
+          title="Supprimer le filtre Créateur"
+          id="buttonCreatorNameFilter"
+        >
+          <i 
+            id="iconCreatorFilter"
+            class="fas fa-times-circle pr-2 pl-1"
+            style="font-size: 14px;"
+          ></i>
+        </button>
+      </div>
     `
   }
 
@@ -136,31 +189,77 @@ $(document).ready(function () {
     }
 
     return `
-      <span   
-        class="ml-2"
+      <div
         style="
-          font-size: 10px;
-          padding: 3px 6px 2px 6px;
           color: #fff;
-          background: #17a2b8 !important;
+          background: #17a2b8;
           border-radius: 6px;
+          cursor: pointer;
+          padding: 2px 1px;
         "
-      >Date de création: ${formatDateFR(objDateStart)} au ${formatDateFR(objDateEnd)}</span>
+        class="d-flex align-items-center ml-2"
+      >
+        <span  
+          cy-data="span-date-range" 
+          style="font-size: 10px"
+          class="pl-2"
+        >
+          Date de création: ${formatDateFR(objDateStart)} au ${formatDateFR(objDateEnd)}
+        </span>
+        <button 
+          style="
+            border: none; 
+            background: transparent; 
+            color: #fff;
+          " 
+          title="Supprimer le filtre Date de création"
+          id="buttonDateRangeFilter"
+        >
+          <i 
+            id="iconCreatorFilter"
+            class="fas fa-times-circle pr-2 pl-1"
+            style="font-size: 14px;"
+          ></i>
+        </button>
+      </div>
     `
   }
 
   const isStatusSelectedValue = (status) => {
     return `
-      <span   
-        class="ml-2"
+      <div
         style="
-          font-size: 10px;
-          padding: 3px 6px 2px 6px;
           color: #fff;
-          background: #17a2b8 !important;
+          background: #17a2b8;
           border-radius: 6px;
+          cursor: pointer;
+          padding: 2px 1px;
         "
-      >${status}</span>
+        class="d-flex align-items-center ml-2"
+      >
+        <span  
+          cy-data="span-status-filter-name" 
+          style="font-size: 10px"
+          class="pl-2"
+        >
+          ${status}
+        </span>
+        <button 
+          style="
+            border: none; 
+            background: transparent; 
+            color: #fff;
+          " 
+          title="Supprimer le filtre Status"
+          id="buttonStatusFilter"
+        >
+          <i 
+            id="iconCreatorFilter"
+            class="fas fa-times-circle pr-2 pl-1"
+            style="font-size: 14px;"
+          ></i>
+        </button>
+      </div>
     `
   }
 
@@ -175,19 +274,51 @@ $(document).ready(function () {
   const statusSelectedValues = {
     0    : "PNR: émis",
     1    : "PNR: non émis",
+    2    : "PNR: émis et non émis",
     null : "PNR: émis",
   };
-  
-  $("#buttonMenuFilter").append(`${isPnrFilterSelectedValue(pnrFilterSelectedValues[isPnrFilterSelected])}`);
-  $("#buttonMenuFilter").append(`${isStatusSelectedValue(statusSelectedValues[isStatusSelected])}`);
-  
+
+  if (isPnrFilterSelected !== "None") {
+    $("#listActiveFilter").append(`${isPnrFilterSelectedValue(pnrFilterSelectedValues[isPnrFilterSelected])}`);
+  }
+
+  if (isStatusSelected !== "2") {
+    $("#listActiveFilter").append(`${isStatusSelectedValue(statusSelectedValues[isStatusSelected])}`);
+  }
 
   if (isCreatorSelected !== null) {
-    $("#buttonMenuFilter").append(`${isCreatorSelectedValue(isCreatorSelected)}`)
+    $("#listActiveFilter").append(`${isCreatorSelectedValue(isCreatorSelected)}`)
   }
 
   if (isDateRangeSelected !== null) {
-    $("#buttonMenuFilter").append(`${isDateRangeSelectedValue(isDateRangeSelected)}`)
+    $("#listActiveFilter").append(`${isDateRangeSelectedValue(isDateRangeSelected)}`)
+  }
+
+  const listActiveFilter = document.querySelector("#listActiveFilter")
+  const userRoleId = $("#listActiveFilter").data("user-role")
+
+  if (listActiveFilter) {
+    $("#buttonCreatorNameFilter").on("click", (e) => {
+      Cookies.remove("creator_pnr_filter", {path: "/home"})
+      window.location.reload()
+    }) 
+    $("#buttonDateRangeFilter").on("click", (e) => {
+      Cookies.remove("dateRangeFilter", {path: "/home"})
+      window.location.reload()
+    })
+    $("#buttonStatusFilter").on("click", (e) => {
+      Cookies.remove("filter_pnr_by_status", {path: "/home"})
+      document.cookie = `filter_pnr_by_status=2; SameSite=Lax`
+      localStorage.setItem("filterByPnrStatus", "all")
+      window.location.reload()
+    })
+    $("#buttonPnrFilter").on("click", (e) => {
+      if (userRoleId !== 3) {
+        Cookies.remove("filter_pnr", {path: "/home"})
+        document.cookie = `filter_pnr=None; SameSite=Lax`
+        window.location.reload()
+      }
+    })
   }
 })
 
@@ -308,11 +439,12 @@ $(function() {
 
   const filterStatusSelectors = {
     'issued': '#showIssuedPnr i.fa-check',
-    'not_issued': '#showNotIssuedPnr i.fa-check'
+    'not_issued': '#showNotIssuedPnr i.fa-check',
+    'all': '#showAllPnrWithoutIssuing i.fa-check'
   }
   
   // Nous pouvons utiliser l'opérateur ternaire pour simplifier la logique conditionnelle.
-  const selector = filterSelectors[filterType] ? filterSelectors[filterType] : filterSelectors['not send'];
+  const selector = filterSelectors[filterType] ? filterSelectors[filterType] : filterSelectors['all'];
   const selectorStatus = filterStatusSelectors[filterStatus] ? filterStatusSelectors[filterStatus] : filterStatusSelectors['issued']
 
   // Au lieu d'utiliser addClass et removeClass séparément, nous pouvons les chaîner ensemble.
@@ -387,6 +519,12 @@ $(function() {
       // Faire quelque chose pour le deuxième élément de la liste
       localStorage.setItem("filterByPnrStatus", "not_issued")
       document.cookie = `filter_pnr_by_status=1; SameSite=Lax`
+    }
+
+    if (this.classList.contains("list-three")) {
+      // Faire quelque chose pour le deuxième élément de la liste
+      localStorage.setItem("filterByPnrStatus", "all")
+      document.cookie = `filter_pnr_by_status=2; SameSite=Lax`
     }
 
     setTimeout(() => {

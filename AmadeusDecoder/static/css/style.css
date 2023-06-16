@@ -1349,3 +1349,19 @@ ul.pnr-menu {
 .pnr-creator-list-after-search {
 	cursor: pointer !important;
 }
+
+#normalize > option {
+	font-size: 12px;
+}
+
+button#buttonStatusFilter,
+button#buttonDateRangeFilter,
+button#buttonCreatorNameFilter,
+button#buttonPnrFilter {
+	border: none;
+}
+
+button[cy-data="span-creator-name"]:hover,
+button[cy-data="span-date-range"]:hover {
+	background-color: #dc3848a6 !important
+}

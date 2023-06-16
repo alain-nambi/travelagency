@@ -29,6 +29,7 @@
                         <span>Filtres</span>
                       </button>
                       
+                      <div id="listActiveFilter" class="d-flex" data-user-role="{{request.user.role_id}}"></div>
 
                       {% with 1|get_all_username as get_all_username %}
                         <span id="getAllUsername" data-users="{{get_all_username}}"></span>
@@ -139,6 +140,12 @@
                               <div class="filter-menu list active" id="showNotIssuedPnr">
                                 <i class="fa fa-check"></i>
                                 <span>PNR non émis</span>
+                              </div>
+                            </li>
+                            <li class="pnr-list list-three">
+                              <div class="filter-menu list active" id="showAllPnrWithoutIssuing">
+                                <i class="fa fa-check"></i>
+                                <span>Tous</span>
                               </div>
                             </li>
                           </ul>

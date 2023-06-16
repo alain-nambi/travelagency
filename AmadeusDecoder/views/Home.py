@@ -1620,7 +1620,6 @@ def find_customer(request, pnr_id):
                 list_clients = []
                 if len(value) == 1:
                     string = value[0].split(" ")
-                    print("Le client trouvé: " + string)
                     for word in string:
                         q &= Q(intitule__icontains = word)
                     clients = Client.objects.filter(q)

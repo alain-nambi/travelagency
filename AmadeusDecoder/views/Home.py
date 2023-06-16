@@ -1615,74 +1615,51 @@ def find_customer(request, pnr_id):
     if request.method == 'POST':
         if 'value' in request.POST:
             value = json.loads(request.POST.get('value'))
+            q = Q()
             if len(value) > 0:
                 list_clients = []
                 if len(value) == 1:
                     string = value[0].split(" ")
-                    string.reverse()
-                    reverse_string = " ".join(string)
-                    clients = Client.objects.filter(
-                        Q(last_name__icontains=value[0]) | 
-                        Q(first_name__icontains=value[0]) | 
-                        Q(intitule__icontains=value[0]) | 
-                        Q(last_name__icontains=reverse_string) | 
-                        Q(first_name__icontains=reverse_string) | 
-                        Q(intitule__icontains=reverse_string) 
-                    )
+                    print("Le client trouvé: " + string)
+                    for word in string:
+                        q &= Q(intitule__icontains = word)
+                    clients = Client.objects.filter(q)
                     if clients.exists():
-                        for client in clients:
-                            if client.id not in list_clients:
-                                list_clients.append(client.id)
-                        if len(list_clients) > 0:
-                            client_id = list_clients[0]
-                            client = Client.objects.filter(id=client_id).first()
-                            context = {
-                                "isCustomerFind": True, 
-                                "clientId": client.id,
-                                "clientIntitule": client.intitule,
-                                "clientAddress": client.address_1 + " " + client.address_2 if client.address_1 is not None and client.address_2 is not None else client.address_1 if client.address_1 is not None else "",
-                                "clientCity": client.city if client.city is not None else "",
-                                "clientCountry": client.country if client.country is not None else "",
-                                "clientPostalCode": client.code_postal if client.code_postal is not None else "",
-                                "clientDepartment": client.departement if client.departement is not None else "",
-                                "clientEmail": client.email if client.email is not None else "",
-                                "clientPhone": client.telephone if client.telephone is not None else "",
-                            }
+                        client = clients.first()
+                        context = {
+                            "isCustomerFind": True, 
+                            "clientId": client.id,
+                            "clientIntitule": client.intitule,
+                            "clientAddress": client.address_1 + " " + client.address_2 if client.address_1 is not None and client.address_2 is not None else client.address_1 if client.address_1 is not None else "",
+                            "clientCity": client.city if client.city is not None else "",
+                            "clientCountry": client.country if client.country is not None else "",
+                            "clientPostalCode": client.code_postal if client.code_postal is not None else "",
+                            "clientDepartment": client.departement if client.departement is not None else "",
+                            "clientEmail": client.email if client.email is not None else "",
+                            "clientPhone": client.telephone if client.telephone is not None else "",
+                        }
                     else:
                         context["isCustomerFind"] = False
                 if len(value) == 2:
-                    string = value[0] + ' ' + value[1]
-                    value.reverse()
-                    reverse_string = " ".join(value)
-                    clients = Client.objects.filter(
-                        (
-                            Q(last_name__icontains=string) | 
-                            Q(first_name__icontains=string) | 
-                            Q(intitule__icontains=string) | 
-                            Q(last_name__icontains=reverse_string) | 
-                            Q(first_name__icontains=reverse_string) | 
-                            Q(intitule__icontains=reverse_string)
-                        )
-                    )
+                    string = value[0].strip().split(" ") + value[1].strip().split(" ")
+                    print(string)
+                    for word in string:
+                        q &= Q(intitule__icontains = word)
+                    clients = Client.objects.filter(q)
                     if clients.exists():
-                        for client in clients:
-                            if client.id not in list_clients:
-                                list_clients.append(client.id)
-                        if len(list_clients) > 0:
-                            client_id = list_clients[0]
-                            client = Client.objects.filter(id=client_id).first()
-                            context = {
-                                "isCustomerFind": True, 
-                                "clientId": client.id,
-                                "clientIntitule": client.intitule,
-                                "clientAddress": client.address_1 + " " + client.address_2 if client.address_1 is not None and client.address_2 is not None else client.address_1 if client.address_1 is not None else "",
-                                "clientCity": client.city if client.city is not None else "",
-                                "clientCountry": client.country if client.country is not None else "",
-                                "clientPostalCode": client.code_postal if client.code_postal is not None else "",
-                                "clientDepartment": client.departement if client.departement is not None else "",
-                                "clientEmail": client.email if client.email is not None else "",
-                                "clientPhone": client.telephone if client.telephone is not None else "",
-                            }
+                        client = clients.first()
+                        context = {
+                            "isCustomerFind": True, 
+                            "clientId": client.id,
+                            "clientIntitule": client.intitule,
+                            "clientAddress": client.address_1 + " " + client.address_2 if client.address_1 is not None and client.address_2 is not None else client.address_1 if client.address_1 is not None else "",
+                            "clientCity": client.city if client.city is not None else "",
+                            "clientCountry": client.country if client.country is not None else "",
+                            "clientPostalCode": client.code_postal if client.code_postal is not None else "",
+                            "clientDepartment": client.departement if client.departement is not None else "",
+                            "clientEmail": client.email if client.email is not None else "",
+                            "clientPhone": client.telephone if client.telephone is not None else "",
+                        }
                     else:
                         context["isCustomerFind"] = False
             else:

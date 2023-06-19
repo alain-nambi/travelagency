@@ -316,6 +316,7 @@ $(document).ready(function () {
       if (userRoleId !== 3) {
         Cookies.remove("filter_pnr", {path: "/home"})
         document.cookie = `filter_pnr=None; SameSite=Lax`
+        localStorage.removeItem("filterPnrBy")
         window.location.reload()
       }
     })

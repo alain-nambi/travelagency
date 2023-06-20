@@ -50,7 +50,7 @@ class History(models.Model, BaseModel):
     modification_date = models.DateTimeField()
     
     def __str__(self):
-        return self.modification_type + ' ' + self.modification_date
+        return self.modification_type + ' ' + str(self.modification_date)
     
     # history for any modification on fees
     def fee_history(self, fee, user, initial_cost, new_cost, initial_total):

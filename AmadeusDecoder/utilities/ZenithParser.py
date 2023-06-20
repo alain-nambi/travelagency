@@ -852,18 +852,22 @@ class ZenithParser():
     def get_part(self, content, part_name): # Itinéraire or Détails du tarif or ...
         part = []
         start_index = 0
+        found = False
         for i in range(len(content)):
             if content[i] == part_name:
                 start_index = i
+                found = True
                 break
-        i = 0
-        while i < len(content):
-            part.append(content[start_index + i])
-            if content[start_index + i + 1] in _header_names_ and content[start_index + i + 1] != 'Reçu de paiement':
-                break
-            if start_index + i == len(content) - 2:
-                break
-            i += 1
+        
+        if found:
+            i = 0
+            while i < len(content):
+                part.append(content[start_index + i])
+                if content[start_index + i + 1] in _header_names_ and content[start_index + i + 1] != 'Reçu de paiement':
+                    break
+                if start_index + i == len(content) - 2:
+                    break
+                i += 1
             
         return part
     

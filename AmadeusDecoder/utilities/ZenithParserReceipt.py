@@ -682,6 +682,7 @@ class ZenithParserReceipt():
             except:
                 traceback.print_exc()
             new_emd.creation_date = date_time.date()
+            print('new_emd.creation_date ', new_emd.creation_date)
             
             # remove fee if special condition
             if is_balancing_statement:
@@ -857,6 +858,8 @@ class ZenithParserReceipt():
                             if ticket_modif.total == (total['total']+new_emd.total):
                                 is_already_saved = True
                                 break
+                    
+                    new_emd.creation_date = date_time.date()
                     
                     if not is_already_saved:
                         new_emd.save()

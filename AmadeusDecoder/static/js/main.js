@@ -12,6 +12,59 @@ $(document).ready(function () {
 });
 
 $(document).ready(function () {
+  // Retrieve the sorting information from local storage
+  let isSortedByCreator = localStorage.getItem('isSortedByCreator');
+
+  // Check if the sorting information is null (not set)
+  if (isSortedByCreator === null) {
+    // Set the default sorting order and update the icon classes accordingly
+    $("#icon__pnrCreator").addClass("fa-arrows-up-down");
+    $("#icon__pnrCreator").removeClass("fa-arrow-up");
+    $("#icon__pnrCreator").removeClass("fa-arrow-down");
+  }
+  // Check if the sorting order is ascending
+  else if (isSortedByCreator === 'asc') {
+    // Update the icon classes to indicate ascending sorting order
+    $("#icon__pnrCreator").removeClass("fa-arrows-up-down");
+    $("#icon__pnrCreator").removeClass("fa-arrow-up");
+    $("#icon__pnrCreator").addClass("fa-arrow-down");
+  }
+  // If the sorting order is not null and not ascending, assume it is descending
+  else {
+    // Update the icon classes to indicate descending sorting order
+    $("#icon__pnrCreator").removeClass("fa-arrows-up-down");
+    $("#icon__pnrCreator").removeClass("fa-arrow-down");
+    $("#icon__pnrCreator").addClass("fa-arrow-up");
+  }
+  
+  // Handle click event on '.pnr-creator-list' elements
+  $('.pnr-creator-list').on('click', function (event) {
+    event.preventDefault();
+
+    // Remove any previous sorting order information from Cookies
+    Cookies.remove('creation_date_order_by', { path: '/home' });
+    localStorage.removeItem('isOrderedByDateCreated');
+
+    // Determine the new sorting order based on the current sorting order
+    let newSortOrder;
+    if (isSortedByCreator === null || isSortedByCreator === 'asc') {
+      // If the current sorting order is null or ascending, set descending order
+      newSortOrder = 'desc';
+      localStorage.setItem('isSortedByCreator', newSortOrder);
+      Cookies.set('isSortedByCreator', '-agent__username');
+    } else {
+      // If the current sorting order is descending, set ascending order
+      newSortOrder = 'asc';
+      localStorage.setItem('isSortedByCreator', newSortOrder);
+      Cookies.set('isSortedByCreator', 'agent__username');
+    }
+    
+    // Reload the page to apply the new sorting order
+    window.location.reload();
+  });
+});
+
+$(document).ready(function () {
   const isPnrFilterSelected = getCookies("filter_pnr")
   const isCreatorSelected   = getCookies("creator_pnr_filter")
   const isDateRangeSelected = getCookies("dateRangeFilter")
@@ -25,17 +78,48 @@ $(document).ready(function () {
   // console.log('====================================');
 
   const isPnrFilterSelectedValue = (pnr) => {
-    return `
-      <span   
-        class="ml-2"
+    const buttonPnrFilter = `
+      <button 
         style="
-          font-size: 10px;
-          padding: 3px 6px 2px 6px;
+          border: none; 
+          background: transparent; 
           color: #fff;
-          background: #17a2b8 !important;
+        " 
+        title="Supprimer le filtre PNR"
+        id="buttonPnrFilter"
+      >
+        <i 
+          id="iconCreatorFilter"
+          class="fas fa-times-circle pr-2 pl-1"
+          style="font-size: 14px;"
+        ></i>
+      </button>
+    `
+    const replaceButton = `
+      <div class="pr-2"></div>
+    `
+
+    const userRoleId = $("#listActiveFilter").data("user-role")
+    return `
+      <div
+        style="
+          color: #fff;
+          background: #17a2b8;
           border-radius: 6px;
+          cursor: pointer;
+          padding: 2px 1px;
         "
-      >${pnr}</span>
+        class="d-flex align-items-center ml-2"
+      >
+        <span  
+          cy-data="span-status-filter-name" 
+          style="font-size: 10px"
+          class="pl-2"
+        >
+          ${pnr}
+        </span>
+        ${userRoleId !== 3 ? buttonPnrFilter : replaceButton}
+      </div>
     `
   }
 
@@ -54,17 +138,39 @@ $(document).ready(function () {
       }
     }
     return `
-      <span  
-        cy-data="span-creator-name" 
-        class="ml-2"
+      <div
         style="
-          font-size: 10px;
-          padding: 3px 6px 2px 6px;
           color: #fff;
-          background: #17a2b8 !important;
+          background: #17a2b8;
           border-radius: 6px;
+          cursor: pointer;
+          padding: 2px 1px;
         "
-      >Créateur: ${username}</span>
+        class="d-flex align-items-center ml-2"
+      >
+        <span  
+          cy-data="span-creator-name" 
+          style="font-size: 10px"
+          class="pl-2"
+        >
+          Créateur: ${username}
+        </span>
+        <button 
+          style="
+            border: none; 
+            background: transparent; 
+            color: #fff;
+          " 
+          title="Supprimer le filtre Créateur"
+          id="buttonCreatorNameFilter"
+        >
+          <i 
+            id="iconCreatorFilter"
+            class="fas fa-times-circle pr-2 pl-1"
+            style="font-size: 14px;"
+          ></i>
+        </button>
+      </div>
     `
   }
 
@@ -83,31 +189,77 @@ $(document).ready(function () {
     }
 
     return `
-      <span   
-        class="ml-2"
+      <div
         style="
-          font-size: 10px;
-          padding: 3px 6px 2px 6px;
           color: #fff;
-          background: #17a2b8 !important;
+          background: #17a2b8;
           border-radius: 6px;
+          cursor: pointer;
+          padding: 2px 1px;
         "
-      >Date de création: ${formatDateFR(objDateStart)} au ${formatDateFR(objDateEnd)}</span>
+        class="d-flex align-items-center ml-2"
+      >
+        <span  
+          cy-data="span-date-range" 
+          style="font-size: 10px"
+          class="pl-2"
+        >
+          Date de création: ${formatDateFR(objDateStart)} au ${formatDateFR(objDateEnd)}
+        </span>
+        <button 
+          style="
+            border: none; 
+            background: transparent; 
+            color: #fff;
+          " 
+          title="Supprimer le filtre Date de création"
+          id="buttonDateRangeFilter"
+        >
+          <i 
+            id="iconCreatorFilter"
+            class="fas fa-times-circle pr-2 pl-1"
+            style="font-size: 14px;"
+          ></i>
+        </button>
+      </div>
     `
   }
 
   const isStatusSelectedValue = (status) => {
     return `
-      <span   
-        class="ml-2"
+      <div
         style="
-          font-size: 10px;
-          padding: 3px 6px 2px 6px;
           color: #fff;
-          background: #17a2b8 !important;
+          background: #17a2b8;
           border-radius: 6px;
+          cursor: pointer;
+          padding: 2px 1px;
         "
-      >${status}</span>
+        class="d-flex align-items-center ml-2"
+      >
+        <span  
+          cy-data="span-status-filter-name" 
+          style="font-size: 10px"
+          class="pl-2"
+        >
+          ${status}
+        </span>
+        <button 
+          style="
+            border: none; 
+            background: transparent; 
+            color: #fff;
+          " 
+          title="Supprimer le filtre Status"
+          id="buttonStatusFilter"
+        >
+          <i 
+            id="iconCreatorFilter"
+            class="fas fa-times-circle pr-2 pl-1"
+            style="font-size: 14px;"
+          ></i>
+        </button>
+      </div>
     `
   }
 
@@ -122,25 +274,59 @@ $(document).ready(function () {
   const statusSelectedValues = {
     0    : "PNR: émis",
     1    : "PNR: non émis",
+    2    : "PNR: émis et non émis",
     null : "PNR: émis",
   };
-  
-  $("#buttonMenuFilter").append(`${isPnrFilterSelectedValue(pnrFilterSelectedValues[isPnrFilterSelected])}`);
-  $("#buttonMenuFilter").append(`${isStatusSelectedValue(statusSelectedValues[isStatusSelected])}`);
-  
+
+  if (isPnrFilterSelected !== "None") {
+    $("#listActiveFilter").append(`${isPnrFilterSelectedValue(pnrFilterSelectedValues[isPnrFilterSelected])}`);
+  }
+
+  if (isStatusSelected !== "2") {
+    $("#listActiveFilter").append(`${isStatusSelectedValue(statusSelectedValues[isStatusSelected])}`);
+  }
 
   if (isCreatorSelected !== null) {
-    $("#buttonMenuFilter").append(`${isCreatorSelectedValue(isCreatorSelected)}`)
+    $("#listActiveFilter").append(`${isCreatorSelectedValue(isCreatorSelected)}`)
   }
 
   if (isDateRangeSelected !== null) {
-    $("#buttonMenuFilter").append(`${isDateRangeSelectedValue(isDateRangeSelected)}`)
+    $("#listActiveFilter").append(`${isDateRangeSelectedValue(isDateRangeSelected)}`)
+  }
+
+  const listActiveFilter = document.querySelector("#listActiveFilter")
+  const userRoleId = $("#listActiveFilter").data("user-role")
+
+  if (listActiveFilter) {
+    $("#buttonCreatorNameFilter").on("click", (e) => {
+      Cookies.remove("creator_pnr_filter", {path: "/home"})
+      window.location.reload()
+    }) 
+    $("#buttonDateRangeFilter").on("click", (e) => {
+      Cookies.remove("dateRangeFilter", {path: "/home"})
+      window.location.reload()
+    })
+    $("#buttonStatusFilter").on("click", (e) => {
+      Cookies.remove("filter_pnr_by_status", {path: "/home"})
+      document.cookie = `filter_pnr_by_status=2; SameSite=Lax`
+      localStorage.setItem("filterByPnrStatus", "all")
+      window.location.reload()
+    })
+    $("#buttonPnrFilter").on("click", (e) => {
+      if (userRoleId !== 3) {
+        Cookies.remove("filter_pnr", {path: "/home"})
+        document.cookie = `filter_pnr=None; SameSite=Lax`
+        localStorage.removeItem("filterPnrBy")
+        window.location.reload()
+      }
+    })
   }
 })
 
 $(function() {
   const selectNormalize = document.querySelector("#normalize");
   if (selectNormalize) {
+    selectNormalize.value="";
     selectNormalize.addEventListener("change", (e) => {
       if (e.target.value !== "") {
         document.cookie = `creator_pnr_filter=${e.target.value}; SameSite=Lax`;
@@ -254,11 +440,12 @@ $(function() {
 
   const filterStatusSelectors = {
     'issued': '#showIssuedPnr i.fa-check',
-    'not_issued': '#showNotIssuedPnr i.fa-check'
+    'not_issued': '#showNotIssuedPnr i.fa-check',
+    'all': '#showAllPnrWithoutIssuing i.fa-check'
   }
   
   // Nous pouvons utiliser l'opérateur ternaire pour simplifier la logique conditionnelle.
-  const selector = filterSelectors[filterType] ? filterSelectors[filterType] : filterSelectors['not send'];
+  const selector = filterSelectors[filterType] ? filterSelectors[filterType] : filterSelectors['all'];
   const selectorStatus = filterStatusSelectors[filterStatus] ? filterStatusSelectors[filterStatus] : filterStatusSelectors['issued']
 
   // Au lieu d'utiliser addClass et removeClass séparément, nous pouvons les chaîner ensemble.
@@ -333,6 +520,12 @@ $(function() {
       // Faire quelque chose pour le deuxième élément de la liste
       localStorage.setItem("filterByPnrStatus", "not_issued")
       document.cookie = `filter_pnr_by_status=1; SameSite=Lax`
+    }
+
+    if (this.classList.contains("list-three")) {
+      // Faire quelque chose pour le deuxième élément de la liste
+      localStorage.setItem("filterByPnrStatus", "all")
+      document.cookie = `filter_pnr_by_status=2; SameSite=Lax`
     }
 
     setTimeout(() => {
@@ -493,15 +686,23 @@ $.tablesorter.addParser({
 // Appliquer la tablesorter à votre tableau avec l'analyseur de date personnalisé
 $("#all-pnr").tablesorter({
   headers: {
+    // Disable sorting for elements with the class "pnr-creation-date"
     ".pnr-creation-date": {
       sorter: false,
     },
+    // Disable sorting for elements with the class "pnr-creator-list"
+    ".pnr-creator-list": {
+      sorter: false,
+    },
+    // Use a custom date parser for elements with the class "pnr-issuing-date"
     ".pnr-issuing-date": {
       sorter: "customDateParser",
     },
   },
+  // Enable additional tablesorter widgets
   widgets: ["zebra", "columns", "stickyHeaders"],
 });
+
 $("#tableAnomaly").tablesorter({
   headers: {
     0: { sorter: "customDateTimeParser" },
@@ -1443,9 +1644,6 @@ $("#spinnerLoadingSearch").hide();
 $("#buttonShowPnrBySizeOnSearch").hide();
 $("#all-pnr-after-search").hide();
 
-const dateCreationOrder = document.querySelector("#dateCreationOrder");
-let isDateOrderByAsc = false;
-let isDateOrderByChecked = false;
 
 $(function () {
   $("#all-pnr-after-search").tablesorter({
@@ -1456,12 +1654,20 @@ $(function () {
       ".pnr-issuing-date": {
         sorter: "customDateParser",
       },
+      ".pnr-creator-list-after-search": {
+        sorter:  false,
+      },
     },
     widgets: ["zebra", "columns", "stickyHeaders"],
   });
 });
 
 let PAGE_SIZE = $("input[name='paginate_by']").val() || 50;
+
+const dateCreationOrder = document.querySelector("#dateCreationOrder");
+let isDateOrderByAsc = false;
+let isDateOrderByChecked = false;
+let isSortedByCreator = false;
 
 /* A function that is called when the user clicks on the button "Show PNR by size on search". */
 $("#buttonShowPnrBySizeOnSearch").on("click", function () {
@@ -1474,37 +1680,78 @@ $("#buttonShowPnrBySizeOnSearch").on("click", function () {
   }
 
   PAGE_SIZE = $("input[name='paginate_by']").val();
-  searchFunction(PAGE_SIZE, isDateOrderByAsc, isDateOrderByChecked);
+  searchFunction(PAGE_SIZE, isDateOrderByAsc, isDateOrderByChecked, isSortedByCreator);
 });
 
-const icon__pnrDateCreationSearch = document.querySelector(
-  "#icon__pnrDateCreationSearch"
-);
+const icon__pnrDateCreationSearch = document.querySelector("#icon__pnrDateCreationSearch");
 
 $(document).ready(function () {
   $("#dateCreationOrder").on("click", function (e) {
     isDateOrderByAsc === true
       ? (isDateOrderByAsc = false)
       : (isDateOrderByAsc = true);
+      
     isDateOrderByChecked = true;
 
-    console.log(icon__pnrDateCreationSearch.classList);
+    isDateOrderByAsc 
+      ? localStorage.setItem('isOrderedByDateCreatedSearch', "true")
+      : localStorage.setItem('isOrderedByDateCreatedSearch', "false")
 
-    if (!isDateOrderByAsc) {
+    localStorage.setItem('isSortedByCreatorSearch', null)
+
+    const isOrderedByDateCreated = localStorage.getItem('isOrderedByDateCreatedSearch')
+
+    if (isOrderedByDateCreated === "false") {
       $("#icon__pnrDateCreationSearch").removeClass("fa-arrows-up-down");
       $("#icon__pnrDateCreationSearch").removeClass("fa-arrow-up");
       $("#icon__pnrDateCreationSearch").addClass("fa-arrow-down");
-    } else {
+    } else if (isOrderedByDateCreated === "true") {
       $("#icon__pnrDateCreationSearch").removeClass("fa-arrows-up-down");
       $("#icon__pnrDateCreationSearch").removeClass("fa-arrow-down");
       $("#icon__pnrDateCreationSearch").addClass("fa-arrow-up");
     }
 
-    searchFunction(PAGE_SIZE, isDateOrderByAsc, isDateOrderByChecked);
+    searchFunction(PAGE_SIZE, isDateOrderByAsc, isDateOrderByChecked, null);
   });
 });
 
-function searchFunction(pageSize, isDateOrderByAsc, isDateOrderByChecked) {
+$(document).ready(function () {
+  $("#creatorSorter").on("click", function (e) {
+    isSortedByCreator === true
+      ? (isSortedByCreator = false)
+      : (isSortedByCreator = true);
+
+    isSortedByCreator 
+      ? localStorage.setItem('isSortedByCreatorSearch', 'asc')
+      : localStorage.setItem('isSortedByCreatorSearch', 'desc')
+
+    localStorage.setItem('isOrderedByDateCreatedSearch', null)
+
+    const isSortedByCreatorStorage = localStorage.getItem('isSortedByCreatorSearch')
+
+    if (isSortedByCreatorStorage === 'asc') {
+      $("#icon__pnrCreatorSearch").removeClass("fa-arrows-up-down");
+      $("#icon__pnrCreatorSearch").removeClass("fa-arrow-up");
+      $("#icon__pnrCreatorSearch").addClass("fa-arrow-down");
+    } else if (isSortedByCreatorStorage === 'desc') {
+      $("#icon__pnrCreatorSearch").removeClass("fa-arrows-up-down");
+      $("#icon__pnrCreatorSearch").removeClass("fa-arrow-down");
+      $("#icon__pnrCreatorSearch").addClass("fa-arrow-up");
+    }
+  
+    searchFunction(PAGE_SIZE, null, false, isSortedByCreator);
+  });
+})
+
+function searchFunction(pageSize, isDateOrderByAsc, isDateOrderByChecked, isSortByCreator) {
+  console.log('====================================');
+  console.log({
+    isDateOrderByAsc: isDateOrderByAsc,
+    isDateOrderByChecked: isDateOrderByChecked,
+    isSortByCreator: isSortByCreator
+  });
+  console.log('====================================');
+
   var pnr_research = $("#input-pnr").val().toLowerCase();
   if (pnr_research.trim() != "") {
     $("#spinnerLoadingSearch").show();
@@ -1540,6 +1787,18 @@ function searchFunction(pageSize, isDateOrderByAsc, isDateOrderByChecked) {
             return date;
           }
 
+          function pnrSortedByCreator(isSortByCreator) {
+            if (isSortByCreator) {
+              SEARCH_RESULT.sort((a, b) => {
+                return a.agent.localeCompare(b.agent);
+              });
+            } else {
+              SEARCH_RESULT.sort((a, b) => {
+                return b.agent.localeCompare(a.agent);
+              });
+            }
+          }
+
           function dateCreationOrderByAsc(isDateOrderByAsc) {
             if (isDateOrderByAsc) {
               SEARCH_RESULT.sort((a, b) => {
@@ -1556,7 +1815,17 @@ function searchFunction(pageSize, isDateOrderByAsc, isDateOrderByChecked) {
             }
           }
 
-          dateCreationOrderByAsc(isDateOrderByAsc);
+          if (isSortByCreator === null) {
+            $("#icon__pnrCreatorSearch").addClass("fa-arrows-up-down");
+            $("#icon__pnrCreatorSearch").removeClass("fa-arrow-down");
+            $("#icon__pnrCreatorSearch").removeClass("fa-arrow-up");
+            dateCreationOrderByAsc(isDateOrderByAsc)
+          } else if (isDateOrderByAsc === null) {
+            $("#icon__pnrDateCreationSearch").addClass("fa-arrows-up-down");
+            $("#icon__pnrDateCreationSearch").removeClass("fa-arrow-down");
+            $("#icon__pnrDateCreationSearch").removeClass("fa-arrow-up");
+            pnrSortedByCreator(isSortByCreator)
+          }
 
           $(".request-pnr-counter").text(SEARCH_RESULT.length);
           $("#pnrCounterOnSearch").val(" / " + SEARCH_RESULT.length);
@@ -2919,23 +3188,43 @@ if (pnrCreatorFilter != null) {
 // ================ Adds a filter to the list of dates created pnr ======================== //
 let isOrderedByDateCreated = localStorage.getItem("isOrderedByDateCreated");
 const icon__pnrDateCreation = document.getElementById("icon__pnrDateCreation");
+
 $(".pnr-creation-date").click((e) => {
   e.preventDefault();
+
+  // Remove the 'isSortedByCreator' cookie (obsolete code, can be removed)
+  Cookies.remove('isSortedByCreator', { path: '/' })
+
+  // Remove the 'isSortedByCreator' value from localStorage
+  localStorage.removeItem('isSortedByCreator')
+
+  // Check if the 'isOrderedByDateCreated' value is null
   if (isOrderedByDateCreated == null) {
+    // Set 'isOrderedByDateCreated' to false in localStorage
     localStorage.setItem("isOrderedByDateCreated", "false")
+    // Set the 'creation_date_order_by' cookie to "asc" with SameSite=Lax attribute
     document.cookie = `creation_date_order_by="asc"; SameSite=Lax`
   } else {
+    // Check if 'isOrderedByDateCreated' is currently false
     if (isOrderedByDateCreated == "false") {
+      // Set 'isOrderedByDateCreated' to true in localStorage
       localStorage.setItem("isOrderedByDateCreated", "true")
+      // Set the 'creation_date_order_by' cookie to "desc" with SameSite=Lax attribute
       document.cookie = `creation_date_order_by="desc"; SameSite=Lax`
     }
+    // Check if 'isOrderedByDateCreated' is currently true
     if (isOrderedByDateCreated == "true") {
+      // Set 'isOrderedByDateCreated' to false in localStorage
       localStorage.setItem("isOrderedByDateCreated", "false")
+      // Set the 'creation_date_order_by' cookie to "asc" with SameSite=Lax attribute
       document.cookie = `creation_date_order_by="asc"; SameSite=Lax`
     }
   }
+  
+  // Reload the page to apply the new sorting order
   window.location.reload();
 });
+
 if (isOrderedByDateCreated !== null) {
   if (isOrderedByDateCreated == "true") {
     if (icon__pnrDateCreation != null) {

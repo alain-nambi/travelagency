@@ -51,7 +51,8 @@ ServiceFeesInput.forEach((inputFees, index) => {
         allAmountTicket[index].textContent = cost.toFixed(2);
         let currentCost = e.target.getAttribute('old-data-cost');
         let inputCurrentCost = e.target.getAttribute('data-cost');
-        if (currentCost <= cost) {
+        let is_at_airport = e.target.getAttribute('is-at-airport');
+        if (currentCost <= cost || is_at_airport == 'True') {
             let TicketAmoutTotal = 0;
             AmoutTicket.forEach((ticket) => {
                 const TicketTotal = parseFloat(ticket.textContent);

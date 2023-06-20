@@ -703,7 +703,7 @@ def save_pnr_detail_modification(request, pnr_id):
 
         if 'feeCost' in request.POST:
             fee_cost = json.loads(request.POST.get('feeCost'))
-    
+            
             for item in fee_cost:
                 cost = item[1]
                 service_fee = Fee.objects.filter(pk=int(item[0]))

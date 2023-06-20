@@ -3,6 +3,7 @@ Created on 29 Sep 2022
 
 @author: Famenontsoa
 '''
+_AIRPORT_AGENCY_CODE_ = ['DZAUU000B', 'Mayotte ATO']
 
 from django import template
 from django.db.models import Q
@@ -1432,3 +1433,30 @@ def get_find_fee_reduce_request(pnr, fee):
     else:
         return False
         
+# check if current ticket has been issued at airport #
+@register.simple_tag
+def is_issued_at_airport(ticket, other_fee):
+    from AmadeusDecoder.models.invoice.Ticket import Ticket
+    from AmadeusDecoder.models.invoice.Fee import OthersFee
+    
+    # for ticket
+    if ticket is not None:
+        current_ticket = Ticket.objects.filter(id=ticket.id, ticket_type='EMD').first()
+        if current_ticket is not None:
+            # ticket has agency name: mostly for Zenith
+            if current_ticket.issuing_agency_name in _AIRPORT_AGENCY_CODE_:
+                return True
+            # ticket has agency object: mostly for Altea
+            if current_ticket.issuing_agency is not None:
+                if current_ticket.issuing_agency.name in _AIRPORT_AGENCY_CODE_ or \
+                    current_ticket.issuing_agency.code in _AIRPORT_AGENCY_CODE_:
+                    return True
+    # for other fee: mostly for Zenith
+    elif other_fee is not None:
+        current_other_fee = OthersFee.objects.filter(id=other_fee.id, fee_type='EMD').first()
+        if current_other_fee is not None:
+            # other fee agency name
+            if current_other_fee.issuing_agency_name in _AIRPORT_AGENCY_CODE_:
+                return True
+        
+    return False

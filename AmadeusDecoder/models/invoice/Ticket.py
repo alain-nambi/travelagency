@@ -308,6 +308,13 @@ class Ticket(models.Model, BaseModel):
                     if emd_issuing_date == emd_segment_flight_date and is_emitted_in_airport:
                         self.is_subjected_to_fees = False
                 
+                if self.is_subjected_to_fees:
+                    if self.tickets.first() is not None:
+                        emd_related_segment = self.tickets.first().segment
+                        emd_segment_flight_date = emd_related_segment.departuretime.date()
+                        if emd_issuing_date == emd_segment_flight_date and is_emitted_in_airport:
+                            self.is_subjected_to_fees = False
+                
                 # check fee subjection based on description
                 for element in _NOT_FEED_:
                     if self.ticket_description is not None and self.ticket_description.find(element) > -1:

@@ -2289,6 +2289,8 @@ class PnrOnlyParser():
                                             ticket_obj.transport_cost = -1 * ticket_obj.transport_cost
                                             ticket_obj.tax = -1 * ticket_obj.tax
                                             ticket_obj.total = -1 * ticket_obj.total
+                                    # re-calibrate fee
+                                    ticket_obj.recalibrate_fee() 
                                     ticket_obj.save()
                                     ticket_obj.process_subcontract()
                                     print('saved: ' + ticket.number)

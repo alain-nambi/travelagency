@@ -615,8 +615,18 @@ class PnrOnlyParser():
                 try:
                     for info in flight_info:
                         if len(info.split('-')) > 1:
-                            departure_time = datetime.strptime(info.split('-')[0] + str(yearOfOperation) + ' ' + '00:00:00', '%d%b%Y %H:%M:%S')
+                            try:
+                                departure_time = datetime.strptime(info.split('-')[0] + str(yearOfOperation) + ' ' + '00:00:00', '%d%b%Y %H:%M:%S')
+                                temp_flight.departuretime = datetime(departure_time.year, departure_time.month, departure_time.day, departure_time.hour, departure_time.minute, departure_time.second, departure_time.microsecond, pytz.UTC)
+                            except:
+                                print('SVC date parsing: attempt no 1 failed !')
+                    # try if date can be found at the end of the SVC line when no description has been given
+                    if departure_time is None:
+                        try:
+                            departure_time = datetime.strptime(flight_info[-1] + str(yearOfOperation) + ' ' + '00:00:00', '%d%b%Y %H:%M:%S')
                             temp_flight.departuretime = datetime(departure_time.year, departure_time.month, departure_time.day, departure_time.hour, departure_time.minute, departure_time.second, departure_time.microsecond, pytz.UTC)
+                        except:
+                            print('SVC date parsing: attempt no 2 failed !')
                 except:
                     pass
                 if departure_time is None:

@@ -310,7 +310,7 @@ class Ticket(models.Model, BaseModel):
                 
                 # check fee subjection based on description
                 for element in _NOT_FEED_:
-                    if self.ticket_description.find(element) > -1:
+                    if self.ticket_description is not None and self.ticket_description.find(element) > -1:
                         self.is_subjected_to_fees = False
                         break
                     

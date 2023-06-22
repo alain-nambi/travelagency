@@ -1889,7 +1889,7 @@ def get_ticket_cancel_void_status(ticket):
     is_cancelled = False
     ticket_line_canceller = OthersFee.objects.filter(ticket_id=ticket.id)
 
-    if ticket_line_canceller.exists() and not ticket.is_subjected_to_fees and not ticket.is_invoiced:
+    if ticket_line_canceller.exists() and not ticket.is_subjected_to_fees and ticket.is_invoiced:
         is_cancelled = True
     else:
         is_cancelled= False
@@ -1902,7 +1902,7 @@ def get_other_fee_cancel_void_status(other_fee):
     is_cancelled = False
     other_fee_line_canceller = OthersFee.objects.filter(other_fee_id=other_fee.id) # type: ignore
 
-    if other_fee_line_canceller.exists() and not other_fee.is_subjected_to_fee and not other_fee.is_invoiced:
+    if other_fee_line_canceller.exists() and not other_fee.is_subjected_to_fee and other_fee.is_invoiced:
         is_cancelled = True
     else:
         is_cancelled= False

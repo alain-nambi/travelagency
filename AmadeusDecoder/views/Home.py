@@ -531,44 +531,68 @@ def pnr_details(request, pnr_id):
     context['raw_data'] = pnr_detail.pnr_data.all().order_by('-data_datetime')
 
     # PNR not invoiced 
-    # if ticket have is_no_adc=False with total amount of 0, ticket_status=1 and is_invoiced=False
-    ticket_not_order = Ticket.objects.filter(pnr=pnr_id, is_invoiced=False, ticket_status=1).exclude(total=0)
-    ticket_no_adc_order = Ticket.objects.filter(pnr=pnr_id, is_invoiced=False, ticket_status=1).filter(Q(total=0) & Q(is_no_adc=True))
-    other_fee_order = OthersFee.objects.filter(pnr=pnr_id, is_invoiced=False, other_fee_status=1).filter(Q(total__gt=0))
-
-    ticket_ordered = Ticket.objects.filter(pnr=pnr_id, is_invoiced=True, ticket_status=1).exclude(total=0)
-    ticket_no_adc_ordered = Ticket.objects.filter(pnr=pnr_id, is_invoiced=True, ticket_status=1).filter(Q(total=0) & Q(is_no_adc=True))
-    other_fee_ordered = OthersFee.objects.filter(pnr=pnr_id, is_invoiced=True, other_fee_status=1).filter(Q(total__gt=0))
-
-    ticket_invoices = PassengerInvoice.objects.filter(pnr=pnr_id, is_invoiced=True, ticket__ticket_status=1).exclude(ticket=None)
-    other_fee_invoices = PassengerInvoice.objects.filter(pnr=pnr_id, is_invoiced=True, other_fee__other_fee_status=1).exclude(other_fee=None)
-    total_line = ticket_ordered.count() + ticket_no_adc_ordered.count() + other_fee_ordered.count()
-    total_invoice = ticket_invoices.count() + other_fee_invoices.count()
-    
-    print("*** DEBUGGING PNR INVOICE STATUS ***")
-    print("ticket_not_order: " + str(ticket_not_order))
-    print("ticket_no_adc_order: " + str(ticket_no_adc_order))
-    print("other_fee_order: " + str(other_fee_order))
-    print("ticket_ordered: " + str(ticket_ordered))
-    print("ticket_no_adc_ordered: " + str(ticket_no_adc_ordered))
-    print("other_fee_ordered: " + str(other_fee_ordered))
-    print("ticket_invoices: " + str(ticket_invoices))
-    print("other_fee_invoices: " + str(other_fee_invoices))
-    print("total_line: " + str(total_line))
-    print("total_invoice: " + str(total_invoice))
-    
     if pnr_detail.status_value == 0:
-        if ticket_not_order.exists() or other_fee_order.exists() or ticket_no_adc_order.exists():
+        __ticket_base = pnr_detail.tickets.filter(ticket_status=1).exclude(Q(total=0))
+        __other_fee_base = pnr_detail.others_fees.filter(other_fee_status=1, total__gt=0).exclude(~Q(ticket=None), ~Q(other_fee=None))
+        __ticket_no_adc_base = pnr_detail.tickets.filter(ticket_status=1, total=0, is_no_adc=True)
+
+        __cancellation = pnr_detail.others_fees.filter(Q(other_fee__in=__other_fee_base)|Q(ticket__in=__ticket_base) | Q(ticket__in=__ticket_no_adc_base))
+
+        __ticket = __ticket_base
+        __other_fee = __other_fee_base.exclude(pk__in=__cancellation)
+        __ticket_no_adc = __ticket_no_adc_base
+        print('__________Cancellation____________')
+        if __cancellation.exists():
+            for cancellation in __cancellation:
+                if cancellation.other_fee is not None:
+                    cancellation.other_fee.is_invoiced = True
+                    cancellation.other_fee.save()
+                if cancellation.ticket is not None:
+                    cancellation.ticket.is_invoiced = True
+                    cancellation.ticket.save()
+                cancellation.is_invoiced = True
+                cancellation.save()
+
+        if not __ticket.exists() and not __other_fee.exists() and not __ticket_no_adc.exists():
             pnr_detail.is_invoiced = False
             pnr_detail.save()
-
-        elif not ticket_not_order.exists() and not other_fee_order.exists() and not ticket_no_adc_order.exists():
-            if ticket_invoices.exists() or other_fee_invoices.exists():
-                if total_invoice == total_line:
-                    pnr_detail.is_invoiced = True
-                    pnr_detail.save()
-            elif not ticket_invoices.exists() and not other_fee_invoices.exists():
+        elif __ticket.exists() and not __other_fee.exists() and not __ticket_no_adc.exists():
+            print('Only ticket')
+            __ticket_not_ordered = __ticket.filter(is_invoiced=False)
+            if __ticket_not_ordered.exists():
                 pnr_detail.is_invoiced = False
+                pnr_detail.save()
+            else:
+                pnr_detail.is_invoiced = True
+                pnr_detail.save()
+        elif not __ticket.exists() and __other_fee.exists() and not __ticket_no_adc.exists():
+            print('Only other fee')
+            __other_fee_not_ordered = __other_fee.filter(is_invoiced=False)
+            if __other_fee_not_ordered.exists():
+                pnr_detail.is_invoiced = False
+                pnr_detail.save()
+            else:
+                pnr_detail.is_invoiced = True
+                pnr_detail.save()
+        elif not __ticket.exists() and not __other_fee.exists() and __ticket_no_adc.exists():
+            print('Only ticket no adc')
+            __ticket_no_adc_not_ordered = __ticket_no_adc.filter(is_invoiced=False)
+            if __ticket_no_adc_not_ordered.exists():
+                pnr_detail.is_invoiced = False
+                pnr_detail.save()
+            else:
+                pnr_detail.is_invoiced = True
+                pnr_detail.save()
+        else:
+            print('All of them')
+            __ticket_not_ordered = __ticket.filter(is_invoiced=False)
+            __other_fee_not_ordered = __other_fee.filter(is_invoiced=False)
+            __ticket_no_adc_not_ordered = __ticket_no_adc.filter(is_invoiced=False)
+            if __ticket_not_ordered.exists() or __other_fee_not_ordered.exists() or __ticket_no_adc_not_ordered.exists():
+                pnr_detail.is_invoiced = False
+                pnr_detail.save()
+            elif not __ticket_not_ordered.exists() and not __other_fee_not_ordered.exists() and not __ticket_no_adc_not_ordered.exists():
+                pnr_detail.is_invoiced = True
                 pnr_detail.save()
 
     return render(request,'pnr-details.html', context)
@@ -1029,8 +1053,8 @@ def get_order(request, pnr_id):
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
 
     
-    file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
-    customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
+    file_dir = 'D:\\Projects\\Django\\Issoufali\\travelagency\\AmadeusDecoder\\export'
+    customer_dir = 'D:\\Projects\\Django\\Issoufali\\travelagency\\AmadeusDecoder\\export'
     
 
 
@@ -1422,8 +1446,8 @@ def get_quotation(request, pnr_id):
     vendor_user = None
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
 
-    file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
-    customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
+    file_dir = 'D:\\Projects\\Django\\Issoufali\\travelagency\\AmadeusDecoder\\export'
+    customer_dir = 'D:\\Projects\\Django\\Issoufali\\travelagency\\AmadeusDecoder\\export'
 
     
 
@@ -1771,8 +1795,6 @@ def get_product(request, pnr_id):
         if product.exists():
             context['products'] = list(product.values())
     return JsonResponse(context)
-
-
 
 @login_required(login_url='index')
 def find_customer(request, pnr_id):

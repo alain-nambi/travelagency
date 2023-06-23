@@ -1460,3 +1460,19 @@ def is_issued_at_airport(ticket, other_fee):
                 return True
         
     return False
+
+# get flight cabin from segment's flight class
+@register.filter(name='flight_cabin')
+def get_segment_cabin(segment):
+    from AmadeusDecoder.models.invoice.ServiceFees import ClassCabin
+    
+    flight_cabin = ''
+    try:
+        related_pnr = segment.pnr
+        related_cabin = ClassCabin.objects.filter(sign__contains=[segment.flightclass], gdsprovider=related_pnr.type).first()
+        if related_cabin is not None:
+            return related_cabin.type
+    except Exception as e:
+        raise e
+        return flight_cabin
+    return flight_cabin

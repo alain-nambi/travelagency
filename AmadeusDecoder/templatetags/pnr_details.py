@@ -1473,6 +1473,5 @@ def get_segment_cabin(segment):
         if related_cabin is not None:
             return related_cabin.type
     except Exception as e:
-        raise e
+        print('Getting flight cabin encountered some error (templatetags/pnr_details.py (name=flight_cabin)): ', e)
         return flight_cabin
-    return flight_cabin

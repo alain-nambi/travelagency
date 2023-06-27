@@ -51,6 +51,34 @@ _AIRPORT_AGENCY_CODE_ = ['DZAUU000B']
 _CURRENT_TRAVEL_AGENCY_IDENTIFIER_ = ['Issoufali', 'ISSOUFALI', 'Mayotte ATO']
 _PASSENGER_NON_RELEVANT_ = ['N° FFP']
 
+ITINERARY_NAME = ["Itinéraire"]
+NOT_EMITTED_PNR_START_IDENTIFIER = ["VOTRE NUMERO DE DOSSIER"]
+NOT_EMITTED_PNR_START_PASSENGER = ["Noms des passagers"]
+NOT_EMITTED_PNR_START_BOOKING = ["Votre réservation :"]
+NOT_EMITTED_PNR_START_BOOKING_COST = ["Coût total de la réservation :"]
+NOT_EMITTED_PNR_START_OPC = ["Si vous ne payez pas votre réservation avant"]
+NOT_EMITTED_PNR_END_OPC = ["(heure locale de DZA), celle-ci sera AUTOMATIQUEMENT ANNULÉE."]
+TO_BE_EXCLUDED_PNR_RECIPIENT_EMAIL = ["issoufali.pnr@outlook.com"]
+
+EMD_REFERENCE_START = ["Référence PNR"]
+EMD_EXPIRY_DATE_START = ["Date d\'expiration"]
+EMD_COMMENT_START = ["Commentaire"]
+EMD_COST_START = ["Montant"]
+
+MAIN_PNR_NUMBER_START_IDENTIFIER = ["Dossier N"]
+PASSPORT_IDENTIFIER = ["passeport"]
+PASSENGER_IDENTIFIER = ["Nom du passager", "Numéro de billet", "Numéro de billet Service(s)", "Numéro de billetService(s)", "Numéro de", "billet"]
+PAYMENT_RECEIPT_IDENTIFIER = ["Reçu de paiement"]
+COMPANY_CURRENCY = ["EUR"]
+TOTAL_IDENTIFIER = ["Total"]
+PASSENGER_WORD_IDENTIFIER = ["passager"]
+PAYMENT_METHOD_IDENTIFIER = ["Forme de", "paiement"]
+ISSUING_DATE_IDENTIFIER = ["Date d'émission"]
+ISSUING_OFFICE_IDENTIFIER = ["Lieu d'émission"]
+COST_WORD_IDENTIFIER = ["Tarif"]
+MODIFICATION_IDENTIFIER = ["Différence tarifaire", "Pénalité d'échange"]
+TAX_IDENTIFIER = ["Taxes"]
+
 class ZenithParser():
     '''
     classdocs
@@ -129,7 +157,7 @@ class ZenithParser():
         content_parts = []
         try:
             for i in range(len(content)):
-                if content[i].startswith("Itinéraire"):
+                if content[i].startswith(ITINERARY_NAME[0]):
                     itinerary_index.append(i)
             
             for i in range(len(itinerary_index)):
@@ -173,7 +201,7 @@ class ZenithParser():
     def get_not_emitted_pnr_details(self, pnr, content):
         pnr_number = ''
         for element in content:
-            if element.startswith('VOTRE NUMERO DE DOSSIER'):
+            if element.startswith(NOT_EMITTED_PNR_START_IDENTIFIER[0]):
                 if len(element.split(':')) > 1:
                     pnr_number = element.split(':')[1].strip()
                     break
@@ -188,11 +216,11 @@ class ZenithParser():
         start_index = 0
         end_index = 0
         for j in range(len(content)):
-            if content[j].startswith('Noms des passagers'):
+            if content[j].startswith(NOT_EMITTED_PNR_START_PASSENGER[0]):
                 start_index = j
                 break
         for j in range(len(content)):
-            if content[j].startswith('Votre réservation :'):
+            if content[j].startswith(NOT_EMITTED_PNR_START_BOOKING[0]):
                 end_index = j
                 break
         
@@ -239,11 +267,11 @@ class ZenithParser():
         start_index = 0
         end_index = 0
         for j in range(len(content)):
-            if content[j].startswith('Votre réservation :'):
+            if content[j].startswith(NOT_EMITTED_PNR_START_BOOKING[0]):
                 start_index = j + 1
                 break
         for j in range(len(content)):
-            if content[j].startswith('Coût total de la réservation :'):
+            if content[j].startswith(NOT_EMITTED_PNR_START_BOOKING_COST[0]):
                 end_index = j
                 break
         
@@ -352,7 +380,7 @@ class ZenithParser():
     def get_not_emitted_pnr_opc(self, pnr_airsegments, content):
         opc_line = ''
         for line in content:
-            if line.startswith('Si vous ne payez pas votre réservation avant'):
+            if line.startswith(NOT_EMITTED_PNR_START_OPC[0]):
                 opc_line = line
                 break
         
@@ -361,7 +389,7 @@ class ZenithParser():
             temp_segment_opc.free_flow_text = opc_line
             temp_segment_opc.segment = segment
             try:
-                temp_opc_date = datetime.datetime.strptime(opc_line.removeprefix('Si vous ne payez pas votre réservation avant').removesuffix('(heure locale de DZA), celle-ci sera AUTOMATIQUEMENT ANNULÉE.').strip() + ':00', '%d/%m/%Y %H:%M:%S')
+                temp_opc_date = datetime.datetime.strptime(opc_line.removeprefix(NOT_EMITTED_PNR_START_OPC[0]).removesuffix(NOT_EMITTED_PNR_END_OPC[0]).strip() + ':00', '%d/%m/%Y %H:%M:%S')
                 temp_segment_opc.doc_date = datetime.datetime(temp_opc_date.year, temp_opc_date.month, temp_opc_date.day, temp_opc_date.hour, temp_opc_date.minute, temp_opc_date.second, temp_opc_date.microsecond, pytz.UTC)
             except:
                 pass
@@ -372,8 +400,8 @@ class ZenithParser():
     def get_not_emitted_pnr_fare(self, pnr, content):
         booking_cost = '0'
         for line in content:
-            if line.startswith('Coût total de la réservation :'):
-                booking_cost = line.removeprefix('Coût total de la réservation :').strip().replace(',', '.').removesuffix('\x80')
+            if line.startswith(NOT_EMITTED_PNR_START_BOOKING_COST[0]):
+                booking_cost = line.removeprefix(NOT_EMITTED_PNR_START_BOOKING_COST[0]).strip().replace(',', '.').removesuffix('\x80')
         temp_invoice_detail = InvoiceDetails.objects.filter(invoice__pnr=pnr).first()
         try:
             temp_invoice_detail.total = decimal.Decimal(booking_cost.replace(' ', ''))
@@ -438,7 +466,7 @@ class ZenithParser():
             if temp_pnr is not None:
                 if len(to_list) > 1:
                     temp_user = User.objects.filter(email=to_list[-1][1]).first()
-                    if temp_user is not None and to_list[-1][1] != 'issoufali.pnr@outlook.com' and to_list[-1][1] != 'issoufali.pnr@outlook.com'.upper():
+                    if temp_user is not None and to_list[-1][1] not in  TO_BE_EXCLUDED_PNR_RECIPIENT_EMAIL and to_list[-1][1] not in  TO_BE_EXCLUDED_PNR_RECIPIENT_EMAIL.upper():
                         # assign creator agent
                         temp_pnr.agent = temp_user
                         temp_pnr.save()
@@ -464,24 +492,24 @@ class ZenithParser():
         is_emd = False
         for i in range(len(content)):
             line = content[i]
-            if line.startswith('Référence PNR'):
+            if line.startswith(EMD_REFERENCE_START[0]):
                 try:
                     is_emd = True
                     pnr_number = line.split(' ')[-1]
                 except:
                     traceback.print_exc()
-            if line.startswith('Date d\'expiration'):
+            if line.startswith(EMD_EXPIRY_DATE_START[0]):
                 try:
                     # opc = content[i + 1]
                     ''''''
                 except:
                     traceback.print_exc()
-            if line.startswith('Commentaire'):
+            if line.startswith(EMD_COMMENT_START[0]):
                 try:
                     description = content[i + 1]
                 except:
                     traceback.print_exc()
-            if line.startswith('Montant'):
+            if line.startswith(EMD_COST_START[0]):
                 try:
                     ticket_number = content[i + 2]
                     cost = decimal.Decimal(content[i + 1].split(' ')[0].replace(',', '.'))
@@ -540,7 +568,7 @@ class ZenithParser():
             pnr.status_value = 0
             pnr.state = 0
             for i in range(len(content)):
-                if content[i].startswith('Dossier N'):
+                if content[i].startswith(MAIN_PNR_NUMBER_START_IDENTIFIER[0]):
                     document_name_split = content[i].strip().split(' ')
                     if len(document_name_split) == 2:
                         if len(content[i-1]) == 6:
@@ -753,22 +781,25 @@ class ZenithParser():
         tickets = []
         index_start = 0
         index_end = 0
+        
         for i in range(len(content)):
-            if content[i] == 'Nom du passager' and (content[i + 1] == 'Numéro de billet' or content[i + 1] == 'Numéro de billet Service(s)' or content[i + 1] == 'Numéro de billetService(s)' or (content[i + 1] == 'Numéro de' and content[i + 2] == 'billet' if i < len(content) - 3 else '')):
-                if content[i] == 'Nom du passager' and content[i + 1] == 'Numéro de billet':
+            if content[i] == PASSENGER_IDENTIFIER[0] and (content[i + 1] == PASSENGER_IDENTIFIER[1] \
+                    or content[i + 1] == PASSENGER_IDENTIFIER[2] or content[i + 1] == PASSENGER_IDENTIFIER[3] \
+                    or (content[i + 1] == PASSENGER_IDENTIFIER[4] and content[i + 2] == PASSENGER_IDENTIFIER[5] if i < len(content) - 3 else '')):
+                if content[i] == PASSENGER_IDENTIFIER[0] and content[i + 1] == PASSENGER_IDENTIFIER[1]:
                     index_start = i + 6
-                elif content[i] == 'Nom du passager' and (content[i + 1] == 'Numéro de billet Service(s)' or content[i + 1] == 'Numéro de billetService(s)'):
+                elif content[i] == PASSENGER_IDENTIFIER[0] and (content[i + 1] == PASSENGER_IDENTIFIER[2] or content[i + 1] == PASSENGER_IDENTIFIER[3]):
                     index_start = i + 5
-                elif content[i] == 'Nom du passager' and (content[i + 1] == 'Numéro de' and content[i + 2] == 'billet' if i < len(content) - 3 else ''):
+                elif content[i] == PASSENGER_IDENTIFIER[0] and (content[i + 1] == PASSENGER_IDENTIFIER[4] and content[i + 2] == PASSENGER_IDENTIFIER[5] if i < len(content) - 3 else ''):
                     index_start = i + 7
                 
                 if index_start > 0:
-                    if content[index_start].strip() == 'passeport':
+                    if content[index_start].strip() in PASSPORT_IDENTIFIER:
                         index_start += 1
             elif content[i] in _e_ticket_possible_format_:
                 index_end = i
                 break
-            elif content[i].startswith('Dossier N'):
+            elif content[i].startswith(MAIN_PNR_NUMBER_START_IDENTIFIER[0]):
                 index_end = i - 2
                 break
         
@@ -863,7 +894,7 @@ class ZenithParser():
             i = 0
             while i < len(content):
                 part.append(content[start_index + i])
-                if content[start_index + i + 1] in _header_names_ and content[start_index + i + 1] != 'Reçu de paiement':
+                if content[start_index + i + 1] in _header_names_ and content[start_index + i + 1] not in PAYMENT_RECEIPT_IDENTIFIER:
                     break
                 if start_index + i == len(content) - 2:
                     break
@@ -1008,7 +1039,7 @@ class ZenithParser():
                 # more than one passengers are on the same segment part with the same type
                 if passenger_count > 1:
                     if content_element in _currencies_:
-                        first_passenger_fare_index = part.index('EUR') + 1
+                        first_passenger_fare_index = part.index(COMPANY_CURRENCY[0]) + 1
                         fare_index = first_passenger_fare_index
                         tax_index = fare_index + passenger_count
                         total_index = tax_index + passenger_count
@@ -1032,7 +1063,7 @@ class ZenithParser():
                         break
                 # one passenger is on the segment part under one type
                 elif passenger_count == 1:
-                    first_passenger_fare_index = part.index('EUR') + 1
+                    first_passenger_fare_index = part.index(COMPANY_CURRENCY[0]) + 1
                     fare_index = first_passenger_fare_index
                     tax_index = fare_index + passenger_count
                     total_index = tax_index + passenger_count
@@ -1089,7 +1120,7 @@ class ZenithParser():
         # get indexes of all "Total" keywords
         total_keyword_indexes = []
         for i in range(len(ancillaries_part)):
-            if ancillaries_part[i] == 'Total' or ancillaries_part[i].startswith('Total'):
+            if ancillaries_part[i] == TOTAL_IDENTIFIER[0] or ancillaries_part[i].startswith(TOTAL_IDENTIFIER[0]):
                 total_keyword_indexes.append(i)
         
         if len(total_keyword_indexes) > 1:
@@ -1111,10 +1142,10 @@ class ZenithParser():
             current_value_split = current_value.split('-')
             skip = False
             if current_value_split[0].strip() in destination_airports:
-                if ancillaries_part[i - 1].endswith('EUR'):
+                if ancillaries_part[i - 1].endswith(COMPANY_CURRENCY[0]):
                     segment_binding_index.append(i - interval)
                 else:
-                    if not ancillaries_part[i - 2].endswith('EUR') and 'passager' not in ancillaries_part[i - 2].split(' '):
+                    if not ancillaries_part[i - 2].endswith(COMPANY_CURRENCY[0]) and PASSENGER_WORD_IDENTIFIER[0] not in ancillaries_part[i - 2].split(' '):
                         temp_ancillary_name = ancillaries_part[i - 2] + ' ' + ancillaries_part[i - 1]
                         temp_ancillary_lines.pop()
                         temp_ancillary_lines.pop()
@@ -1155,12 +1186,12 @@ class ZenithParser():
                     index_start = 2
             
             for one_type_part_element in range(index_start, len(one_type_part)):
-                if one_type_part[one_type_part_element].strip() == 'EUR':
+                if one_type_part[one_type_part_element].strip() == COMPANY_CURRENCY[0]:
                     checker = False
                     if one_type_part_element == len(one_type_part) - 1:
                         checker = True
                     elif one_type_part_element < len(one_type_part) - 1:
-                        if one_type_part[one_type_part_element+1].strip() == 'Total':
+                        if one_type_part[one_type_part_element+1].strip() in TOTAL_IDENTIFIER:
                             checker = True
                         elif one_type_part[one_type_part_element+1].split(' ')[0] in _passenger_designations_:
                             checker = True
@@ -1182,7 +1213,7 @@ class ZenithParser():
                         
                         temp_line = {'ancillary_name': ancillary_name, 'flight_and_date': flight_and_date, 'passenger_name': passenger_name, 'quantity': quantity, 'total': total}
                         ancillary_lines.append(temp_line)
-                elif one_type_part[one_type_part_element].endswith('EUR') and one_type_part[one_type_part_element-1].strip() != 'Total':
+                elif one_type_part[one_type_part_element].endswith(COMPANY_CURRENCY[0]) and one_type_part[one_type_part_element-1].strip() not in TOTAL_IDENTIFIER:
                     passenger_name = ''
                     quantity = ''
                     total = ''
@@ -1300,15 +1331,15 @@ class ZenithParser():
             temp_info = other_info_part[i]
             if i < len(other_info_part) - 1:
                 temp_info_next = other_info_part[i + 1]
-            
+        
             # form of payment
-            if temp_info.startswith('Forme de'):
-                if temp_info_next.startswith('paiement'):
+            if temp_info.startswith(PAYMENT_METHOD_IDENTIFIER[0]):
+                if temp_info_next.startswith(PAYMENT_METHOD_IDENTIFIER[1]):
                     payment_option = other_info_part[i + 2]
                 else:
                     payment_option = temp_info_next
             # issuing date
-            if temp_info.startswith("Date d'émission"):
+            if temp_info.startswith(ISSUING_DATE_IDENTIFIER[0]):
                 temp_issuing_date = ''
                 if temp_info_next != ':':
                     temp_issuing_date = temp_info_next
@@ -1326,15 +1357,15 @@ class ZenithParser():
                 except:
                     pass
             # issuing agency
-            if temp_info.startswith("Lieu d'émission"):
+            if temp_info.startswith(ISSUING_OFFICE_IDENTIFIER[0]):
                 j = i + 1
                 while True:
-                    if other_info_part[j].startswith('Tarif') or j == len(other_info_part):
+                    if other_info_part[j].startswith(COST_WORD_IDENTIFIER[0]) or j == len(other_info_part):
                         break
                     issuing_office += other_info_part[j] + ' '
                     j += 1
             # modification state
-            if temp_info.startswith("Différence tarifaire") or temp_info.startswith("Pénalité d'échange"):
+            if temp_info.startswith(MODIFICATION_IDENTIFIER[0]) or temp_info.startswith(MODIFICATION_IDENTIFIER[1]):
                 temp_ancillary = OthersFee()
                 temp_ancillary.fee_type = 'TKT'
                 temp_ancillary.designation = temp_info
@@ -1342,9 +1373,9 @@ class ZenithParser():
                     temp_ancillary.cost = decimal.Decimal(other_info_part[i+1].split(' ')[0].replace(',', '.'))
                     temp_ancillary.total = temp_ancillary.cost
                     temp_ancillary.quantity = 1
-                    if temp_info.startswith("Différence tarifaire"):
+                    if temp_info.startswith(MODIFICATION_IDENTIFIER[0]):
                         ancillaries.append(temp_ancillary)
-                    if temp_info.startswith("Pénalité d'échange"):
+                    if temp_info.startswith(MODIFICATION_IDENTIFIER[1]):
                         temp_ancillary.cost = ancillaries[0].cost + decimal.Decimal(other_info_part[i+1].split(' ')[0].replace(',', '.'))
                         temp_ancillary.total = temp_ancillary.cost
                         temp_ancillary.designation = "Différence tarifaire + Pénalité d'échange"
@@ -1356,11 +1387,11 @@ class ZenithParser():
                         error_file.write('\n')
                 j += 1
             # taxes
-            if temp_info.startswith("Taxes"):
+            if temp_info.startswith(TAX_IDENTIFIER[0]):
                 try:
-                    index_of_taxes = other_info_part.index("Taxes") + 1
+                    index_of_taxes = other_info_part.index(TAX_IDENTIFIER[0]) + 1
                     for a in range(index_of_taxes, len(other_info_part)):
-                        if other_info_part[a] == "Total":
+                        if other_info_part[a] in TOTAL_IDENTIFIER:
                             break
                         taxes_part += other_info_part[a]
                 except:

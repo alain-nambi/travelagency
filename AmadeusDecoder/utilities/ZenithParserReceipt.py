@@ -27,6 +27,12 @@ TICKET_PAYMENT_PART = ["Paiement Billet"]
 ADJUSTMENT_PART = ["Reissuance Adjustment"]
 EMD_CANCELLATION_PART = ["Annulation ancillaries"]
 TICKET_CANCELLATION_PART = ["Ticket void", "Remboursement"]
+BALANCING_STATEMENT_PART = ["Balancing"]
+PENALTY_PART = ["Pénalité"]
+AGENCY_FEE_PART = ["Frais d'agence"]
+
+EMD_NO_NUMBER_POSSIBLE_DESIGNATION = ['bagage', 'equipement', 'instrument']
+DEFAULT_ASSIGNED_PASSENGER_ON_OBJECT = ['Adulte(s)']
 
 class ZenithParserReceipt():
     '''
@@ -186,7 +192,7 @@ class ZenithParserReceipt():
         
         if part_passenger is None:
             for passenger in passengers:
-                if passenger.types != 'Adulte(s)':
+                if passenger.types in DEFAULT_ASSIGNED_PASSENGER_ON_OBJECT:
                     part_passenger = passenger
                     break
             if part_passenger is None:
@@ -522,7 +528,7 @@ class ZenithParserReceipt():
             # new emd to be inserted
             new_emd = OthersFee()
             new_emd.pnr = pnr
-            part_name_index = self.get_target_part_index(part, ["Annulation ancillaries"])
+            part_name_index = self.get_target_part_index(part, EMD_CANCELLATION_PART)
             if part_name_index is not None:
                 new_emd.designation = part[part_name_index + 1]
             
@@ -660,12 +666,12 @@ class ZenithParserReceipt():
     def handle_emd_no_number(self, pnr, current_passenger, current_segment, is_created_by_us, cost, total, date_time, emd_single_part):
         is_balancing_statement = False
         
-        designation_index = self.get_target_part_index_extended(emd_single_part, ['bagage', 'equipement', 'instrument'])
+        designation_index = self.get_target_part_index_extended(emd_single_part, EMD_NO_NUMBER_POSSIBLE_DESIGNATION)
         
         # check if current line is just an EMD Balancing Statement
-        if designation_index == 0 and self.get_target_part_index_extended(emd_single_part, ['Balancing']) > 0:
+        if designation_index == 0 and self.get_target_part_index_extended(emd_single_part, BALANCING_STATEMENT_PART) > 0:
             is_balancing_statement = True
-            designation_index = self.get_target_part_index_extended(emd_single_part, ['Balancing'])
+            designation_index = self.get_target_part_index_extended(emd_single_part, BALANCING_STATEMENT_PART)
         
         designation = None
         if designation_index > 0:
@@ -734,10 +740,10 @@ class ZenithParserReceipt():
             date_time = self.get_issuing_date_on_part(part)
             current_passenger, next_index = self.get_passenger_assigned_on_part(passengers, part)
             current_segment = self.get_segments_assigned_on_part(part)
-            part_name_index = self.get_target_part_index(part, ["Pénalité"])
+            part_name_index = self.get_target_part_index(part, PENALTY_PART)
             
             # skip "Frais d'agence"
-            internal_fee = self.get_target_part_index(part, ["Frais d'agence"])
+            internal_fee = self.get_target_part_index(part, AGENCY_FEE_PART)
             if internal_fee != 0:
                 continue
             

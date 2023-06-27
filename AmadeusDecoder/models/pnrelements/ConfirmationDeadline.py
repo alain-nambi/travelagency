@@ -43,7 +43,7 @@ class ConfirmationDeadline(models.Model, BaseModel):
         elif hasattr(self, 'ssr'):
             return ConfirmationDeadline.objects.filter(ssr__id=self.ssr.id, type='OPC').first()
         else:
-            return None        
+            return None    
     
     # get the confirmation deadline of ssrs in modal
     def get_confirmation_deadline_ssr_modal(self):

@@ -56,11 +56,11 @@ def process_data_control() :
 
     
 
-'Function checking call every second that will whech in ftp if there are new csv of products'
-def running_product_synhcro():
-    from AmadeusDecoder.utilities.FtpConnection import download_file
-    product_dir = '/export/products'
-    download_file(product_dir)
+# 'Function checking call every second that will whech in ftp if there are new csv of products'
+# def running_product_synhcro():
+#     from AmadeusDecoder.utilities.FtpConnection import download_file
+#     product_dir = '/export/products'
+#     download_file(product_dir)
 
 
 def checking_pnr_missing():

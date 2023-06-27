@@ -30,6 +30,7 @@ class Client(models.Model, BaseModel):
     chart_of_accounts = models.CharField(max_length=50, default=None, null=True)
     date_creation = models.DateTimeField(auto_now=True, null=True)
     creator = models.ForeignKey('AmadeusDecoder.User', on_delete=models.CASCADE, null=True, default=None)
+    odoo_id = models.IntegerField(default=None, null=True)
 
     def __str__(self):
         display = ''

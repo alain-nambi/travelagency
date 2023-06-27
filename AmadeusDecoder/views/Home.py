@@ -6,9 +6,10 @@ import csv
 import os
 import json
 import secrets 
-from datetime import datetime
+from datetime import datetime, timezone
 import requests
 import random
+import pandas as pd
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render
@@ -55,7 +56,42 @@ def home(request):
             is_invoiced = False
     except:
         is_invoiced = False
-    
+        
+    # Récupère la valeur de l'objet cookie nommé "dateRangeFilter"
+    date_range_filter = request.COOKIES.get('dateRangeFilter')
+
+    # Initialise les variables start_date et end_date à None
+    start_date, end_date = None, None
+
+    # Vérifie si date_range_filter contient une valeur non nulle ou non vide
+    if date_range_filter:
+
+        # Itère sur une liste des formats de date possibles pour la conversion
+        for format in ("%d-%m-%Y", "%Y-%m-%d"):
+
+            try:
+                # Convertit les deux dates start_date et end_date à partir de la chaîne de date dans date_range_filter
+                start_date, end_date = [datetime.strptime(d, format) for d in date_range_filter.split(" * ")]
+
+                # Rend les deux dates timezone-aware en utilisant le fuseau horaire UTC
+                start_date = datetime(start_date.year, start_date.month, start_date.day, 0, 0, 0, tzinfo=timezone.utc)
+                end_date = datetime(end_date.year, end_date.month, end_date.day, 23, 59, 59, tzinfo=timezone.utc)
+
+                # Sort de la boucle for si la conversion réussit
+                break
+                
+            except ValueError:
+                # Passe à l'essai suivant si la conversion échoue
+                pass
+
+    # print("Date de début:", start_date)
+    # print("Date de fin:", end_date)
+
+    try:
+        status_value_from_cookie = int(request.COOKIES.get('filter_pnr_by_status'))
+    except:
+        status_value_from_cookie = 0
+
     creation_date_order_by = request.COOKIES.get('creation_date_order_by')
     # desc : date order by descending
     # asc : date order by ascending
@@ -70,52 +106,161 @@ def home(request):
         date_order_by = "-"
     # Set max timezone
     maximum_timezone = "2023-01-01 01:00:00.000000+03:00"
+    
     filtered_creator = request.COOKIES.get('creator_pnr_filter')
     print("Creator: " + str(filtered_creator))
     print(type(filtered_creator))
+
+    # Retrieve the value of the "isSortedByCreator" cookie from the request
+    is_sorter_by_creator = request.COOKIES.get('isSortedByCreator')
+
+    # Initialize the sort_creator variable to a default value
+    # Set order_by username ascendant
+    sort_creator = None
+
+    # Determine the value of "sort_creator" based on the value of the cookie
+    if is_sorter_by_creator is not None:
+        sort_creator = is_sorter_by_creator
+
+    # print(sort_creator)
     
     if request.user.id in [4, 5]: #==> [Farida et Mouniati peuvent voir chacun l'ensemble de leurs pnr]
         pnr_list = []
         pnr_count = 0
         issuing_users = request.user.copied_documents.all()
+
+        # Create date filter query object or an empty query object if dates are absent
+        date_filter = Q(system_creation_date__range=[start_date, end_date]) if start_date and end_date else Q()
+        max_system_creation_date = Q(system_creation_date__gt=maximum_timezone)
+        status_value = Q(status_value=status_value_from_cookie) if status_value_from_cookie in [0, 1] else Q()
         
         if is_invoiced is None:
             for issuing_user in issuing_users:
-                pnr = Pnr.objects.filter(number=issuing_user.document).filter(Q(system_creation_date__gt=maximum_timezone)).first()
+                pnr =   Pnr.objects.filter(
+                            number=issuing_user.document, 
+                        ).filter(
+                            status_value,
+                            date_filter,
+                            max_system_creation_date,
+                        ).first()
+                    
                 if pnr not in pnr_list and pnr is not None:
                     pnr_list.append(pnr)
-        
-            pnr_obj = Pnr.objects.filter(Q(agent_id=filtered_creator)).filter(Q(system_creation_date__gt=maximum_timezone), Q(status_value=0)).all().order_by(date_order_by + 'system_creation_date')
-            
+
+            agent = Q()
+            if filtered_creator is not None:
+                agent = Q(agent_id=filtered_creator)
+            else:
+                agent = Q(agent_id=4) | Q(agent_id=5)
+
+            pnr_obj =   Pnr.objects.filter(
+                            status_value,
+                        ).filter(
+                            date_filter,
+                            agent,
+                            max_system_creation_date,
+                        ).order_by(date_order_by + 'system_creation_date')
+                    
             for pnr in pnr_obj:
                 if pnr not in pnr_list:
                     pnr_list.append(pnr)
 
-            if date_order_by == "-" :
-                pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=True)
-            else :
-                pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=False)
+            # Sort the list based on the agent username or system creation date
+            if sort_creator is not None:
+                if sort_creator == 'agent__username':
+                    # Sort Pnrs by agent's username and agent_id None in the last part of list
+                    pnr_list = sorted(
+                        pnr_list, 
+                        key=lambda pnr: (
+                            pnr.agent is None, 
+                            pnr.agent.username if pnr.agent else ''
+                        ), 
+                        reverse=False
+                    )
+                elif sort_creator == '-agent__username':
+                    # Sort Pnrs by agent's username in reverse order and agent_id None in the last part of list
+                    pnr_list = sorted(
+                        pnr_list, 
+                        key=lambda pnr: (
+                            pnr.agent.username if pnr.agent else ''
+                        ), 
+                        reverse=True
+                    )
+            else:
+                # If no sorting parameter provided, sort by system creation date
+                if date_order_by == "-":
+                    # Sort Pnrs by system creation date in reverse order
+                    pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=True)
+                else:
+                    # Sort Pnrs by system creation date in ascending order
+                    pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=False)
 
-        
             pnr_count = len(pnr_list)
         else:
             for issuing_user in issuing_users:
-                pnr = Pnr.objects.filter(number=issuing_user.document).filter(Q(system_creation_date__gt=maximum_timezone)).filter(is_invoiced=is_invoiced).first()
+                pnr   = Pnr.objects.filter(
+                            number=issuing_user.document,
+                        ).filter(
+                            status_value,
+                            date_filter,
+                            max_system_creation_date,
+                        ).filter(is_invoiced=is_invoiced).first()
+                
                 if pnr not in pnr_list and pnr is not None:
                     pnr_list.append(pnr)
-        
-            pnr_obj = Pnr.objects.filter(Q(agent_id=filtered_creator)).filter(Q(system_creation_date__gt=maximum_timezone)).filter(is_invoiced=is_invoiced).all().order_by(date_order_by + 'system_creation_date')
+
+            agent = Q()
+            if filtered_creator is not None:
+                agent = Q(agent_id=filtered_creator)
+            else:
+                agent = Q(agent_id=4) | Q(agent_id=5)
+
+            pnr_obj   = Pnr.objects.filter(
+                            status_value,
+                        ).filter( 
+                            date_filter,
+                            agent,
+                            max_system_creation_date,
+                        ).filter(is_invoiced=is_invoiced).order_by(date_order_by + 'system_creation_date')
             
             for pnr in pnr_obj:
                 if pnr not in pnr_list:
                     pnr_list.append(pnr)
 
-            if date_order_by == "-" :
-                pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=True)
-            else :
-                pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=False)
-        
+            # Sort the list based on the agent username or system creation date
+            if sort_creator is not None:
+                if sort_creator == 'agent__username':
+                    # Sort Pnrs by agent's username and agent_id None in the last part of list
+                    pnr_list = sorted(
+                        pnr_list, 
+                        key=lambda pnr: (
+                            pnr.agent is None, 
+                            pnr.agent.username if pnr.agent else ''
+                        ), 
+                        reverse=False
+                    )
+                elif sort_creator == '-agent__username':
+                    # Sort Pnrs by agent's username in reverse order and agent_id None in the last part of list
+                    pnr_list = sorted(
+                        pnr_list, 
+                        key=lambda pnr: (
+                            pnr.agent.username if pnr.agent else ''
+                        ), 
+                        reverse=True
+                    )
+            else:
+                # If no sorting parameter provided, sort by system creation date
+                if date_order_by == "-":
+                    # Sort Pnrs by system creation date in reverse order
+                    pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=True)
+                else:
+                    # Sort Pnrs by system creation date in ascending order
+                    pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=False)
+
             pnr_count = len(pnr_list)
+            
+            print("PNR COUNT")
+            print(pnr_count)
         
         context['pnr_list'] = pnr_list
         object_list = context['pnr_list']
@@ -137,32 +282,95 @@ def home(request):
         pnr_list = []
         pnr_count = 0
         issuing_users = request.user.copied_documents.all()
-        
-        if is_invoiced is not None:
-            for issuing_user in issuing_users:
-                pnr = Pnr.objects.filter(number=issuing_user.document).filter(Q(system_creation_date__gt=maximum_timezone)).filter(is_invoiced=is_invoiced).first()
-                if pnr not in pnr_list and pnr is not None:
-                    pnr_list.append(pnr)
-                    
-            pnr_obj = Pnr.objects.filter(Q(agent_id=filtered_creator) | Q(agent_id=None)).filter(Q(system_creation_date__gt=maximum_timezone)).filter(is_invoiced=is_invoiced).all().order_by(date_order_by + 'system_creation_date')
-            for pnr in pnr_obj:
-                if pnr not in pnr_list:
-                    pnr_list.append(pnr)
 
-            if date_order_by == "-" :
+        status_value = Q(status_value=status_value_from_cookie) if status_value_from_cookie in [0, 1] else Q()
+        is_invoiced = Q(is_invoiced=is_invoiced) if is_invoiced is not None else Q(is_invoiced=False)
+
+        for issuing_user in issuing_users:                
+            # Create date filter query object or an empty query object if dates are absent
+            date_filter = Q(system_creation_date__range=[start_date, end_date]) if start_date and end_date else Q()
+            max_system_creation_date = Q(system_creation_date__gt=maximum_timezone)
+
+            # Get the Pnr object matching criteria in the query
+            pnr =   Pnr.objects.filter(
+                        number=issuing_user.document, 
+                    ).filter(
+                        is_invoiced,
+                        status_value,
+                        date_filter,
+                        max_system_creation_date
+                    ).first()
+
+            # If Pnr is not already in the set and is not None, add it to the set and the list
+            if pnr not in pnr_list and pnr is not None:
+                pnr_list.append(pnr)
+
+        print(f"PNR list without issuing users: {len(pnr_list)}")
+
+        # Create date filter query object or an empty query object if dates are absent
+        date_filter = Q(system_creation_date__range=[start_date, end_date]) if start_date and end_date else Q()
+
+        agent = Q()
+        if filtered_creator is not None:
+            agent = Q(agent_id=filtered_creator)
+        else:
+            agent = Q(agent_id=request.user.id) | Q(agent_id=None)
+
+        max_system_creation_date = Q(system_creation_date__gt=maximum_timezone)
+        
+        # Get the Pnr objects matching criteria in the query, filtered by agent and date constraints
+        pnr_obj =   Pnr.objects.filter(
+                        date_filter,
+                        agent,
+                        max_system_creation_date,
+                        status_value,
+                    ).filter(
+                        is_invoiced,
+                    ).order_by(
+                        date_order_by + 'system_creation_date'
+                    )
+
+        # Get all PNRs that are not in the list
+        for pnr in pnr_obj:
+            if pnr not in pnr_list:
+                pnr_list.append(pnr)
+
+        print(f"PNR list with issuing users: {len(pnr_list)}")
+
+        # Sort the list based on the agent username or system creation date
+        if sort_creator is not None:
+            if sort_creator == 'agent__username':
+                # Sort Pnrs by agent's username and agent_id None in the last part of list
+                pnr_list = sorted(
+                    pnr_list, 
+                    key=lambda pnr: (
+                        pnr.agent is None, 
+                        pnr.agent.username if pnr.agent else ''
+                    ), 
+                    reverse=False
+                )
+            elif sort_creator == '-agent__username':
+                # Sort Pnrs by agent's username in reverse order and agent_id None in the last part of list
+                pnr_list = sorted(
+                    pnr_list, 
+                    key=lambda pnr: (
+                        pnr.agent.username if pnr.agent else ''
+                    ), 
+                    reverse=True
+                )
+        else:
+            # If no sorting parameter provided, sort by system creation date
+            if date_order_by == "-":
+                # Sort Pnrs by system creation date in reverse order
                 pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=True)
-            else :
+            else:
+                # Sort Pnrs by system creation date in ascending order
                 pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=False)
-            
-            pnr_count = len(pnr_list)
         
-        # if is_invoiced == None:
-        #     pnr_list = Pnr.objects.filter(Q(agent_id=request.user.id)).filter(Q(system_creation_date__gt=maximum_timezone)).all().order_by(date_order_by + 'system_creation_date')
-        #     pnr_count = Pnr.objects.filter(Q(agent_id=request.user.id)).filter(Q(system_creation_date__gt=maximum_timezone)).count()
-        # else:
-        #     pnr_list = Pnr.objects.filter(Q(agent_id=request.user.id )).filter(Q(system_creation_date__gt=maximum_timezone)).filter(is_invoiced=is_invoiced).all().order_by(date_order_by + 'system_creation_date')
-        #     pnr_count = Pnr.objects.filter(Q(agent_id=request.user.id)).filter(Q(system_creation_date__gt=maximum_timezone)).filter(is_invoiced=is_invoiced).count()
-        
+        # Compute count of Pnrs in the list
+        pnr_count = len(pnr_list)
+
+
         context['pnr_list'] = pnr_list
         object_list = context['pnr_list']
         context['pnr_count'] = pnr_count
@@ -179,21 +387,108 @@ def home(request):
         context['users'] = users
         return render(request,'home.html', context)
     else:
+        status_value = Q(status_value=status_value_from_cookie) if status_value_from_cookie in [0, 1] else Q()
+
         if filtered_creator != '0' and filtered_creator is not None: 
-            if is_invoiced == None:
-                pnr_list = Pnr.objects.filter(Q(agent_id=filtered_creator)).all().order_by(date_order_by + 'system_creation_date').filter(Q(system_creation_date__gt=maximum_timezone)) # <======= IMPORTANT
-                pnr_count = Pnr.objects.filter(Q(agent_id=filtered_creator)).all().filter(Q(system_creation_date__gt=maximum_timezone)).count()
+            max_system_creation_date = Q(system_creation_date__gt=maximum_timezone)
+
+            # Create date filter query object or an empty query object if dates are absent
+            date_filter = Q(system_creation_date__range=[start_date, end_date]) if start_date and end_date else Q()
+
+            pnr_queryset  = Pnr.objects.filter(
+                                agent_id=filtered_creator
+                            ).filter(
+                                status_value,
+                                max_system_creation_date,
+                                date_filter,
+                            )
+
+            if is_invoiced is not None:
+                pnr_queryset =  pnr_queryset.filter(Q(is_invoiced=is_invoiced))
+
+            # Sort the list based on the agent username or system creation date
+            if sort_creator is not None:
+                if sort_creator == 'agent__username':
+                    # Sort Pnrs by agent's username and agent_id None in the last part of list
+                    pnr_list = sorted(
+                        pnr_queryset, 
+                        key=lambda pnr: (
+                            pnr.agent is None, 
+                            pnr.agent.username if pnr.agent else ''
+                        ), 
+                        reverse=False
+                    )
+                elif sort_creator == '-agent__username':
+                    # Sort Pnrs by agent's username in reverse order and agent_id None in the last part of list
+                    pnr_list = sorted(
+                        pnr_queryset, 
+                        key=lambda pnr: (
+                            pnr.agent.username if pnr.agent else ''
+                        ), 
+                        reverse=True
+                    )
             else:
-                pnr_list = Pnr.objects.filter(Q(agent_id=filtered_creator)).all().order_by(date_order_by + 'system_creation_date').filter(Q(system_creation_date__gt=maximum_timezone)).filter(is_invoiced=is_invoiced)
-                pnr_count = Pnr.objects.filter(Q(agent_id=filtered_creator)).all().filter(Q(system_creation_date__gt=maximum_timezone)).filter(is_invoiced=is_invoiced).count()
+                # If no sorting parameter provided, sort by system creation date
+                if date_order_by == "-":
+                    # Sort Pnrs by system creation date in reverse order
+                    pnr_list = sorted(pnr_queryset, key=lambda pnr: pnr.system_creation_date, reverse=True)
+                else:
+                    # Sort Pnrs by system creation date in ascending order
+                    pnr_list = sorted(pnr_queryset, key=lambda pnr: pnr.system_creation_date, reverse=False)
+
+            pnr_list = list(pnr_list)
+            pnr_count = pnr_queryset.count()
+
             print('Not all')
         elif filtered_creator == '0' or filtered_creator is None: ##### Si 'Tout' est sélectionner dans le filtre créateur
-            if is_invoiced == None:
-                pnr_list = Pnr.objects.all().order_by(date_order_by + 'system_creation_date').filter(Q(system_creation_date__gt=maximum_timezone)) # <======= IMPORTANT
-                pnr_count = Pnr.objects.all().filter(Q(system_creation_date__gt=maximum_timezone)).count()
+            max_system_creation_date = Q(system_creation_date__gt=maximum_timezone)
+
+            # Create date filter query object or an empty query object if dates are absent
+            date_filter = Q(system_creation_date__range=[start_date, end_date]) if start_date and end_date else Q()
+        
+            pnr_queryset =  Pnr.objects.filter(
+                                status_value,
+                            ).filter(
+                                max_system_creation_date,
+                                date_filter,
+                            )
+
+            if is_invoiced is not None:
+                pnr_queryset =  pnr_queryset.filter(Q(is_invoiced=is_invoiced))
+
+            # Sort the list based on the agent username or system creation date
+            if sort_creator is not None:
+                if sort_creator == 'agent__username':
+                    # Sort Pnrs by agent's username and agent_id None in the last part of list
+                    pnr_list = sorted(
+                        pnr_queryset, 
+                        key=lambda pnr: (
+                            pnr.agent is None, 
+                            pnr.agent.username if pnr.agent else ''
+                        ), 
+                        reverse=False
+                    )
+                elif sort_creator == '-agent__username':
+                    # Sort Pnrs by agent's username in reverse order and agent_id None in the last part of list
+                    pnr_list = sorted(
+                        pnr_queryset, 
+                        key=lambda pnr: (
+                            pnr.agent.username if pnr.agent else ''
+                        ), 
+                        reverse=True
+                    )
             else:
-                pnr_list = Pnr.objects.all().order_by(date_order_by + 'system_creation_date').filter(Q(system_creation_date__gt=maximum_timezone)).filter(is_invoiced=is_invoiced)
-                pnr_count = Pnr.objects.all().filter(Q(system_creation_date__gt=maximum_timezone)).filter(is_invoiced=is_invoiced).count()
+                # If no sorting parameter provided, sort by system creation date
+                if date_order_by == "-":
+                    # Sort Pnrs by system creation date in reverse order
+                    pnr_list = sorted(pnr_queryset, key=lambda pnr: pnr.system_creation_date, reverse=True)
+                else:
+                    # Sort Pnrs by system creation date in ascending order
+                    pnr_list = sorted(pnr_queryset, key=lambda pnr: pnr.system_creation_date, reverse=False)
+
+            pnr_list = list(pnr_list)
+            pnr_count = pnr_queryset.count()
+
             print('All')
 
         context['pnr_list'] = pnr_list
@@ -380,7 +675,6 @@ def pnr_research(request):
     
     return JsonResponse(context)
 
-
 @login_required(login_url='index')
 def pnr_search_by_pnr_number(request):
     context = {}
@@ -524,7 +818,6 @@ def reduce_fee(request) :
         context['message'] = "ERREUR: Impossible d'envoyer la demande."
     
     return JsonResponse(context)
-
 
 @login_required(login_url='index')
 def save_pnr_detail_modification(request, pnr_id):
@@ -725,7 +1018,6 @@ def save_pnr_detail_modification(request, pnr_id):
 
     return JsonResponse(context)
 
-
 @login_required(login_url='index')
 def get_order(request, pnr_id):
     context = {}
@@ -735,24 +1027,12 @@ def get_order(request, pnr_id):
     vendor_user = None
     user_copy = None
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
-    order_dest_dir = '/export/tests/orders'
-    customer_dest_dir = '/export/tests/clients'
-    file_dir =''
-    customer_dir = ''
 
     
-    file_dir = '/opt/odoo/issoufali-addons/import_saleorder/data/source'
-    customer_dir = '/opt/odoo/issoufali-addons/contacts_from_incadea/data/source'
+    file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
+    customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
     
 
-    # 'create a local folder called "export" to store the csv file'
-    # if not os.path.exists(os.path.join(parent_dir, 'export')):
-    #     os.makedirs(os.path.join(parent_dir, 'export'))
-    #     file_dir = os.path.join(parent_dir, 'export')
-    #     customer_dir = os.path.join(parent_dir, 'export')
-    # else:
-    #     file_dir = os.path.join(parent_dir, 'export')
-    #     customer_dir = os.path.join(parent_dir, 'export')
 
     customer_row = {}
     fieldnames_order = [
@@ -796,6 +1076,12 @@ def get_order(request, pnr_id):
         'CT_Site'
     ]
 
+    order_df = pd.DataFrame(columns=fieldnames_order)
+    customer_df = pd.DataFrame(columns=fieldnames_customer)
+
+    csv_order_lines = []
+    csv_customer_lines = []
+
     if request.method== 'POST':
         if 'pnrId' and 'customerIdsChecked' in request.POST:
             pnr_id = request.POST.get('pnrId')
@@ -815,16 +1101,6 @@ def get_order(request, pnr_id):
 
         if invoice.exists():
             invoice.update(reference=reference)
-
-        'Creation of csv file with the order data'
-        file = open(os.path.join(file_dir, 'FormatsSaleOrderExportOdoo{}.csv'.format(today)), 'w', encoding='utf-8', newline='')
-        csv_writer = csv.DictWriter(file, fieldnames=fieldnames_order, delimiter=';')
-        csv_writer.writeheader()
-
-        'Creation of the csv file with customer data'
-        file_2 = open(os.path.join(customer_dir, 'CustomerExport{}.csv'.format(today)), 'w', encoding='utf-8', newline='')
-        csv_writer_2 = csv.DictWriter(file_2, fieldnames=fieldnames_customer, delimiter=';')
-        csv_writer_2.writeheader()
         
         pnr_quotation = PassengerInvoice.objects.filter(status='quotation', is_quotation=True, pnr=pnr_id)
         if pnr_quotation.exists():
@@ -869,50 +1145,65 @@ def get_order(request, pnr_id):
                             fee_item.is_invoiced = True
                             fee_item.save()
 
-
         for customer_id in customer_ids:
             "update the line of order of the current PNR to state invoiced"
             orders = PassengerInvoice.objects.filter(pnr=pnr_id, client=customer_id, is_invoiced=False)
             order_invoice_number = datetime.now().strftime('%Y%m%d%H%M') + str(random.randint(1,9)) # SET ORDER NUMBER
             for order in orders:
+                segments_parts = []
                 if order.status == 'sale':
-                    
+                    segments_parts = []
                     pnr_order = Pnr.objects.get(pk=order.pnr.id)
-                    if order.ticket is not None:
+                    if order.ticket is not None and order.ticket.ticket_status == 1:
                         ticket = Ticket.objects.get(pk=order.ticket.id)
-
-                        segments_parts = ticket.ticket_parts.all().order_by('segment__id')
+                        ticket_ssr = ticket.ticket_ssrs.all()
                         # segment
+                        if ticket.ticket_type != 'EMD':
+                            segments_parts.append(ticket.ticket_parts.all().order_by('segment__id'))
+                        elif ticket.ticket_type == 'EMD':
+                            if ticket_ssr.exists():
+                                for ticket_segment in ticket_ssr:
+                                    segments_parts.append(ticket_segment.ssr.segments.all().order_by('id'))
+                            else:
+                                segments_parts.append(ticket.ticket_parts.all().order_by('segment__id'))
                         
                         air_segments = []
                         segment_names = []
                         segment_dates = []
-                        for part in segments_parts:
-                            if part.segment.segment_type == 'Flight' :
-                                _segment = {
-                                    'Name': part.segment.segmentorder,
-                                    'Fly': '%s %s' % (part.segment.servicecarrier.iata, part.segment.flightno),
-                                    'Class': part.segment.flightclass if part.segment.flightclass is not None else '',
-                                    'Departure': part.segment.codeorg.iata_code,
-                                    'Arrival': part.segment.codedest.iata_code,
-                                    'DepartureDatetime' : part.segment.departuretime.strftime('%d/%m/%Y %H:%M') if part.segment.segment_state == 0 and part.segment.departuretime else part.segment.departuretime.strftime('%d/%m/%Y %H:%M') if part.segment.departuretime else '',
-                                    'ArrivalDatetime' : part.segment.arrivaltime.strftime('%d/%m/%Y %H:%M') if part.segment.segment_state == 0 and part.segment.arrivaltime else '',   
-                                }
-                                air_segments.append(_segment)
+                        
+                        for segment in segments_parts:
+                            for part in segment:
+                                if part.segment.segment_type == 'Flight' :
+                                    _segment = {
+                                        'Name': part.segment.segmentorder,
+                                        'Fly': '%s %s' % (part.segment.servicecarrier.iata, part.segment.flightno),
+                                        'Class': part.segment.flightclass if part.segment.flightclass is not None else '',
+                                        'Departure': part.segment.codeorg.iata_code,
+                                        'Arrival': part.segment.codedest.iata_code,
+                                        'DepartureDatetime' : part.segment.departuretime.strftime('%d/%m/%Y %H:%M') if part.segment.segment_state == 0 and part.segment.departuretime else part.segment.departuretime.strftime('%d/%m/%Y %H:%M') if part.segment.departuretime else '',
+                                        'ArrivalDatetime' : part.segment.arrivaltime.strftime('%d/%m/%Y %H:%M') if part.segment.segment_state == 0 and part.segment.arrivaltime else '',   
+                                    }
+                                    air_segments.append(_segment)
 
-                        csv_writer.writerow({
-                            'LineID': order.id,
-                            'Type': ticket.ticket_type,
+                        type_ticket = ''
+                        if ticket.is_refund:
+                            type_ticket = 'Remboursement'
+                        else:
+                            type_ticket = ticket.ticket_type
+
+                        csv_order_lines.append({
+                            'LineID': order.id, # type: ignore
+                            'Type': type_ticket,
                             'PNRNumber': pnr_order.number,
                             'PNRType': pnr_order.type,
-                            'CustomerId': order.client.id,
+                            'CustomerId': order.client.id, # type: ignore
                             'OrderRef': order.reference, 
                             'Agency': '%s: %s' % (pnr_order.agency.name, pnr_order.agency.code) if pnr_order.agency is not None else pnr_order.agency_name if pnr_order.type == 'EWA' else '',
                             'Follower': pnr_order.agent.username if pnr_order.agent is not None else pnr_order.agent_code if pnr_order.agent_code is not None else '',
                             'TicketNumber': ticket.number,
-                            'Civility': ticket.passenger.designation,
-                            'PassengerFirstname': ticket.passenger.name,
-                            'PassengerLastname': ticket.passenger.surname,
+                            'Civility': ticket.passenger.designation, # type: ignore
+                            'PassengerFirstname': ticket.passenger.name, # type: ignore
+                            'PassengerLastname': ticket.passenger.surname, # type: ignore
                             'Segments': json.dumps(air_segments),
                             'DocCurrency': 'EUR',
                             'Transport': ticket.transport_cost,
@@ -923,19 +1214,23 @@ def get_order(request, pnr_id):
                             'IssueDate': ticket.issuing_date.strftime('%d/%m/%Y') if ticket.issuing_date is not None else '',
                             'OrderNumber': order_invoice_number,
                             'OtherFeeId': '',
+                            'Designation':'',
                         })
-                        
-                        order.is_invoiced = True
-                        order.invoice_number = order_invoice_number
-                        order.save()
-                        order.ticket.is_invoiced = True
-                        order.ticket.save()
+
+                        if len(csv_order_lines) == 0:
+                            break
+                        else:
+                            order.is_invoiced = True
+                            order.invoice_number = order_invoice_number
+                            order.save()
+                            order.ticket.is_invoiced = True
+                            order.ticket.save()
 
                     if order.fee is not None:
                         fee = Fee.objects.filter(pk=order.fee.id)
                         for item in fee:
-                            if order.fee.ticket is not None and order.fee.ticket.id == item.ticket.id:
-                                csv_writer.writerow({
+                            if order.fee.ticket is not None and order.fee.ticket.ticket_status == 1 and order.fee.ticket.id == item.ticket.id:
+                                csv_order_lines.append({
                                     'LineID': order.id,
                                     'Type': item.type,
                                     'PNRNumber': pnr_order.number,
@@ -958,24 +1253,27 @@ def get_order(request, pnr_id):
                                     'IssueDate': '',
                                     'OrderNumber': order_invoice_number,
                                     'OtherFeeId': '',
+                                    'Designation': '',
                                 })
                                 
-                                order.is_invoiced = True
-                                order.invoice_number = order_invoice_number
-                                order.save()
-                                order.fee.is_invoiced =True
-                                
-                                order.fee.save()
+                                if len(csv_order_lines) == 0:
+                                    break
+                                else:
+                                    order.is_invoiced = True
+                                    order.invoice_number = order_invoice_number
+                                    order.save()
+                                    order.fee.is_invoiced =True
+                                    order.fee.save()
 
                     type_other_fee = ''
-                    if order.other_fee is not None:
+                    if order.other_fee is not None and order.other_fee.other_fee_status == 1:
                         other_fee = OthersFee.objects.filter(pk=order.other_fee.id)
                         for item in other_fee:
-                            if item.fee_type == 'EMD' and item.fee_type == 'TKT':
+                            if item.fee_type == 'EMD' or item.fee_type == 'TKT' or item.fee_type == 'Cancellation' or item.fee_type == 'AVOIR COMPAGNIE':
                                 type_other_fee = item.fee_type
                             else:
-                                type_other_fee = item.designation
-                            csv_writer.writerow({
+                                type_other_fee = 'EMD'
+                            csv_order_lines.append({
                                 'LineID': order.id,
                                 'Type': type_other_fee,
                                 'PNRNumber': pnr_order.number,
@@ -997,20 +1295,24 @@ def get_order(request, pnr_id):
                                 'TicketId': '',
                                 'IssueDate': item.creation_date.strftime('%d/%m/%Y') if item.creation_date is not None else '',
                                 'OrderNumber': order_invoice_number,
-                                'OtherFeeId': item.id if item is not None else ''
+                                'OtherFeeId': item.id if item is not None else '',
+                                'Designation': item.designation if item is not None else '',
                             })
                             
-                            order.is_invoiced = True
-                            order.invoice_number = order_invoice_number
-                            order.save()
-                            order.other_fee.is_invoiced = True
-                            order.other_fee.save()
+                            if len(csv_order_lines) == 0:
+                                break
+                            else:
+                                order.is_invoiced = True
+                                order.invoice_number = order_invoice_number
+                                order.save()
+                                order.other_fee.is_invoiced = True
+                                order.other_fee.save()
 
                     if order.fee is not None:
                         fee = Fee.objects.filter(pk=order.fee.id)
                         for item in fee:
-                            if order.fee.other_fee is not None and order.fee.other_fee.id == item.other_fee.id:
-                                csv_writer.writerow({
+                            if order.fee.other_fee is not None and order.fee.other_fee.other_fee_status == 1 and order.fee.other_fee.id == item.other_fee.id:
+                                csv_order_lines.append({
                                     'LineID': order.id,
                                     'Type': item.type,
                                     'PNRNumber': pnr_order.number,
@@ -1032,14 +1334,18 @@ def get_order(request, pnr_id):
                                     'TicketId': '',
                                     'IssueDate': '',
                                     'OrderNumber': order_invoice_number,
-                                    'OtherFeeId': item.other_fee.id if item.other_fee is not None else ''
+                                    'OtherFeeId': item.other_fee.id if item.other_fee is not None else '',
+                                    'Designation': ''
                                 })
                                 
-                                order.is_invoiced = True
-                                order.invoice_number = order_invoice_number
-                                order.save()
-                                order.fee.is_invoiced = True
-                                order.fee.save()
+                                if len(csv_order_lines) == 0:
+                                    break
+                                else:
+                                    order.is_invoiced = True
+                                    order.invoice_number = order_invoice_number
+                                    order.save()
+                                    order.fee.is_invoiced = True
+                                    order.fee.save()
                 
             customers = Client.objects.filter(pk=int(customer_id))
             for customer in customers:
@@ -1084,21 +1390,18 @@ def get_order(request, pnr_id):
                     customer_row['CT_Pays'] = customer.country.strip().replace('\n', '') if customer.country is not None else ''
                 else:
                     customer_row['CT_Pays'] = ''
-                csv_writer_2.writerow(customer_row)
+                csv_customer_lines.append(customer_row)
 
-            
-        file_2.close()
-        file.close()
+        order_df = pd.concat([order_df, pd.DataFrame(csv_order_lines)])
+        customer_df = pd.concat([customer_df, pd.DataFrame(csv_customer_lines)])
 
-        # 'Uploading the file to the FTP Server'
-        # upload_file(os.path.join(file_dir, 'CustomerExport{}.csv'.format(today)), customer_dest_dir, 'CustomerExport{}.csv'.format(today))
-        # upload_file(os.path.join(file_dir, 'FormatsSaleOrderExportOdoo{}.csv'.format(today)), order_dest_dir, 'FormatsSaleOrderExportOdoo{}.csv'.format(today))
-        # Call Odoo import
+        if not order_df.empty and not customer_df.empty:
+            order_df.to_csv(os.path.join(file_dir, 'FormatsSaleOrderExportOdoo{}.csv'.format(today)), index=False, sep=';')
+            customer_df.to_csv(os.path.join(customer_dir, 'CustomerExport{}.csv'.format(today)), index=False, sep=';')
+
         print("------------------Call Odoo import-----------------------")
-        response = requests.get("https://odoo.issoufali.phidia.fr/web/syncorders")
-        
-        # print(response)
-        
+        response = requests.get("https://testodoo.issoufali.phidia.fr/web/syncorders")
+
         ticket_not_order = Ticket.objects.filter(pnr=pnr_id, is_invoiced=False, ticket_status=1).exclude(total=0)
         ticket_no_adc_order = Ticket.objects.filter(pnr=pnr_id, is_invoiced=False, ticket_status=1).filter(Q(total=0) & Q(is_no_adc=True))
         other_fee_order = OthersFee.objects.filter(pnr=pnr_id, is_invoiced=False, other_fee_status=1).filter(Q(total__gt=0))
@@ -1118,21 +1421,11 @@ def get_quotation(request, pnr_id):
     ticket = ''
     vendor_user = None
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
-    order_dest_dir = '/export/tests/orders'
-    customer_dest_dir = '/export/tests/clients'
-    # file_dir = ''
-    # customer_dir = ''
-    file_dir = '/opt/odoo/issoufali-addons/import_saleorder/data/source'
-    customer_dir = '/opt/odoo/issoufali-addons/contacts_from_incadea/data/source'
 
-    # 'create a local folder called "export" to store the csv file'
-    # if not os.path.exists(os.path.join(parent_dir, 'export')):
-    #     os.makedirs(os.path.join(parent_dir, 'export'))
-    #     file_dir = os.path.join(parent_dir, 'export')
-    #     customer_dir = os.path.join(parent_dir, 'export')
-    # else:
-    #     file_dir = os.path.join(parent_dir, 'export')
-    #     customer_dir = os.path.join(parent_dir, 'export')
+    file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
+    customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
+
+    
 
     customer_row = {}
     fieldnames_order = [
@@ -1157,7 +1450,8 @@ def get_quotation(request, pnr_id):
         'TicketId',
         'IssueDate',
         'OrderNumber',
-        'OtherFeeId'
+        'OtherFeeId',
+        'OPC'
     ]
     fieldnames_customer = [
         'id',
@@ -1175,6 +1469,12 @@ def get_quotation(request, pnr_id):
         'CT_Email',
         'CT_Site'
     ]
+
+    quotation_df = pd.DataFrame(columns=fieldnames_order)
+    customer_df = pd.DataFrame(columns=fieldnames_customer)
+
+    csv_quotation_lines = []
+    csv_customer_lines = []
 
     if request.method== 'POST':
         if 'pnrId' in request.POST:
@@ -1196,10 +1496,6 @@ def get_quotation(request, pnr_id):
         orders = PassengerInvoice.objects.filter(pnr=pnr_id, status='quotation')
         customers = Client.objects.all()
 
-        'Creation of csv file with the order data'
-        file = open(os.path.join(file_dir, 'FormatsSaleOrderExportOdoo{}.csv'.format(today)), 'w', encoding='utf-8', newline='')
-        csv_writer = csv.DictWriter(file, fieldnames=fieldnames_order, delimiter=';')
-        csv_writer.writeheader()
         for order in orders:
             if order.is_quotation == False:
                 pnr_order = Pnr.objects.get(pk=order.pnr.id)
@@ -1235,7 +1531,7 @@ def get_quotation(request, pnr_id):
                                 }
                                 air_segments.append(_segment)
                         
-                    csv_writer.writerow({
+                    csv_quotation_lines.append({
                         'LineID': order.id,
                         'Type': order.type,
                         'PNRNumber': pnr_order.number,
@@ -1257,16 +1553,19 @@ def get_quotation(request, pnr_id):
                         'TicketId': ticket.id if ticket is not None else '',
                         'IssueDate': '',
                         'OrderNumber': '',
-                        'OtherFeeId': ''
+                        'OtherFeeId': '',
+                        'OPC': pnr_order.get_min_opc()
                     })
-                    order.is_quotation = True
-                    order.save()
+                    
+                    if len(csv_quotation_lines) > 0 :
+                        order.is_quotation = True
+                        order.save()
 
                 if order.fee is not None:
                     fee = Fee.objects.filter(pk=order.fee.id)
                     for item in fee:
                         if order.fee.ticket is not None and order.fee.ticket.id == item.ticket.id:
-                            csv_writer.writerow({
+                            csv_quotation_lines.append({
                                 'LineID': order.id,
                                 'Type': item.type,
                                 'PNRNumber': pnr_order.number,
@@ -1288,19 +1587,22 @@ def get_quotation(request, pnr_id):
                                 'TicketId': item.ticket.id if item.ticket is not None else '',
                                 'IssueDate': '',
                                 'OrderNumber': '',
-                                'OtherFeeId': ''
+                                'OtherFeeId': '',
+                                'OPC': pnr_order.get_min_opc()
                             })
-                            order.is_quotation = True
-                            order.save()
+                            
+                            if len(csv_quotation_lines) > 0 :
+                                order.is_quotation = True
+                                order.save()
                             
                 if order.other_fee is not None:
                     other_fee = OthersFee.objects.filter(pk=order.other_fee.id)
                     for item in other_fee:
-                        if item.fee_type == 'EMD' and item.fee_type == 'TKT':
+                        if item.fee_type == 'EMD' and item.fee_type == 'TKT' and item.fee_type == 'Cancellation' and item.fee_type == 'AVOIR COMPAGNIE':
                             type_other_fee = item.fee_type
                         else:
                             type_other_fee = item.designation
-                        csv_writer.writerow({
+                        csv_quotation_lines.append({
                             'LineID': order.id,
                             'Type': type_other_fee,
                             'PNRNumber': pnr_order.number,
@@ -1323,9 +1625,12 @@ def get_quotation(request, pnr_id):
                             'IssueDate': '',
                             'OrderNumber': '',
                             'OtherFeeId': item.id if item is not None else '',
+                            'OPC': pnr_order.get_min_opc()
                         })
-                        order.is_quotation = True
-                        order.save()
+                        
+                        if len(csv_quotation_lines) > 0 :
+                            order.is_quotation = True
+                            order.save()
 
                 if order.invoice_id is not None:
                     segments_parts = PnrAirSegments.objects.filter(pnr=pnr_id)
@@ -1343,7 +1648,7 @@ def get_quotation(request, pnr_id):
                                 segment_dates.append(part.departuretime.strftime('%d/%m/%Y %H:%M') if part.segment_state == 0 else part.departuretime.strftime('%d/%m/%Y'))
                                 segment_dates.append(part.arrivaltime.strftime('%d/%m/%Y %H:%M') if part.segment_state == 0 else '')
                     
-                    csv_writer.writerow({
+                    csv_quotation_lines.append({
                         'LineID': order.id,
                         'Type': 'Billet',
                         'PNRNumber': pnr_order.number,
@@ -1365,16 +1670,14 @@ def get_quotation(request, pnr_id):
                         'TicketId': '',
                         'IssueDate': '',
                         'OrderNumber': '',
-                        'OtherFeeId': item.other_fee.id if item.other_fee is not None else ''
+                        'OtherFeeId': item.other_fee.id if item.other_fee is not None else '',
+                        'OPC': pnr_order.get_min_opc()
                     })
-                    order.is_quotation = True
-                    order.save() 
-        file.close()
+                    
+                    if len(csv_quotation_lines) > 0 :
+                        order.is_quotation = True
+                        order.save()
 
-        'Creation of the csv file with customer data'
-        file_2 = open(os.path.join(customer_dir, 'CustomerExport{}.csv'.format(today)), 'w', encoding='utf-8', newline='')
-        csv_writer = csv.DictWriter(file_2, fieldnames=fieldnames_customer, delimiter=';')
-        csv_writer.writeheader()
         customers = Client.objects.filter(pk=int(customer_object))
         if customers.exists():
             customer = customers.first()
@@ -1419,14 +1722,17 @@ def get_quotation(request, pnr_id):
                 customer_row['CT_Pays'] = customer.country
             else:
                 customer_row['CT_Pays'] = ''
-            csv_writer.writerow(customer_row)
-        file_2.close()
+            csv_customer_lines.append(customer_row)
 
-        'Uploading the file to the FTP Server'
-        # upload_file(os.path.join(file_dir, 'CustomerExport{}.csv'.format(today)), customer_dest_dir, 'CustomerExport{}.csv'.format(today))
-        # upload_file(os.path.join(file_dir, 'FormatsSaleOrderExportOdoo{}.csv'.format(today)), order_dest_dir, 'FormatsSaleOrderExportOdoo{}.csv'.format(today))
+        quotation_df = pd.concat([quotation_df, pd.DataFrame(csv_quotation_lines)])
+        customer_df = pd.concat([customer_df, pd.DataFrame(csv_customer_lines)])
+
+        if not quotation_df.empty and not customer_df.empty:
+            quotation_df.to_csv(os.path.join(file_dir, 'FormatsSaleOrderExportOdoo{}.csv'.format(today)), index=False, sep=';')
+            customer_df.to_csv(os.path.join(customer_dir, 'CustomerExport{}.csv'.format(today)), index=False, sep=';')
+
         print("------------------Call Odoo import-----------------------")
-        response = requests.get("https://odoo.issoufali.phidia.fr/web/syncorders")
+        response = requests.get("https://testodoo.issoufali.phidia.fr/web/syncorders")
         print(response.content)
         
 

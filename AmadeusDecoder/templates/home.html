@@ -16,16 +16,190 @@
           <div class="card card-primary card-outline content-all-pnr mt-4">
             <!-- /.card-header -->
             <div class="card-header justify-content-between py-0">
-              <div class="row">
+              <div class="row align-items-center">
                 <div class="col-md-2 float-left">
                 <h4 class="text-primary title-all-pnr mt-1 mb-0">Gestion PNR</h4>
                 </div>
                 <div class="col-md-10 float-right">
-                  <div class="row d-flex justify-content-center">
-                    <div class="col-md-5 mr-4 px-0 d-flex align-items-center justify-content-center">
-                      <i class="fas fa-filter text-primary mr-2"></i>
-                      <span class="text-sm text-primary" style="width: 9rem;"> Filtrer par : </span>
-                      <select class="form-control form-control-sm form-select form-select-sm" id="pnrFilteredByOrder" name="pnr_filter">
+                  <div class="row d-flex">
+                    <div class="col-md-7 mr-4 px-0 d-flex align-items-center">
+
+                      <button type="submit" class="d-flex align-items-center mt-1 mb-1 px-2 py-0" id="buttonMenuFilter" cy-data="button-menu-filter">
+                        <i class="fa fa-filter mr-2 open-button-filter"></i>
+                        <span>Filtres</span>
+                      </button>
+                      
+                      <div id="listActiveFilter" class="d-flex" data-user-role="{{request.user.role_id}}"></div>
+
+                      {% with 1|get_all_username as get_all_username %}
+                        <span id="getAllUsername" data-users="{{get_all_username}}"></span>
+                      {% endwith %}
+
+                      <!-- <span   
+                        class="mt-1 ml-2"
+                        style="
+                          font-size: 10px;
+                          padding: 3px 6px 2px 6px;
+                          color: #64696c;
+                          background: #bdc3c754;
+                          border-radius: 6px;
+                        "
+                      >PNR non envoyé</span> -->
+
+                      <div class="wrapper-menu-filter">
+                        <div class="content">
+                          <ul class="filter-menu">
+                            <li class="list list-one mb-1">
+                              <div class="filter-menu list">
+                                <i class="fa fa-eye"></i>
+                                <span>PNR</span>
+                              </div>
+                              <i class="fa-solid fa-angle-right"></i>
+                            </li>
+                            <li class="list list-two mb-1">
+                              <div class="filter-menu list" id="showDateRangePicker">
+                                <i class="fa-sharp fa-solid fa-calendar-days" style="padding-left: 1px !important;"></i>
+                                <span>Date de création</span>
+                              </div>
+                              <i class="fa-solid fa-angle-right"></i>
+                            </li>
+                            <li class="list list-three mb-1" cy-data="show-creator-filter">
+                              <div class="filter-menu list" id="showFilterByCreator">
+                                <i class="fa-regular fa-user" style="padding-left: 1px !important;"></i>
+                                <span>Créateur</span>
+                              </div>
+                              <i class="fa-solid fa-angle-right"></i>
+                            </li>
+                            <li class="list list-four mb-1">
+                              <div class="filter-menu list" id="showFilterByPnrStatus">
+                                <i class="fas fa-sliders-h" style="padding-left: 1px !important;"></i>
+                                <span>Status</span>
+                              </div>
+                              <i class="fa-solid fa-angle-right"></i>
+                            </li>
+                            <li class="list list-five bg-danger justify-content-center close-button-filter">
+                              <div class="filter-menu list">
+                                <i class="fas fa-close" style="padding-left: 1px !important; font-size: 14px !important"></i>
+                                <span>Fermer le filtre</span>
+                              </div>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+
+                      <div class="pnr-menu absolute">
+                        <div class="content">
+                          <ul class="filter-menu">
+                            {% if request.user.role_id == 3 %}
+                              <li class="pnr-list list-two mb-1">
+                                <div class="filter-menu list" id="showInvoicedPnr">
+                                  <i class="fa fa-check"></i>
+                                  <span>Envoyé dans Odoo</span>
+                                </div>
+                              </li>
+                              <li class="pnr-list list-three">
+                                <div class="filter-menu list active" id="showNotInvoicedPnr">
+                                  <i class="fa fa-check"></i>
+                                  <span>Non envoyé dans Odoo</span>
+                                </div>
+                              </li>
+                            {% else %}
+                              <li class="pnr-list list-one mb-1">
+                                <div class="filter-menu list" style="gap: 9px !important" id="showAllPnr">
+                                  <i class="fa fa-check"></i>
+                                  <span>Afficher tous</span>
+                                </div>
+                              </li>
+                              <li class="pnr-list list-two mb-1">
+                                <div class="filter-menu list" id="showInvoicedPnr">
+                                  <i class="fa fa-check"></i>
+                                  <span>Envoyé dans Odoo</span>
+                                </div>
+                              </li>
+                              <li class="pnr-list list-three">
+                                <div class="filter-menu list active" id="showNotInvoicedPnr">
+                                  <i class="fa fa-check"></i>
+                                  <span>Non envoyé dans Odoo</span>
+                                </div>
+                              </li>
+                            {% endif %}
+                          </ul>
+                        </div>
+                      </div>
+
+                      <div class="pnr-status absolute">
+                        <div class="content">
+                          <ul class="filter-menu">
+                            <li class="pnr-list list-one mb-1">
+                              <div class="filter-menu list" id="showIssuedPnr">
+                                <i class="fa fa-check"></i>
+                                <span>PNR émis</span>
+                              </div>
+                            </li>
+                            <li class="pnr-list list-two">
+                              <div class="filter-menu list active" id="showNotIssuedPnr">
+                                <i class="fa fa-check"></i>
+                                <span>PNR non émis</span>
+                              </div>
+                            </li>
+                            <li class="pnr-list list-three">
+                              <div class="filter-menu list active" id="showAllPnrWithoutIssuing">
+                                <i class="fa fa-check"></i>
+                                <span>Tous</span>
+                              </div>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+
+                      <div class="date-range-menu absolute">
+                        <div class="date-range content">
+                          <span class="text-md font-weight-bold">Plage de date</span>
+                          <div id="reportrange" class="mt-2 mb-2">
+                            <i class="fa fa-calendar class="text-sm""></i>&nbsp;
+                            <span class="text-sm"></span> <i class="fa fa-caret-down class="text-sm""></i>
+                          </div>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                          <button type="submit" class="d-flex align-items-center mt-1 px-2 py-0" id="buttonMenuFilterByCreationDateRange">
+                            <span class="text-sm">Afficher</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div class="creator-group-menu absolute">
+                        <div class="creator-group content d-flex flex-column">
+                          <span class="text-md font-weight-bold mb-1">Créer par</span>
+                          <select id="normalize">
+                            <option value="">Sélectionner le créateur...</option>
+                            {% if request.user.role_id != 3 and request.user.id != 4 and request.user.id != 5 %}
+                              <option value="0">Tout</option>
+                              {% for user in users %}
+                                <option value="{{user.id}}">{{user.username}}</option>
+                              {% endfor %}
+                            {% elif request.user.id == 4 %}
+                              <option value="4" selected="true">Farida</option>
+                              <option value="5">Mouniati</option>
+                            {% elif request.user.id == 5 %}
+                              <option value="4" >Farida</option>
+                              <option value="5" selected="true">Mouniati</option>
+                            {% else %}
+                              <option value="{{request.user.id}}" selected="true">{{request.user.username}}</option>
+                            {% endif %}
+                          </select>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                          <button type="submit" class="d-flex align-items-center mt-2 px-2 py-0" id="buttonMenuFilterByCreator" cy-data="button-filter-menu-creator">
+                            <span class="text-sm">Afficher</span>
+                          </button>
+                        </div>
+                      </div>
+
+
+
+                      <!-- <i class="fas fa-filter text-primary mr-2"></i> -->
+                      <!-- <span class="text-sm text-primary" style="width: 9rem;"> Filtrer par : </span> -->
+                      <!-- <select class="form-control form-control-sm form-select form-select-sm" id="pnrFilteredByOrder" name="pnr_filter">
                         {% if request.user.role_id == 3 %}
                           <option value="True">PNR envoyé</option>
                           <option value="False" selected="true">PNR non envoyé</option>
@@ -34,8 +208,8 @@
                           <option value="True">PNR envoyé</option>
                           <option value="False" selected="true">PNR non envoyé</option>
                         {% endif %}
-                      </select>
-                      <span class="text-sm text-primary" style="width: 9rem; margin-left:2px;"> Créer par : </span>
+                      </select> -->
+                      <!-- <span class="text-sm text-primary" style="width: 9rem; margin-left:2px;"> Créer par : </span>
                       <select class="form-control form-control-sm form-select form-select-sm" id="pnrFilteredByCreator" name="pnr_filter">
                         {% if request.user.role_id != 3 and request.user.id != 4 and request.user.id != 5 %}
                           <option value="0">Tout</option>
@@ -51,42 +225,46 @@
                         {% else %}
                           <option value="{{request.user.id}}" selected="true">{{request.user.username}}</option>
                         {% endif %}
-                      </select>
+                      </select> -->
+                    </div>
+
+                    <div class="col-md-3 d-flex">
+                      <div class="col-md-8 mr-4 px-0 d-flex align-items-center justify-content-center">
+                        <div class="input-group input-group float-sm-right mt-1 mb-1" style="position: relative;">
+                          <input type="text" name="table_search" id="input-pnr" class="form-control form-control-sm"
+                            placeholder="Recherche">
+                          <div 
+                            id="spinnerLoadingSearch" 
+                            class="spinner-border" 
+                            role="status" 
+                            style="width: 14px; height: 14px; position: absolute; right: 48px; bottom: 6px; z-index: 9999"
+                            title="Recherche en cours"
+                          >
+                            <span class="sr-only">Loading...</span>
+                          </div>
+                          <div class="input-group-append">
+                            <button type="submit" id="pnr-research" class="btn btn-default py-0" title="Bouton de recherche">
+                              <i class="fas fa-search text-primary"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </div> 
+                      <div class="col-md-3">
+                        <div class="d-flex">  
+                        <form method="GET" class="d-flex align-items-center justify-content-between"> 
+                          <div class="d-flex" style="width: 10rem;">
+                            <input type="text" name="paginate_by" class="form-control form-control-sm mt-1 value_page p-0 pl-2" placeholder="{{ row_num }}" required title="Nombres des lignes"/>
+                            <input type="text" class="form-control form-control-sm mt-1 count_page p-0" disabled value=" / {{ request|pnr_count }}" id="pnrCounterOnSearch"/>
+                          </div>
+  
+                          <button type="submit" class="btn btn-outline-primary mt-1 px-2 py-0" id="buttonShowPnrBySize">Afficher</button>
+                        </form>
+                        <button type="submit" class="btn btn-outline-primary mt-1 px-2 py-0" id="buttonShowPnrBySizeOnSearch">Afficher</button>
+                        </div>
+                      </div>
                     </div>
                 
-                    <div class="col-md-2 mr-4 px-0 d-flex align-items-center justify-content-center">
-                      <div class="input-group input-group float-sm-right mt-1 mb-1" style="position: relative;">
-                        <input type="text" name="table_search" id="input-pnr" class="form-control form-control-sm"
-                          placeholder="Recherche">
-                        <div 
-                          id="spinnerLoadingSearch" 
-                          class="spinner-border" 
-                          role="status" 
-                          style="width: 14px; height: 14px; position: absolute; right: 48px; bottom: 6px; z-index: 9999"
-                          title="Recherche en cours"
-                        >
-                          <span class="sr-only">Loading...</span>
-                        </div>
-                        <div class="input-group-append">
-                          <button type="submit" id="pnr-research" class="btn btn-default py-0" title="Bouton de recherche">
-                            <i class="fas fa-search text-primary"></i>
-                          </button>
-                        </div>
-                      </div>
-                    </div> 
-                    <div class="col-md-2">
-                      <div class="d-flex">  
-                      <form method="GET" class="d-flex align-items-center justify-content-between"> 
-                        <div class="d-flex" style="width: 10rem;">
-                          <input type="text" name="paginate_by" class="form-control form-control-sm mt-1 value_page p-0 pl-2" placeholder="{{ row_num }}" required title="Nombres des lignes"/>
-                          <input type="text" class="form-control form-control-sm mt-1 count_page p-0" disabled value=" / {{ request|pnr_count }}" id="pnrCounterOnSearch"/>
-                        </div>
-
-                        <button type="submit" class="btn btn-outline-primary mt-1 px-2 py-0" id="buttonShowPnrBySize">Afficher</button>
-                      </form>
-                      <button type="submit" class="btn btn-outline-primary mt-1 px-2 py-0" id="buttonShowPnrBySizeOnSearch">Afficher</button>
-                      </div>
-                    </div>
+                    
                   </div>
                 </div>
               </div>
@@ -137,7 +315,12 @@
                     <th>Status</th>
                     <th>OPC</th>
                     <th>Type</th>
-                    <th>Créateur</th>
+                    <th class="pnr-creator-list">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
+                        Créateur
+                        <i class="fa fa-sm fa-solid" id="icon__pnrCreator"></i>
+                      </div>
+                    </th>
                     <th>Emetteur</th>
                     <th>Agence</th>
                     <th>Code</th>
@@ -377,7 +560,12 @@
                     <th style="cursor: pointer;">Status</th>
                     <th style="cursor: pointer;">OPC</th>
                     <th style="cursor: pointer;">Type</th>
-                    <th>Créateur</th>
+                    <th class="pnr-creator-list-after-search">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px" id="creatorSorter">
+                        Créateur
+                        <i class="fa fa-sm fa-solid fa-arrows-up-down" id="icon__pnrCreatorSearch"></i>
+                      </div>
+                    </th>
                     <th>Emetteur</th>
                     <th>Agence</th>
                     <th>Code</th>

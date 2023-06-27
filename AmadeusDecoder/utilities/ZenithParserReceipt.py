@@ -499,11 +499,19 @@ class ZenithParserReceipt():
                         new_other_fee.save()
                         self.ajustment_total.append({'other_fee': new_other_fee, 'total': total})
                         
-                        other_fee_passenger_segment = OtherFeeSegment()
-                        other_fee_passenger_segment.other_fee = new_other_fee
-                        other_fee_passenger_segment.passenger = current_passenger
-                        other_fee_passenger_segment.segment = current_segment[0]
-                        other_fee_passenger_segment.save()
+                        if isinstance(current_segment, list):
+                            for segment in current_segment:
+                                other_fee_passenger_segment = OtherFeeSegment()
+                                other_fee_passenger_segment.other_fee = new_other_fee
+                                other_fee_passenger_segment.passenger = current_passenger
+                                other_fee_passenger_segment.segment = segment
+                                other_fee_passenger_segment.save()
+                        else:
+                            other_fee_passenger_segment = OtherFeeSegment()
+                            other_fee_passenger_segment.other_fee = new_other_fee
+                            other_fee_passenger_segment.passenger = current_passenger
+                            other_fee_passenger_segment.segment = current_segment
+                            other_fee_passenger_segment.save()
                     
     # emd cancellation
     def handle_emd_cancellation(self, pnr, passengers, cancellation_part):
@@ -555,12 +563,20 @@ class ZenithParserReceipt():
                 new_emd.creation_date = date_time.date()
                 new_emd.save()
                 if otherfee_saved_checker is None:
-                    other_fee_passenger_segment = OtherFeeSegment()
-                    other_fee_passenger_segment.other_fee = new_emd
-                    other_fee_passenger_segment.passenger = current_passenger
-                    other_fee_passenger_segment.segment = current_segment[0]
-                    other_fee_passenger_segment.save()
-                    
+                    if isinstance(current_segment, list):
+                        for segment in current_segment:
+                            other_fee_passenger_segment = OtherFeeSegment()
+                            other_fee_passenger_segment.other_fee = new_emd
+                            other_fee_passenger_segment.passenger = current_passenger
+                            other_fee_passenger_segment.segment = segment
+                            other_fee_passenger_segment.save()
+                    else:
+                        other_fee_passenger_segment = OtherFeeSegment()
+                        other_fee_passenger_segment.other_fee = new_emd
+                        other_fee_passenger_segment.passenger = current_passenger
+                        other_fee_passenger_segment.segment = current_segment
+                        other_fee_passenger_segment.save()
+                        
     # ticket cancellation
     def handle_ticket_cancellation(self, pnr, passengers, cancellation_part):
         for part in cancellation_part:
@@ -626,12 +642,20 @@ class ZenithParserReceipt():
                 
                 new_emd.save()
                 if otherfee_saved_checker is None:
-                    other_fee_passenger_segment = OtherFeeSegment()
-                    other_fee_passenger_segment.other_fee = new_emd
-                    other_fee_passenger_segment.passenger = current_passenger
-                    other_fee_passenger_segment.segment = current_segment[0]
-                    other_fee_passenger_segment.save()
-
+                    if isinstance(current_segment, list):
+                        for segment in current_segment:
+                            other_fee_passenger_segment = OtherFeeSegment()
+                            other_fee_passenger_segment.other_fee = new_emd
+                            other_fee_passenger_segment.passenger = current_passenger
+                            other_fee_passenger_segment.segment = segment
+                            other_fee_passenger_segment.save()
+                    else:
+                        other_fee_passenger_segment = OtherFeeSegment()
+                        other_fee_passenger_segment.other_fee = new_emd
+                        other_fee_passenger_segment.passenger = current_passenger
+                        other_fee_passenger_segment.segment = current_segment
+                        other_fee_passenger_segment.save()
+                    
     # emd when no ticket number provided
     def handle_emd_no_number(self, pnr, current_passenger, current_segment, is_created_by_us, cost, total, date_time, emd_single_part):
         is_balancing_statement = False

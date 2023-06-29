@@ -6,17 +6,17 @@ returns character varying(100)
 as 
 $body$
 declare
-	ticket_id integer;
-	other_fee_id integer;
+	ticket_id_ integer;
+	other_fee_id_ integer;
 	return_val character varying(100);
 begin
-	select t_fee.other_fee_id into other_fee_id from t_fee where  t_fee.id = fee_id;
-	select t_fee.ticket_id into ticket_id from t_fee where t_fee.id = fee_id;
+	select t_fee.other_fee_id into other_fee_id_ from t_fee where  t_fee.id = fee_id;
+	select t_fee.ticket_id into ticket_id_ from t_fee where t_fee.id = fee_id;
 	case
-		when other_fee_id is not null then
-			select t_other_fee.designation into return_val from t_other_fee where t_other_fee.id = other_fee_id;
-		when ticket_id is not null then
-			select t_ticket.number into return_val from t_ticket where t_ticket.id = ticket_id;
+		when other_fee_id_ is not null then
+			select t_other_fee.designation into return_val from t_other_fee where t_other_fee.id = other_fee_id_;
+		when ticket_id_ is not null then
+			select t_ticket.number into return_val from t_ticket where t_ticket.id = ticket_id_;
 		else
 			return null;
 	end case;

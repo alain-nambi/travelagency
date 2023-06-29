@@ -50,7 +50,7 @@ class History(models.Model, BaseModel):
     modification_date = models.DateTimeField()
     
     def __str__(self):
-        return self.modification_type + ' ' + self.modification_date
+        return self.modification_type + ' ' + str(self.modification_date)
     
     # history for any modification on fees
     def fee_history(self, fee, user, initial_cost, new_cost, initial_total):
@@ -71,6 +71,7 @@ class History(models.Model, BaseModel):
                 c.callproc("f_create_fee_history", (pnr_id, user_id, fee_id, initial_cost, new_cost, initial_total))
                 c.execute("COMMIT")
         except:
+            print('An error occurred while saving fee update history: Check error.txt for further detail.')
             with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
                 error_file.write('{}: \n'.format(datetime.datetime.now()))
                 error_file.write('Fee history insertion error.')

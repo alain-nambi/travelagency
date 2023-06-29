@@ -40,35 +40,40 @@ passengers.forEach((item) => {
 //Handling amout total calculation
 ////////
 ServiceFeesInput.forEach((inputFees, index) => {
-  inputFees.addEventListener("change", (e) => {
-    // console.log(inputFees.parentElement.parentElement.parentElement.children[5].children[0]);
-    // const InputTicketTotal = inputFees.parentElement.parentElement.parentElement.children[5].children[0];
-    let cost = parseFloat(e.target.value) || 0;
-    let fee_id = e.target.getAttribute("data-fee-id");
-    // InputTicketTotal.textContent = cost.toFixed(2);
-    // console.log($(".montant.fee-total")[index]);
-    allAmountTicket[index].textContent = cost.toFixed(2);
-    let currentCost = e.target.getAttribute("old-data-cost");
-    let inputCurrentCost = e.target.getAttribute("data-cost");
-    if (currentCost <= cost) {
-      let TicketAmoutTotal = 0;
-      AmoutTicket.forEach((ticket) => {
-        const TicketTotal = parseFloat(ticket.textContent);
-        TicketAmoutTotal += TicketTotal;
-      });
-      document.querySelectorAll(".tr-fee").forEach((td) => {
-        TicketAmoutTotal += parseFloat(td.children[5].children[0].textContent);
-      });
-      MontantTotal.textContent = TicketAmoutTotal.toFixed(2);
-    } else {
-      inputFees.value = inputCurrentCost;
-      $("#modal-dmdfrs").modal();
-      $(".fee-request").val(cost.toFixed(2));
-      $(".fee-total").text(inputCurrentCost);
-      $("#fee-id-request").val(fee_id);
-      $("#fee-origin-cost").val(inputCurrentCost);
-    }
-  });
+    inputFees.addEventListener('change', (e) => {
+        // console.log(inputFees.parentElement.parentElement.parentElement.children[5].children[0]);
+        // const InputTicketTotal = inputFees.parentElement.parentElement.parentElement.children[5].children[0];
+        let cost = parseFloat(e.target.value) || 0;
+        let fee_id = e.target.getAttribute('data-fee-id');
+        // InputTicketTotal.textContent = cost.toFixed(2);
+        // console.log($(".montant.fee-total")[index]);
+        allAmountTicket[index].textContent = cost.toFixed(2);
+        let currentCost = e.target.getAttribute('old-data-cost');
+        let inputCurrentCost = e.target.getAttribute('data-cost');
+        let is_at_airport = e.target.getAttribute('is-at-airport');
+        if (currentCost <= cost || is_at_airport == 'True') {
+            let TicketAmoutTotal = 0;
+            AmoutTicket.forEach((ticket) => {
+                const TicketTotal = parseFloat(ticket.textContent);
+                TicketAmoutTotal += TicketTotal;
+            });
+            document.querySelectorAll('.tr-fee').forEach((td) => {
+                TicketAmoutTotal += parseFloat(td.children[5].children[0].textContent);
+            })
+            MontantTotal.textContent = TicketAmoutTotal.toFixed(2);
+        }
+        else{
+            
+                inputFees.value = inputCurrentCost;
+                $('#modal-dmdfrs').modal();
+                $('.fee-request').val(cost.toFixed(2));
+                $('.fee-total').text(inputCurrentCost);
+                $('#fee-id-request').val(fee_id);
+                $('#fee-origin-cost').val(inputCurrentCost);
+            
+            
+        }
+    })
 });
 //////////
 
@@ -1003,10 +1008,10 @@ if (button__createCustomer != null) {
 
         try {
           if (response) {
-            select__customersList.innerHTML += `
-              <option value=${response.clientId} selected="true"> ${response.clientIntitule} </option> 
-            `;
-          }
+            select__customersList.insertAdjacentHTML('afterbegin', `
+              <option value=${response.clientId} selected="true"> ${response.clientIntitule} </option>
+            `);
+          } 
         } catch (error) {
           console.log('====================================');
           console.log("CLIENT NOT FOUND")

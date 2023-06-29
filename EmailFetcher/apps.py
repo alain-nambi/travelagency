@@ -1,8 +1,9 @@
 from django.apps import AppConfig
 from threading import Thread, Timer
-import datetime
 import os
 import traceback
+import schedule
+import time
 
 from datetime import datetime, timedelta, timezone
 
@@ -97,6 +98,20 @@ def checking_pnr_not_sent_to_odoo():
     
     # ==================== PNR not sent to Odoo checking ====================
     MailNotification.pnr_not_sent_to_odoo(now)
+    
+# send fee modification history
+def send_fee_update_list():
+    from AmadeusDecoder.utilities.ReportUtility import ReportUtility
+    
+    def task():
+        ReportUtility().fee_history_report(datetime.now())
+        
+    # Schedule operation to run every day at 5:00 PM
+    schedule.every().day.at("17:00").do(task)
+    
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
 
 def fetch_email():
     try:
@@ -119,7 +134,7 @@ def fetch_email():
     except Exception:
         traceback.print_exc()
         with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
-            error_file.write('{}: \n'.format(datetime.datetime.now()))
+            error_file.write('{}: \n'.format(datetime.now()))
             traceback.print_exc(file=error_file)
             error_file.write('\n')
 
@@ -180,5 +195,9 @@ class EmailfetcherConfig(AppConfig):
 
         # from AmadeusDecoder.utilities.FtpConnection import download_file
         # dest_dir = '/export/products'
+        
+        # send daily pnr fee update report
+        daily_thread_once = Thread(target=send_fee_update_list)
+        daily_thread_once.start()
 
         print('Email listener is started')

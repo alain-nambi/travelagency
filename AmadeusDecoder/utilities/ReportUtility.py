@@ -5,7 +5,7 @@ Created on Jun 20, 2023
 '''
 import os
 import django
-from AmadeusDecoder.utilities.Backup.SendMail import Sending
+from AmadeusDecoder.utilities.SendMail import Sending
 
 os.environ.setdefault(
     'DJANGO_SETTINGS_MODULE', 'DjangoTravelAgency.settings'

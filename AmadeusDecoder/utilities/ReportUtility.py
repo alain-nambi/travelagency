@@ -5,7 +5,53 @@ Created on Jun 20, 2023
 '''
 import os
 import django
-from AmadeusDecoder.utilities.Backup.SendMail import Sending
+from AmadeusDecoder.utilities.SendMail import Sending
+
+FEE_HISTORY_REPORT_LOCAL_RECIPIENTS = [
+            "phpr974@gmail.com",
+            "pp@phidia.onmicrosoft.com",
+            # "nasolo@phidia.onmicrosoft.com",
+            "mihaja@phidia.onmicrosoft.com",
+            "tahina@phidia.onmicrosoft.com",
+            # "remi@phidia.onmicrosoft.com",
+            # "famenontsoa@outlook.com",
+            # "alain@phidia.onmicrosoft.com",
+        ]
+
+FEE_HISTORY_REPORT_CUSTOMER_RECIPIENTS = other_users_mail = [
+            "stephanie@agences-issoufali.com",
+            # "fahar@agences-issoufali.com",
+            # "samir@agences-issoufali.com",
+            # "oulfate@agences-issoufali.com",
+            # "mraati@agences-issoufali.com",
+            # "fouadi@agences-issoufali.com",
+            # "roihamina@agences-issoufali.com",
+            # "mouniati@agences-issoufali.com",
+            # "sylvia@agences-issoufali.com",
+            # "anziza@agences-issoufali.com",
+            # "sejours@agences-issoufali.com",
+            # "sarmada@agences-issoufali.com",
+            # "lola@agences-issoufali.com",
+            # "farida@agences-issoufali.com",
+            # "goula@agences-issoufali.com",
+            # "saouda@agences-issoufali.com",
+            # "riziki@agences-issoufali.com",
+            # "karim@agences-issoufali.com",
+            # "josianenovou@agences-issoufali.com",
+            # "anaissa@agences-issoufali.com",
+            # "hassanati@agences-issoufali.com",
+            # "saidmaoulida@agences-issoufali.com",
+            # "madjid@agences-issoufali.com",
+            # "sity@agences-issoufali.com",
+            # "koro@agences-issoufali.com",
+            "issoufali.pnr@outlook.com",
+            # "danielbehava2@agences-issoufali.com",
+            "david.domitin@agences-issoufali.com",
+            # "eric@agences-issoufali.com",
+            # "taanli@agences-issoufali.com",
+            # "shoulaya@agences-issoufali.com",
+        ]
+
 
 os.environ.setdefault(
     'DJANGO_SETTINGS_MODULE', 'DjangoTravelAgency.settings'
@@ -95,50 +141,9 @@ class ReportUtility():
         subject = f"Rapport des modifications de frais de service accordées"
         
         # send current content as email for administrator
-        mgbi_users_mail = [
-            "phpr974@gmail.com",
-            "pp@phidia.onmicrosoft.com",
-            # "nasolo@phidia.onmicrosoft.com",
-            "mihaja@phidia.onmicrosoft.com",
-            "tahina@phidia.onmicrosoft.com",
-            # "remi@phidia.onmicrosoft.com",
-            # "famenontsoa@outlook.com",
-            # "alain@phidia.onmicrosoft.com",
-        ]
+        mgbi_users_mail = FEE_HISTORY_REPORT_LOCAL_RECIPIENTS
         
-        other_users_mail = [
-            "stephanie@agences-issoufali.com",
-            # "fahar@agences-issoufali.com",
-            # "samir@agences-issoufali.com",
-            # "oulfate@agences-issoufali.com",
-            # "mraati@agences-issoufali.com",
-            # "fouadi@agences-issoufali.com",
-            # "roihamina@agences-issoufali.com",
-            # "mouniati@agences-issoufali.com",
-            # "sylvia@agences-issoufali.com",
-            # "anziza@agences-issoufali.com",
-            # "sejours@agences-issoufali.com",
-            # "sarmada@agences-issoufali.com",
-            # "lola@agences-issoufali.com",
-            # "farida@agences-issoufali.com",
-            # "goula@agences-issoufali.com",
-            # "saouda@agences-issoufali.com",
-            # "riziki@agences-issoufali.com",
-            # "karim@agences-issoufali.com",
-            # "josianenovou@agences-issoufali.com",
-            # "anaissa@agences-issoufali.com",
-            # "hassanati@agences-issoufali.com",
-            # "saidmaoulida@agences-issoufali.com",
-            # "madjid@agences-issoufali.com",
-            # "sity@agences-issoufali.com",
-            # "koro@agences-issoufali.com",
-            "issoufali.pnr@outlook.com",
-            # "danielbehava2@agences-issoufali.com",
-            "david.domitin@agences-issoufali.com",
-            # "eric@agences-issoufali.com",
-            # "taanli@agences-issoufali.com",
-            # "shoulaya@agences-issoufali.com",
-        ]
+        other_users_mail = FEE_HISTORY_REPORT_CUSTOMER_RECIPIENTS
         
         if len(target_history_list) > 0:
             Sending.send_email(

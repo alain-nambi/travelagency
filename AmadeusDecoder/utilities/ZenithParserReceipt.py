@@ -15,12 +15,12 @@ from AmadeusDecoder.models.invoice.TicketPassengerSegment import TicketPassenger
 from AmadeusDecoder.models.invoice.Fee import OthersFee
 from AmadeusDecoder.models.user.Users import User
 
-_PAYMENT_OPTIONS_ = ['Comptant', 'En compte', 'Virement']
-_TICKET_NUMBER_PREFIX_ = ['Echange billet', 'EMD']
-_TO_BE_EXCLUDED_KEY_KEYWORDS_ = ['Encaissement transaction', 'Encaissement Modification', 'Encaissement des suppléments']
-_AIRPORT_AGENCY_CODE_ = ['DZAUU000B', 'Mayotte ATO']
-_STARTED_PROCESS_DATE_ = datetime(2023, 1, 1, 0, 0, 0, 0).date()
-_CURRENT_TRAVEL_AGENCY_IDENTIFIER_ = ['Issoufali', 'ISSOUFALI', 'Mayotte ATO']
+PAYMENT_OPTIONS = ['Comptant', 'En compte', 'Virement']
+TICKET_NUMBER_PREFIX = ['Echange billet', 'EMD']
+TO_BE_EXCLUDED_KEY_KEYWORDS = ['Encaissement transaction', 'Encaissement Modification', 'Encaissement des suppléments']
+AIRPORT_AGENCY_CODE = ['DZAUU000B', 'Mayotte ATO']
+STARTED_PROCESS_DATE = datetime(2023, 1, 1, 0, 0, 0, 0).date()
+CURRENT_TRAVEL_AGENCY_IDENTIFIER = ['Issoufali', 'ISSOUFALI', 'Mayotte ATO']
 
 # part types
 TICKET_PAYMENT_PART = ["Paiement Billet"]
@@ -89,7 +89,7 @@ class ZenithParserReceipt():
     def is_excluded(self, part):
         to_be_excluded = False
         for element in part:
-            for keyword in _TO_BE_EXCLUDED_KEY_KEYWORDS_:
+            for keyword in TO_BE_EXCLUDED_KEY_KEYWORDS:
                 if element.find(keyword) > -1:
                     return True
         return to_be_excluded
@@ -122,7 +122,7 @@ class ZenithParserReceipt():
     # check if part has been issued by current Travel Agency
     def check_part_emitter(self, current_part):
         is_emitted = False
-        for identifier in _CURRENT_TRAVEL_AGENCY_IDENTIFIER_:
+        for identifier in CURRENT_TRAVEL_AGENCY_IDENTIFIER:
             if current_part[1].find(identifier) > -1 or current_part[2].find(identifier) > -1:
                 return True
         
@@ -183,7 +183,7 @@ class ZenithParserReceipt():
                     elif temp_part.split(']')[0].strip() == passenger.name:
                         passenger_name += temp_part.split(']')[0]
                         break
-            if current_part[i].strip() in _PAYMENT_OPTIONS_:
+            if current_part[i].strip() in PAYMENT_OPTIONS:
                 next_index = i
         
         for passenger in passengers:
@@ -205,7 +205,7 @@ class ZenithParserReceipt():
         ticket_number = None
         for i in range(len(current_part)):
             element = current_part[i]
-            for prefix in _TICKET_NUMBER_PREFIX_:
+            for prefix in TICKET_NUMBER_PREFIX:
                 if element.startswith(prefix):
                     ticket_number = element.removeprefix(prefix).strip().removeprefix('[').removesuffix(']').removeprefix(':').removeprefix('(').removesuffix(')')
                 elif element.endswith(prefix):
@@ -271,17 +271,17 @@ class ZenithParserReceipt():
             if isinstance(current_segment, list):
                 for segment in current_segment:
                     segment_departuretime = segment.departuretime
-                    if emitter.office.code in _AIRPORT_AGENCY_CODE_ and segment_departuretime is not None:
+                    if emitter.office.code in AIRPORT_AGENCY_CODE and segment_departuretime is not None:
                         if segment_departuretime.date() == date_time.date():
                             tester = True
                             break
             else:
                 segment_departuretime = current_segment.departuretime
-                if emitter.office.code in _AIRPORT_AGENCY_CODE_ and segment_departuretime is not None:
+                if emitter.office.code in AIRPORT_AGENCY_CODE and segment_departuretime is not None:
                     if segment_departuretime.date() == date_time.date():
                         tester = True
         
-        if part[2] in _AIRPORT_AGENCY_CODE_:
+        if part[2] in AIRPORT_AGENCY_CODE:
             # set issuing agency name
             if ticket is not None:
                 ticket.issuing_agency_name = part[2]
@@ -311,7 +311,7 @@ class ZenithParserReceipt():
     # check issuing date
     def check_issuing_date(self, date_time):
         is_flown = False
-        if date_time < _STARTED_PROCESS_DATE_:
+        if date_time < STARTED_PROCESS_DATE:
             is_flown = True
         return is_flown
     
@@ -421,7 +421,7 @@ class ZenithParserReceipt():
                             
             # get adjustment
             # for element in part:
-            #     for prefix in _TICKET_NUMBER_PREFIX_:
+            #     for prefix in TICKET_NUMBER_PREFIX:
             #         if element.startswith(prefix):
             #             new_ticket.number = element.removeprefix(prefix).strip().removeprefix('[').removesuffix(']').removeprefix(':')
             
@@ -778,7 +778,7 @@ class ZenithParserReceipt():
                 
                 # get emd
                 # for element in part:
-                #     for prefix in _TICKET_NUMBER_PREFIX_:
+                #     for prefix in TICKET_NUMBER_PREFIX:
                 #         if element.find(prefix) > -1:
                 #             new_emd.number = element.replace(prefix, '').replace('(', '').replace(')', '').replace(':', '')
                 # new_emd.number = element.removeprefix(prefix).strip().removeprefix('[').removesuffix(']').removeprefix(':')

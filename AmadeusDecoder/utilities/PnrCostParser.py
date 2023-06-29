@@ -17,7 +17,11 @@ from AmadeusDecoder.models.invoice.TicketPassengerTST import TicketPassengerTST
 from AmadeusDecoder.models.invoice.TicketPassengerSegment import TicketPassengerSegment
 from AmadeusDecoder.models.data.RawData import RawData
 
-_SPECIAL_AGENCY_ID_ = ['PARFT278Z']
+SPECIAL_AGENCY_ID = ['PARFT278Z']
+PASSENGER_DESIGNATIONS = ['MR', 'MS', 'MRS', 'DR', 'ML', 'ADT', 'INF', 'YTH', 'MSTR']
+TST_IDENTIFIER = ["TST"]
+TICKET_IDENTIFIER = ["TKT"]
+COST_IDENTIFIER = ["FARE", "EQUIV", "GRAND", "TOTAL"]
 
 class PnrCostParser():
     '''
@@ -70,7 +74,7 @@ class PnrCostParser():
         
         order = 0
         for line in passenger_line:
-            all_designation = ['MR', 'MS', 'MRS', 'DR', 'ML', 'ADT', 'INF', 'YTH', 'MSTR']
+            all_designation = PASSENGER_DESIGNATIONS
             temp_passenger = Passenger()
             line_split = line.split('(')
             line_space_split = line.split(' ')
@@ -208,7 +212,7 @@ class PnrCostParser():
     def get_header_info(self, content):
         header_line = []
         for temp in content:
-            if 'OD' in temp.split(' ') and temp.startswith('TST'):
+            if 'OD' in temp.split(' ') and temp.startswith(TST_IDENTIFIER[0]):
                 header_line = self.remove_space(temp.split(' '))
                 break
         
@@ -340,16 +344,16 @@ class PnrCostParser():
         for temp in content:
             space_free_temp = self.remove_space(temp.split(' '))
             if len(space_free_temp) > 0:
-                if space_free_temp[0] == 'FARE':
+                if space_free_temp[0] == COST_IDENTIFIER[0]:
                     for element in space_free_temp:
                         if element.split('.')[0].isnumeric():
                             fare = float(element)
                 # when foreign currency has been used
-                if space_free_temp[0] == 'EQUIV':
+                if space_free_temp[0] == COST_IDENTIFIER[1]:
                     for element in space_free_temp:
                         if element.split('.')[0].isnumeric():
                             fare = float(element) 
-                elif space_free_temp[0] == 'GRAND' and space_free_temp[1] == 'TOTAL':
+                elif space_free_temp[0] == COST_IDENTIFIER[2] and space_free_temp[1] == COST_IDENTIFIER[3]:
                     for element in space_free_temp:
                         if element.split('.')[0].isnumeric():
                             total = float(element)
@@ -404,7 +408,7 @@ class PnrCostParser():
                     ticket_number = tst_number + '-' + str(order)
                     temp_ticket = Ticket.objects.filter(pnr=pnr, number=ticket_number).first()
                     temp_passenger = Passenger.objects.filter(passenger__pnr=pnr, name=passenger.name, surname=passenger.surname).first()
-                    temp_ticket = Ticket.objects.filter(pnr=pnr, passenger=temp_passenger, ticket_type='TST', number=ticket_number).first()
+                    temp_ticket = Ticket.objects.filter(pnr=pnr, passenger=temp_passenger, ticket_type=TST_IDENTIFIER[0], number=ticket_number).first()
                     
                     ticket.pnr = pnr
                     ticket.transport_cost = fare
@@ -412,7 +416,7 @@ class PnrCostParser():
                     ticket.tax = tax
                     ticket.total = total
                     ticket.flightclass = flight_class
-                    ticket.ticket_type = 'TST'
+                    ticket.ticket_type = TST_IDENTIFIER[0]
                     ticket.number = ticket_number
                     ticket.passenger = temp_passenger
                     
@@ -483,7 +487,7 @@ class PnrCostParser():
                     temp_passenger_tst = TicketPassengerTST.objects.filter(passenger__id=temp_passenger_obj.id, ticket__number=ticket.number).all()
                     if len(temp_passenger_tst) == 1:
                         tst_ticket_segment = TicketPassengerSegment.objects.filter(ticket__id=ticket.id).all()
-                        ticket_segment = TicketPassengerSegment.objects.filter(segment__id=tst_ticket_segment[0].segment.id, ticket__ticket_type='TKT', ticket__passenger=temp_passenger_obj).last()
+                        ticket_segment = TicketPassengerSegment.objects.filter(segment__id=tst_ticket_segment[0].segment.id, ticket__ticket_type=TICKET_IDENTIFIER[0], ticket__passenger=temp_passenger_obj).last()
                         if ticket_segment is not None:
                             temp_ticket = Ticket.objects.filter(id=ticket_segment.ticket.id).first()
                             if temp_ticket is not None:
@@ -498,7 +502,7 @@ class PnrCostParser():
                                     temp_ticket.is_prime = True
                                 # special agency processing
                                 # if temp_ticket.issuing_agency is not None:
-                                #     if temp_ticket.issuing_agency.code in _SPECIAL_AGENCY_ID_:
+                                #     if temp_ticket.issuing_agency.code in SPECIAL_AGENCY_ID:
                                 #         temp_ticket.tax = ticket.tax + 10
                                 #         temp_ticket.total = ticket.total + 10
                                 # update ticket status based on is_issued_outside status

@@ -13,6 +13,10 @@ from AmadeusDecoder.models.invoice.Fee import Fee
 from AmadeusDecoder.models.user.Users import User
 from AmadeusDecoder.models.invoice.Fee import ReducePnrFeeRequest
 
+FEE_REQUEST_RESPONSE_RECIPIENT = ["issoufali.pnr@gmail.com"]
+FEE_DECREASE_REQUEST_RESPONSE_SENDER = ["feerequest.issoufali.pnr@outlook.com"]
+FEE_DECREASE_REQUEST_RESPONSE_RECIPIENTS = ["pp@phidia.onmicrosoft.com", "mihaja@phidia.onmicrosoft.com", "tahina@phidia.onmicrosoft.com"]
+
 class ServiceFeesDecreaseRequest():
     '''
     classdocs
@@ -68,7 +72,7 @@ class ServiceFeesDecreaseRequest():
     # request response url
     def request_response_url(self, response_type, choiceType, token, pnr_object, customers, first_passenger, feeOriginAmount, feeAmount, ticket_total_cost, ticket_total_all):
         # when modifying requested fees
-        mail_recipient = "issoufali.pnr@gmail.com"
+        mail_recipient = FEE_REQUEST_RESPONSE_RECIPIENT[0]
         subject = "FEE%20MODIFY%20REQUEST"
         mail_body = ""
         ticket_concerned = ""
@@ -324,14 +328,10 @@ class ServiceFeesDecreaseRequest():
             
             recipient = reduceFeeRequestObj.user.email
             Sending.send_email_request(
-                "feerequest.issoufali.pnr@outlook.com",
+                FEE_DECREASE_REQUEST_RESPONSE_SENDER[0],
                 [
-                    recipient,
-                    "pp@phidia.onmicrosoft.com",
-                    "mihaja@phidia.onmicrosoft.com",
-                    "tahina@phidia.onmicrosoft.com",
-                    "famenontsoa@outlook.com"
-                ],
+                    recipient
+                ] + FEE_DECREASE_REQUEST_RESPONSE_RECIPIENTS,
                 subject,
                 message
             )

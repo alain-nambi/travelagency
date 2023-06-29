@@ -34,24 +34,34 @@ from AmadeusDecoder.models.invoice.InvoiceDetails import InvoiceDetails
 from AmadeusDecoder.models.user.Users import User
 from AmadeusDecoder.models.invoice.Fee import OthersFee
 
-_passenger_types_ = ['Adulte(s)', 'Enfant(s)', 'Bébé(s)', 'Mineur(s) non accompagné']
-_passenger_designations_ = ['M.', 'Mme', 'Enfant', 'Bébé', 'Mlle', 'Ms.']
-_currencies_ = ['EUR']
-_e_ticket_possible_format_ = ['e-ticket', 'e‐ĕcket', 'e‐韜���cket', 'e‐⁛cket', 'e‐�cket', 'e‐଀cket', 'e‐෶���cket', 'e‐➄cket', 'e‐ᬘ���cket', 'e‐痴���cket']
-_itinerary_header_possible_format_ = [['Itinéraire', 'Vol', 'Enregistrement', 'De', 'A', 'Départ', 'Arrivée CabineEscales'],
+LANGUAGE_CODE = ['fr']
+
+PASSENGER_TYPES = ['Adulte(s)', 'Enfant(s)', 'Bébé(s)', 'Mineur(s) non accompagné']
+PASSENGER_DESIGNATIONS = ['M.', 'Mme', 'Enfant', 'Bébé', 'Mlle', 'Ms.']
+E_TICKET_POSSIBLE_FORMAT = ['e-ticket', 'e‐ĕcket', 'e‐韜���cket', 'e‐⁛cket', 'e‐�cket', 'e‐଀cket', 'e‐෶���cket', 'e‐➄cket', 'e‐ᬘ���cket', 'e‐痴���cket']
+ITINERARY_HEADER_POSSIBLE_FORMAT = [['Itinéraire', 'Vol', 'Enregistrement', 'De', 'A', 'Départ', 'Arrivée CabineEscales'],
                                       ['Itinéraire', 'Vol', 'Enregistrement', 'De', 'A', 'Départ', 'Arrivée', 'CabineEscales'],
                                       ['Itinéraire', 'Vol', 'Enregistrement', 'De', 'A', 'Départ', 'Arrivée', 'Cabine Escales'],
                                       ['Itinéraire', 'Vol', 'Enregistrement', 'De', 'A', 'Départ', 'Arrivée', 'Cabine', 'Escales']]
-_header_names_ = ['Itinéraire', 'Détails du tarif', 'Conditions tarifaires', 'Reçu de paiement']
-_service_carrier_ = ['ZD', 'TZ']
-_months_ = {'janv':'01', 'févr':'02', 'mars':'03', 'avr':'04', 'mai':'05', 'juin':'06', 'juil':'07', 'août':'08', 'sept':'09', 'oct':'10', 'nov':'11', 'déc':'12'}
-_months_type_2_ = {'janvier':'01', 'février':'02', 'mars':'03', 'avril':'04', 'mai':'05', 'juin':'06', 'juillet':'07', 'août':'08', 'septembre':'09', 'octobre':'10', 'novembre':'11', 'décembre':'12'}
-_week_days_ = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi']
-_AIRPORT_AGENCY_CODE_ = ['DZAUU000B']
-_CURRENT_TRAVEL_AGENCY_IDENTIFIER_ = ['Issoufali', 'ISSOUFALI', 'Mayotte ATO']
-_PASSENGER_NON_RELEVANT_ = ['N° FFP']
+HEADER_NAMES = ['Itinéraire', 'Détails du tarif', 'Conditions tarifaires', 'Reçu de paiement']
+SERVICE_CARRIER = ['ZD', 'TZ']
+
+if LANGUAGE_CODE[0] == 'fr':
+    MONTHS = {'janv':'01', 'févr':'02', 'mars':'03', 'avr':'04', 'mai':'05', 'juin':'06', 'juil':'07', 'août':'08', 'sept':'09', 'oct':'10', 'nov':'11', 'déc':'12'}
+    MONTHS_TYPE_2 = {'janvier':'01', 'février':'02', 'mars':'03', 'avril':'04', 'mai':'05', 'juin':'06', 'juillet':'07', 'août':'08', 'septembre':'09', 'octobre':'10', 'novembre':'11', 'décembre':'12'}
+    WEEKDAYS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi']
+else:
+    MONTHS = {'jan':'01', 'feb':'02', 'mars':'03', 'apr':'04', 'may':'05', 'june':'06', 'july':'07', 'aug':'08', 'sept':'09', 'oct':'10', 'nov':'11', 'dec':'12'}
+    MONTHS_TYPE_2 = {'january':'01', 'february':'02', 'mars':'03', 'april':'04', 'may':'05', 'june':'06', 'july':'07', 'august':'08', 'september':'09', 'october':'10', 'november':'11', 'december':'12'}
+    WEEKDAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+
+AIRPORT_AGENCY_CODE = ['DZAUU000B']
+CURRENT_TRAVEL_AGENCY_IDENTIFIER = ['Issoufali', 'ISSOUFALI', 'Mayotte ATO']
+PASSENGER_NON_RELEVANT = ['N° FFP']
 
 ITINERARY_NAME = ["Itinéraire"]
+COST_DETAIL_IDENTIFIER = ["Détails du tarif"]
+ANCILLARIES_IDENTIFIER = ["Ancillaries"]
 NOT_EMITTED_PNR_START_IDENTIFIER = ["VOTRE NUMERO DE DOSSIER"]
 NOT_EMITTED_PNR_START_PASSENGER = ["Noms des passagers"]
 NOT_EMITTED_PNR_START_BOOKING = ["Votre réservation :"]
@@ -78,6 +88,8 @@ ISSUING_OFFICE_IDENTIFIER = ["Lieu d'émission"]
 COST_WORD_IDENTIFIER = ["Tarif"]
 MODIFICATION_IDENTIFIER = ["Différence tarifaire", "Pénalité d'échange"]
 TAX_IDENTIFIER = ["Taxes"]
+RECEIPT_IDENTIFIER = ["Transaction/Synthèse des éléments financiers"]
+CUSTOMER_NAME_IDENTIFIER = ["Nom du client"]
 
 class ZenithParser():
     '''
@@ -188,7 +200,7 @@ class ZenithParser():
     def check_fee_subjection_status(self, pnr, other_fee):
         emitter = pnr.get_emit_agent()
         if emitter is not None:
-            if emitter.office.code in _AIRPORT_AGENCY_CODE_:
+            if emitter.office.code in AIRPORT_AGENCY_CODE:
                 other_fee.is_subjected_to_fee = False
     
     # Get PNR number
@@ -236,7 +248,7 @@ class ZenithParser():
             
             temp_passenger_split = temp_passenger.split(' ')
             if len(temp_passenger_split) > 1:
-                if temp_passenger_split[0] in _passenger_designations_:
+                if temp_passenger_split[0] in PASSENGER_DESIGNATIONS:
                     temp_passenger_obj.designation = temp_passenger_split[0]
                     temp_passenger_obj.name = temp_passenger.removeprefix(temp_passenger_split[0]).strip()
                     
@@ -255,7 +267,7 @@ class ZenithParser():
     # date formatter
     def format_date(self, date_str): # example: ['19', 'décembre', '2022'] to 19/12/2022
         if len(date_str) == 3:
-            return date_str[0] + '/' + str(_months_type_2_[date_str[1]]) + '/' + date_str[2]
+            return date_str[0] + '/' + str(MONTHS_TYPE_2[date_str[1]]) + '/' + date_str[2]
         else:
             return ''
     
@@ -318,10 +330,10 @@ class ZenithParser():
                     temp_flight_no = flight_info_split[index_of_flight + 2].removeprefix('N°')
                 temp_segment_obj.flightno = temp_flight_no
             # date part
-            if flight_info_split[index_of_flight + 4] in _week_days_ or flight_info_split[index_of_flight + 3] in _week_days_:
-                if flight_info_split[index_of_flight + 4] in _week_days_:
+            if flight_info_split[index_of_flight + 4] in WEEKDAYS or flight_info_split[index_of_flight + 3] in WEEKDAYS:
+                if flight_info_split[index_of_flight + 4] in WEEKDAYS:
                     date_part = flight_info_split[index_of_flight + 5:]
-                elif flight_info_split[index_of_flight + 3] in _week_days_:
+                elif flight_info_split[index_of_flight + 3] in WEEKDAYS:
                     date_part = flight_info_split[index_of_flight + 4:]
             # departure info
             departure_info = itinerary_line[1]
@@ -601,12 +613,12 @@ class ZenithParser():
         new_content = []
         
         # remove some irrelevant content
-        passenger_content = self.clean_content_array(passenger_content, _PASSENGER_NON_RELEVANT_)
+        passenger_content = self.clean_content_array(passenger_content, PASSENGER_NON_RELEVANT)
         
         for i in range(len(passenger_content)):
             skip = False
             # separate "passenger type" and "contact" eg: 'Adulte(s)+262639693300', 'INFT (ANDRIAMAHEFA/ASSIASHANYLA 20JUN21)Adulte(s)+33766742803'
-            for psg_type in _passenger_types_:
+            for psg_type in PASSENGER_TYPES:
                 if passenger_content[i].startswith(psg_type) and passenger_content[i] != psg_type:
                     new_content.append(psg_type)
                     new_content.append(passenger_content[i].removeprefix(psg_type).strip())
@@ -623,7 +635,7 @@ class ZenithParser():
         new_content_passenger_name_assembled = []
         for i in range(len(new_content)):
             skip = False
-            for psg_type in _passenger_designations_:
+            for psg_type in PASSENGER_DESIGNATIONS:
                 # 'M. soloniaina jean francis', 'RAKOTONDRAMANANA', '7322415442815 INFT (RAKOTONDRAMANANA/YNAIA', '18DEC21)', 'Adulte(s)', '+262639215396', 'A22X460328'
                 if i > 0:
                     if new_content[i-1].split(' ')[0].strip() == psg_type and new_content[i-1] != psg_type:
@@ -639,13 +651,13 @@ class ZenithParser():
         new_content_ticket_separated = []
         for i in range(len(new_content)):
             skip = False
-            for psg_type in _passenger_types_:
+            for psg_type in PASSENGER_TYPES:
                 if new_content[i].strip() == psg_type:
                     if not new_content[i-1].strip().isnumeric() and len(new_content[i-1].strip()) > 13:
                         previous_element_space_split = new_content[i-1].split(' ')
                         
                         # 'Mme MARIE CHARLOTTE RAZAFIMANDIMBY 7322415445929', 'Adulte(s)'
-                        if previous_element_space_split[0].strip() in _passenger_designations_:
+                        if previous_element_space_split[0].strip() in PASSENGER_DESIGNATIONS:
                             new_content_ticket_separated.pop()
                             new_content_ticket_separated.append(new_content[i-1].removesuffix(previous_element_space_split[-1]).strip())
                             new_content_ticket_separated.append(previous_element_space_split[-1])
@@ -655,7 +667,7 @@ class ZenithParser():
                         # or 'Mme KAMARIA YOUSSOUF', '7322415447799', 'INFT (SAID/CAMELIA 24MAY22)', 'Adulte(s)',
                         else:
                             temp_head_element_space_split = new_content[i-2].split(' ')
-                            if temp_head_element_space_split[0].strip() in _passenger_designations_ \
+                            if temp_head_element_space_split[0].strip() in PASSENGER_DESIGNATIONS \
                                 and temp_head_element_space_split[-1].strip().isnumeric():
                                 new_content_ticket_separated.pop()
                                 new_content_ticket_separated.pop()
@@ -666,7 +678,7 @@ class ZenithParser():
                     # e.g: Mme MARIA HELENA MARCOS DO AMARAL 7322415433868INFT (DEBRITOAMARAL/AVAGABRIELLEHELENA', '03MAY21)', 'Adulte(s)'
                     elif not new_content[i-1].strip().isnumeric() and len(new_content[i-1].strip()) < 13:
                         temp_content_split_space = new_content[i-2].split(' ')
-                        if temp_content_split_space[0] in _passenger_designations_:
+                        if temp_content_split_space[0] in PASSENGER_DESIGNATIONS:
                             temp_ticket_number = ''
                             for content_split in temp_content_split_space:
                                 for word in content_split:
@@ -695,7 +707,7 @@ class ZenithParser():
         for i in range(len(new_content)):
             skip = False
             temp_part_split_space = new_content[i-1].split(' ')
-            if temp_part_split_space[0] in _passenger_designations_:
+            if temp_part_split_space[0] in PASSENGER_DESIGNATIONS:
                 temp_ticket_number = new_content[i].split(' ')[0]
                 if not new_content[i].isnumeric() and temp_ticket_number.isnumeric():
                     new_content_service_separated_ticket.append(temp_ticket_number)
@@ -711,7 +723,7 @@ class ZenithParser():
         for i in range(len(new_content)):
             skip = False
             # append passenger name when separated
-            for psg_designation in _passenger_designations_:
+            for psg_designation in PASSENGER_DESIGNATIONS:
                 if new_content[i].split(' ')[0].strip() == psg_designation:
                     if i < len(new_content) - 1:
                         if not new_content[i + 1].isnumeric() and not new_content[i + 1].startswith('N°'):
@@ -729,14 +741,14 @@ class ZenithParser():
         for i in range(len(new_content_fix_passenger)):
             filtered_content.append(new_content_fix_passenger[i])
             if i < len(new_content_fix_passenger) - 1:
-                if new_content_fix_passenger[i].isnumeric() and new_content_fix_passenger[i+1].strip() in _passenger_types_:
+                if new_content_fix_passenger[i].isnumeric() and new_content_fix_passenger[i+1].strip() in PASSENGER_TYPES:
                     filtered_content.append('')
         
         # remove duplicate service
         duplicate_service_removed = []
         for i in range(len(filtered_content)):
             duplicate_service_removed.append(filtered_content[i])
-            if filtered_content[i] in _passenger_types_:
+            if filtered_content[i] in PASSENGER_TYPES:
                 if not filtered_content[i-2].isnumeric():
                     service = filtered_content[i-2] + ' ' + filtered_content[i-1]
                     duplicate_service_removed.pop(i)
@@ -751,13 +763,13 @@ class ZenithParser():
             filtered_content_contact.append(duplicate_service_removed[i])
             # one passenger only and no contact
             if len(duplicate_service_removed) == 5:
-                if filtered_content[i] in _passenger_types_:
+                if filtered_content[i] in PASSENGER_TYPES:
                     filtered_content_contact.append('')
             elif len(duplicate_service_removed) > 6:
                 if i < len(duplicate_service_removed) - 3:
-                    if duplicate_service_removed[i] in _passenger_types_ and duplicate_service_removed[i+2].split(' ')[0] in _passenger_designations_:
+                    if duplicate_service_removed[i] in PASSENGER_TYPES and duplicate_service_removed[i+2].split(' ')[0] in PASSENGER_DESIGNATIONS:
                         filtered_content_contact.append('')
-                elif i+2 == len(duplicate_service_removed) and duplicate_service_removed[i] in _passenger_types_:
+                elif i+2 == len(duplicate_service_removed) and duplicate_service_removed[i] in PASSENGER_TYPES:
                     filtered_content_contact.append('')
         
         if len(filtered_content_contact)%6 != 0:
@@ -796,7 +808,7 @@ class ZenithParser():
                 if index_start > 0:
                     if content[index_start].strip() in PASSPORT_IDENTIFIER:
                         index_start += 1
-            elif content[i] in _e_ticket_possible_format_:
+            elif content[i] in E_TICKET_POSSIBLE_FORMAT:
                 index_end = i
                 break
             elif content[i].startswith(MAIN_PNR_NUMBER_START_IDENTIFIER[0]):
@@ -806,9 +818,9 @@ class ZenithParser():
         def get_passenger_index(content, index_start, index_end):
             passenger_index = []
             for i in range(index_start, index_end):
-                if content[i] in _passenger_types_:
+                if content[i] in PASSENGER_TYPES:
                     passenger_index.append(i)
-                elif content[i].split(' ')[0] in _passenger_types_ and len(content[i].split(' ')) > 1:
+                elif content[i].split(' ')[0] in PASSENGER_TYPES and len(content[i].split(' ')) > 1:
                     passenger_index.append(i)
                     temp_separated_value = content[i].split(' ')
                     new_content = []
@@ -820,7 +832,7 @@ class ZenithParser():
                             new_content.append(content[j])
                     index_end += 1
                     return get_passenger_index(new_content, index_start, index_end)
-                elif content[i].split(' ')[0] in _passenger_designations_ and content[i].split(' ')[-1].isnumeric():
+                elif content[i].split(' ')[0] in PASSENGER_DESIGNATIONS and content[i].split(' ')[-1].isnumeric():
                     passenger_index.append(i)
                     temp_separated_value = content[i].split(' ')
                     new_content = []
@@ -833,7 +845,7 @@ class ZenithParser():
                     index_end += 1
                     return get_passenger_index(new_content, index_start, index_end)
                 else:
-                    for passenger_type in _passenger_types_:
+                    for passenger_type in PASSENGER_TYPES:
                         if content[i].startswith(passenger_type):
                             passenger_index.append(i)
                 
@@ -852,7 +864,7 @@ class ZenithParser():
                 temp_ticket_obj = Ticket()
                 
                 # 'Nom du passager', 'Numéro de billet', 'Service(s)', 'Type', 'Contact', 'Numéro du passeport'
-                if content[0].split(' ')[0] in _passenger_designations_:
+                if content[0].split(' ')[0] in PASSENGER_DESIGNATIONS:
                     temp_passenger_obj.name = content[0].removeprefix(content[0].split(' ')[0]).strip()
                     temp_passenger_obj.designation = content[0].split(' ')[0]
                 else:
@@ -894,7 +906,7 @@ class ZenithParser():
             i = 0
             while i < len(content):
                 part.append(content[start_index + i])
-                if content[start_index + i + 1] in _header_names_ and content[start_index + i + 1] not in PAYMENT_RECEIPT_IDENTIFIER:
+                if content[start_index + i + 1] in HEADER_NAMES and content[start_index + i + 1] not in PAYMENT_RECEIPT_IDENTIFIER:
                     break
                 if start_index + i == len(content) - 2:
                     break
@@ -905,7 +917,7 @@ class ZenithParser():
     # get itinerary
     def get_itinerary(self, itinerary_part, pnr):
         service_carrier_indexes = []
-        for airline in _service_carrier_:
+        for airline in SERVICE_CARRIER:
             for i in range(len(itinerary_part)):
                     if itinerary_part[i].startswith(airline):
                         service_carrier_indexes.append(i)
@@ -933,7 +945,7 @@ class ZenithParser():
             segmentorder = 'S' + str(seg_order)
             
             # get airline
-            for carrier in _service_carrier_:
+            for carrier in SERVICE_CARRIER:
                 if temp_content[0].startswith(carrier):
                     temp_air_segment.servicecarrier = Airline.objects.filter(iata=carrier).first()
                     temp_air_segment.flightno = temp_content[0].removeprefix(carrier)
@@ -952,9 +964,9 @@ class ZenithParser():
                 # get departure and arrival datetime
                 splitted_part_dep_arr = element.split('-')
                 for split_dep_arr in splitted_part_dep_arr:
-                    if split_dep_arr.removesuffix('.') in _months_:
+                    if split_dep_arr.removesuffix('.') in MONTHS:
                         day = splitted_part_dep_arr[0]
-                        month = str(_months_[split_dep_arr.removesuffix('.')])
+                        month = str(MONTHS[split_dep_arr.removesuffix('.')])
                         year = splitted_part_dep_arr[2]
                         hour = temp_content[index + 1].split(':')[0]
                         minute = temp_content[index + 1].split(':')[1]
@@ -999,10 +1011,10 @@ class ZenithParser():
         passenger_type_part = []
         i = 0
         for element in segment_cost_line:
-            if element in _passenger_types_:
+            if element in PASSENGER_TYPES:
                 passenger_types_indexes.append(i)
             elif i < len(segment_cost_line) - 1:
-                if (segment_cost_line[i] + ' ' + segment_cost_line[i + 1]) in _passenger_types_:
+                if (segment_cost_line[i] + ' ' + segment_cost_line[i + 1]) in PASSENGER_TYPES:
                     passenger_types_indexes.append(i + 1)
             i += 1
         
@@ -1038,7 +1050,7 @@ class ZenithParser():
             for content_element in part:
                 # more than one passengers are on the same segment part with the same type
                 if passenger_count > 1:
-                    if content_element in _currencies_:
+                    if content_element in COMPANY_CURRENCY:
                         first_passenger_fare_index = part.index(COMPANY_CURRENCY[0]) + 1
                         fare_index = first_passenger_fare_index
                         tax_index = fare_index + passenger_count
@@ -1193,7 +1205,7 @@ class ZenithParser():
                     elif one_type_part_element < len(one_type_part) - 1:
                         if one_type_part[one_type_part_element+1].strip() in TOTAL_IDENTIFIER:
                             checker = True
-                        elif one_type_part[one_type_part_element+1].split(' ')[0] in _passenger_designations_:
+                        elif one_type_part[one_type_part_element+1].split(' ')[0] in PASSENGER_DESIGNATIONS:
                             checker = True
                     
                     if checker:
@@ -1202,7 +1214,7 @@ class ZenithParser():
                         total = ''
                         header_element = one_type_part[one_type_part_element-3]
                         
-                        if header_element.split(' ')[0] in _passenger_designations_:
+                        if header_element.split(' ')[0] in PASSENGER_DESIGNATIONS:
                             passenger_name = one_type_part[one_type_part_element-3]
                             quantity = one_type_part[one_type_part_element-2]
                             total = one_type_part[one_type_part_element-1]
@@ -1265,7 +1277,7 @@ class ZenithParser():
             flight_and_date_part_split = flight_and_date_part.split('(')
             if len(flight_and_date_part_split) > 0:
                 flight_date = flight_and_date_part_split[1][:-1]
-                # _months_ = {'janv':'01', 'févr':'02', 'mars':'03', 'avr':'04', 'mai':'05', 'juin':'06', 'juil':'07', 'août':'08', 'sept':'09', 'oct':'10', 'nov':'11', 'déc':'12'}
+                # MONTHS = {'janv':'01', 'févr':'02', 'mars':'03', 'avr':'04', 'mai':'05', 'juin':'06', 'juil':'07', 'août':'08', 'sept':'09', 'oct':'10', 'nov':'11', 'déc':'12'}
                 if flight_date.find('mars') > -1 or  flight_date.find('mai') > -1 or  flight_date.find('juin') > -1 or  flight_date.find('août') > -1:
                     year = flight_date[-2:]
                     flight_date = flight_date[:-2] + '.' + year
@@ -1273,12 +1285,12 @@ class ZenithParser():
                 day_part = ''
                 month_part = ''
                 day_month_part = flight_date.split('.')[0]
-                if day_month_part[2:] in _months_:
+                if day_month_part[2:] in MONTHS:
                     day_part = day_month_part[0:2]
-                    month_part = str(_months_[day_month_part[2:]])
-                elif day_month_part[1:] in _months_:
+                    month_part = str(MONTHS[day_month_part[2:]])
+                elif day_month_part[1:] in MONTHS:
                     day_part = day_month_part[0:1]
-                    month_part = str(_months_[day_month_part[1:]])
+                    month_part = str(MONTHS[day_month_part[1:]])
                 try:
                     ancillary_issuing_date = datetime.datetime.strptime(year_part + month_part + day_part + ' ' + '00:00:00', '%y%m%d %H:%M:%S')
                     ancillary_issuing_date = datetime.datetime(ancillary_issuing_date.year, ancillary_issuing_date.month, ancillary_issuing_date.day, ancillary_issuing_date.hour, ancillary_issuing_date.minute, ancillary_issuing_date.second, ancillary_issuing_date.microsecond, pytz.UTC)
@@ -1348,9 +1360,9 @@ class ZenithParser():
                 try:
                     splitted_issuing_date = temp_issuing_date.split('-')
                     for split_iss_date in splitted_issuing_date:
-                        if split_iss_date.removesuffix('.') in _months_:
+                        if split_iss_date.removesuffix('.') in MONTHS:
                             day = splitted_issuing_date[0]
-                            month = str(_months_[split_iss_date.removesuffix('.')])
+                            month = str(MONTHS[split_iss_date.removesuffix('.')])
                             year = splitted_issuing_date[2]
                             date_format = datetime.datetime.strptime(year + month + day, '%y%m%d')
                             issuing_date = datetime.datetime(date_format.year, date_format.month, date_format.day)
@@ -1413,12 +1425,12 @@ class ZenithParser():
                 if len(content) == 0:
                     raise Exception('File is empty or not in PDF format.')
                 
-                if 'Transaction/Synthèse des éléments financiers' in content:
+                if content in RECEIPT_IDENTIFIER[0]:
                     from AmadeusDecoder.utilities.ZenithParserReceipt import ZenithParserReceipt
                     ZenithParserReceipt(content).parseReceipt()
                     raise Exception('Receipt received')
                 
-                if 'Itinéraire' not in content and 'Nom du passager' not in content and 'Nom du client' not in content:
+                if ITINERARY_NAME[0] not in content and PASSENGER_IDENTIFIER[0] not in content and CUSTOMER_NAME_IDENTIFIER[0] not in content:
                     raise Exception('File not EWA PNR.')
                     
                 pnr, is_saved = self.get_pnr_details(content, 'Emis', email_date)
@@ -1431,7 +1443,7 @@ class ZenithParser():
                     for pnr_passenger in pnr_passengers:
                         pnr_passenger.save()
                         
-                    other_info_part = self.get_part(content, 'Reçu de paiement')
+                    other_info_part = self.get_part(content, PAYMENT_RECEIPT_IDENTIFIER[0])
                     payment_option, issuing_date, issuing_office, other_ancillaries, taxes = self.get_other_info(other_info_part)
                     if issuing_office != '':
                         pnr.agency_name = issuing_office
@@ -1472,12 +1484,12 @@ class ZenithParser():
                         ticket.is_subjected_to_fees = False
                         ticket.save()
                         
-                    itinerary_part = self.get_part(content, 'Itinéraire')
+                    itinerary_part = self.get_part(content, ITINERARY_NAME[0])
                     air_segments = self.get_itinerary(itinerary_part, pnr)
                     for segment in air_segments:
                         segment.save()
                         
-                    cost_details_part = self.get_part(content, 'Détails du tarif')
+                    cost_details_part = self.get_part(content, COST_DETAIL_IDENTIFIER[0])
                     ticket_segments = self.get_ticket_segment_costs(cost_details_part, passengers, air_segments, pnr)
                     for ticket_segment in ticket_segments:
                         if len(other_ancillaries) > 0:
@@ -1498,7 +1510,7 @@ class ZenithParser():
                         for ticket in tickets:
                             temp_ticket_obj = Ticket.objects.filter(number=ticket.number).first()
                             if pnr.agency_name is not None:
-                                for identifier in _CURRENT_TRAVEL_AGENCY_IDENTIFIER_:
+                                for identifier in CURRENT_TRAVEL_AGENCY_IDENTIFIER:
                                     if pnr.agency_name.find(identifier) > -1:
                                         temp_ticket_obj.ticket_status = 1
                                         break
@@ -1512,7 +1524,7 @@ class ZenithParser():
                             temp_ticket_obj.is_subjected_to_fees = True
                             temp_ticket_obj.save()
                     
-                    ancillaries_part = self.get_part(content, 'Ancillaries')
+                    ancillaries_part = self.get_part(content, ANCILLARIES_IDENTIFIER[0])
                     ancillaries, ancillaries_segment = self.get_ancillaries_zenith(ancillaries_part, pnr, passengers, air_segments)
                     # if len(other_ancillaries) == 0:
                     for ancillary in ancillaries:
@@ -1617,7 +1629,7 @@ class ZenithParser():
                     # for pnr_passenger in pnr_passengers:
                     #     pnr_passenger.save()
                         
-                    other_info_part = self.get_part(content, 'Reçu de paiement')
+                    other_info_part = self.get_part(content, PAYMENT_RECEIPT_IDENTIFIER[0])
                     payment_option, issuing_date, issuing_office, other_ancillaries, taxes= self.get_other_info(other_info_part)
                     if issuing_office != '':
                         pnr.agency_name = issuing_office
@@ -1679,7 +1691,7 @@ class ZenithParser():
                         ticket.ticket_status = ticket_status
                         ticket.save()
                     
-                    itinerary_part = self.get_part(content, 'Itinéraire')
+                    itinerary_part = self.get_part(content, ITINERARY_NAME[0])
                     air_segments = self.get_itinerary(itinerary_part, pnr)
                     for segment in air_segments:
                         try:
@@ -1700,7 +1712,7 @@ class ZenithParser():
                             traceback.print_exc()
                         # segment.save()
                         
-                    cost_details_part = self.get_part(content, 'Détails du tarif')
+                    cost_details_part = self.get_part(content, COST_DETAIL_IDENTIFIER[0])
                     ticket_segments = self.get_ticket_segment_costs(cost_details_part, passengers, air_segments, pnr)
                     for ticket_segment in ticket_segments:
                         temp_segment = PnrAirSegments.objects.filter(segmentorder=ticket_segment.segment.segmentorder, pnr=pnr, air_segment_status=1).first()
@@ -1725,7 +1737,7 @@ class ZenithParser():
                         for ticket in tickets:
                             temp_ticket_obj = Ticket.objects.filter(number=ticket.number).first()
                             if pnr.agency_name is not None:
-                                for identifier in _CURRENT_TRAVEL_AGENCY_IDENTIFIER_:
+                                for identifier in CURRENT_TRAVEL_AGENCY_IDENTIFIER:
                                     if pnr.agency_name.find(identifier) > -1:
                                         temp_ticket_obj.ticket_status = 1
                                         break
@@ -1738,7 +1750,7 @@ class ZenithParser():
                             temp_ticket_obj.ticket_status = ticket_status
                             temp_ticket_obj.save()
                     
-                    ancillaries_part = self.get_part(content, 'Ancillaries')
+                    ancillaries_part = self.get_part(content, ANCILLARIES_IDENTIFIER[0])
                     ancillaries, ancillaries_segment = self.get_ancillaries_zenith(ancillaries_part, pnr, passengers, air_segments)
                     # if len(other_ancillaries) == 0:
                     for ancillary in ancillaries:

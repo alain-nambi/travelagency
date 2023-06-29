@@ -1008,10 +1008,10 @@ if (button__createCustomer != null) {
 
         try {
           if (response) {
-            select__customersList.innerHTML += `
-              <option value=${response.clientId} selected="true"> ${response.clientIntitule} </option> 
-            `;
-          }
+            select__customersList.insertAdjacentHTML('afterbegin', `
+              <option value=${response.clientId} selected="true"> ${response.clientIntitule} </option>
+            `);
+          } 
         } catch (error) {
           console.log('====================================');
           console.log("CLIENT NOT FOUND")

@@ -123,7 +123,7 @@ class Sending():
         message.attach(MIMEText(body, 'html'))
 
         try:
-            server = smtplib.SMTP(ANOMALY_EMAIL_SENDER[0], ANOMALY_EMAIL_SENDER_PORT[0])
+            server = smtplib.SMTP(ANOMALY_EMAIL_SENDER_SMTP[0], ANOMALY_EMAIL_SENDER_PORT[0])
             server.ehlo()
             server.starttls()
             server.ehlo()

@@ -5,7 +5,11 @@ Created on Jun 20, 2023
 '''
 import os
 import django
+import datetime
 from AmadeusDecoder.utilities.SendMail import Sending
+
+EMD_IDENTIFIER = ["EMD"]
+AIRPORT_AGENCY_CODE = ["DZAUU000B", "Mayotte ATO"]
 
 FEE_HISTORY_REPORT_LOCAL_RECIPIENTS = [
             "phpr974@gmail.com",
@@ -19,7 +23,7 @@ FEE_HISTORY_REPORT_LOCAL_RECIPIENTS = [
         ]
 
 FEE_HISTORY_REPORT_CUSTOMER_RECIPIENTS = other_users_mail = [
-            "stephanie@agences-issoufali.com",
+            # "stephanie@agences-issoufali.com",
             # "fahar@agences-issoufali.com",
             # "samir@agences-issoufali.com",
             # "oulfate@agences-issoufali.com",
@@ -46,7 +50,7 @@ FEE_HISTORY_REPORT_CUSTOMER_RECIPIENTS = other_users_mail = [
             # "koro@agences-issoufali.com",
             "issoufali.pnr@outlook.com",
             # "danielbehava2@agences-issoufali.com",
-            "david.domitin@agences-issoufali.com",
+            # "david.domitin@agences-issoufali.com",
             # "eric@agences-issoufali.com",
             # "taanli@agences-issoufali.com",
             # "shoulaya@agences-issoufali.com",
@@ -59,7 +63,9 @@ os.environ.setdefault(
 django.setup()
 
 from AmadeusDecoder.models.history.History import History
-import datetime
+from AmadeusDecoder.models.invoice.Ticket import Ticket
+from AmadeusDecoder.models.invoice.Fee import OthersFee
+from django.db.models import Q
 
 class ReportUtility():
     '''
@@ -77,8 +83,19 @@ class ReportUtility():
         target_history_list = History.objects.filter(modification_type='Fee', modification_date__year=target_date.year,
                                                      modification_date__month=target_date.month, modification_date__day=target_date.day).order_by('-modification_date').all()
         
+        final_target_history_list = []
         history_list = []
-        for history in target_history_list:
+        
+        for target_history in target_history_list:
+            related_object_id = target_history.related_object_id
+            if related_object_id is not None:
+                temp_ticket_airport = Ticket.objects.filter(Q(issuing_agency__code__in=AIRPORT_AGENCY_CODE) | Q(issuing_agency_name__in=AIRPORT_AGENCY_CODE), id=related_object_id, ticket_type__in=EMD_IDENTIFIER).first()
+                temp_other_fee_airport = OthersFee.objects.filter(id=related_object_id, fee_type__in=EMD_IDENTIFIER, issuing_agency_name__in=AIRPORT_AGENCY_CODE).first()
+                
+                if temp_ticket_airport is not None or temp_other_fee_airport is not None:
+                    final_target_history_list.append(target_history)
+                
+        for history in final_target_history_list:
             temp_modification = {}
             temp_modification['modified_object'] = history.modification_type
             temp_modification['modified_pnr'] = history.pnr_number
@@ -130,7 +147,7 @@ class ReportUtility():
             <html>
             <body>
                 <p> Bonjour, </p>
-                <p> Vous trouverez ci-après la liste des diminutions de frais de service accordées pour le {list_issuing_date}.</p>
+                <p> Vous trouverez ci-après la liste des diminutions de frais de service passées à l'aéroport pour le {list_issuing_date}.</p>
                 <p> Bonne réception. </p>
                 <p> Cordialement, </p>
                 {email_body}
@@ -145,7 +162,7 @@ class ReportUtility():
         
         other_users_mail = FEE_HISTORY_REPORT_CUSTOMER_RECIPIENTS
         
-        if len(target_history_list) > 0:
+        if len(final_target_history_list) > 0:
             Sending.send_email(
                 "issoufali.pnr@outlook.com", 
                 mgbi_users_mail + other_users_mail, 

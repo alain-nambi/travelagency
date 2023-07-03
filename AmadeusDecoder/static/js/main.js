@@ -1273,25 +1273,58 @@ setInterval(blinker, 1000);
 
 //
 $(document).ready(function () {
-  var typed = "";
+  // var typed = "";
   if ($(".customer-select").length > 0) {
-    $(".customer-select").select2({
-      placeholder: "Sélectionner client",
-      allowClear: true,
-      language: {
-        noResults: function (term) {
-          typed = $(".select2-search__field").val();
-        },
-      },
-    });
-    $(".customer-select").on("select2:select", function (e) {
-      typed = ""; // clear
-    });
+    // $(".customer-select").select2({
+    //   placeholder: "Sélectionner client",
+    //   allowClear: true,
+    //   language: {
+    //     noResults: function (term) {
+    //       typed = $(".select2-search__field").val();
+    //     },
+    //   },
+    // });
+    // $(".customer-select").on("select2:select", function (e) {
+    //   typed = ""; // clear
+    // });
     $(".edit-customer").click(function () {
       $("#show-customer").modal("hide");
       $("#edit-customers").modal("show");
     });
   }
+
+  // console.log($(".select2-search__field"));
+
+  // Allow searching customer directly on database
+  $('.customer-select').select2({
+    placeholder: "Sélectionner client",
+    allowClear: true,
+    ajax: {
+      type: 'POST',
+      url: '/home/search-customer/',
+      dataType: 'json',
+      delay: 250,
+      data: function (params) {
+        const query =
+          params.term && params.term.trim() !== ""
+            ? { term: params.term, csrfmiddlewaretoken: csrftoken }
+            : { csrfmiddlewaretoken: csrftoken };
+
+        return query;
+      },
+      processResults: function (data) {
+        // console.log(data);
+        return {
+          results: $.map(data, function (item) {
+            return {
+                text: item.intitule,
+                id: item.id
+            }
+          })
+        };
+      }
+    }
+  });
 });
 
 /*************************
@@ -1303,11 +1336,31 @@ $(document).ready(function () {
     $(".customer-modification-selection").select2({
       placeholder: "Sélectionner client",
       allowClear: true,
-      language: {
-        noResults: function (term) {
-          typed = $(".select2-search__field").val();
+      ajax: {
+        type: 'POST',
+        url: '/home/search-customer/',
+        dataType: 'json',
+        delay: 250,
+        data: function (params) {
+          const query =
+            params.term && params.term.trim() !== ""
+              ? { term: params.term, csrfmiddlewaretoken: csrftoken }
+              : { csrfmiddlewaretoken: csrftoken };
+  
+          return query;
         },
-      },
+        processResults: function (data) {
+          // console.log(data);
+          return {
+            results: $.map(data, function (item) {
+              return {
+                  text: item.intitule,
+                  id: item.id
+              }
+            })
+          };
+        }
+      }
     });
 
     const selectSelect2Container =

@@ -167,11 +167,11 @@
 												<span class="details-span text-primary">Client</span>
 												{% with pnr|get_order_customer as order_customer %}
 													{% if order_customer is not None and pnr.status_value == 1 %}
-														<select class="form-control form-control-sm customer-select sm-height" style="display: none; font-size: 12px;" id="customer-list" name="customer-selection-input" data-live-search="true" data-placeholder="Sélectionner" >		
+														<select class="form-control form-control-sm customer-select sm-height" style="display: none; font-size: 12px;" id="customer-list" name="customer-selection-input" data-placeholder="Sélectionner le client" >		
 															<option value="" id=""></option>																						
-															{% for client in clients %}
+															{% comment %} {% for client in clients %}
 																<option value="{{ client.id }}">{{ client }} </option>
-															{% endfor %}
+															{% endfor %} {% endcomment %}
 														</select>
 														{% for order in order_customer %}
 															{% if order.ticket is not None or order.invoice_id is not None %}
@@ -232,11 +232,11 @@
 															{% endif %}
 														{% endfor %}
 													{% else %}
-														<select class="form-control form-control-sm customer-select sm-height" style="display: none; font-size: 12px;" id="customer-list" name="customer-selection-input" data-live-search="true" data-placeholder="Sélectionner" >		
+														<select class="form-control form-control-sm customer-select sm-height" style="display: none; font-size: 12px;" id="customer-list" name="customer-selection-input" data-placeholder="Sélectionner le client" >		
 															<option value="" id=""></option>																						
-															{% for client in clients %}
+															{% comment %} {% for client in clients %}
 																<option value="{{ client.id }}">{{ client }} </option>
-															{% endfor %}
+															{% endfor %} {% endcomment %}
 														</select>
 													{% endif %}
 													{% for other_fee in other_fees %}
@@ -1731,10 +1731,10 @@
 				<div class="mb-2">
 					<label class="form-label mb-0">Intitulé</label>
 					<p id="modalBodyCustomerIntitule"></p>
-					<select class="form-control form-control-sm sm-height customer-modification-selection" style="font-size: 12px;" id="customerModificationSelectionList" data-live-search="true" data-placeholder="Sélectionner" >																								
-						{% for client in clients %}
+					<select class="form-control form-control-sm sm-height customer-modification-selection" style="font-size: 12px;" id="customerModificationSelectionList" data-live-search="true" data-placeholder="Sélectionner le client" >																								
+						{% comment %} {% for client in clients %}
 							<option value="{{ client.id }}">{{ client }} </option>
-						{% endfor %}
+						{% endfor %} {% endcomment %}
 					</select>
 					{% with pnr|passenger_informations as passenger_informations %}
 						<a 

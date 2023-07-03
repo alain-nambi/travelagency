@@ -52,6 +52,7 @@ urlpatterns = [
     path('home/pnr/<int:pnr_id>/find-customer/', find_customer, name='find_customer'),
     path('home/customer/import_customer/', call_customer_import, name='import_customer'),
     path('home/product/import_product_odoo/', call_product_import, name='import_product_odoo'),
+    path('home/search-customer/', search_client_by_intitule, name= 'search_client_by_intitule')
 ]
 
 # assign current company to local variable 'session_variable'

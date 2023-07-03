@@ -19,7 +19,7 @@ class Configuration(models.Model, BaseModel):
             models.UniqueConstraint(fields=['environment', 'name', 'value_name'], name="unique_configuration")
         ]
         
-    environment = models.CharField(max_length=10, null=True)
+    environment = models.CharField(max_length=10, default='all')
     name = models.CharField(max_length=255)
     to_be_applied_on = models.CharField(max_length=255)
     value_name = models.CharField(max_length=255)

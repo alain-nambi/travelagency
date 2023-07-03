@@ -1425,7 +1425,7 @@ class ZenithParser():
                 if len(content) == 0:
                     raise Exception('File is empty or not in PDF format.')
                 
-                if content in RECEIPT_IDENTIFIER[0]:
+                if RECEIPT_IDENTIFIER[0] in content:
                     from AmadeusDecoder.utilities.ZenithParserReceipt import ZenithParserReceipt
                     ZenithParserReceipt(content).parseReceipt()
                     raise Exception('Receipt received')

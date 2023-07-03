@@ -8,3 +8,4 @@ from .company_info import CompanyInfo
 from .invoice import InvoicePassenger
 from .data import RawData
 from .history import History
+from .configuration import Configuration

@@ -102,6 +102,8 @@ class Ticket(models.Model, BaseModel):
     is_ticket_modification = models.BooleanField(default=0) # true: current ticket is a modification
     # temp ticket status field to store original ticket status
     original_ticket_status = models.IntegerField(default=1) 
+    # issuing agency name (original issuing agency name when ID cannot be found)
+    issuing_agency_name = models.CharField(max_length=200, null=True)
     
     # update ticket status if PNR has been reissued with different tickets
     def update_ticket_status_PNR_reissued(self, pnr, new_ticket_list):

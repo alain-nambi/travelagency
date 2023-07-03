@@ -90,6 +90,8 @@ class OthersFee(models.Model, BaseModel):
     is_invoiced = models.BooleanField(default=False)
     product_id = models.IntegerField(default=None, null=True)
     other_fee_status = models.IntegerField(default=1) # 0: void, 1: open for use, 3: flown
+    # issuing agency name (original issuing agency name when ID cannot be found)
+    issuing_agency_name = models.CharField(max_length=200, null=True)
     
     def __str__(self):
         return self.designation

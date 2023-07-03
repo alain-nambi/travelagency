@@ -11,8 +11,9 @@ from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.invoice.Ticket import Ticket
 from AmadeusDecoder.models.data.RawData import RawData
 
-AIRPORT_AGENCY_CODE = ['DZAUU000B']
 COMPANY_CURRENCY = ["EUR"]
+
+AIRPORT_AGENCY_CODE = ['DZAUU000B']
 SPECIAL_EMD_DESCRIPTION = ['DEPOSIT']
 NOT_FEED = ['RESIDUAL VALUE', 'DISCOUNT CARD']
 EMD_IDENTIFIER = ["EMD"]

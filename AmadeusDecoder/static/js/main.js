@@ -1317,8 +1317,8 @@ $(document).ready(function () {
         return {
           results: $.map(data, function (item) {
             return {
-                text: item.intitule,
-                id: item.id
+              text: `${item.intitule} (${item.id})` ,
+              id: item.id
             }
           })
         };
@@ -1354,8 +1354,8 @@ $(document).ready(function () {
           return {
             results: $.map(data, function (item) {
               return {
-                  text: item.intitule,
-                  id: item.id
+                text: `${item.intitule} (${item.id})`,
+                id: item.id
               }
             })
           };

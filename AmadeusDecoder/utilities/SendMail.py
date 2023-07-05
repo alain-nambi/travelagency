@@ -12,30 +12,42 @@ EMAIL_SENDING_ERROR_NOTIFICATION_RECIPIENTS = [
          "tahina@phidia.onmicrosoft.com",
          "pp@phidia.onmicrosoft.com"
 ]
-EMAIL_SENDING_ERROR_NOTIFICATION_SENDER = ["errorreport.issoufali.pnr@gmail.com"]
-EMAIL_SENDING_ERROR_NOTIFICATION_SENDER_PASSWORD = ["chnversafifnzagp"]
-EMAIL_SENDING_ERROR_NOTIFICATION_SENDER_SMTP = ["smtp.gmail.com"]
-EMAIL_SENDING_ERROR_NOTIFICATION_SENDER_PORT = [587]
 
-ANOMALY_EMAIL_SENDER = ["anomalie.issoufali.pnr@gmail.com"]
-ANOMALY_EMAIL_SENDER_SMTP = ["smtp.gmail.com"]
-ANOMALY_EMAIL_SENDER_PORT = [587]
-ANOMALY_EMAIL_SENDER_PASSWORD = ["qczyzeytdvlbcysq"]
+EMAIL_SENDING_ERROR_NOTIFICATION = {
+    'address': 'errorreport.issoufali.pnr@gmail.com',
+    'password': 'chnversafifnzagp',
+    'smtp': 'smtp.gmail.com',
+    'port': '587'
+}
 
-PNR_NOT_FETCHED_NOTIFICATION_SENDER = ["anomalie.issoufali.pnr@gmail.com"]
-PNR_NOT_FETCHED_NOTIFICATION_SENDER_SMTP = ["anomalie.issoufali.pnr@gmail.com"]
-PNR_NOT_FETCHED_NOTIFICATION_SENDER_PORT = [587]
-PNR_NOT_FETCHED_NOTIFICATION_SENDER_PASSWORD = ["qczyzeytdvlbcysq"]
+ANOMALY_EMAIL_SENDER = {
+    'address': 'anomalie.issoufali.pnr@gmail.com',
+    'password': 'qczyzeytdvlbcysq',
+    'smtp': 'smtp.gmail.com',
+    'port': '587'
+}
 
-FEE_REQUEST_SENDER = ["feerequest.issoufali.pnr@gmail.com"]
-FEE_REQUEST_SENDER_SMTP = ["smtp.gmail.com"]
-FEE_REQUEST_SENDER_PORT = [587]
-FEE_REQUEST_SENDER_PASSWORD = ["tnkunwvygtdkxfxg"]
+PNR_NOT_FETCHED_NOTIFICATION_SENDER = {
+    'address': 'anomalie.issoufali.pnr@gmail.com',
+    'password': 'qczyzeytdvlbcysq',
+    'smtp': 'smtp.gmail.com',
+    'port': '587'
+}
 
-PNR_PARSING_ERROR_NOTIFICATION_SENDER = ["errorreport.issoufali.pnr@gmail.com"]
-PNR_PARSING_ERROR_NOTIFICATION_SENDER_SMTP = ["smtp.gmail.com"]
-PNR_PARSING_ERROR_NOTIFICATION_SENDER_PORT = [587]
-PNR_PARSING_ERROR_NOTIFICATION_SENDER_PASSWORD = ["chnversafifnzagp"]
+FEE_REQUEST_SENDER = {
+    'address': 'feerequest.issoufali.pnr@gmail.com',
+    'password': 'tnkunwvygtdkxfxg',
+    'smtp': 'smtp.gmail.com',
+    'port': '587'
+}
+
+PNR_PARSING_ERROR_NOTIFICATION_SENDER = {
+    'address': 'errorreport.issoufali.pnr@gmail.com',
+    'password': 'chnversafifnzagp',
+    'smtp': 'smtp.gmail.com',
+    'port': '587'
+}
+
 PNR_PARSING_ERROR_NOTIFICATION_RECIPIENTS = [
             "nasolo@phidia.onmicrosoft.com",
             "mihaja@phidia.onmicrosoft.com",
@@ -83,7 +95,7 @@ class Sending():
             """.format(email_target=email_address)
         
         message = MIMEMultipart()
-        email_sender = EMAIL_SENDING_ERROR_NOTIFICATION_SENDER[0]
+        email_sender = EMAIL_SENDING_ERROR_NOTIFICATION['address']
         
         message['From'] = email_sender
         message['To'] = ";".join(recipients)
@@ -93,11 +105,11 @@ class Sending():
 
         try:
             # server = smtplib.SMTP('smtp-mail.outlook.com', 587)
-            server = smtplib.SMTP(EMAIL_SENDING_ERROR_NOTIFICATION_SENDER_SMTP[0], EMAIL_SENDING_ERROR_NOTIFICATION_SENDER_PORT[0])
+            server = smtplib.SMTP(EMAIL_SENDING_ERROR_NOTIFICATION["smtp"], int(EMAIL_SENDING_ERROR_NOTIFICATION["port"]))
             server.ehlo()
             server.starttls()
             server.ehlo()
-            server.login(EMAIL_SENDING_ERROR_NOTIFICATION_SENDER[0], EMAIL_SENDING_ERROR_NOTIFICATION_SENDER_PASSWORD[0])
+            server.login(EMAIL_SENDING_ERROR_NOTIFICATION["address"], EMAIL_SENDING_ERROR_NOTIFICATION["password"])
             text = message.as_string()
             server.sendmail(email_sender, recipients, text)
             print("{} NOTE: Email sent to \"{}\" address.".format(
@@ -114,7 +126,7 @@ class Sending():
     def send_email(sender, recipients, subject, body):
 
         message = MIMEMultipart()
-        email_sender = ANOMALY_EMAIL_SENDER[0]
+        email_sender = ANOMALY_EMAIL_SENDER["address"]
         
         message['From'] = email_sender
         message['To'] = ";".join(recipients)
@@ -123,11 +135,11 @@ class Sending():
         message.attach(MIMEText(body, 'html'))
 
         try:
-            server = smtplib.SMTP(ANOMALY_EMAIL_SENDER_SMTP[0], ANOMALY_EMAIL_SENDER_PORT[0])
+            server = smtplib.SMTP(ANOMALY_EMAIL_SENDER['smtp'], int(ANOMALY_EMAIL_SENDER['port']))
             server.ehlo()
             server.starttls()
             server.ehlo()
-            server.login(ANOMALY_EMAIL_SENDER[0], ANOMALY_EMAIL_SENDER_PASSWORD[0])
+            server.login(ANOMALY_EMAIL_SENDER['address'], ANOMALY_EMAIL_SENDER['password'])
             text = message.as_string()
             server.sendmail(email_sender, recipients, text)
             print("{} NOTE: Email sent to \"{}\" address.".format(
@@ -136,7 +148,7 @@ class Sending():
         except Exception as e:
             print("{} ERROR: SMTP server connection error.".format(datetime.now()))
             print("{} ERROR: {}".format(datetime.now(), e))
-            Sending().catch_error_on_sending_email(ANOMALY_EMAIL_SENDER[0])
+            Sending().catch_error_on_sending_email(ANOMALY_EMAIL_SENDER['address'])
             
         return True
     
@@ -174,7 +186,7 @@ class Sending():
     def send_email_pnr_not_fetched(sender, recipients, subject, body):
 
         message = MIMEMultipart()
-        email_sender = PNR_NOT_FETCHED_NOTIFICATION_SENDER[0]
+        email_sender = PNR_NOT_FETCHED_NOTIFICATION_SENDER['address']
         
         message['From'] = email_sender
         message['To'] = ";".join(recipients)
@@ -183,11 +195,11 @@ class Sending():
         message.attach(MIMEText(body, 'html'))
 
         try:
-            server = smtplib.SMTP(PNR_NOT_FETCHED_NOTIFICATION_SENDER_SMTP[0], PNR_NOT_FETCHED_NOTIFICATION_SENDER_PORT[0])
+            server = smtplib.SMTP(PNR_NOT_FETCHED_NOTIFICATION_SENDER['smtp'], int(PNR_NOT_FETCHED_NOTIFICATION_SENDER['port']))
             server.ehlo()
             server.starttls()
             server.ehlo()
-            server.login(PNR_NOT_FETCHED_NOTIFICATION_SENDER[0], PNR_NOT_FETCHED_NOTIFICATION_SENDER_PASSWORD[0])
+            server.login(PNR_NOT_FETCHED_NOTIFICATION_SENDER['address'], PNR_NOT_FETCHED_NOTIFICATION_SENDER['password'])
             text = message.as_string()
             server.sendmail(email_sender, recipients, text)
             print("{} NOTE: Email sent to \"{}\" address.".format(
@@ -196,7 +208,7 @@ class Sending():
         except Exception as e:
             print("{} ERROR: SMTP server connection error.".format(datetime.now()))
             print("{} ERROR: {}".format(datetime.now(), e))
-            Sending().catch_error_on_sending_email(PNR_NOT_FETCHED_NOTIFICATION_SENDER[0])
+            Sending().catch_error_on_sending_email(PNR_NOT_FETCHED_NOTIFICATION_SENDER['address'])
             
         return True
 
@@ -234,7 +246,7 @@ class Sending():
     def send_email_request(sender, recipients, subject, body):
 
         message = MIMEMultipart()
-        email_sender = FEE_REQUEST_SENDER[0]
+        email_sender = FEE_REQUEST_SENDER['address']
         
         message['From'] = email_sender
         message['To'] = ";".join(recipients)
@@ -243,11 +255,11 @@ class Sending():
         message.attach(MIMEText(body, 'html'))
 
         try:
-            server = smtplib.SMTP(FEE_REQUEST_SENDER_SMTP[0], FEE_REQUEST_SENDER_PORT[0])
+            server = smtplib.SMTP(FEE_REQUEST_SENDER['smtp'], int(FEE_REQUEST_SENDER['port']))
             server.ehlo()
             server.starttls()
             server.ehlo()
-            server.login(FEE_REQUEST_SENDER[0], FEE_REQUEST_SENDER_PASSWORD[0])
+            server.login(FEE_REQUEST_SENDER['address'], FEE_REQUEST_SENDER['password'])
             text = message.as_string()
             server.sendmail(email_sender, recipients, text)
             print("{} NOTE: Email sent to \"{}\" address.".format(
@@ -256,7 +268,7 @@ class Sending():
         except Exception as e:
             print("{} ERROR: SMTP server connection error.".format(datetime.now()))
             print("{} ERROR: {}".format(datetime.now(), e))
-            Sending().catch_error_on_sending_email(FEE_REQUEST_SENDER[0])
+            Sending().catch_error_on_sending_email(FEE_REQUEST_SENDER['address'])
             
         return True
 
@@ -323,7 +335,7 @@ class Sending():
                        , not_parsed = ("Fichier non-traité: " + not_parsed_file))
         
         message = MIMEMultipart()
-        email_sender = PNR_PARSING_ERROR_NOTIFICATION_SENDER[0]
+        email_sender = PNR_PARSING_ERROR_NOTIFICATION_SENDER['address']
         
         message['From'] = email_sender
         message['To'] = ";".join(recipients)
@@ -333,11 +345,11 @@ class Sending():
 
         try:
             # server = smtplib.SMTP('smtp-mail.outlook.com', 587)
-            server = smtplib.SMTP(PNR_PARSING_ERROR_NOTIFICATION_SENDER_SMTP[0], PNR_NOT_FETCHED_NOTIFICATION_SENDER_PORT[0])
+            server = smtplib.SMTP(PNR_PARSING_ERROR_NOTIFICATION_SENDER['smtp'], int(PNR_NOT_FETCHED_NOTIFICATION_SENDER['port']))
             server.ehlo()
             server.starttls()
             server.ehlo()
-            server.login(PNR_PARSING_ERROR_NOTIFICATION_SENDER[0], PNR_NOT_FETCHED_NOTIFICATION_SENDER_PASSWORD[0])
+            server.login(PNR_PARSING_ERROR_NOTIFICATION_SENDER['address'], PNR_NOT_FETCHED_NOTIFICATION_SENDER['password'])
             text = message.as_string()
             server.sendmail(email_sender, recipients, text)
             print("{} NOTE: Email sent to \"{}\" address.".format(

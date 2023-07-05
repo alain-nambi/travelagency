@@ -58,3 +58,6 @@ urlpatterns = [
 import AmadeusDecoder.utilities.session_variables as session_variables
 from AmadeusDecoder.utilities.ConfigReader import ConfigReader
 session_variables.current_company = ConfigReader.get_company()
+
+# load company info
+ConfigReader.load_company_info()

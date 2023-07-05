@@ -4,6 +4,14 @@ Created on 4 Feb 2023
 @author: Famenontsoa
 '''
 from AmadeusDecoder.utilities.ZenithParser import ZenithParser
+import AmadeusDecoder.utilities.configuration_data as configs
+from AmadeusDecoder.utilities.ConfigReader import ConfigReader
+
+# load configs
+ConfigReader.load_company_info()
+ConfigReader.load_email_source()
+ConfigReader.load_emd_parser_tool_data()
+print(configs.COST_DETAIL_IDENTIFIER)
 
 if __name__ == '__main__':
     # temp = PdfTextExtractor()

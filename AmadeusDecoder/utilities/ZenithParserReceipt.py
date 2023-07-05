@@ -27,12 +27,11 @@ TICKET_PAYMENT_PART = ["Paiement Billet"]
 ADJUSTMENT_PART = ["Reissuance Adjustment"]
 EMD_CANCELLATION_PART = ["Annulation ancillaries"]
 TICKET_CANCELLATION_PART = ["Ticket void", "Remboursement"]
-BALANCING_STATEMENT_PART = ["Balancing"]
 PENALTY_PART = ["Pénalité"]
 AGENCY_FEE_PART = ["Frais d'agence"]
-
 EMD_NO_NUMBER_POSSIBLE_DESIGNATION = ['bagage', 'equipement', 'instrument']
 DEFAULT_ASSIGNED_PASSENGER_ON_OBJECT = ['Adulte(s)']
+EMD_BALANCING_STATEMENT_PART = ["Balancing"]
 
 class ZenithParserReceipt():
     '''
@@ -641,7 +640,7 @@ class ZenithParserReceipt():
                 temp_related_other_fee = OthersFee.objects.filter(creation_date=date_time.date(), is_invoiced=False, total=abs(new_emd.total)).last()
                 if temp_related_ticket is not None:
                     new_emd.ticket = temp_related_ticket
-                    temp_related_ticket.fee.first().delete()
+                    temp_related_ticket.fees.first().delete()
                 elif temp_related_other_fee is not None:
                     new_emd.other_fee = temp_related_other_fee
                     temp_related_other_fee.fees.first().delete()
@@ -669,9 +668,9 @@ class ZenithParserReceipt():
         designation_index = self.get_target_part_index_extended(emd_single_part, EMD_NO_NUMBER_POSSIBLE_DESIGNATION)
         
         # check if current line is just an EMD Balancing Statement
-        if designation_index == 0 and self.get_target_part_index_extended(emd_single_part, BALANCING_STATEMENT_PART) > 0:
+        if designation_index == 0 and self.get_target_part_index_extended(emd_single_part, EMD_BALANCING_STATEMENT_PART) > 0:
             is_balancing_statement = True
-            designation_index = self.get_target_part_index_extended(emd_single_part, BALANCING_STATEMENT_PART)
+            designation_index = self.get_target_part_index_extended(emd_single_part, EMD_BALANCING_STATEMENT_PART)
         
         designation = None
         if designation_index > 0:

@@ -88,7 +88,7 @@ insert into t_configuration(environment, name, to_be_applied_on, value_name, arr
 ('all', 'Zenith Parser Tools', 'Zenith', 'Not emitted PNR start booking cost', ARRAY['Coût total de la réservation :'], null, null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'Not emitted pnr start opc', ARRAY['Si vous ne payez pas votre réservation avant'], null, null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'Not emitted pnr end opc', ARRAY['(heure locale de DZA), celle-ci sera AUTOMATIQUEMENT ANNULEE.'], null, null, now(), now(), true),
-('all', 'Zenith Parser Tools', 'Zenith', 'To excluded recipient email', ARRAY['issoufali.pnr@outlook.com'], null, null, now(), now(), true),
+('all', 'Zenith Parser Tools', 'Zenith', 'To be excluded recipient email', ARRAY['issoufali.pnr@outlook.com'], null, null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'EMD reference start', ARRAY['Référence PNR'], null, null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'EMD expiry date start', ARRAY['Date d''expiration'], null, null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'EMD comment start', ARRAY['Commentaire'], null, null, now(), now(), true),
@@ -98,6 +98,7 @@ insert into t_configuration(environment, name, to_be_applied_on, value_name, arr
 ('all', 'Zenith Parser Tools', 'Zenith', 'Passenger identifier', ARRAY['Nom du passager', 'Numéro de billet', 'Numéro de billet Service(s)', 'Numéro de billetService(s)', 'Numéro de', 'billet'], null, null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'Payment receipt identifier', ARRAY['Reçu de paiement'], null, null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'Total identifier', ARRAY['Total'], null, null, now(), now(), true),
+('all', 'Zenith Parser Tools', 'Zenith', 'Passenger word identifier', ARRAY['passager'], null, null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'Payment method identifier', ARRAY['Forme de', 'paiement'], null, null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'Issuing date identifier', ARRAY['Date d''émission'], null, null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'Issuing office identifier', ARRAY['Lieu d''émission'], null, null, now(), now(), true),
@@ -119,6 +120,8 @@ insert into t_configuration(environment, name, to_be_applied_on, value_name, dat
 ('all', 'Zenith Receipt Parser Tools', 'Zenith', 'Adjustment part', null, ARRAY['Reissuance Adjustment'], null, null, now(), now(), true),
 ('all', 'Zenith Receipt Parser Tools', 'Zenith', 'EMD cancellation part', null, ARRAY['Annulation ancillaries'], null, null, now(), now(), true),
 ('all', 'Zenith Receipt Parser Tools', 'Zenith', 'Ticket cancellation part', null, ARRAY['Ticket void', 'Remboursement'], null, null, now(), now(), true),
+('all', 'Zenith Receipt Parser Tools', 'Zenith', 'Penalty part', null, ARRAY['Pénalité'], null, null, now(), now(), true),
+('all', 'Zenith Receipt Parser Tools', 'Zenith', 'Agency fee part', null, ARRAY['Frais d''agence'], null, null, now(), now(), true),
 ('all', 'Zenith Receipt Parser Tools', 'Zenith', 'EMD no number possible designation', null, ARRAY['bagage', 'equipement', 'instrument'], null, null, now(), now(), true),
 ('all', 'Zenith Receipt Parser Tools', 'Zenith', 'Default passenger on object', null, ARRAY['Adulte(s)'], null, null, now(), now(), true),
 ('all', 'Zenith Receipt Parser Tools', 'Zenith', 'EMD balancing statement part', null, ARRAY['Balancing'], null, null, now(), now(), true);
@@ -140,9 +143,9 @@ insert into t_configuration(environment, name, to_be_applied_on, value_name, dat
 
 -- Service fee decrease request
 insert into t_configuration(environment, name, to_be_applied_on, value_name, date_value, array_value, array_of_array_value, dict_value, created_on, last_update, is_active) values
-('all', 'PNR parser tools', 'Fee', 'Fee request response recipient', null, ARRAY['issoufali.pnr@gmail.com'], null, null, now(), now(), true),
-('all', 'PNR parser tools', 'Fee', 'Fee decrease request response sender', null, ARRAY['feerequest.issoufali.pnr@outlook.com'], null, null, now(), now(), true),
-('all', 'PNR parser tools', 'Fee', 'Fee request request response recipient', null, ARRAY[
+('all', 'Fee Request Tools', 'Fee', 'Fee request response recipient', null, ARRAY['issoufali.pnr@gmail.com'], null, null, now(), now(), true),
+('all', 'Fee Request Tools', 'Fee', 'Fee decrease request response sender', null, ARRAY['feerequest.issoufali.pnr@outlook.com'], null, null, now(), now(), true),
+('all', 'Fee Request Tools', 'Fee', 'Fee request request response recipient', null, ARRAY[
 	'pp@phidia.onmicrosoft.com', 
 	'mihaja@phidia.onmicrosoft.com', 
 	'tahina@phidia.onmicrosoft.com'
@@ -150,27 +153,27 @@ insert into t_configuration(environment, name, to_be_applied_on, value_name, dat
 
 -- Report email
 insert into t_configuration(environment, name, to_be_applied_on, value_name, date_value, array_value, array_of_array_value, dict_value, created_on, last_update, is_active) values
-('all', 'Report email', 'Fee', 'Fee history report local recipients', null, ARRAY[
+('all', 'Report Email', 'Fee', 'Fee history report local recipients', null, ARRAY[
 	'phpr974@gmail.com',
     'pp@phidia.onmicrosoft.com',
     'mihaja@phidia.onmicrosoft.com',
     'tahina@phidia.onmicrosoft.com'
 ], null, null, now(), now(), true),
-('all', 'Report email', 'Fee', 'Fee history report customer recipients', null, ARRAY[
+('all', 'Report Email', 'Fee', 'Fee history report customer recipients', null, ARRAY[
 	'issoufali.pnr@outlook.com'
 ], null, null, now(), now(), true);
 
 -- PNR parser tools
 insert into t_configuration(environment, name, to_be_applied_on, value_name, date_value, array_value, array_of_array_value, dict_value, created_on, last_update, is_active) values
-('all', 'PNR parser tools', 'PNR', 'PNR identifier', null, ARRAY['RP'], null, null, now(), now(), true),
-('all', 'PNR parser tools', 'PNR', 'PNR type', null, ARRAY['Altea'], null, null, now(), now(), true),
-('all', 'PNR parser tools', 'PNR', 'Duplicate PNR identifier', null, ARRAY['* RR'], null, null, now(), now(), true),
-('all', 'PNR parser tools', 'PNR', 'Split PNR identifier', null, ARRAY['* SP'], null, null, now(), now(), true),
-('all', 'PNR parser tools', 'PNR', 'To be excluded line', null, ARRAY['OPERATED BY', 'ETA', 'FOR TAX/FEE'], null, null, now(), now(), true),
-('all', 'PNR parser tools', 'PNR', 'Contact type names', null, null, null, '"AP"=>"Phone", "APE"=>"Email", "APN"=>"Notification contact"', now(), now(), true),
-('all', 'PNR parser tools', 'PNR', 'Ticket line identifier', null, ARRAY['FA', 'FHE'], null, null, now(), now(), true),
-('all', 'PNR parser tools', 'PNR', 'Second degree ticket line identifier', null, ARRAY['PAX', 'INF'], null, null, now(), now(), true),
-('all', 'PNR parser tools', 'PNR', 'Remark identifier', null, ARRAY[
+('all', 'PNR Parser Tools', 'PNR', 'PNR identifier', null, ARRAY['RP'], null, null, now(), now(), true),
+('all', 'PNR Parser Tools', 'PNR', 'PNR type', null, ARRAY['Altea'], null, null, now(), now(), true),
+('all', 'PNR Parser Tools', 'PNR', 'Duplicate PNR identifier', null, ARRAY['* RR'], null, null, now(), now(), true),
+('all', 'PNR Parser Tools', 'PNR', 'Split PNR identifier', null, ARRAY['* SP'], null, null, now(), now(), true),
+('all', 'PNR Parser Tools', 'PNR', 'To be excluded line', null, ARRAY['OPERATED BY', 'ETA', 'FOR TAX/FEE'], null, null, now(), now(), true),
+('all', 'PNR Parser Tools', 'PNR', 'Contact type names', null, null, null, '"AP"=>"Phone", "APE"=>"Email", "APN"=>"Notification contact"', now(), now(), true),
+('all', 'PNR Parser Tools', 'PNR', 'Ticket line identifier', null, ARRAY['FA', 'FHE'], null, null, now(), now(), true),
+('all', 'PNR Parser Tools', 'PNR', 'Second degree ticket line identifier', null, ARRAY['PAX', 'INF'], null, null, now(), now(), true),
+('all', 'PNR Parser Tools', 'PNR', 'Remark identifier', null, ARRAY[
 	'RM', 'RC', 'RIR', 'RX', 'RCF', 'RQ', 'RIA', 
     'RIS', 'RIT', 'RIU', 'RIF', 'RII', 'RIZ'
 ], null, null, now(), now(), true),

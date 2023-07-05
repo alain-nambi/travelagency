@@ -11,7 +11,12 @@ from AmadeusDecoder.utilities.ConfigReader import ConfigReader
 ConfigReader.load_company_info()
 ConfigReader.load_email_source()
 ConfigReader.load_emd_parser_tool_data()
-print(configs.COST_DETAIL_IDENTIFIER)
+ConfigReader.load_tst_parser_tool_data()
+ConfigReader.load_zenith_parser_tool_data()
+ConfigReader.load_zenith_parser_receipt_tool_data()
+ConfigReader.load_ticket_parser_tool_data()
+ConfigReader.load_fee_request_tool_data()
+print(configs.FEE_DECREASE_REQUEST_RESPONSE_RECIPIENTS)
 
 if __name__ == '__main__':
     # temp = PdfTextExtractor()

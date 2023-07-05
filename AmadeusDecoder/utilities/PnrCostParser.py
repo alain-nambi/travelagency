@@ -17,7 +17,7 @@ from AmadeusDecoder.models.invoice.TicketPassengerTST import TicketPassengerTST
 from AmadeusDecoder.models.invoice.TicketPassengerSegment import TicketPassengerSegment
 from AmadeusDecoder.models.data.RawData import RawData
 
-SPECIAL_AGENCY_ID = ['PARFT278Z']
+SPECIAL_AGENCY_CODE = ['PARFT278Z']
 PASSENGER_DESIGNATIONS = ['MR', 'MS', 'MRS', 'DR', 'ML', 'ADT', 'INF', 'YTH', 'MSTR']
 TST_IDENTIFIER = ["TST"]
 TICKET_IDENTIFIER = ["TKT"]
@@ -502,7 +502,7 @@ class PnrCostParser():
                                     temp_ticket.is_prime = True
                                 # special agency processing
                                 # if temp_ticket.issuing_agency is not None:
-                                #     if temp_ticket.issuing_agency.code in SPECIAL_AGENCY_ID:
+                                #     if temp_ticket.issuing_agency.code in SPECIAL_AGENCY_CODE:
                                 #         temp_ticket.tax = ticket.tax + 10
                                 #         temp_ticket.total = ticket.total + 10
                                 # update ticket status based on is_issued_outside status

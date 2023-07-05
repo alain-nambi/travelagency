@@ -57,7 +57,7 @@ else:
 
 AIRPORT_AGENCY_CODE = ['DZAUU000B']
 CURRENT_TRAVEL_AGENCY_IDENTIFIER = ['Issoufali', 'ISSOUFALI', 'Mayotte ATO']
-PASSENGER_NON_RELEVANT = ['N° FFP']
+NON_RELEVANT_IDENTIFIER_FOR_PASSENGER = ['N° FFP']
 
 ITINERARY_NAME = ["Itinéraire"]
 COST_DETAIL_IDENTIFIER = ["Détails du tarif"]
@@ -613,7 +613,7 @@ class ZenithParser():
         new_content = []
         
         # remove some irrelevant content
-        passenger_content = self.clean_content_array(passenger_content, PASSENGER_NON_RELEVANT)
+        passenger_content = self.clean_content_array(passenger_content, NON_RELEVANT_IDENTIFIER_FOR_PASSENGER)
         
         for i in range(len(passenger_content)):
             skip = False

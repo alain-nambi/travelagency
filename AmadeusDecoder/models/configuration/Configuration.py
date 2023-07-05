@@ -24,16 +24,16 @@ class Configuration(models.Model, BaseModel):
     to_be_applied_on = models.CharField(max_length=255)
     value_name = models.CharField(max_length=255)
     single_value = models.TextField(null=True)
+    date_value = models.DateTimeField(null=True)
     array_value = ArrayField(
             models.CharField(max_length=255, null=True),
             null=True
         )
     array_of_array_value = ArrayField(
             ArrayField(
-                models.CharField(max_length=255, null=True),
-                null=True,
+                models.CharField(max_length=255),
             ),
-            null=True
+            null=True, blank=True
         )
     dict_value = HStoreField(null=True)
     created_on = models.DateTimeField()

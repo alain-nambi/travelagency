@@ -23,14 +23,14 @@ from AmadeusDecoder.utilities.AmadeusParser import AmadeusParser
 if __name__ == '__main__':
     import os
     
-    # from AmadeusDecoder.models.pnr.Pnr import Pnr
-    # temp_pnr_delete = Pnr.objects.filter(number='OBHOVJ').first()
-    # temp_pnr_delete.delete()
+    from AmadeusDecoder.models.pnr.Pnr import Pnr
+    temp_pnr_delete = Pnr.objects.filter(number='00D1ZE').first()
+    temp_pnr_delete.delete()
     
     # temp = AmadeusParser() 
     # file = '4_fnd@amadeus.com'
     # file = 12656_famenontsoa@outlook.com'
     # temp.set_path(os.getcwd() + '//EmailFetcher//utilities//attachments_dir//' + file + '//' + file.removeprefix('VK8PP7_Fixed/') + '.txt')
 
-    temp = Pnr.objects.filter(id=6024).first()
-    temp.delete()
+    # temp = Pnr.objects.filter(id=6024).first()
+    # temp.delete()

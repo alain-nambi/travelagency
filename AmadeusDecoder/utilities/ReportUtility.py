@@ -6,55 +6,20 @@ Created on Jun 20, 2023
 import os
 import django
 import datetime
+
+import AmadeusDecoder.utilities.configuration_data as configs
+
 from AmadeusDecoder.utilities.SendMail import Sending
 
-EMD_IDENTIFIER = ["EMD"]
-AIRPORT_AGENCY_CODE = ["DZAUU000B", "Mayotte ATO"]
+# EMD_IDENTIFIER = ["EMD"]
+# AIRPORT_AGENCY_CODE = ["DZAUU000B", "Mayotte ATO"]
 
-FEE_HISTORY_REPORT_LOCAL_RECIPIENTS = [
-            "phpr974@gmail.com",
-            "pp@phidia.onmicrosoft.com",
-            # "nasolo@phidia.onmicrosoft.com",
-            "mihaja@phidia.onmicrosoft.com",
-            "tahina@phidia.onmicrosoft.com",
-            # "remi@phidia.onmicrosoft.com",
-            # "famenontsoa@outlook.com",
-            # "alain@phidia.onmicrosoft.com",
-        ]
+EMD_IDENTIFIER = configs.EMD_IDENTIFIER
+AIRPORT_AGENCY_CODE = configs.AIRPORT_AGENCY_CODE
 
-FEE_HISTORY_REPORT_CUSTOMER_RECIPIENTS = other_users_mail = [
-            # "stephanie@agences-issoufali.com",
-            # "fahar@agences-issoufali.com",
-            # "samir@agences-issoufali.com",
-            # "oulfate@agences-issoufali.com",
-            # "mraati@agences-issoufali.com",
-            # "fouadi@agences-issoufali.com",
-            # "roihamina@agences-issoufali.com",
-            # "mouniati@agences-issoufali.com",
-            # "sylvia@agences-issoufali.com",
-            # "anziza@agences-issoufali.com",
-            # "sejours@agences-issoufali.com",
-            # "sarmada@agences-issoufali.com",
-            # "lola@agences-issoufali.com",
-            # "farida@agences-issoufali.com",
-            # "goula@agences-issoufali.com",
-            # "saouda@agences-issoufali.com",
-            # "riziki@agences-issoufali.com",
-            # "karim@agences-issoufali.com",
-            # "josianenovou@agences-issoufali.com",
-            # "anaissa@agences-issoufali.com",
-            # "hassanati@agences-issoufali.com",
-            # "saidmaoulida@agences-issoufali.com",
-            # "madjid@agences-issoufali.com",
-            # "sity@agences-issoufali.com",
-            # "koro@agences-issoufali.com",
-            "issoufali.pnr@outlook.com",
-            # "danielbehava2@agences-issoufali.com",
-            # "david.domitin@agences-issoufali.com",
-            # "eric@agences-issoufali.com",
-            # "taanli@agences-issoufali.com",
-            # "shoulaya@agences-issoufali.com",
-        ]
+FEE_HISTORY_REPORT_LOCAL_RECIPIENTS = configs.FEE_HISTORY_REPORT_LOCAL_RECIPIENTS
+
+FEE_HISTORY_REPORT_CUSTOMER_RECIPIENTS = configs.FEE_HISTORY_REPORT_CUSTOMER_RECIPIENTS
 
 
 os.environ.setdefault(

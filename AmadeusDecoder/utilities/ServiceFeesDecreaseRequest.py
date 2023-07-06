@@ -6,6 +6,9 @@ Created on 16 Dec 2022
 import traceback
 import secrets
 from datetime import datetime
+
+import AmadeusDecoder.utilities.configuration_data as configs
+
 from AmadeusDecoder.utilities.SendMail import Sending
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.invoice.Ticket import Ticket
@@ -13,9 +16,13 @@ from AmadeusDecoder.models.invoice.Fee import Fee
 from AmadeusDecoder.models.user.Users import User
 from AmadeusDecoder.models.invoice.Fee import ReducePnrFeeRequest
 
-FEE_REQUEST_RESPONSE_RECIPIENT = ["issoufali.pnr@gmail.com"]
-FEE_DECREASE_REQUEST_RESPONSE_SENDER = ["feerequest.issoufali.pnr@outlook.com"]
-FEE_DECREASE_REQUEST_RESPONSE_RECIPIENTS = ["pp@phidia.onmicrosoft.com", "mihaja@phidia.onmicrosoft.com", "tahina@phidia.onmicrosoft.com"]
+# FEE_REQUEST_RESPONSE_RECIPIENT = ["issoufali.pnr@gmail.com"]
+# FEE_DECREASE_REQUEST_RESPONSE_SENDER = ["feerequest.issoufali.pnr@outlook.com"]
+# FEE_DECREASE_REQUEST_RESPONSE_RECIPIENTS = ["pp@phidia.onmicrosoft.com", "mihaja@phidia.onmicrosoft.com", "tahina@phidia.onmicrosoft.com"]
+
+FEE_REQUEST_RESPONSE_RECIPIENT = configs.FEE_REQUEST_RESPONSE_RECIPIENT
+FEE_DECREASE_REQUEST_RESPONSE_SENDER = configs.FEE_DECREASE_REQUEST_RESPONSE_SENDER
+FEE_DECREASE_REQUEST_RESPONSE_RECIPIENTS = configs.FEE_DECREASE_REQUEST_RESPONSE_RECIPIENTS
 
 class ServiceFeesDecreaseRequest():
     '''

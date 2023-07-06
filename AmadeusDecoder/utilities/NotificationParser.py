@@ -1,3 +1,5 @@
+import AmadeusDecoder.utilities.configuration_data as configs
+
 from asyncio.windows_events import NULL
 import os
 import pytz
@@ -12,8 +14,8 @@ from AmadeusDecoder.models.utilities.Notifications import Notification
 from AmadeusDecoder.utilities.AmadeusParser import *
 from AmadeusDecoder.utilities.ZenithParser import *
 
-_e_ticket_possible_format_ = ['e-ticket', 'e‐ĕcket', 'e‐韜���cket', 'e‐⁛cket', 'e‐�cket', 'e‐଀cket']
-_passenger_types_ = ['Adulte(s)', 'Enfant(s)', 'Bébé(s)']
+_e_ticket_possible_format_ = configs.E_TICKET_POSSIBLE_FORMAT
+_passenger_types_ = configs.PASSENGER_TYPES
 
 class AmadeusNotification():
 

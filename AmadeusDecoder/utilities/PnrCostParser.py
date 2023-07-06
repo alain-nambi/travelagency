@@ -7,6 +7,8 @@ import os
 import traceback
 from datetime import datetime
 
+import AmadeusDecoder.utilities.configuration_data as configs
+
 from AmadeusDecoder.models.pnr.Passenger import Passenger
 from AmadeusDecoder.models.pnrelements.PnrAirSegments import PnrAirSegments
 from AmadeusDecoder.models.pnrelements.Airport import Airport
@@ -17,11 +19,17 @@ from AmadeusDecoder.models.invoice.TicketPassengerTST import TicketPassengerTST
 from AmadeusDecoder.models.invoice.TicketPassengerSegment import TicketPassengerSegment
 from AmadeusDecoder.models.data.RawData import RawData
 
-SPECIAL_AGENCY_CODE = ['PARFT278Z']
-PASSENGER_DESIGNATIONS = ['MR', 'MS', 'MRS', 'DR', 'ML', 'ADT', 'INF', 'YTH', 'MSTR']
-TST_IDENTIFIER = ["TST"]
-TICKET_IDENTIFIER = ["TKT"]
-COST_IDENTIFIER = ["FARE", "EQUIV", "GRAND", "TOTAL"]
+# SPECIAL_AGENCY_CODE = ['PARFT278Z']
+# PASSENGER_DESIGNATIONS = ['MR', 'MS', 'MRS', 'DR', 'ML', 'ADT', 'INF', 'YTH', 'MSTR']
+# TST_IDENTIFIER = ["TST"]
+# TICKET_IDENTIFIER = ["TKT"]
+# COST_IDENTIFIER = ["FARE", "EQUIV", "GRAND", "TOTAL"]
+
+SPECIAL_AGENCY_CODE = configs.SPECIAL_AGENCY_CODE
+PASSENGER_DESIGNATIONS = configs.PASSENGER_DESIGNATIONS
+TST_IDENTIFIER = configs.TST_IDENTIFIER
+TICKET_IDENTIFIER = configs.TICKET_IDENTIFIER
+COST_IDENTIFIER = configs.COST_IDENTIFIER
 
 class PnrCostParser():
     '''

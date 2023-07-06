@@ -8,6 +8,8 @@ import traceback
 from datetime import datetime
 from django.db.models import Q
 
+import AmadeusDecoder.utilities.configuration_data as configs
+
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.invoice.Ticket import Ticket
 from AmadeusDecoder.models.invoice.TicketPassengerSegment import TicketPassengerSegment,\
@@ -15,23 +17,30 @@ from AmadeusDecoder.models.invoice.TicketPassengerSegment import TicketPassenger
 from AmadeusDecoder.models.invoice.Fee import OthersFee
 from AmadeusDecoder.models.user.Users import User
 
-PAYMENT_OPTIONS = ['Comptant', 'En compte', 'Virement']
-TICKET_NUMBER_PREFIX = ['Echange billet', 'EMD']
-TO_BE_EXCLUDED_KEY_KEYWORDS = ['Encaissement transaction', 'Encaissement Modification', 'Encaissement des suppléments']
-AIRPORT_AGENCY_CODE = ['DZAUU000B', 'Mayotte ATO']
-STARTED_PROCESS_DATE = datetime(2023, 1, 1, 0, 0, 0, 0).date()
-CURRENT_TRAVEL_AGENCY_IDENTIFIER = ['Issoufali', 'ISSOUFALI', 'Mayotte ATO']
+# PAYMENT_OPTIONS = ['Comptant', 'En compte', 'Virement']
+# TICKET_NUMBER_PREFIX = ['Echange billet', 'EMD']
+# TO_BE_EXCLUDED_KEY_KEYWORDS = ['Encaissement transaction', 'Encaissement Modification', 'Encaissement des suppléments']
+# AIRPORT_AGENCY_CODE = ['DZAUU000B', 'Mayotte ATO']
+# STARTED_PROCESS_DATE = datetime(2023, 1, 1, 0, 0, 0, 0).date()
+# CURRENT_TRAVEL_AGENCY_IDENTIFIER = ['Issoufali', 'ISSOUFALI', 'Mayotte ATO']
+
+PAYMENT_OPTIONS = configs.PAYMENT_OPTIONS
+TICKET_NUMBER_PREFIX = configs.TICKET_NUMBER_PREFIX
+TO_BE_EXCLUDED_KEY_KEYWORDS = configs.TO_BE_EXCLUDED_KEY_KEYWORDS
+AIRPORT_AGENCY_CODE = configs.AIRPORT_AGENCY_CODE
+STARTED_PROCESS_DATE = configs.STARTED_PROCESS_DATE.date()
+CURRENT_TRAVEL_AGENCY_IDENTIFIER = configs.CURRENT_TRAVEL_AGENCY_IDENTIFIER
 
 # part types
-TICKET_PAYMENT_PART = ["Paiement Billet"]
-ADJUSTMENT_PART = ["Reissuance Adjustment"]
-EMD_CANCELLATION_PART = ["Annulation ancillaries"]
-TICKET_CANCELLATION_PART = ["Ticket void", "Remboursement"]
-PENALTY_PART = ["Pénalité"]
-AGENCY_FEE_PART = ["Frais d'agence"]
-EMD_NO_NUMBER_POSSIBLE_DESIGNATION = ['bagage', 'equipement', 'instrument']
-DEFAULT_ASSIGNED_PASSENGER_ON_OBJECT = ['Adulte(s)']
-EMD_BALANCING_STATEMENT_PART = ["Balancing"]
+TICKET_PAYMENT_PART = configs.TICKET_PAYMENT_PART
+ADJUSTMENT_PART = configs.ADJUSTMENT_PART
+EMD_CANCELLATION_PART = configs.EMD_CANCELLATION_PART
+TICKET_CANCELLATION_PART = configs.TICKET_CANCELLATION_PART
+PENALTY_PART = configs.PENALTY_PART
+AGENCY_FEE_PART = configs.AGENCY_FEE_PART
+EMD_NO_NUMBER_POSSIBLE_DESIGNATION = configs.EMD_NO_NUMBER_POSSIBLE_DESIGNATION
+DEFAULT_ASSIGNED_PASSENGER_ON_OBJECT = configs.DEFAULT_ASSIGNED_PASSENGER_ON_OBJECT
+EMD_BALANCING_STATEMENT_PART = configs.EMD_BALANCING_STATEMENT_PART
 
 class ZenithParserReceipt():
     '''

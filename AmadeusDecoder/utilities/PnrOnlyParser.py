@@ -11,6 +11,8 @@ from datetime import datetime
 from datetime import timedelta
 from django.db import transaction
 
+import AmadeusDecoder.utilities.configuration_data as configs
+
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.user.Users import Office
 from AmadeusDecoder.models.pnr.Passenger import Passenger
@@ -34,20 +36,34 @@ from AmadeusDecoder.models.data.RawData import RawData
 from AmadeusDecoder.models.invoice.CustomerAddress import CustomerAddress
 
 
-PNR_IDENTIFIER = ["RP"]
-PNR_TYPE = ["Altea"]
-DUPLICATE_PNR_IDENTIFIER = ["* RR"]
-SPLIT_PNR_IDENTIFIER = ["* SP"]
-TO_BE_EXCLUDED_LINE = ["OPERATED BY", "ETA", "FOR TAX/FEE"]
-CONTACT_TYPES = ["AP", "APE", "APN"]
-CONTACT_TYPE_NAMES = {'AP':'Phone', 'APE':'Email', 'APN':'Notification contact'}
-TICKET_LINE_IDENTIFIER = ["FA", "FHE"]
-SECOND_DEGREE_TICKET_LINE_IDENTIFIER = ["PAX", "INF"]
-REMARK_IDENTIFIER = ['RM', 'RC', 'RIR', 'RX', 'RCF', 'RQ', 'RIA', 
-                                'RIS', 'RIT', 'RIU', 'RIF', 'RII', 'RIZ']
-PASSENGER_DESIGNATIONS = ['MR', 'MS', 'MRS', 'DR', 'ML', 'ADT', 'INF', 'YTH', 'MSTR']
-POSSIBLE_COST_CURRENCY = ['EUR', 'MGA', 'USD', 'MUR']
-AM_H_LINE_IDENTIFIER = ["AM/H"]
+# PNR_IDENTIFIER = ["RP"]
+# PNR_TYPE = ["Altea"]
+# DUPLICATE_PNR_IDENTIFIER = ["* RR"]
+# SPLIT_PNR_IDENTIFIER = ["* SP"]
+# TO_BE_EXCLUDED_LINE = ["OPERATED BY", "ETA", "FOR TAX/FEE"]
+# CONTACT_TYPES = ["AP", "APE", "APN"]
+# CONTACT_TYPE_NAMES = {'AP':'Phone', 'APE':'Email', 'APN':'Notification contact'}
+# TICKET_LINE_IDENTIFIER = ["FA", "FHE"]
+# SECOND_DEGREE_TICKET_LINE_IDENTIFIER = ["PAX", "INF"]
+# REMARK_IDENTIFIER = ['RM', 'RC', 'RIR', 'RX', 'RCF', 'RQ', 'RIA', 
+#                                 'RIS', 'RIT', 'RIU', 'RIF', 'RII', 'RIZ']
+# PASSENGER_DESIGNATIONS = ['MR', 'MS', 'MRS', 'DR', 'ML', 'ADT', 'INF', 'YTH', 'MSTR']
+# POSSIBLE_COST_CURRENCY = ['EUR', 'MGA', 'USD', 'MUR']
+# AM_H_LINE_IDENTIFIER = ["AM/H"]
+
+PNR_IDENTIFIER = configs.PNR_IDENTIFIER
+PNR_TYPE = configs.MAIN_PNR_TYPE
+DUPLICATE_PNR_IDENTIFIER = configs.DUPLICATE_PNR_IDENTIFIER
+SPLIT_PNR_IDENTIFIER = configs.SPLIT_PNR_IDENTIFIER
+TO_BE_EXCLUDED_LINE = configs.TO_BE_EXCLUDED_LINE
+CONTACT_TYPES = configs.CONTACT_TYPES
+CONTACT_TYPE_NAMES = configs.CONTACT_TYPE_NAMES
+TICKET_LINE_IDENTIFIER = configs.TICKET_LINE_IDENTIFIER
+SECOND_DEGREE_TICKET_LINE_IDENTIFIER = configs.SECOND_DEGREE_TICKET_LINE_IDENTIFIER
+REMARK_IDENTIFIER = configs.REMARK_IDENTIFIER
+PASSENGER_DESIGNATIONS = configs.PNR_PASSENGER_DESIGNATIONS
+POSSIBLE_COST_CURRENCY = configs.POSSIBLE_COST_CURRENCY
+AM_H_LINE_IDENTIFIER = configs.AM_H_LINE_IDENTIFIER
 
 class PnrOnlyParser():
     '''

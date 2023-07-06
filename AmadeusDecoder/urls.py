@@ -1,3 +1,4 @@
+import AmadeusDecoder.utilities.configuration_data as configs
 
 from django.urls import path
 from . import views
@@ -57,7 +58,19 @@ urlpatterns = [
 # assign current company to local variable 'session_variable'
 import AmadeusDecoder.utilities.session_variables as session_variables
 from AmadeusDecoder.utilities.ConfigReader import ConfigReader
-session_variables.current_company = ConfigReader.get_company()
+# session_variables.current_company = ConfigReader.get_company()
 
 # load company info
 ConfigReader.load_company_info()
+ConfigReader.load_email_source()
+ConfigReader.load_emd_parser_tool_data()
+ConfigReader.load_tst_parser_tool_data()
+ConfigReader.load_zenith_parser_tool_data()
+ConfigReader.load_zenith_parser_receipt_tool_data()
+ConfigReader.load_ticket_parser_tool_data()
+ConfigReader.load_fee_request_tool_data()
+ConfigReader.load_report_email_data()
+ConfigReader.load_pnr_parser_tool_data()
+
+# assign current company to local variable 'session_variable'
+session_variables.current_company = configs.COMPANY_NAME

@@ -7,7 +7,6 @@ import os
 import datetime
 import django
 import traceback
-from AmadeusDecoder.models.configuration.Configuration import Configuration
 
 os.environ.setdefault(
     'DJANGO_SETTINGS_MODULE', 'DjangoTravelAgency.settings'
@@ -18,6 +17,7 @@ from django.conf import settings
 
 import AmadeusDecoder.utilities.configuration_data as configs
 
+from AmadeusDecoder.models.configuration.Configuration import Configuration
 from AmadeusDecoder.models.company_info.CompanyInfo import CompanyInfo
 
 class ConfigReader():
@@ -280,11 +280,38 @@ class ConfigReader():
     def load_report_email_data():
         config_name = 'Report Email'
         try:
-            1
+            configs.FEE_HISTORY_REPORT_LOCAL_RECIPIENTS = Configuration.objects.filter(name=config_name, value_name='Fee history report local recipients').first().array_value
+            configs.FEE_HISTORY_REPORT_CUSTOMER_RECIPIENTS = Configuration.objects.filter(name=config_name, value_name='Fee history report customer recipients').first().array_value
         except:
-            print('There was some error when loading Report data. See error.txt for details.')
+            print('There was some error when loading Report email data. See error.txt for details.')
             with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
                 error_file.write('{}: \n'.format(datetime.datetime.now()))
                 error_file.write('Getting Report email data failed. \n')
+                traceback.print_exc(file=error_file)
+                error_file.write('\n')
+                
+    # load PNR parser tools data
+    @staticmethod
+    def load_pnr_parser_tool_data():
+        config_name = 'PNR Parser Tools'
+        try:
+            configs.PNR_IDENTIFIER = Configuration.objects.filter(name=config_name, value_name='PNR identifier').first().array_value
+            configs.MAIN_PNR_TYPE = Configuration.objects.filter(name=config_name, value_name='PNR type').first().array_value
+            configs.DUPLICATE_PNR_IDENTIFIER = Configuration.objects.filter(name=config_name, value_name='Duplicate PNR identifier').first().array_value
+            configs.SPLIT_PNR_IDENTIFIER = Configuration.objects.filter(name=config_name, value_name='Split PNR identifier').first().array_value
+            configs.TO_BE_EXCLUDED_LINE = Configuration.objects.filter(name=config_name, value_name='To be excluded line').first().array_value
+            configs.CONTACT_TYPES = Configuration.objects.filter(name=config_name, value_name='Contact types').first().array_value
+            configs.CONTACT_TYPE_NAMES = Configuration.objects.filter(name=config_name, value_name='Contact type names').first().dict_value
+            configs.TICKET_LINE_IDENTIFIER = Configuration.objects.filter(name=config_name, value_name='Ticket line identifier').first().array_value
+            configs.SECOND_DEGREE_TICKET_LINE_IDENTIFIER = Configuration.objects.filter(name=config_name, value_name='Second degree ticket line identifier').first().array_value
+            configs.REMARK_IDENTIFIER = Configuration.objects.filter(name=config_name, value_name='Remark identifier').first().array_value
+            configs.PNR_PASSENGER_DESIGNATIONS = Configuration.objects.filter(name=config_name, value_name='Passenger designations').first().array_value
+            configs.POSSIBLE_COST_CURRENCY = Configuration.objects.filter(name=config_name, value_name='Possible cost currency').first().array_value
+            configs.AM_H_LINE_IDENTIFIER = Configuration.objects.filter(name=config_name, value_name='AM H line identifier').first().array_value
+        except:
+            print('There was some error when loading PNR parser tool data. See error.txt for details.')
+            with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
+                error_file.write('{}: \n'.format(datetime.datetime.now()))
+                error_file.write('Getting PNR parser tool data failed. \n')
                 traceback.print_exc(file=error_file)
                 error_file.write('\n')

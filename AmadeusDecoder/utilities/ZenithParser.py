@@ -17,6 +17,8 @@ os.environ.setdefault(
 )
 django.setup()
 
+import AmadeusDecoder.utilities.configuration_data as configs
+
 from django.db import transaction
 
 from AmadeusDecoder.utilities.PdfTextExtractor import PdfTextExtractor
@@ -34,19 +36,26 @@ from AmadeusDecoder.models.invoice.InvoiceDetails import InvoiceDetails
 from AmadeusDecoder.models.user.Users import User
 from AmadeusDecoder.models.invoice.Fee import OthersFee
 
-LANGUAGE_CODE = ['fr']
+LANGUAGE_CODE = configs.COMPANY_LANGUAGE_CODE
 
-PASSENGER_TYPES = ['Adulte(s)', 'Enfant(s)', 'Bébé(s)', 'Mineur(s) non accompagné']
-PASSENGER_DESIGNATIONS = ['M.', 'Mme', 'Enfant', 'Bébé', 'Mlle', 'Ms.']
-E_TICKET_POSSIBLE_FORMAT = ['e-ticket', 'e‐ĕcket', 'e‐韜���cket', 'e‐⁛cket', 'e‐�cket', 'e‐଀cket', 'e‐෶���cket', 'e‐➄cket', 'e‐ᬘ���cket', 'e‐痴���cket']
-ITINERARY_HEADER_POSSIBLE_FORMAT = [['Itinéraire', 'Vol', 'Enregistrement', 'De', 'A', 'Départ', 'Arrivée CabineEscales'],
-                                      ['Itinéraire', 'Vol', 'Enregistrement', 'De', 'A', 'Départ', 'Arrivée', 'CabineEscales'],
-                                      ['Itinéraire', 'Vol', 'Enregistrement', 'De', 'A', 'Départ', 'Arrivée', 'Cabine Escales'],
-                                      ['Itinéraire', 'Vol', 'Enregistrement', 'De', 'A', 'Départ', 'Arrivée', 'Cabine', 'Escales']]
-HEADER_NAMES = ['Itinéraire', 'Détails du tarif', 'Conditions tarifaires', 'Reçu de paiement']
-SERVICE_CARRIER = ['ZD', 'TZ']
+# PASSENGER_TYPES = ['Adulte(s)', 'Enfant(s)', 'Bébé(s)', 'Mineur(s) non accompagné']
+# PASSENGER_DESIGNATIONS = ['M.', 'Mme', 'Enfant', 'Bébé', 'Mlle', 'Ms.']
+# E_TICKET_POSSIBLE_FORMAT = ['e-ticket', 'e‐ĕcket', 'e‐韜���cket', 'e‐⁛cket', 'e‐�cket', 'e‐଀cket', 'e‐෶���cket', 'e‐➄cket', 'e‐ᬘ���cket', 'e‐痴���cket']
+# ITINERARY_HEADER_POSSIBLE_FORMAT = [['Itinéraire', 'Vol', 'Enregistrement', 'De', 'A', 'Départ', 'Arrivée CabineEscales'],
+#                                       ['Itinéraire', 'Vol', 'Enregistrement', 'De', 'A', 'Départ', 'Arrivée', 'CabineEscales'],
+#                                       ['Itinéraire', 'Vol', 'Enregistrement', 'De', 'A', 'Départ', 'Arrivée', 'Cabine Escales'],
+#                                       ['Itinéraire', 'Vol', 'Enregistrement', 'De', 'A', 'Départ', 'Arrivée', 'Cabine', 'Escales']]
+# HEADER_NAMES = ['Itinéraire', 'Détails du tarif', 'Conditions tarifaires', 'Reçu de paiement']
+# SERVICE_CARRIER = ['ZD', 'TZ']
 
-if LANGUAGE_CODE[0] == 'fr':
+PASSENGER_TYPES = configs.PASSENGER_TYPES
+PASSENGER_DESIGNATIONS = configs.ZENITH_PASSENGER_DESIGNATIONS
+E_TICKET_POSSIBLE_FORMAT = configs.E_TICKET_POSSIBLE_FORMAT
+ITINERARY_HEADER_POSSIBLE_FORMAT = configs.ITINERARY_HEADER_POSSIBLE_FORMAT
+HEADER_NAMES = configs.HEADER_NAMES
+SERVICE_CARRIER = configs.SERVICE_CARRIER
+
+if LANGUAGE_CODE == 'fr':
     MONTHS = {'janv':'01', 'févr':'02', 'mars':'03', 'avr':'04', 'mai':'05', 'juin':'06', 'juil':'07', 'août':'08', 'sept':'09', 'oct':'10', 'nov':'11', 'déc':'12'}
     MONTHS_TYPE_2 = {'janvier':'01', 'février':'02', 'mars':'03', 'avril':'04', 'mai':'05', 'juin':'06', 'juillet':'07', 'août':'08', 'septembre':'09', 'octobre':'10', 'novembre':'11', 'décembre':'12'}
     WEEKDAYS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi']
@@ -55,41 +64,76 @@ else:
     MONTHS_TYPE_2 = {'january':'01', 'february':'02', 'mars':'03', 'april':'04', 'may':'05', 'june':'06', 'july':'07', 'august':'08', 'september':'09', 'october':'10', 'november':'11', 'december':'12'}
     WEEKDAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
 
-AIRPORT_AGENCY_CODE = ['DZAUU000B']
-CURRENT_TRAVEL_AGENCY_IDENTIFIER = ['Issoufali', 'ISSOUFALI', 'Mayotte ATO']
-NON_RELEVANT_IDENTIFIER_FOR_PASSENGER = ['N° FFP']
+# AIRPORT_AGENCY_CODE = ['DZAUU000B']
+# CURRENT_TRAVEL_AGENCY_IDENTIFIER = ['Issoufali', 'ISSOUFALI', 'Mayotte ATO']
+# NON_RELEVANT_IDENTIFIER_FOR_PASSENGER = ['N° FFP']
 
-ITINERARY_NAME = ["Itinéraire"]
-COST_DETAIL_IDENTIFIER = ["Détails du tarif"]
-ANCILLARIES_IDENTIFIER = ["Ancillaries"]
-NOT_EMITTED_PNR_START_IDENTIFIER = ["VOTRE NUMERO DE DOSSIER"]
-NOT_EMITTED_PNR_START_PASSENGER = ["Noms des passagers"]
-NOT_EMITTED_PNR_START_BOOKING = ["Votre réservation :"]
-NOT_EMITTED_PNR_START_BOOKING_COST = ["Coût total de la réservation :"]
-NOT_EMITTED_PNR_START_OPC = ["Si vous ne payez pas votre réservation avant"]
-NOT_EMITTED_PNR_END_OPC = ["(heure locale de DZA), celle-ci sera AUTOMATIQUEMENT ANNULÉE."]
-TO_BE_EXCLUDED_PNR_RECIPIENT_EMAIL = ["issoufali.pnr@outlook.com"]
+AIRPORT_AGENCY_CODE = configs.AIRPORT_AGENCY_CODE
+CURRENT_TRAVEL_AGENCY_IDENTIFIER = configs.CURRENT_TRAVEL_AGENCY_IDENTIFIER
+NON_RELEVANT_IDENTIFIER_FOR_PASSENGER = configs.NON_RELEVANT_IDENTIFIER_FOR_PASSENGER
 
-EMD_REFERENCE_START = ["Référence PNR"]
-EMD_EXPIRY_DATE_START = ["Date d\'expiration"]
-EMD_COMMENT_START = ["Commentaire"]
-EMD_COST_START = ["Montant"]
+# ITINERARY_NAME = ["Itinéraire"]
+# COST_DETAIL_IDENTIFIER = ["Détails du tarif"]
+# ANCILLARIES_IDENTIFIER = ["Ancillaries"]
+# NOT_EMITTED_PNR_START_IDENTIFIER = ["VOTRE NUMERO DE DOSSIER"]
+# NOT_EMITTED_PNR_START_PASSENGER = ["Noms des passagers"]
+# NOT_EMITTED_PNR_START_BOOKING = ["Votre réservation :"]
+# NOT_EMITTED_PNR_START_BOOKING_COST = ["Coût total de la réservation :"]
+# NOT_EMITTED_PNR_START_OPC = ["Si vous ne payez pas votre réservation avant"]
+# NOT_EMITTED_PNR_END_OPC = ["(heure locale de DZA), celle-ci sera AUTOMATIQUEMENT ANNULÉE."]
+# TO_BE_EXCLUDED_PNR_RECIPIENT_EMAIL = ["issoufali.pnr@outlook.com"]
 
-MAIN_PNR_NUMBER_START_IDENTIFIER = ["Dossier N"]
-PASSPORT_IDENTIFIER = ["passeport"]
-PASSENGER_IDENTIFIER = ["Nom du passager", "Numéro de billet", "Numéro de billet Service(s)", "Numéro de billetService(s)", "Numéro de", "billet"]
-PAYMENT_RECEIPT_IDENTIFIER = ["Reçu de paiement"]
-COMPANY_CURRENCY = ["EUR"]
-TOTAL_IDENTIFIER = ["Total"]
-PASSENGER_WORD_IDENTIFIER = ["passager"]
-PAYMENT_METHOD_IDENTIFIER = ["Forme de", "paiement"]
-ISSUING_DATE_IDENTIFIER = ["Date d'émission"]
-ISSUING_OFFICE_IDENTIFIER = ["Lieu d'émission"]
-COST_WORD_IDENTIFIER = ["Tarif"]
-MODIFICATION_IDENTIFIER = ["Différence tarifaire", "Pénalité d'échange"]
-TAX_IDENTIFIER = ["Taxes"]
-RECEIPT_IDENTIFIER = ["Transaction/Synthèse des éléments financiers"]
-CUSTOMER_NAME_IDENTIFIER = ["Nom du client"]
+ITINERARY_NAME = configs.ITINERARY_NAME
+COST_DETAIL_IDENTIFIER = configs.ZENITH_COST_DETAIL_IDENTIFIER
+ANCILLARIES_IDENTIFIER = configs.ANCILLARIES_IDENTIFIER
+NOT_EMITTED_PNR_START_IDENTIFIER = configs.NOT_EMITTED_PNR_START_IDENTIFIER
+NOT_EMITTED_PNR_START_PASSENGER = configs.NOT_EMITTED_PNR_START_PASSENGER
+NOT_EMITTED_PNR_START_BOOKING = configs.NOT_EMITTED_PNR_START_BOOKING
+NOT_EMITTED_PNR_START_BOOKING_COST = configs.NOT_EMITTED_PNR_START_BOOKING_COST
+NOT_EMITTED_PNR_START_OPC = configs.NOT_EMITTED_PNR_START_OPC
+NOT_EMITTED_PNR_END_OPC = configs.NOT_EMITTED_PNR_END_OPC
+TO_BE_EXCLUDED_PNR_RECIPIENT_EMAIL = configs.TO_BE_EXCLUDED_PNR_RECIPIENT_EMAIL
+
+# EMD_REFERENCE_START = ["Référence PNR"]
+# EMD_EXPIRY_DATE_START = ["Date d\'expiration"]
+# EMD_COMMENT_START = ["Commentaire"]
+# EMD_COST_START = ["Montant"]
+EMD_REFERENCE_START = configs.EMD_REFERENCE_START
+EMD_EXPIRY_DATE_START = configs.EMD_EXPIRY_DATE_START
+EMD_COMMENT_START = configs.EMD_COMMENT_START
+EMD_COST_START = configs.EMD_COST_START
+
+# MAIN_PNR_NUMBER_START_IDENTIFIER = ["Dossier N"]
+# PASSPORT_IDENTIFIER = ["passeport"]
+# PASSENGER_IDENTIFIER = ["Nom du passager", "Numéro de billet", "Numéro de billet Service(s)", "Numéro de billetService(s)", "Numéro de", "billet"]
+# PAYMENT_RECEIPT_IDENTIFIER = ["Reçu de paiement"]
+# COMPANY_CURRENCY = ["EUR"]
+# TOTAL_IDENTIFIER = ["Total"]
+# PASSENGER_WORD_IDENTIFIER = ["passager"]
+# PAYMENT_METHOD_IDENTIFIER = ["Forme de", "paiement"]
+# ISSUING_DATE_IDENTIFIER = ["Date d'émission"]
+# ISSUING_OFFICE_IDENTIFIER = ["Lieu d'émission"]
+# COST_WORD_IDENTIFIER = ["Tarif"]
+# MODIFICATION_IDENTIFIER = ["Différence tarifaire", "Pénalité d'échange"]
+# TAX_IDENTIFIER = ["Taxes"]
+# RECEIPT_IDENTIFIER = ["Transaction/Synthèse des éléments financiers"]
+# CUSTOMER_NAME_IDENTIFIER = ["Nom du client"]
+
+MAIN_PNR_NUMBER_START_IDENTIFIER = configs.MAIN_PNR_NUMBER_START_IDENTIFIER
+PASSPORT_IDENTIFIER = configs.PASSPORT_IDENTIFIER
+PASSENGER_IDENTIFIER = configs.PASSENGER_IDENTIFIER
+PAYMENT_RECEIPT_IDENTIFIER = configs.PAYMENT_RECEIPT_IDENTIFIER
+COMPANY_CURRENCY = configs.COMPANY_CURRENCY_CODE
+TOTAL_IDENTIFIER = configs.TOTAL_IDENTIFIER
+PASSENGER_WORD_IDENTIFIER = configs.PASSENGER_WORD_IDENTIFIER
+PAYMENT_METHOD_IDENTIFIER = configs.PAYMENT_METHOD_IDENTIFIER
+ISSUING_DATE_IDENTIFIER = configs.ISSUING_DATE_IDENTIFIER
+ISSUING_OFFICE_IDENTIFIER = configs.ISSUING_OFFICE_IDENTIFIER
+COST_WORD_IDENTIFIER = configs.COST_WORD_IDENTIFIER
+MODIFICATION_IDENTIFIER = configs.MODIFICATION_IDENTIFIER
+TAX_IDENTIFIER = configs.TAX_IDENTIFIER
+RECEIPT_IDENTIFIER = configs.RECEIPT_IDENTIFIER
+CUSTOMER_NAME_IDENTIFIER = configs.CUSTOMER_NAME_IDENTIFIER
 
 class ZenithParser():
     '''
@@ -1051,7 +1095,7 @@ class ZenithParser():
                 # more than one passengers are on the same segment part with the same type
                 if passenger_count > 1:
                     if content_element in COMPANY_CURRENCY:
-                        first_passenger_fare_index = part.index(COMPANY_CURRENCY[0]) + 1
+                        first_passenger_fare_index = part.index(COMPANY_CURRENCY) + 1
                         fare_index = first_passenger_fare_index
                         tax_index = fare_index + passenger_count
                         total_index = tax_index + passenger_count
@@ -1075,7 +1119,7 @@ class ZenithParser():
                         break
                 # one passenger is on the segment part under one type
                 elif passenger_count == 1:
-                    first_passenger_fare_index = part.index(COMPANY_CURRENCY[0]) + 1
+                    first_passenger_fare_index = part.index(COMPANY_CURRENCY) + 1
                     fare_index = first_passenger_fare_index
                     tax_index = fare_index + passenger_count
                     total_index = tax_index + passenger_count
@@ -1154,10 +1198,10 @@ class ZenithParser():
             current_value_split = current_value.split('-')
             skip = False
             if current_value_split[0].strip() in destination_airports:
-                if ancillaries_part[i - 1].endswith(COMPANY_CURRENCY[0]):
+                if ancillaries_part[i - 1].endswith(COMPANY_CURRENCY):
                     segment_binding_index.append(i - interval)
                 else:
-                    if not ancillaries_part[i - 2].endswith(COMPANY_CURRENCY[0]) and PASSENGER_WORD_IDENTIFIER[0] not in ancillaries_part[i - 2].split(' '):
+                    if not ancillaries_part[i - 2].endswith(COMPANY_CURRENCY) and PASSENGER_WORD_IDENTIFIER[0] not in ancillaries_part[i - 2].split(' '):
                         temp_ancillary_name = ancillaries_part[i - 2] + ' ' + ancillaries_part[i - 1]
                         temp_ancillary_lines.pop()
                         temp_ancillary_lines.pop()
@@ -1198,7 +1242,7 @@ class ZenithParser():
                     index_start = 2
             
             for one_type_part_element in range(index_start, len(one_type_part)):
-                if one_type_part[one_type_part_element].strip() == COMPANY_CURRENCY[0]:
+                if one_type_part[one_type_part_element].strip() == COMPANY_CURRENCY:
                     checker = False
                     if one_type_part_element == len(one_type_part) - 1:
                         checker = True
@@ -1225,7 +1269,7 @@ class ZenithParser():
                         
                         temp_line = {'ancillary_name': ancillary_name, 'flight_and_date': flight_and_date, 'passenger_name': passenger_name, 'quantity': quantity, 'total': total}
                         ancillary_lines.append(temp_line)
-                elif one_type_part[one_type_part_element].endswith(COMPANY_CURRENCY[0]) and one_type_part[one_type_part_element-1].strip() not in TOTAL_IDENTIFIER:
+                elif one_type_part[one_type_part_element].endswith(COMPANY_CURRENCY) and one_type_part[one_type_part_element-1].strip() not in TOTAL_IDENTIFIER:
                     passenger_name = ''
                     quantity = ''
                     total = ''

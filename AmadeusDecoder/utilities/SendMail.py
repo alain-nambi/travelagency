@@ -3,60 +3,15 @@ from email.mime.text import MIMEText
 from datetime import datetime
 import smtplib
 
-EMAIL_SENDING_ERROR_NOTIFICATION_RECIPIENTS = [
-    "nasolo@phidia.onmicrosoft.com",
-         "mihaja@phidia.onmicrosoft.com",
-         "alain@phidia.onmicrosoft.com",
-         "remi@phidia.onmicrosoft.com",
-         "famenontsoa@outlook.com",
-         "tahina@phidia.onmicrosoft.com",
-         "pp@phidia.onmicrosoft.com"
-]
+import AmadeusDecoder.utilities.configuration_data as configs
 
-EMAIL_SENDING_ERROR_NOTIFICATION = {
-    'address': 'errorreport.issoufali.pnr@gmail.com',
-    'password': 'chnversafifnzagp',
-    'smtp': 'smtp.gmail.com',
-    'port': '587'
-}
-
-ANOMALY_EMAIL_SENDER = {
-    'address': 'anomalie.issoufali.pnr@gmail.com',
-    'password': 'qczyzeytdvlbcysq',
-    'smtp': 'smtp.gmail.com',
-    'port': '587'
-}
-
-PNR_NOT_FETCHED_NOTIFICATION_SENDER = {
-    'address': 'anomalie.issoufali.pnr@gmail.com',
-    'password': 'qczyzeytdvlbcysq',
-    'smtp': 'smtp.gmail.com',
-    'port': '587'
-}
-
-FEE_REQUEST_SENDER = {
-    'address': 'feerequest.issoufali.pnr@gmail.com',
-    'password': 'tnkunwvygtdkxfxg',
-    'smtp': 'smtp.gmail.com',
-    'port': '587'
-}
-
-PNR_PARSING_ERROR_NOTIFICATION_SENDER = {
-    'address': 'errorreport.issoufali.pnr@gmail.com',
-    'password': 'chnversafifnzagp',
-    'smtp': 'smtp.gmail.com',
-    'port': '587'
-}
-
-PNR_PARSING_ERROR_NOTIFICATION_RECIPIENTS = [
-            "nasolo@phidia.onmicrosoft.com",
-            "mihaja@phidia.onmicrosoft.com",
-            "alain@phidia.onmicrosoft.com",
-            "remi@phidia.onmicrosoft.com",
-            "famenontsoa@outlook.com",
-            "tahina@phidia.onmicrosoft.com"
-            "pp@phidia.onmicrosoft.com"
-        ]
+EMAIL_SENDING_ERROR_NOTIFICATION_RECIPIENTS = configs.EMAIL_SENDING_ERROR_NOTIFICATION_RECIPIENTS
+EMAIL_SENDING_ERROR_NOTIFICATION = configs.EMAIL_SENDING_ERROR_NOTIFICATION
+ANOMALY_EMAIL_SENDER = configs.ANOMALY_EMAIL_SENDER
+PNR_NOT_FETCHED_NOTIFICATION_SENDER = configs.PNR_NOT_FETCHED_NOTIFICATION_SENDER
+FEE_REQUEST_SENDER = configs.FEE_REQUEST_SENDER
+PNR_PARSING_ERROR_NOTIFICATION_SENDER = configs.PNR_PARSING_ERROR_NOTIFICATION_SENDER
+PNR_PARSING_ERROR_NOTIFICATION_RECIPIENTS = configs.PNR_PARSING_ERROR_NOTIFICATION_RECIPIENTS
 
 class Sending():
     

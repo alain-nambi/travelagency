@@ -789,29 +789,48 @@ def reduce_fee(request) :
         feeOriginAmount = request.POST.get('feeOriginAmount')
         choiceType = request.POST.get('choiceType')
         motif = request.POST.get('motif')
-        
-        try :
-            subject, message = ServiceFeesDecreaseRequest().inquiry_formatting(choiceType, request, feeId, pnrId, feeOriginAmount, feeAmount, motif)
-            
-            context['status'] = 1 
-            context['message'] = "Demande envoyée avec succès."
-            
-            Sending.send_email_request(
-                "feerequest.issoufali.pnr@gmail.com",
-                [
-                    # "superviseur@agences-issoufali.com",
-                    # "pp@phidia.onmicrosoft.com",
-                    "mihaja@phidia.onmicrosoft.com",
-                    # "tahina@phidia.onmicrosoft.com",
-                    # "famenontsoa@outlook.com"
-                ],
-                subject,
-                message
-            )
-        except Exception as e :
-            raise e
+
+        if pnrId is not None and feeId is not None:
+            reduce_fee_request_ongoing = ReducePnrFeeRequest.objects.filter(pnr=pnrId, fee=feeId, status=0).last()
+            print(reduce_fee_request_ongoing)
+            if reduce_fee_request_ongoing is not None:
+                fee_amount = round(reduce_fee_request_ongoing.amount, 2)
+                fee_origin = round(reduce_fee_request_ongoing.origin_amount, 2)
+                date_creation = reduce_fee_request_ongoing.system_creation_date
+                user = reduce_fee_request_ongoing.user.username
+
+                context['status'] = 3
+                context['fee_amount'] = fee_amount
+                context['fee_origin'] = fee_origin
+                context['user'] = user
+                context['date_creation'] = date_creation
+            else:
+                try :
+                    subject, message = ServiceFeesDecreaseRequest().inquiry_formatting(choiceType, request, feeId, pnrId, feeOriginAmount, feeAmount, motif)
+                    
+                    context['status'] = 1 
+                    context['message'] = "Demande envoyée avec succès."
+                    
+                    Sending.send_email_request(
+                        "feerequest.issoufali.pnr@gmail.com",
+                        [
+                            # "superviseur@agences-issoufali.com",
+                            # "pp@phidia.onmicrosoft.com",
+                            "mihaja@phidia.onmicrosoft.com",
+                            # "tahina@phidia.onmicrosoft.com",
+                            # "famenontsoa@outlook.com"
+                            # alain@phidia.onmicrosoft.com"
+                        ],
+                        subject,
+                        message
+                    )
+                except Exception as e :
+                    context['status'] = 0
+                    context['message'] = "ERREUR: %s " % str(e)
+                    raise e
+        else:
             context['status'] = 0
-            context['message'] = "ERREUR: %s " % str(e)
+            context['message'] = "ERREUR: Impossible d'envoyer la demande."
 
     else :
         context['status'] = 0

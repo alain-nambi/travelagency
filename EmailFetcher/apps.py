@@ -4,12 +4,13 @@ import os
 import traceback
 import schedule
 import time
-
-from datetime import datetime, timedelta, timezone
+from django.apps.registry import apps
 
 import AmadeusDecoder.utilities.configuration_data as configs
 
-EMAIL_PNR = configs.EMAIL_PNR
+from datetime import datetime, timedelta, timezone
+
+from time import sleep
 
 class RepeatTimer(Timer):  
     daemon=True 
@@ -119,6 +120,7 @@ def send_fee_update_list():
 def fetch_email():
     try:
         from EmailFetcher.utilities.EmailListener import EmailListener
+        EMAIL_PNR = configs.EMAIL_PNR
         email_listener_obj = EmailListener()
         # email_listener_obj.email = "mercurevoyages.pnr@gmail.com"
         # email_listener_obj.app_password = "ftraxhoftbbkicps"
@@ -141,6 +143,28 @@ def fetch_email():
             traceback.print_exc(file=error_file)
             error_file.write('\n')
 
+def load_config():
+    print('Loading configurations ...')
+    # assign current company to local variable 'session_variable'
+    import AmadeusDecoder.utilities.session_variables as session_variables
+    from AmadeusDecoder.utilities.ConfigReader import ConfigReader
+    # session_variables.current_company = ConfigReader.get_company()
+    
+    apps.get_models()
+    # load company info
+    ConfigReader.load_company_info()
+    ConfigReader.load_email_source()
+    ConfigReader.load_emd_parser_tool_data()
+    ConfigReader.load_tst_parser_tool_data()
+    ConfigReader.load_zenith_parser_tool_data()
+    ConfigReader.load_zenith_parser_receipt_tool_data()
+    ConfigReader.load_ticket_parser_tool_data()
+    ConfigReader.load_fee_request_tool_data()
+    ConfigReader.load_report_email_data()
+    ConfigReader.load_pnr_parser_tool_data()
+    
+    # assign current company to local variable 'session_variable'
+    session_variables.current_company = configs.COMPANY_NAME
 
 class EmailfetcherConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
@@ -151,6 +175,11 @@ class EmailfetcherConfig(AppConfig):
         if run_once is not None:
             return
         os.environ['CMDLINERUNNER_RUN_ONCE'] = 'True'
+        
+        load_configs = Thread(target=load_config)
+        load_configs.start()
+        
+        sleep(2)
         
         print('Email listener is starting')
         email_thread_once = Thread(target=fetch_email)

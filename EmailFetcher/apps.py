@@ -7,7 +7,9 @@ import time
 
 from datetime import datetime, timedelta, timezone
 
-EMAIL_PNR = {'address': 'tjq.issoufali@gmail.com', 'password': 'sboptodqazliqabj'}
+import AmadeusDecoder.utilities.configuration_data as configs
+
+EMAIL_PNR = configs.EMAIL_PNR
 
 class RepeatTimer(Timer):  
     daemon=True 

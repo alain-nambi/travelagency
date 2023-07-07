@@ -99,13 +99,46 @@ class ConfigReader():
             if email_pnr_temp is None:
                 email_pnr_temp = Configuration.objects.filter(name=config_name, value_name='Email PNR').first()
             configs.EMAIL_PNR = email_pnr_temp.dict_value
-            configs.EMAIL_SENDING_ERROR_NOTIFICATION_RECIPIENTS = Configuration.objects.filter(name=config_name, value_name='Email sending error notification recipients').first().array_value
-            configs.EMAIL_SENDING_ERROR_NOTIFICATION = Configuration.objects.filter(name=config_name, value_name='Email sending error notification').first().dict_value
-            configs.ANOMALY_EMAIL_SENDER = Configuration.objects.filter(name=config_name, value_name='Anomaly email sender').first().dict_value
-            configs.PNR_NOT_FETCHED_NOTIFICATION_SENDER = Configuration.objects.filter(name=config_name, value_name='PNR not fetched notification sender').first().dict_value
-            configs.FEE_REQUEST_SENDER = Configuration.objects.filter(name=config_name, value_name='Fee request sender').first().dict_value
-            configs.PNR_PARSING_ERROR_NOTIFICATION_SENDER = Configuration.objects.filter(name=config_name, value_name='PNR parsing error notification sender').first().dict_value
-            configs.PNR_PARSING_ERROR_NOTIFICATION_RECIPIENTS = Configuration.objects.filter(name=config_name, value_name='PNR parsing error notification recipients').first().array_value
+            
+            email_error_notification_temp = Configuration.objects.filter(name=config_name, value_name='Email sending error notification recipients', environment=environment).first()
+            if email_error_notification_temp is None:
+                email_error_notification_temp = Configuration.objects.filter(name=config_name, value_name='Email sending error notification recipients').first()
+            configs.EMAIL_SENDING_ERROR_NOTIFICATION_RECIPIENTS = email_error_notification_temp.array_value
+            
+            email_sending_error_notification_temp = Configuration.objects.filter(name=config_name, value_name='Email sending error notification', environment=environment).first()
+            if email_sending_error_notification_temp is None:
+                email_sending_error_notification_temp = Configuration.objects.filter(name=config_name, value_name='Email sending error notification').first()
+            configs.EMAIL_SENDING_ERROR_NOTIFICATION = email_sending_error_notification_temp.dict_value
+            
+            anomaly_email_sender_temp = Configuration.objects.filter(name=config_name, value_name='Anomaly email sender', environment=environment).first()
+            if anomaly_email_sender_temp is None:
+                anomaly_email_sender_temp = Configuration.objects.filter(name=config_name, value_name='Anomaly email sender').first()
+            configs.ANOMALY_EMAIL_SENDER = anomaly_email_sender_temp.dict_value
+            
+            pnr_not_fetched_notification_sender_temp = Configuration.objects.filter(name=config_name, value_name='PNR not fetched notification sender', environment=environment).first()
+            if pnr_not_fetched_notification_sender_temp is None:
+                pnr_not_fetched_notification_sender_temp = Configuration.objects.filter(name=config_name, value_name='PNR not fetched notification sender').first()
+            configs.PNR_NOT_FETCHED_NOTIFICATION_SENDER = pnr_not_fetched_notification_sender_temp.dict_value
+            
+            fee_request_sender_temp = Configuration.objects.filter(name=config_name, value_name='Fee request sender', environment=environment).first()
+            if fee_request_sender_temp is None:
+                fee_request_sender_temp = Configuration.objects.filter(name=config_name, value_name='Fee request sender').first()
+            configs.FEE_REQUEST_SENDER = fee_request_sender_temp.dict_value
+            
+            fee_request_recipient_temp = Configuration.objects.filter(name=config_name, value_name='Fee request recipient', environment=environment).first()
+            if fee_request_recipient_temp is None:
+                fee_request_recipient_temp = Configuration.objects.filter(name=config_name, value_name='Fee request recipient').first()
+            configs.FEE_REQUEST_RECIPIENT = fee_request_recipient_temp.array_value
+            
+            pnr_parsing_error_notification_sender_temp = Configuration.objects.filter(name=config_name, value_name='PNR parsing error notification sender', environment=environment).first()
+            if pnr_parsing_error_notification_sender_temp is None:
+                pnr_parsing_error_notification_sender_temp = Configuration.objects.filter(name=config_name, value_name='PNR parsing error notification sender').first()
+            configs.PNR_PARSING_ERROR_NOTIFICATION_SENDER = pnr_parsing_error_notification_sender_temp.dict_value
+            
+            pnr_parsing_error_notification_recipients_temp = Configuration.objects.filter(name=config_name, value_name='PNR parsing error notification recipients', environment=environment).first()
+            if pnr_parsing_error_notification_recipients_temp is None:
+                pnr_parsing_error_notification_recipients_temp = Configuration.objects.filter(name=config_name, value_name='PNR parsing error notification recipients').first()
+            configs.PNR_PARSING_ERROR_NOTIFICATION_RECIPIENTS = pnr_parsing_error_notification_recipients_temp.array_value
         except:
             print('There was some error when loading email source configuration data. See error.txt for details.')
             with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
@@ -279,9 +312,17 @@ class ConfigReader():
     @staticmethod
     def load_report_email_data():
         config_name = 'Report Email'
+        environment = settings.ENVIRONMENT
         try:
-            configs.FEE_HISTORY_REPORT_LOCAL_RECIPIENTS = Configuration.objects.filter(name=config_name, value_name='Fee history report local recipients').first().array_value
-            configs.FEE_HISTORY_REPORT_CUSTOMER_RECIPIENTS = Configuration.objects.filter(name=config_name, value_name='Fee history report customer recipients').first().array_value
+            fee_history_report_local_recipients_temp = Configuration.objects.filter(name=config_name, value_name='Fee history report local recipients', environment=environment).first()
+            if fee_history_report_local_recipients_temp is None:
+                fee_history_report_local_recipients_temp = Configuration.objects.filter(name=config_name, value_name='Fee history report local recipients').first()
+            configs.FEE_HISTORY_REPORT_LOCAL_RECIPIENTS = fee_history_report_local_recipients_temp.array_value
+            
+            fee_history_report_customer_recipients_temp = Configuration.objects.filter(name=config_name, value_name='Fee history report customer recipients', environment=environment).first()
+            if fee_history_report_customer_recipients_temp is None:
+                fee_history_report_customer_recipients_temp = Configuration.objects.filter(name=config_name, value_name='Fee history report customer recipients').first()
+            configs.FEE_HISTORY_REPORT_CUSTOMER_RECIPIENTS = fee_history_report_customer_recipients_temp.array_value
         except:
             print('There was some error when loading Report email data. See error.txt for details.')
             with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:

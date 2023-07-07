@@ -7,7 +7,9 @@ import time
 
 from datetime import datetime, timedelta, timezone
 
-EMAIL_PNR = {'address': 'tjq.issoufali@gmail.com', 'password': 'sboptodqazliqabj'}
+import AmadeusDecoder.utilities.configuration_data as configs
+
+EMAIL_PNR = configs.EMAIL_PNR
 
 class RepeatTimer(Timer):  
     daemon=True 
@@ -124,6 +126,7 @@ def fetch_email():
         # email_listener_obj.app_password = "lhlyyumveqvyqhqo"
         # email_listener_obj.email = "central.dev19@gmail.com"
         # email_listener_obj.app_password = "aqygdmkcedxmimyk"
+        print(EMAIL_PNR)
         email_listener_obj.email = EMAIL_PNR['address']
         email_listener_obj.app_password = EMAIL_PNR['password']
         # email_listener_obj.email = "issoufali.pnr@outlook.com"

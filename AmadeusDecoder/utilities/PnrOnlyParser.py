@@ -3,12 +3,15 @@ Created on 10 Sep 2022
 
 @author: Famenontsoa
 '''
+import decimal
 import os
 import pytz
 import traceback
 from datetime import datetime
 from datetime import timedelta
 from django.db import transaction
+
+import AmadeusDecoder.utilities.configuration_data as configs
 
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.user.Users import Office
@@ -30,8 +33,37 @@ from AmadeusDecoder.models.pnrelements.Remark import Remark
 from AmadeusDecoder.models.pnrelements.PnrRemark import PnrRemark
 from AmadeusDecoder.models.user.Users import User
 from AmadeusDecoder.models.data.RawData import RawData
-import decimal
 from AmadeusDecoder.models.invoice.CustomerAddress import CustomerAddress
+
+
+# PNR_IDENTIFIER = ["RP"]
+# PNR_TYPE = ["Altea"]
+# DUPLICATE_PNR_IDENTIFIER = ["* RR"]
+# SPLIT_PNR_IDENTIFIER = ["* SP"]
+# TO_BE_EXCLUDED_LINE = ["OPERATED BY", "ETA", "FOR TAX/FEE"]
+# CONTACT_TYPES = ["AP", "APE", "APN"]
+# CONTACT_TYPE_NAMES = {'AP':'Phone', 'APE':'Email', 'APN':'Notification contact'}
+# TICKET_LINE_IDENTIFIER = ["FA", "FHE"]
+# SECOND_DEGREE_TICKET_LINE_IDENTIFIER = ["PAX", "INF"]
+# REMARK_IDENTIFIER = ['RM', 'RC', 'RIR', 'RX', 'RCF', 'RQ', 'RIA', 
+#                                 'RIS', 'RIT', 'RIU', 'RIF', 'RII', 'RIZ']
+# PASSENGER_DESIGNATIONS = ['MR', 'MS', 'MRS', 'DR', 'ML', 'ADT', 'INF', 'YTH', 'MSTR']
+# POSSIBLE_COST_CURRENCY = ['EUR', 'MGA', 'USD', 'MUR']
+# AM_H_LINE_IDENTIFIER = ["AM/H"]
+
+PNR_IDENTIFIER = configs.PNR_IDENTIFIER
+PNR_TYPE = configs.MAIN_PNR_TYPE
+DUPLICATE_PNR_IDENTIFIER = configs.DUPLICATE_PNR_IDENTIFIER
+SPLIT_PNR_IDENTIFIER = configs.SPLIT_PNR_IDENTIFIER
+TO_BE_EXCLUDED_LINE = configs.TO_BE_EXCLUDED_LINE
+CONTACT_TYPES = configs.CONTACT_TYPES
+CONTACT_TYPE_NAMES = configs.CONTACT_TYPE_NAMES
+TICKET_LINE_IDENTIFIER = configs.TICKET_LINE_IDENTIFIER
+SECOND_DEGREE_TICKET_LINE_IDENTIFIER = configs.SECOND_DEGREE_TICKET_LINE_IDENTIFIER
+REMARK_IDENTIFIER = configs.REMARK_IDENTIFIER
+PASSENGER_DESIGNATIONS = configs.PNR_PASSENGER_DESIGNATIONS
+POSSIBLE_COST_CURRENCY = configs.POSSIBLE_COST_CURRENCY
+AM_H_LINE_IDENTIFIER = configs.AM_H_LINE_IDENTIFIER
 
 class PnrOnlyParser():
     '''
@@ -51,7 +83,7 @@ class PnrOnlyParser():
         
         pnrDetailRow = ''
         for i in range(len(file_content)):
-            if(file_content[i].startswith("RP")):
+            if(file_content[i].startswith(PNR_IDENTIFIER[0])):
                 pnrDetailRow = file_content[i]
                 break
             
@@ -118,7 +150,7 @@ class PnrOnlyParser():
         pnr.gds_creation_date = creation_date
         # pnr.system_creation_date = datetime(system_creation_date.year, system_creation_date.month, system_creation_date.day, system_creation_date.hour, system_creation_date.minute, system_creation_date.second, system_creation_date.microsecond, pytz.UTC)
         pnr.system_creation_date = email_date
-        pnr.type = 'Altea'
+        pnr.type = PNR_TYPE[0]
         if Office.objects.filter(code=pnrDetailRow.split('/')[1]).first() is None:
             Office.objects.create(code=pnrDetailRow.split('/')[1])
         pnr.agency = Office.objects.get(code=pnrDetailRow.split('/')[1])
@@ -165,7 +197,7 @@ class PnrOnlyParser():
     def logic_sequence(self, normalized_file):
         sequence_wise_file = []
         for i in range(len(normalized_file)):
-            if not normalized_file[i].startswith('* SP') and not normalized_file[i].startswith('* RR'):
+            if not normalized_file[i].startswith(SPLIT_PNR_IDENTIFIER[0]) and not normalized_file[i].startswith(DUPLICATE_PNR_IDENTIFIER[0]):
                 if i > 0 and i < len(normalized_file):
                     previous_line = normalized_file[i-1]
                     
@@ -195,10 +227,17 @@ class PnrOnlyParser():
         for i in range(len(needed_content)):
             if self.is_regular_line(needed_content[i]):
                 new_content.append(needed_content[i])
-            elif not self.is_regular_line(needed_content[i]) and (needed_content[i].startswith('* SP') or needed_content[i].startswith('* RR')) :
+            elif not self.is_regular_line(needed_content[i]) and (needed_content[i].startswith(SPLIT_PNR_IDENTIFIER[0]) or needed_content[i].startswith(DUPLICATE_PNR_IDENTIFIER[0])) :
                 new_content.append(needed_content[i])
-            elif self.is_regular_line(needed_content[i]) == False and len(new_content) > 0 and not needed_content[i].startswith('OPERATED BY') and not needed_content[i].startswith('ETA') and not needed_content[i].startswith('FOR TAX/FEE'):
-                new_content[len(new_content) - 1] = new_content[len(new_content) - 1] + needed_content[i]
+            elif self.is_regular_line(needed_content[i]) == False and len(new_content) > 0:
+                # discard excluded line
+                is_excluded = False
+                for line in TO_BE_EXCLUDED_LINE:
+                    if needed_content[i].startswith(line):
+                        is_excluded = True
+                        break
+                if not is_excluded:
+                    new_content[len(new_content) - 1] = new_content[len(new_content) - 1] + needed_content[i]
         
         upper_content, new_file_start = self.appropriated_start(new_content)
         if len(upper_content) > 0:
@@ -211,8 +250,8 @@ class PnrOnlyParser():
     def get_contacts(self, pnr_content):
         contacts = []
         all_contact_lines = []
-        all_contact_types = ['AP', 'APE', 'APN']
-        all_types = {'AP':'Phone', 'APE':'Email', 'APN':'Notification contact'}
+        all_contact_types = CONTACT_TYPES
+        all_types = CONTACT_TYPE_NAMES
         
         for content in pnr_content:
             if(len(content.split(" ")) > 1 and content.split(" ")[0].isnumeric() == True):
@@ -243,9 +282,12 @@ class PnrOnlyParser():
             temp = line.split(" ")
             if len(temp) > 2 and temp[0].isnumeric() == True:
                 # all phone contacts and email
-                if temp[1].startswith('FA') or temp[1].startswith('FHE'):
-                    pnr_status = 'Emis'
-                    pnr_status_value = 0
+                for identifier in TICKET_LINE_IDENTIFIER:
+                    if temp[1].startswith(identifier):
+                        pnr_status = 'Emis'
+                        pnr_status_value = 0
+                        break
+                if pnr_status_value == 0:
                     break
         
         pnr.status = pnr_status
@@ -260,9 +302,9 @@ class PnrOnlyParser():
         parent_pnr = []
         
         for line in normalized_file:
-            if line.startswith('* SP'):
+            if line.startswith(SPLIT_PNR_IDENTIFIER[0]):
                 split_lines.append(line)
-            elif line.startswith('* RR'):
+            elif line.startswith(DUPLICATE_PNR_IDENTIFIER[0]):
                 duplicate_lines.append(line)
         
         if len(split_lines) > 0:
@@ -283,8 +325,7 @@ class PnrOnlyParser():
             
     # get all remarks on PNR
     def get_remarks(self, pnr, normalized_file):
-        all_possible_remarks = ['RM', 'RC', 'RIR', 'RX', 'RCF', 'RQ', 'RIA', 
-                                'RIS', 'RIT', 'RIU', 'RIF', 'RII', 'RIZ']
+        all_possible_remarks = REMARK_IDENTIFIER
         all_pnr_remarks = []
         remark_lines = []
         
@@ -333,7 +374,7 @@ class PnrOnlyParser():
         
         order = 0
         for line in passenger_line:
-            all_designation = ['MR', 'MS', 'MRS', 'DR', 'ML', 'ADT', 'INF', 'YTH', 'MSTR']
+            all_designation = PASSENGER_DESIGNATIONS
             temp_passenger = Passenger()
             line_split = line.split('(')
             line_space_split = line.split(' ')
@@ -615,8 +656,18 @@ class PnrOnlyParser():
                 try:
                     for info in flight_info:
                         if len(info.split('-')) > 1:
-                            departure_time = datetime.strptime(info.split('-')[0] + str(yearOfOperation) + ' ' + '00:00:00', '%d%b%Y %H:%M:%S')
+                            try:
+                                departure_time = datetime.strptime(info.split('-')[0] + str(yearOfOperation) + ' ' + '00:00:00', '%d%b%Y %H:%M:%S')
+                                temp_flight.departuretime = datetime(departure_time.year, departure_time.month, departure_time.day, departure_time.hour, departure_time.minute, departure_time.second, departure_time.microsecond, pytz.UTC)
+                            except:
+                                print('SVC date parsing: attempt no 1 failed !')
+                    # try if date can be found at the end of the SVC line when no description has been given
+                    if departure_time is None:
+                        try:
+                            departure_time = datetime.strptime(flight_info[-1] + str(yearOfOperation) + ' ' + '00:00:00', '%d%b%Y %H:%M:%S')
                             temp_flight.departuretime = datetime(departure_time.year, departure_time.month, departure_time.day, departure_time.hour, departure_time.minute, departure_time.second, departure_time.microsecond, pytz.UTC)
+                        except:
+                            print('SVC date parsing: attempt no 2 failed !')
                 except:
                     pass
                 if departure_time is None:
@@ -1224,7 +1275,7 @@ class PnrOnlyParser():
         for line in normalized_file:
             temp = line.split(" ")
             if len(temp) > 2 and temp[0].isnumeric():
-                if (temp[1] == 'FA' or temp[1] == 'FHE') and (temp[2] == 'PAX' or temp[2] == 'INF'):
+                if (temp[1] in TICKET_LINE_IDENTIFIER) and (temp[2] in SECOND_DEGREE_TICKET_LINE_IDENTIFIER):
                     ticket_lines.append(line)
         
         for ticket in ticket_lines:
@@ -1380,7 +1431,7 @@ class PnrOnlyParser():
                 temp_ticket.is_not_fa_line = True
             
             # ticket issuing_date and ticket issuing_office
-            _currencies_ = ['EUR', 'MGA', 'USD', 'MUR']
+            _currencies_ = POSSIBLE_COST_CURRENCY
             issuing_date_str = ''
             issuing_date = None
             issuing_office = None
@@ -1611,7 +1662,7 @@ class PnrOnlyParser():
         for line in normalized_file:
             temp = line.split(' ')
             if len(temp) > 2 and temp[0].isnumeric():
-                if temp[1].startswith('AM/H'):
+                if temp[1].startswith(AM_H_LINE_IDENTIFIER[0]):
                     addresses_lines.append(line)
                     
         for address in addresses_lines:
@@ -2289,6 +2340,8 @@ class PnrOnlyParser():
                                             ticket_obj.transport_cost = -1 * ticket_obj.transport_cost
                                             ticket_obj.tax = -1 * ticket_obj.tax
                                             ticket_obj.total = -1 * ticket_obj.total
+                                    # re-calibrate fee
+                                    ticket_obj.recalibrate_fee() 
                                     ticket_obj.save()
                                     ticket_obj.process_subcontract()
                                     print('saved: ' + ticket.number)

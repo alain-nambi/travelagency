@@ -577,6 +577,7 @@
 												<th width="10%">Segment</th>
 												<th width="10%">Vols</th>
 												<th width="10%">Classe</th>
+												<th width="10%">Cabine</th>
 												<th width="10%">Départ</th>
 												<th width="10%">Arrivée</th>
 												<th>Date et heure de départ</th>
@@ -592,6 +593,7 @@
 												<td>{{ segment.segmentorder }}</td>
 												<td>{{ segment }}</td>
 												<td>{{ segment.flightclass }}</td>
+												<td>{{ segment|flight_cabin }}</td>
 												<td>{{ segment.codeorg.iata_code }}</td>
 												<td>{{ segment.codedest.iata_code }}</td>
 												<td>

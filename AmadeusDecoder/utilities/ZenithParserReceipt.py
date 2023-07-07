@@ -8,6 +8,8 @@ import traceback
 from datetime import datetime
 from django.db.models import Q
 
+import AmadeusDecoder.utilities.configuration_data as configs
+
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.invoice.Ticket import Ticket
 from AmadeusDecoder.models.invoice.TicketPassengerSegment import TicketPassengerSegment,\
@@ -15,18 +17,30 @@ from AmadeusDecoder.models.invoice.TicketPassengerSegment import TicketPassenger
 from AmadeusDecoder.models.invoice.Fee import OthersFee
 from AmadeusDecoder.models.user.Users import User
 
-_PAYMENT_OPTIONS_ = ['Comptant', 'En compte', 'Virement']
-_TICKET_NUMBER_PREFIX_ = ['Echange billet', 'EMD']
-_TO_BE_EXCLUDED_KEY_KEYWORDS_ = ['Encaissement transaction', 'Encaissement Modification', 'Encaissement des suppléments']
-_AIRPORT_AGENCY_CODE_ = ['DZAUU000B', 'Mayotte ATO']
-_STARTED_PROCESS_DATE_ = datetime(2023, 1, 1, 0, 0, 0, 0).date()
-_CURRENT_TRAVEL_AGENCY_IDENTIFIER_ = ['Issoufali', 'ISSOUFALI', 'Mayotte ATO']
+# PAYMENT_OPTIONS = ['Comptant', 'En compte', 'Virement']
+# TICKET_NUMBER_PREFIX = ['Echange billet', 'EMD']
+# TO_BE_EXCLUDED_KEY_KEYWORDS = ['Encaissement transaction', 'Encaissement Modification', 'Encaissement des suppléments']
+# AIRPORT_AGENCY_CODE = ['DZAUU000B', 'Mayotte ATO']
+# STARTED_PROCESS_DATE = datetime(2023, 1, 1, 0, 0, 0, 0).date()
+# CURRENT_TRAVEL_AGENCY_IDENTIFIER = ['Issoufali', 'ISSOUFALI', 'Mayotte ATO']
+
+PAYMENT_OPTIONS = configs.PAYMENT_OPTIONS
+TICKET_NUMBER_PREFIX = configs.TICKET_NUMBER_PREFIX
+TO_BE_EXCLUDED_KEY_KEYWORDS = configs.TO_BE_EXCLUDED_KEY_KEYWORDS
+AIRPORT_AGENCY_CODE = configs.AIRPORT_AGENCY_CODE
+STARTED_PROCESS_DATE = configs.STARTED_PROCESS_DATE.date()
+CURRENT_TRAVEL_AGENCY_IDENTIFIER = configs.CURRENT_TRAVEL_AGENCY_IDENTIFIER
 
 # part types
-TICKET_PAYMENT_PART = ["Paiement Billet"]
-ADJUSTMENT_PART = ["Reissuance Adjustment"]
-EMD_CANCELLATION_PART = ["Annulation ancillaries"]
-TICKET_CANCELLATION_PART = ["Ticket void", "Remboursement"]
+TICKET_PAYMENT_PART = configs.TICKET_PAYMENT_PART
+ADJUSTMENT_PART = configs.ADJUSTMENT_PART
+EMD_CANCELLATION_PART = configs.EMD_CANCELLATION_PART
+TICKET_CANCELLATION_PART = configs.TICKET_CANCELLATION_PART
+PENALTY_PART = configs.PENALTY_PART
+AGENCY_FEE_PART = configs.AGENCY_FEE_PART
+EMD_NO_NUMBER_POSSIBLE_DESIGNATION = configs.EMD_NO_NUMBER_POSSIBLE_DESIGNATION
+DEFAULT_ASSIGNED_PASSENGER_ON_OBJECT = configs.DEFAULT_ASSIGNED_PASSENGER_ON_OBJECT
+EMD_BALANCING_STATEMENT_PART = configs.EMD_BALANCING_STATEMENT_PART
 
 class ZenithParserReceipt():
     '''
@@ -83,7 +97,7 @@ class ZenithParserReceipt():
     def is_excluded(self, part):
         to_be_excluded = False
         for element in part:
-            for keyword in _TO_BE_EXCLUDED_KEY_KEYWORDS_:
+            for keyword in TO_BE_EXCLUDED_KEY_KEYWORDS:
                 if element.find(keyword) > -1:
                     return True
         return to_be_excluded
@@ -116,7 +130,7 @@ class ZenithParserReceipt():
     # check if part has been issued by current Travel Agency
     def check_part_emitter(self, current_part):
         is_emitted = False
-        for identifier in _CURRENT_TRAVEL_AGENCY_IDENTIFIER_:
+        for identifier in CURRENT_TRAVEL_AGENCY_IDENTIFIER:
             if current_part[1].find(identifier) > -1 or current_part[2].find(identifier) > -1:
                 return True
         
@@ -177,7 +191,7 @@ class ZenithParserReceipt():
                     elif temp_part.split(']')[0].strip() == passenger.name:
                         passenger_name += temp_part.split(']')[0]
                         break
-            if current_part[i].strip() in _PAYMENT_OPTIONS_:
+            if current_part[i].strip() in PAYMENT_OPTIONS:
                 next_index = i
         
         for passenger in passengers:
@@ -186,7 +200,7 @@ class ZenithParserReceipt():
         
         if part_passenger is None:
             for passenger in passengers:
-                if passenger.types != 'Adulte(s)':
+                if passenger.types in DEFAULT_ASSIGNED_PASSENGER_ON_OBJECT:
                     part_passenger = passenger
                     break
             if part_passenger is None:
@@ -199,7 +213,7 @@ class ZenithParserReceipt():
         ticket_number = None
         for i in range(len(current_part)):
             element = current_part[i]
-            for prefix in _TICKET_NUMBER_PREFIX_:
+            for prefix in TICKET_NUMBER_PREFIX:
                 if element.startswith(prefix):
                     ticket_number = element.removeprefix(prefix).strip().removeprefix('[').removesuffix(']').removeprefix(':').removeprefix('(').removesuffix(')')
                 elif element.endswith(prefix):
@@ -265,17 +279,17 @@ class ZenithParserReceipt():
             if isinstance(current_segment, list):
                 for segment in current_segment:
                     segment_departuretime = segment.departuretime
-                    if emitter.office.code in _AIRPORT_AGENCY_CODE_ and segment_departuretime is not None:
+                    if emitter.office.code in AIRPORT_AGENCY_CODE and segment_departuretime is not None:
                         if segment_departuretime.date() == date_time.date():
                             tester = True
                             break
             else:
                 segment_departuretime = current_segment.departuretime
-                if emitter.office.code in _AIRPORT_AGENCY_CODE_ and segment_departuretime is not None:
+                if emitter.office.code in AIRPORT_AGENCY_CODE and segment_departuretime is not None:
                     if segment_departuretime.date() == date_time.date():
                         tester = True
         
-        if part[2] in _AIRPORT_AGENCY_CODE_:
+        if part[2] in AIRPORT_AGENCY_CODE:
             # set issuing agency name
             if ticket is not None:
                 ticket.issuing_agency_name = part[2]
@@ -305,7 +319,7 @@ class ZenithParserReceipt():
     # check issuing date
     def check_issuing_date(self, date_time):
         is_flown = False
-        if date_time < _STARTED_PROCESS_DATE_:
+        if date_time < STARTED_PROCESS_DATE:
             is_flown = True
         return is_flown
     
@@ -415,7 +429,7 @@ class ZenithParserReceipt():
                             
             # get adjustment
             # for element in part:
-            #     for prefix in _TICKET_NUMBER_PREFIX_:
+            #     for prefix in TICKET_NUMBER_PREFIX:
             #         if element.startswith(prefix):
             #             new_ticket.number = element.removeprefix(prefix).strip().removeprefix('[').removesuffix(']').removeprefix(':')
             
@@ -499,11 +513,19 @@ class ZenithParserReceipt():
                         new_other_fee.save()
                         self.ajustment_total.append({'other_fee': new_other_fee, 'total': total})
                         
-                        other_fee_passenger_segment = OtherFeeSegment()
-                        other_fee_passenger_segment.other_fee = new_other_fee
-                        other_fee_passenger_segment.passenger = current_passenger
-                        other_fee_passenger_segment.segment = current_segment[0]
-                        other_fee_passenger_segment.save()
+                        if isinstance(current_segment, list):
+                            for segment in current_segment:
+                                other_fee_passenger_segment = OtherFeeSegment()
+                                other_fee_passenger_segment.other_fee = new_other_fee
+                                other_fee_passenger_segment.passenger = current_passenger
+                                other_fee_passenger_segment.segment = segment
+                                other_fee_passenger_segment.save()
+                        else:
+                            other_fee_passenger_segment = OtherFeeSegment()
+                            other_fee_passenger_segment.other_fee = new_other_fee
+                            other_fee_passenger_segment.passenger = current_passenger
+                            other_fee_passenger_segment.segment = current_segment
+                            other_fee_passenger_segment.save()
                     
     # emd cancellation
     def handle_emd_cancellation(self, pnr, passengers, cancellation_part):
@@ -514,7 +536,7 @@ class ZenithParserReceipt():
             # new emd to be inserted
             new_emd = OthersFee()
             new_emd.pnr = pnr
-            part_name_index = self.get_target_part_index(part, ["Annulation ancillaries"])
+            part_name_index = self.get_target_part_index(part, EMD_CANCELLATION_PART)
             if part_name_index is not None:
                 new_emd.designation = part[part_name_index + 1]
             
@@ -555,12 +577,20 @@ class ZenithParserReceipt():
                 new_emd.creation_date = date_time.date()
                 new_emd.save()
                 if otherfee_saved_checker is None:
-                    other_fee_passenger_segment = OtherFeeSegment()
-                    other_fee_passenger_segment.other_fee = new_emd
-                    other_fee_passenger_segment.passenger = current_passenger
-                    other_fee_passenger_segment.segment = current_segment[0]
-                    other_fee_passenger_segment.save()
-                    
+                    if isinstance(current_segment, list):
+                        for segment in current_segment:
+                            other_fee_passenger_segment = OtherFeeSegment()
+                            other_fee_passenger_segment.other_fee = new_emd
+                            other_fee_passenger_segment.passenger = current_passenger
+                            other_fee_passenger_segment.segment = segment
+                            other_fee_passenger_segment.save()
+                    else:
+                        other_fee_passenger_segment = OtherFeeSegment()
+                        other_fee_passenger_segment.other_fee = new_emd
+                        other_fee_passenger_segment.passenger = current_passenger
+                        other_fee_passenger_segment.segment = current_segment
+                        other_fee_passenger_segment.save()
+                        
     # ticket cancellation
     def handle_ticket_cancellation(self, pnr, passengers, cancellation_part):
         for part in cancellation_part:
@@ -626,22 +656,30 @@ class ZenithParserReceipt():
                 
                 new_emd.save()
                 if otherfee_saved_checker is None:
-                    other_fee_passenger_segment = OtherFeeSegment()
-                    other_fee_passenger_segment.other_fee = new_emd
-                    other_fee_passenger_segment.passenger = current_passenger
-                    other_fee_passenger_segment.segment = current_segment[0]
-                    other_fee_passenger_segment.save()
-
+                    if isinstance(current_segment, list):
+                        for segment in current_segment:
+                            other_fee_passenger_segment = OtherFeeSegment()
+                            other_fee_passenger_segment.other_fee = new_emd
+                            other_fee_passenger_segment.passenger = current_passenger
+                            other_fee_passenger_segment.segment = segment
+                            other_fee_passenger_segment.save()
+                    else:
+                        other_fee_passenger_segment = OtherFeeSegment()
+                        other_fee_passenger_segment.other_fee = new_emd
+                        other_fee_passenger_segment.passenger = current_passenger
+                        other_fee_passenger_segment.segment = current_segment
+                        other_fee_passenger_segment.save()
+                    
     # emd when no ticket number provided
     def handle_emd_no_number(self, pnr, current_passenger, current_segment, is_created_by_us, cost, total, date_time, emd_single_part):
         is_balancing_statement = False
         
-        designation_index = self.get_target_part_index_extended(emd_single_part, ['bagage', 'equipement', 'instrument'])
+        designation_index = self.get_target_part_index_extended(emd_single_part, EMD_NO_NUMBER_POSSIBLE_DESIGNATION)
         
         # check if current line is just an EMD Balancing Statement
-        if designation_index == 0 and self.get_target_part_index_extended(emd_single_part, ['Balancing']) > 0:
+        if designation_index == 0 and self.get_target_part_index_extended(emd_single_part, EMD_BALANCING_STATEMENT_PART) > 0:
             is_balancing_statement = True
-            designation_index = self.get_target_part_index_extended(emd_single_part, ['Balancing'])
+            designation_index = self.get_target_part_index_extended(emd_single_part, EMD_BALANCING_STATEMENT_PART)
         
         designation = None
         if designation_index > 0:
@@ -710,10 +748,10 @@ class ZenithParserReceipt():
             date_time = self.get_issuing_date_on_part(part)
             current_passenger, next_index = self.get_passenger_assigned_on_part(passengers, part)
             current_segment = self.get_segments_assigned_on_part(part)
-            part_name_index = self.get_target_part_index(part, ["Pénalité"])
+            part_name_index = self.get_target_part_index(part, PENALTY_PART)
             
             # skip "Frais d'agence"
-            internal_fee = self.get_target_part_index(part, ["Frais d'agence"])
+            internal_fee = self.get_target_part_index(part, AGENCY_FEE_PART)
             if internal_fee != 0:
                 continue
             
@@ -748,7 +786,7 @@ class ZenithParserReceipt():
                 
                 # get emd
                 # for element in part:
-                #     for prefix in _TICKET_NUMBER_PREFIX_:
+                #     for prefix in TICKET_NUMBER_PREFIX:
                 #         if element.find(prefix) > -1:
                 #             new_emd.number = element.replace(prefix, '').replace('(', '').replace(')', '').replace(':', '')
                 # new_emd.number = element.removeprefix(prefix).strip().removeprefix('[').removesuffix(']').removeprefix(':')

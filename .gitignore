@@ -11,9 +11,11 @@ env
 *.xlsx
 *.ipynb
 *.pem
+/My_Token.txt
 travelagency_env
 *.json
 node_modules
 cypress
 cypress.config.js
 yarn.lock
+/temp_requirements.txt

@@ -7,13 +7,44 @@ import os
 import traceback
 import datetime
 
+import AmadeusDecoder.utilities.configuration_data as configs
+
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.invoice.Ticket import Ticket
 from AmadeusDecoder.models.data.RawData import RawData
 
-_AIRPORT_AGENCY_CODE_ = ['DZAUU000B']
-_SPECIAL_EMD_DESCRIPTION_ = ['DEPOSIT']
-_NOT_FEED_ = ['RESIDUAL VALUE', 'DISCOUNT CARD']
+# COMPANY_CURRENCY = ["EUR"]
+COMPANY_CURRENCY = configs.COMPANY_CURRENCY_CODE
+
+# AIRPORT_AGENCY_CODE = ['DZAUU000B']
+# SPECIAL_EMD_DESCRIPTION = ['DEPOSIT']
+# NOT_FEED = ['RESIDUAL VALUE', 'DISCOUNT CARD']
+# EMD_IDENTIFIER = ["EMD"]
+# PNR_NUMBER_IDENTIFIER = ["LOC"]
+# PNR_TYPE = ["Altea"]
+# EMD_STATUSES = {'O': 1, 'A': 2, 'F': 3, 'V': 0, 'R': 4, 'E': 5, 'P':6}
+
+AIRPORT_AGENCY_CODE = configs.AIRPORT_AGENCY_CODE
+SPECIAL_EMD_DESCRIPTION = configs.SPECIAL_EMD_DESCRIPTION
+NOT_FEED = configs.NOT_FEED
+EMD_IDENTIFIER = configs.EMD_IDENTIFIER
+PNR_NUMBER_IDENTIFIER = configs.PNR_NUMBER_IDENTIFIER
+PNR_TYPE = configs.PNR_TYPE
+EMD_STATUSES = configs.EMD_STATUSES
+
+# EMD_DESCRIPTION_IDENTIFIER = ["RFIC", "DESCRIPTION"]
+# EMD_ISSUING_DATE_IDENTIFIER = ["DOI"]
+# EMD_PAYMENT_METHOD_IDENTIFIER = ["FP"]
+# NO_ADC_IDENTIFIER = ["NO", "ADC", "NO ADC", "ADC"]
+# COST_MODIFICATION_IDENTIFIER = ["A"]
+# COST_DETAIL_IDENTIFIER = ["FARE", "EXCH VAL", "RFND VAL", "RFND", "TOTAL"]
+
+EMD_DESCRIPTION_IDENTIFIER = configs.EMD_DESCRIPTION_IDENTIFIER
+EMD_ISSUING_DATE_IDENTIFIER = configs.EMD_ISSUING_DATE_IDENTIFIER
+EMD_PAYMENT_METHOD_IDENTIFIER = configs.EMD_PAYMENT_METHOD_IDENTIFIER
+NO_ADC_IDENTIFIER = configs.NO_ADC_IDENTIFIER
+COST_MODIFICATION_IDENTIFIER = configs.COST_MODIFICATION_IDENTIFIER
+COST_DETAIL_IDENTIFIER = configs.COST_DETAIL_IDENTIFIER
 
 class EMDOnlyParser():
     '''
@@ -47,9 +78,9 @@ class EMDOnlyParser():
         ticket_number = ''
         ticket_state = 0
         for temp in ticket_info_line.split(' '):
-            if temp.startswith('EMD'):
+            if temp.startswith(EMD_IDENTIFIER[0]):
                 ticket_number = temp.split('-')[1]
-            elif temp.startswith('LOC'):
+            elif temp.startswith(PNR_NUMBER_IDENTIFIER[0]):
                 pnr_number = temp.split('-')[1]
         
         # system_creation_date = datetime.datetime.now()
@@ -59,7 +90,7 @@ class EMDOnlyParser():
             temp_pnr.number = pnr_number
             temp_pnr.state = 1 # PNR manquant
             ticket_state = 1 # PNR manquant
-            temp_pnr.type = 'Altea'
+            temp_pnr.type = PNR_TYPE[0]
             temp_pnr.status = 'Emis'
             temp_pnr.status_value = 0
             # temp_pnr.system_creation_date = datetime.datetime(system_creation_date.year, system_creation_date.month, system_creation_date.day, system_creation_date.hour, system_creation_date.minute, system_creation_date.second, system_creation_date.microsecond, pytz.UTC)
@@ -83,13 +114,13 @@ class EMDOnlyParser():
             # test by agent
             if emitter is not None:
                 try:
-                    if emitter.office.code in _AIRPORT_AGENCY_CODE_:
+                    if emitter.office.code in AIRPORT_AGENCY_CODE:
                         is_emitted_in_airport = True
                 except:
                     pass
             # test by current emd issuing agency
             try:
-                if emd.issuing_agency.code in _AIRPORT_AGENCY_CODE_:
+                if emd.issuing_agency.code in AIRPORT_AGENCY_CODE:
                     is_emitted_in_airport = True
             except:
                 pass
@@ -107,7 +138,7 @@ class EMDOnlyParser():
                     emd.is_subjected_to_fees = False
             
             # check fee subjection based on description
-            for element in _NOT_FEED_:
+            for element in NOT_FEED:
                 if emd.ticket_description.find(element) > -1:
                     emd.is_subjected_to_fees = False
                     break
@@ -116,7 +147,7 @@ class EMDOnlyParser():
     
     # check if EMD is SPECIAL
     def check_if_emd_is_special(self, emd):
-        for element in _SPECIAL_EMD_DESCRIPTION_:
+        for element in SPECIAL_EMD_DESCRIPTION:
             if emd.ticket_description.find(element) > -1:
                 emd.is_subjected_to_fees = False
                 emd.is_deposit = True
@@ -141,18 +172,18 @@ class EMDOnlyParser():
                 temp_split = temp.split('-')
                 len_temp_split = len(temp_split)
                 if temp.startswith('S') and len_temp_split > 1:
-                    statuses = {'O': 1, 'A': 2, 'F': 3, 'V': 0, 'R': 4, 'E': 5, 'P':6}
+                    statuses = EMD_STATUSES
                     if temp_split[1] in statuses:
                         # currently not taken into account as regular PNR status not followed
                         # emd_status = statuses[temp_split[1]]
                         pass
-                if temp.startswith('RFIC'):
+                if temp.startswith(EMD_DESCRIPTION_IDENTIFIER[0]):
                     if len_content_split > 1:
                         emd_description += '('
                         for i in range(1, len_content_split):
                             emd_description += content_split[i] if content_split[i] != '' else ''
                         emd_description += ')'
-                if temp.startswith('DESCRIPTION'):
+                if temp.startswith(EMD_DESCRIPTION_IDENTIFIER[1]):
                     if len_temp_split > 1:
                         if len_content_split == 1:
                             emd_description += ' ' + temp_split[1]
@@ -160,9 +191,9 @@ class EMDOnlyParser():
                             emd_description += temp_split[1]
                             for i in range(content_split.index(temp) + 1, len_content_split):
                                 emd_description += ' ' + content_split[i]
-                if temp.startswith('DOI') and len_temp_split > 1:
+                if temp.startswith(EMD_ISSUING_DATE_IDENTIFIER[0]) and len_temp_split > 1:
                     emd_issuing_date = datetime.datetime.strptime(temp_split[1], '%d%b%y')
-                if temp.startswith('FP') and len_content_split > 1:
+                if temp.startswith(EMD_PAYMENT_METHOD_IDENTIFIER[0]) and len_content_split > 1:
                     emd_payment_info = content_split[1]
         
         return emd_status, emd_description, emd_issuing_date, emd_payment_info
@@ -230,9 +261,9 @@ class EMDOnlyParser():
                     error_file.write('{}: \n'.format(datetime.datetime.now()))
                     traceback.print_exc(file=error_file)
                     error_file.write('\n')
-                    if total_line.split(' ')[-1].endswith('A') or total_line.split(' ')[-1].endswith('ADC'):
+                    if total_line.split(' ')[-1].endswith(COST_MODIFICATION_IDENTIFIER[0]) or total_line.split(' ')[-1].endswith(NO_ADC_IDENTIFIER[3]):
                         is_ticket_modification = True
-                        if total_line.split(' ')[-1].endswith('ADC'):
+                        if total_line.split(' ')[-1].endswith(NO_ADC_IDENTIFIER[3]):
                             total_line.split(' ')[-1] = 0
                             is_no_adc = True
                     for value in total_line.split(' ')[-1]:
@@ -263,21 +294,21 @@ class EMDOnlyParser():
         total_line = ''
         
         for line in file_contents:
-            if line.startswith('EMD'):
+            if line.startswith(EMD_IDENTIFIER[0]):
                 info_line = line
-            elif line.startswith('FARE'):
+            elif line.startswith(COST_DETAIL_IDENTIFIER[0]):
                 fare_line = line
-            elif line.startswith('EXCH VAL'):
-                if line.find('RFND VAL') != -1:
+            elif line.startswith(COST_DETAIL_IDENTIFIER[1]):
+                if line.find(COST_DETAIL_IDENTIFIER[2]) != -1:
                     temp_line_split = line.split(' ')
                     for i in range(len(temp_line_split)):
-                        if temp_line_split[i] == 'RFND':
+                        if temp_line_split[i] == COST_DETAIL_IDENTIFIER[3]:
                             break
                         if temp_line_split[i] != '':
                             exch_val_line += temp_line_split[i] + ' '
                     for j in range(i, len(temp_line_split)):
                         rfnd_val_line += temp_line_split[j] + ' '
-            elif line.startswith('TOTAL'):
+            elif line.startswith(COST_DETAIL_IDENTIFIER[4]):
                 total_line = line
         
         return info_line, fare_line, exch_val_line[:-1], rfnd_val_line[:-1], total_line
@@ -307,10 +338,10 @@ class EMDOnlyParser():
         emd.rfnd_val = rfnd_val
         emd.tax = total - fare
         emd.total = total
-        emd.doccurrency = 'EUR'
-        emd.farecurrency = 'EUR'
+        emd.doccurrency = COMPANY_CURRENCY[0]
+        emd.farecurrency = COMPANY_CURRENCY[0]
         emd.state = ticket_state
-        emd.ticket_type = 'EMD'
+        emd.ticket_type = EMD_IDENTIFIER[0]
         emd.ticket_status = emd_status
         emd.ticket_description = emd_description
         emd.issuing_date = emd_issuing_date
@@ -330,7 +361,7 @@ class EMDOnlyParser():
                 temp_emd.tax = total - fare
                 temp_emd.total = total
             temp_emd.state = ticket_state
-            temp_emd.ticket_type = 'EMD'
+            temp_emd.ticket_type = EMD_IDENTIFIER[0]
             temp_emd.ticket_status = emd_status
             temp_emd.ticket_description = emd_description
             temp_emd.issuing_date = emd_issuing_date

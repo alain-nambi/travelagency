@@ -3,6 +3,19 @@ Created on 4 Feb 2023
 
 @author: Famenontsoa
 '''
+# load configs
+from AmadeusDecoder.utilities.ConfigReader import ConfigReader
+ConfigReader.load_company_info()
+ConfigReader.load_email_source()
+ConfigReader.load_emd_parser_tool_data()
+ConfigReader.load_tst_parser_tool_data()
+ConfigReader.load_zenith_parser_tool_data()
+ConfigReader.load_zenith_parser_receipt_tool_data()
+ConfigReader.load_ticket_parser_tool_data()
+ConfigReader.load_fee_request_tool_data()
+ConfigReader.load_report_email_data()
+ConfigReader.load_pnr_parser_tool_data()
+
 from AmadeusDecoder.utilities.ZenithParser import ZenithParser
 
 if __name__ == '__main__':

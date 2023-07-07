@@ -7,6 +7,7 @@ import time
 
 from datetime import datetime, timedelta, timezone
 
+EMAIL_PNR = {'address': 'tjq.issoufali@gmail.com', 'password': 'sboptodqazliqabj'}
 
 class RepeatTimer(Timer):  
     daemon=True 
@@ -123,8 +124,8 @@ def fetch_email():
         # email_listener_obj.app_password = "lhlyyumveqvyqhqo"
         # email_listener_obj.email = "central.dev19@gmail.com"
         # email_listener_obj.app_password = "aqygdmkcedxmimyk"
-        email_listener_obj.email = "tjq.issoufali@gmail.com"
-        email_listener_obj.app_password = "gvtlqduhdbiijjsd"
+        email_listener_obj.email = EMAIL_PNR['address']
+        email_listener_obj.app_password = EMAIL_PNR['password']
         # email_listener_obj.email = "issoufali.pnr@outlook.com"
         # email_listener_obj.app_password = "Mgbi@261!+"
         email_listener_obj.folder = "Inbox"
@@ -155,7 +156,7 @@ class EmailfetcherConfig(AppConfig):
 
         # now = datetime.now()
         # repeat_timer_for_pnr_upload_notification = 0
-        
+        #
         # def pnr_upload_repeat_timer(repeat_timer_for_pnr_upload_notification):
         #     print("📢 Mail notification for pnr not updated in pnr management...")
         #     timer_update_check = RepeatTimer(repeat_timer_for_pnr_upload_notification, checking_pnr_not_uploaded_in_pnr_management)

@@ -3,8 +3,9 @@ from threading import Timer, Thread,Event
 import time, os
 import datetime
 from datetime import datetime, timedelta, timezone
+from django.apps.registry import apps
 
-
+import AmadeusDecoder.utilities.configuration_data as configs
 
 class RepeatTimer(Timer):  
     daemon=True 
@@ -97,6 +98,29 @@ def checking_pnr_not_sent_to_odoo():
     # ==================== PNR not sent to Odoo checking ====================
     MailNotification.pnr_not_sent_to_odoo(now)
     
+def load_config():
+    print('Loading configurations ...')
+    # assign current company to local variable 'session_variable'
+    import AmadeusDecoder.utilities.session_variables as session_variables
+    from AmadeusDecoder.utilities.ConfigReader import ConfigReader
+    # session_variables.current_company = ConfigReader.get_company()
+    
+    apps.get_models()
+    # load company info
+    ConfigReader.load_company_info()
+    ConfigReader.load_email_source()
+    ConfigReader.load_emd_parser_tool_data()
+    ConfigReader.load_tst_parser_tool_data()
+    ConfigReader.load_zenith_parser_tool_data()
+    ConfigReader.load_zenith_parser_receipt_tool_data()
+    ConfigReader.load_ticket_parser_tool_data()
+    ConfigReader.load_fee_request_tool_data()
+    ConfigReader.load_report_email_data()
+    ConfigReader.load_pnr_parser_tool_data()
+    
+    # assign current company to local variable 'session_variable'
+    session_variables.current_company = configs.COMPANY_NAME
+    print('Configurations loaded ...')
 
 class AmadeusdecoderConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
@@ -107,6 +131,9 @@ class AmadeusdecoderConfig(AppConfig):
         if run_once is not None:
             return 
         os.environ['CMDLINERUNNER_RUN_ONCE'] = 'True'
+        
+        load_configs = Thread(target=load_config)
+        load_configs.start()
         
         # now = datetime.now()
         # repeat_timer_for_pnr_upload_notification = 0

@@ -1275,13 +1275,17 @@ class PnrOnlyParser():
         for line in normalized_file:
             temp = line.split(" ")
             if len(temp) > 2 and temp[0].isnumeric():
-                if (temp[1] in TICKET_LINE_IDENTIFIER) and (temp[2] in SECOND_DEGREE_TICKET_LINE_IDENTIFIER):
+                if temp[1] in TICKET_LINE_IDENTIFIER and temp[2] in SECOND_DEGREE_TICKET_LINE_IDENTIFIER:
                     ticket_lines.append(line)
+                    header_part_indexes = 3
+                elif temp[1] in TICKET_LINE_IDENTIFIER and temp[2] not in SECOND_DEGREE_TICKET_LINE_IDENTIFIER:
+                    ticket_lines.append(line)
+                    header_part_indexes = 2
         
         for ticket in ticket_lines:
             temp_ticket = Ticket()
-            header_part = ticket.split(' ')[0:3]
-            info_part = ticket.split(' ')[3:]
+            header_part = ticket.split(' ')[0:header_part_indexes]
+            info_part = ticket.split(' ')[header_part_indexes:]
             # ticket number can be: 760-9010406291 or 760-2404573845-46
             temp_ticket_number_str = info_part[0].split('/')[0]
             # if like 760-9010406291
@@ -1299,6 +1303,7 @@ class PnrOnlyParser():
                         for passenger in passengers:
                             if passenger.order == part_slice:
                                 # if the passenger is not an INF associated with a parent passenger
+                                
                                 if header_part[2] != 'INF':
                                     if passenger.types != 'INF_ASSOC':
                                         temp_ticket.passenger = passenger
@@ -1491,7 +1496,7 @@ class PnrOnlyParser():
                 temp_ticket.state = 0
             
             tickets.append(temp_ticket)
-            
+        
         return tickets, tickets_segments, tickets_ssrs
     
     # get credit note

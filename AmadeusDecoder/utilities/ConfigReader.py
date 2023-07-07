@@ -5,13 +5,13 @@ Created on 16 Nov 2022
 '''
 import os
 import datetime
-import django
+# import django
 import traceback
 
-os.environ.setdefault(
-    'DJANGO_SETTINGS_MODULE', 'DjangoTravelAgency.settings'
-)
-django.setup()
+# os.environ.setdefault(
+#     'DJANGO_SETTINGS_MODULE', 'DjangoTravelAgency.settings'
+# )
+# django.setup()
 
 from django.conf import settings
 

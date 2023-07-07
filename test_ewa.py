@@ -16,6 +16,9 @@ ConfigReader.load_fee_request_tool_data()
 ConfigReader.load_report_email_data()
 ConfigReader.load_pnr_parser_tool_data()
 
+import AmadeusDecoder.utilities.configuration_data as configs
+
+
 from AmadeusDecoder.utilities.ZenithParser import ZenithParser
 
 if __name__ == '__main__':

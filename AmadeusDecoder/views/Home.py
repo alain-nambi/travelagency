@@ -819,7 +819,7 @@ def reduce_fee(request) :
                             "mihaja@phidia.onmicrosoft.com",
                             # "tahina@phidia.onmicrosoft.com",
                             # "famenontsoa@outlook.com"
-                            # alain@phidia.onmicrosoft.com"
+                            # "alain@phidia.onmicrosoft.com"
                         ],
                         subject,
                         message

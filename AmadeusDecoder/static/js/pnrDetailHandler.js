@@ -410,6 +410,7 @@ reduceFeeRequest.addEventListener("click", (e) => {
         }, 1000)
       } else if (response.status == 3) {
         // toastr.info(response.message);
+        submitFeeRequest.setAttribute("disabled", true)
         const datetimeFeeReduceRequest = parseDateTimeToFrenchType(response.date_creation)
         $("#feeRequestAlert").attr("style", "display: flex !important; gap: 1rem;")
         $("#feeRequestAlert").removeClass("alert-success")

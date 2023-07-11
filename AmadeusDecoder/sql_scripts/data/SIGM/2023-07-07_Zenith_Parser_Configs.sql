@@ -5,13 +5,10 @@ insert into t_configuration(environment, name, to_be_applied_on, value_name, arr
 ('all', 'Zenith Parser Tools', 'Zenith', 'Passenger designations', ARRAY['M.', 'Mme', 'Enfant', 'Bébé', 'Mlle', 'Ms.'], null, null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'E-ticket possible format', ARRAY['e-ticket', 'e‐ĕcket', 'e‐韜���cket', 'e‐⁛cket', 'e‐�cket', 'e‐଀cket', 'e‐෶���cket', 'e‐➄cket', 'e‐ᬘ���cket', 'e‐痴���cket'], null, null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'Itinerary header possible format', null, ARRAY[
-	  ARRAY['Itinéraire', 'Vol', 'Enregistrement', 'De', 'A', 'Départ', 'Arrivée CabineEscales', null, null],
-	  ARRAY['Itinéraire', 'Vol', 'Enregistrement', 'De', 'A', 'Départ', 'Arrivée', 'CabineEscales', null],
-	  ARRAY['Itinéraire', 'Vol', 'Enregistrement', 'De', 'A', 'Départ', 'Arrivée', 'Cabine Escales', null],
-	  ARRAY['Itinéraire', 'Vol', 'Enregistrement', 'De', 'A', 'Départ', 'Arrivée', 'Cabine', 'Escales']
+	  ARRAY['Itinéraire', 'Check-in*', 'De', 'A', 'Départ', 'Arrivée', 'Cabine', 'Statut Escales']
 ], null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'Header names', ARRAY['Itinéraire', 'Détails du tarif', 'Conditions tarifaires', 'Reçu de paiement'], null, null, now(), now(), true),
-('all', 'Zenith Parser Tools', 'Zenith', 'Service carrier', ARRAY['ZD', 'TZ'], null, null, now(), now(), true),
+('all', 'Zenith Parser Tools', 'Zenith', 'Service carrier', ARRAY['TZ'], null, null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'Airport agency code', ARRAY['DZAUU000B'], null, null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'Current travel agency identifier', ARRAY['Issoufali', 'ISSOUFALI', 'Mayotte ATO'], null, null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'Non relevant identifier for passenger', ARRAY['N° FFP'], null, null, now(), now(), true),
@@ -38,6 +35,7 @@ insert into t_configuration(environment, name, to_be_applied_on, value_name, arr
 ('all', 'Zenith Parser Tools', 'Zenith', 'Payment method identifier', ARRAY['Forme de', 'paiement'], null, null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'Issuing date identifier', ARRAY['Date d''émission'], null, null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'Issuing office identifier', ARRAY['Lieu d''émission'], null, null, now(), now(), true),
+('all', 'Zenith Parser Tools', 'Zenith', 'Issuing agent identifier', ARRAY['Emis par'], null, null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'Cost word identifier', ARRAY['Tarif'], null, null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'Modification identifier', ARRAY['Différence tarifaire', 'Pénalité d''échange'], null, null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'Tax identifier', ARRAY['Taxes'], null, null, now(), now(), true),

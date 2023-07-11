@@ -6,6 +6,7 @@ from datetime import datetime, timedelta, timezone
 from django.apps.registry import apps
 
 import AmadeusDecoder.utilities.configuration_data as configs
+from time import sleep
 
 class RepeatTimer(Timer):  
     daemon=True 
@@ -135,6 +136,7 @@ class AmadeusdecoderConfig(AppConfig):
         load_configs = Thread(target=load_config)
         load_configs.start()
         
+        sleep(1)
         # now = datetime.now()
         # repeat_timer_for_pnr_upload_notification = 0
         #

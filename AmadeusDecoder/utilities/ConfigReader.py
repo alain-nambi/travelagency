@@ -228,6 +228,12 @@ class ConfigReader():
             configs.PAYMENT_METHOD_IDENTIFIER = Configuration.objects.filter(name=config_name, value_name='Payment method identifier').first().array_value
             configs.ISSUING_DATE_IDENTIFIER = Configuration.objects.filter(name=config_name, value_name='Issuing date identifier').first().array_value
             configs.ISSUING_OFFICE_IDENTIFIER = Configuration.objects.filter(name=config_name, value_name='Issuing office identifier').first().array_value
+            
+            temp_issuing_agent_identifier = None
+            temp_issuing_agent_identifier = Configuration.objects.filter(name=config_name, value_name='Issuing agent identifier').first()
+            if temp_issuing_agent_identifier is not None:
+                configs.ISSUING_AGENT_IDENTIFIER = temp_issuing_agent_identifier.array_value
+            
             configs.COST_WORD_IDENTIFIER = Configuration.objects.filter(name=config_name, value_name='Cost word identifier').first().array_value
             configs.MODIFICATION_IDENTIFIER = Configuration.objects.filter(name=config_name, value_name='Modification identifier').first().array_value
             configs.TAX_IDENTIFIER = Configuration.objects.filter(name=config_name, value_name='Tax identifier').first().array_value

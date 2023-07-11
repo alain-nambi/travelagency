@@ -129,11 +129,14 @@ PASSENGER_WORD_IDENTIFIER = configs.PASSENGER_WORD_IDENTIFIER
 PAYMENT_METHOD_IDENTIFIER = configs.PAYMENT_METHOD_IDENTIFIER
 ISSUING_DATE_IDENTIFIER = configs.ISSUING_DATE_IDENTIFIER
 ISSUING_OFFICE_IDENTIFIER = configs.ISSUING_OFFICE_IDENTIFIER
+ISSUING_AGENT_IDENTIFIER = configs.ISSUING_AGENT_IDENTIFIER
 COST_WORD_IDENTIFIER = configs.COST_WORD_IDENTIFIER
 MODIFICATION_IDENTIFIER = configs.MODIFICATION_IDENTIFIER
 TAX_IDENTIFIER = configs.TAX_IDENTIFIER
 RECEIPT_IDENTIFIER = configs.RECEIPT_IDENTIFIER
 CUSTOMER_NAME_IDENTIFIER = configs.CUSTOMER_NAME_IDENTIFIER
+
+print(CUSTOMER_NAME_IDENTIFIER)
 
 class ZenithParser():
     '''
@@ -1001,10 +1004,17 @@ class ZenithParser():
             index = 0
             for element in temp_content:
                 # get origin and destination
+                # when origin and destination are placed inside brackets eg: (TNR)
                 splitted_part_org_dest = element.split('(')
                 for split in splitted_part_org_dest:
                     if split.endswith(')') and len(split.removesuffix(')')) == 3:
                         origin_destination.append(split.removesuffix(')'))
+                # when origin and destination are not placed inside brackets
+                if len(origin_destination) == 0:
+                    for element_1 in temp_content:
+                        if len(element_1.replace(' ', '').removeprefix('–')) == 3:
+                            origin_destination.append(element_1.replace(' ', '').removeprefix('–'))
+                
                 # get departure and arrival datetime
                 splitted_part_dep_arr = element.split('-')
                 for split_dep_arr in splitted_part_dep_arr:
@@ -1104,9 +1114,9 @@ class ZenithParser():
                             temp_ticket_segment.ticket = passenger.ticket.last()
                             temp_ticket_segment.segment = air_segment
                             try:
-                                temp_ticket_segment.fare = float(part[fare_index].replace(',','.'))
-                                temp_ticket_segment.tax = float(part[tax_index].replace(',','.'))
-                                temp_ticket_segment.total = float(part[total_index].replace(',','.'))
+                                temp_ticket_segment.fare = float(part[fare_index].replace(',','.').replace(' ', ''))
+                                temp_ticket_segment.tax = float(part[tax_index].replace(',','.').replace(' ', ''))
+                                temp_ticket_segment.total = float(part[total_index].replace(',','.').replace(' ', ''))
                             except:
                                 temp_ticket_segment.fare = 0
                                 temp_ticket_segment.tax = 0
@@ -1128,9 +1138,9 @@ class ZenithParser():
                     temp_ticket_segment.ticket = passengers_on_segment[0].ticket.last()
                     temp_ticket_segment.segment = air_segment
                     try:
-                        temp_ticket_segment.fare = float(part[fare_index].replace(',','.'))
-                        temp_ticket_segment.tax = float(part[tax_index].replace(',','.'))
-                        temp_ticket_segment.total = float(part[total_index].replace(',','.'))
+                        temp_ticket_segment.fare = float(part[fare_index].replace(',','.').replace(' ', ''))
+                        temp_ticket_segment.tax = float(part[tax_index].replace(',','.').replace(' ', ''))
+                        temp_ticket_segment.total = float(part[total_index].replace(',','.').replace(' ', ''))
                     except:
                         temp_ticket_segment.fare = 0
                         temp_ticket_segment.tax = 0
@@ -1377,6 +1387,8 @@ class ZenithParser():
     
     # get other PNR's details: payment option, emit date, emit office, ...
     def get_other_info(self, other_info_part):
+        print('Other info part ', other_info_part)
+        
         payment_option = ''
         taxes_part = ''
         issuing_date = None
@@ -1416,7 +1428,8 @@ class ZenithParser():
             if temp_info.startswith(ISSUING_OFFICE_IDENTIFIER[0]):
                 j = i + 1
                 while True:
-                    if other_info_part[j].startswith(COST_WORD_IDENTIFIER[0]) or j == len(other_info_part):
+                    if other_info_part[j].startswith(COST_WORD_IDENTIFIER[0]) or j == len(other_info_part)\
+                            or other_info_part[j].startswith(ISSUING_AGENT_IDENTIFIER[0]):
                         break
                     issuing_office += other_info_part[j] + ' '
                     j += 1
@@ -1458,7 +1471,7 @@ class ZenithParser():
         
         # get taxes
         taxes = self.process_taxes(taxes_part)
-        return payment_option, issuing_date, issuing_office, ancillaries, taxes
+        return payment_option, issuing_date, issuing_office.strip().removesuffix(':'), ancillaries, taxes
             
     # save data
     def parse_pnr(self, email_date):

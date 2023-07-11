@@ -193,12 +193,12 @@ class Ticket(models.Model, BaseModel):
     def get_set_regional_status(self):
         import AmadeusDecoder.utilities.configuration_data as configs
         try:
-            temp_company = configs.COMPANY_NAME
             ticket_destination_countries = []
             temp_company_regional_countries = []
-            if temp_company is not None:
-                for country_iso in Country.objects.filter(company_as_regional__company=temp_company).all():
-                    temp_company_regional_countries.append(country_iso.code)
+            for country_name in configs.REGIONAL_COUNTRIES:
+                temp_country = Country.objects.filter(name=country_name).first()
+                if temp_country is not None:
+                    temp_company_regional_countries.append(temp_country.code)
             # ticket parts: ticket and segment
             temp_tickets_parts = self.ticket_parts.all()
             for ticket_part in temp_tickets_parts:

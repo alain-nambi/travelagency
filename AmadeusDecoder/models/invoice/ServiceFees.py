@@ -104,14 +104,8 @@ class RegionalFlight(models.Model, BaseModel):
     class Meta:
         db_table = 't_company_regional_flight'
         constraints = [
-            models.UniqueConstraint(fields=['company', 'country'], name="unique_region_company")
+            models.UniqueConstraint(fields=['country'], name="unique_region_company")
         ]
-    
-    company = models.ForeignKey(
-        "AmadeusDecoder.CompanyInfo",
-        on_delete=models.CASCADE,
-        related_name='regional_flights'
-    )
     
     country = models.ForeignKey(
         "AmadeusDecoder.Country",

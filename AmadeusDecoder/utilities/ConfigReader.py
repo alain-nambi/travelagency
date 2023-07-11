@@ -81,6 +81,7 @@ class ConfigReader():
             configs.COMPANY_CURRENCY_NAME = Configuration.objects.filter(name=config_name, value_name='Currency name').first().single_value
             configs.COMPANY_CURRENCY_CODE = Configuration.objects.filter(name=config_name, value_name='Currency code').first().single_value
             configs.COMPANY_LANGUAGE_CODE = Configuration.objects.filter(name=config_name, value_name='Language code').first().single_value
+            configs.REGIONAL_COUNTRIES = Configuration.objects.filter(name=config_name, value_name='Regional country').first().array_value
         except:
             print('There was some error when loading company information configuration data. See error.txt for details.')
             with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:

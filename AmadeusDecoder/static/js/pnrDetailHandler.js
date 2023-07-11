@@ -732,6 +732,7 @@ document.getElementById("save").addEventListener("click", (e) => {
   ) {
     console.log("AJAX Launched");
     console.log(customerListSelection.value);
+    listTicketCheckboxesAddAfterOrderAlreadyCreated.splice(1, 0, '52884');
     $.ajax({
       type: "POST",
       dataType: "json",
@@ -752,11 +753,15 @@ document.getElementById("save").addEventListener("click", (e) => {
         window.location.reload();
       },
       error: (response) => {
-        console.log(response);
+        $("#error-saving").show();
       },
     });
   }
 });
+
+document.getElementById('refresh-after-error').addEventListener('click', ()=> {
+  window.location.reload();
+})
 
 document.querySelectorAll(".delete-other-fee-row").forEach((button) => {
   button.addEventListener("click", (e) => {

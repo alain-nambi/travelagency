@@ -856,14 +856,16 @@ def save_pnr_detail_modification(request, pnr_id):
             user = User.objects.get(pk=int(request.user.id))
             if ticket_checked != [] and ticket_checked != '' and customer_id != '':
                 customer = Client.objects.get(pk=int(customer_id))
-                passenger_invoice = PassengerInvoice.objects.filter(pnr=pnr)
+                orders = PassengerInvoice.objects.filter(pnr=pnr)
+                print(ticket_checked)
 
 
                 if pnr.status_value == 0:
                     print('Entry issuing part')
-                    if passenger_invoice.filter(status='sale').exists():
+                    if orders.filter(status='sale').exists():
                         print('Enty to issuing first part with : ' + str(ticket_checked))
                         count = 0
+                        passenger_invoice = orders.filter(status='sale')
                         for ids in ticket_checked:
                             tickets = Ticket.objects.filter(pk=int(ids), pnr=pnr_id, ticket_status=1).exclude(ticket_type='TST')
                             for ticket in tickets:
@@ -881,14 +883,10 @@ def save_pnr_detail_modification(request, pnr_id):
                                                 invoice_fee_passenger = PassengerInvoice(
                                                     fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, status='sale')
                                                 invoice_fee_passenger.save()
-                                            else:
-                                                invoice_fee_passenger.filter(is_invoiced=False).update(
-                                                    fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, status='sale')
-                                else:
-                                    passenger_invoice.filter(ticket=ticket.id, is_invoiced=False).update(ticket=ticket, pnr=pnr, type=ticket.ticket_type, client=customer, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, fee=None, status='sale')
 
-                    elif not passenger_invoice.filter(status='sale').exists():
+                    elif not orders.filter(status='sale').exists():
                         print('Enty to issuing second part with : ' + str(ticket_checked))
+                        passenger_invoice = orders.filter(status='sale')
                         for ids in ticket_checked:
                             tickets = Ticket.objects.filter(pk=int(ids), pnr=int(pnr_id), ticket_status=1).exclude(ticket_type='TST')
                             for ticket in tickets:
@@ -905,10 +903,6 @@ def save_pnr_detail_modification(request, pnr_id):
                                                 invoice_fee_passenger = PassengerInvoice(
                                                     fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, status='sale', other_fee=None)
                                                 invoice_fee_passenger.save()
-                                            else:
-                                                invoice_fee_passenger.filter(is_invoiced=False).update(fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, status='sale')
-                                else:
-                                    passenger_invoice.filter(ticket=ticket.id, is_invoiced=False).update(ticket=ticket, pnr=pnr, type=ticket.ticket_type, client=customer, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, fee=None, status='sale')
 
                 elif pnr.status_value == 1:
                     count = 0
@@ -920,10 +914,7 @@ def save_pnr_detail_modification(request, pnr_id):
                             count+=1
                             print('Count : ' + str(count))
                             invoice_tickets_passenger = PassengerInvoice.objects.filter(ticket=ticket_object.id, pnr=int(pnr_id))
-                            if invoice_tickets_passenger.exists():
-                                invoice_tickets_passenger.update(ticket=ticket_object, pnr=pnr, type=ticket_object.ticket_type, client=customer, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, fee=None, status='quotation', other_fee=None)
-                                print('ticket unissued updated')
-                            else:
+                            if not invoice_tickets_passenger.exists():
                                 invoice_tickets_passenger = PassengerInvoice(ticket=ticket_object, pnr=pnr, type=ticket_object.ticket_type, client=customer, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, fee=None, status='quotation', other_fee=None)
                                 invoice_tickets_passenger.save()
                                 print('ticket unissued saved')
@@ -932,10 +923,7 @@ def save_pnr_detail_modification(request, pnr_id):
                             if fee_objects.exists():
                                 for fee_item in fee_objects:
                                     invoice_fee_passenger = PassengerInvoice.objects.filter(fee=fee_item.id, pnr=int(pnr_id))
-                                    if invoice_fee_passenger.exists():
-                                        invoice_fee_passenger.update(fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, status='quotation', other_fee=None)
-                                        print('fee unissued updated')
-                                    else:
+                                    if not invoice_fee_passenger.exists():
                                         invoice_fee_passenger = PassengerInvoice(fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, status='quotation', other_fee=None)
                                         invoice_fee_passenger.save()
                                         print('fee unissued saved')
@@ -943,7 +931,7 @@ def save_pnr_detail_modification(request, pnr_id):
                 pnr.customer_id = customer.id
                 pnr.save()
 
-            if pnr.type == 'EWA' and pnr.status_value == 1:
+            elif pnr.type == 'EWA' and pnr.status_value == 1:
                 if customer_id != '':
                     invoice_ewa = Invoice.objects.filter(pnr=pnr_id)
                     customer = Client.objects.get(pk=int(customer_id))
@@ -954,8 +942,6 @@ def save_pnr_detail_modification(request, pnr_id):
                         if not passenger_invoice.exists():
                             passenger_invoice = PassengerInvoice(ticket=None, pnr=pnr, type='Billet', client=customer, user_follower=user, is_checked=True, fee=None, status='quotation',invoice_id = invoice_ewa_detail, other_fee=None)
                             passenger_invoice.save()
-                        else:
-                            passenger_invoice.update(ticket=None, pnr=pnr, type='Billet', client=customer, user_follower=user, is_checked=True, fee=None, status='quotation',invoice_id = invoice_ewa_detail, other_fee=None)
 
                         pnr.customer_id = customer.id
                         pnr.save()
@@ -963,7 +949,7 @@ def save_pnr_detail_modification(request, pnr_id):
                 pnr.customer_id = customer.id
                 pnr.save() 
 
-        if 'otherfeesIdsChecked' and 'customerId' and 'refCde' in request.POST:
+        elif 'otherfeesIdsChecked' and 'customerId' and 'refCde' in request.POST:
             list_other_fees_id = json.loads(request.POST.get('otherfeesIdsChecked'))
             customer_id = request.POST.get('customerId')
             reference = request.POST.get('refCde')
@@ -980,7 +966,7 @@ def save_pnr_detail_modification(request, pnr_id):
                     for other_fees_id in list_other_fees_id:
                         other_fees = OthersFee.objects.filter(pk=int(other_fees_id),pnr=int(pnr_id), other_fee_status=1)
                         for other_fees_item in other_fees:
-                            invoice_fee_passenger = PassengerInvoice.objects.filter(fee=other_fees_item.id, pnr=int(pnr_id))
+                            invoice_fee_passenger = PassengerInvoice.objects.filter(fee=other_fees_item.id, pnr=int(pnr_id), status='sale')
                             if not invoice_fee_passenger.exists():
                                 invoice_fee_passenger = PassengerInvoice(
                                     fee=None, pnr=pnr, client=customer, type=other_fees_item.fee_type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=other_fees_item, status='sale')
@@ -992,16 +978,12 @@ def save_pnr_detail_modification(request, pnr_id):
                                         invoice_fee_passenger = PassengerInvoice(
                                             fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=None, status='sale')
                                         invoice_fee_passenger.save()
-                                    else:
-                                        invoice_fee_passenger.filter(is_invoiced=False).update(fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=None, status='sale')
-                            elif invoice_fee_passenger.exists():
-                                invoice_fee_passenger.filter(is_invoiced=False).update(fee=None, pnr=pnr, client=customer, type=other_fees_item.fee_type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=other_fees_item, status='sale')
 
                 elif pnr.status_value == 1:
                     print('Unissuing other_fees')
                     other_fees = OthersFee.objects.filter(pnr=pnr_id, other_fee_status=1)
                     for other_fees_item in other_fees:
-                        invoice_fee_passenger = PassengerInvoice.objects.filter(fee=other_fees_item.id, pnr=int(pnr_id))
+                        invoice_fee_passenger = PassengerInvoice.objects.filter(fee=other_fees_item.id, pnr=int(pnr_id), status='quotation')
                         if not invoice_fee_passenger.exists():
                             invoice_fee_passenger = PassengerInvoice(
                                 fee=None, pnr=pnr, client=customer, type=other_fees_item.fee_type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=other_fees_item, status='quotation')
@@ -1013,11 +995,7 @@ def save_pnr_detail_modification(request, pnr_id):
                                     invoice_fee_passenger = PassengerInvoice(
                                         fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=None, status='quotation')
                                     invoice_fee_passenger.save()
-                                else:
-                                    invoice_fee_passenger.filter(is_invoiced=False).update(fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=None, status='quotation')
-                        elif invoice_fee_passenger.exists() and pnr.type == 'EWA':
-                            invoice_fee_passenger.filter(is_invoiced=False).update(fee=None, pnr=pnr, client=customer, type=other_fees_item.fee_type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=other_fees_item, status='quotation')
-
+            
         if 'feeCost' in request.POST:
             fee_cost = json.loads(request.POST.get('feeCost'))
     
@@ -1053,10 +1031,9 @@ def get_order(request, pnr_id):
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
 
     
-    file_dir = 'D:\\Projects\\Django\\Issoufali\\travelagency\\AmadeusDecoder\\export'
-    customer_dir = 'D:\\Projects\\Django\\Issoufali\\travelagency\\AmadeusDecoder\\export'
+    file_dir = 'C:\\Users\\NEC04\\Documents\\Gestion PNR\\travelagency\\AmadeusDecoder\\export'
+    customer_dir = 'C:\\Users\\NEC04\\Documents\\Gestion PNR\\travelagency\\AmadeusDecoder\\export'
     
-
 
     customer_row = {}
     fieldnames_order = [

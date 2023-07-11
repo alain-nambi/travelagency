@@ -191,9 +191,9 @@ class Ticket(models.Model, BaseModel):
             
     # check and set regional status
     def get_set_regional_status(self):
-        from AmadeusDecoder.utilities.session_variables import current_company
+        import AmadeusDecoder.utilities.configuration_data as configs
         try:
-            temp_company = current_company
+            temp_company = configs.COMPANY_NAME
             ticket_destination_countries = []
             temp_company_regional_countries = []
             if temp_company is not None:

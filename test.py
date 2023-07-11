@@ -5,17 +5,17 @@ Created on 31 Aug 2022
 '''
 import traceback
 
-from AmadeusDecoder.utilities.ConfigReader import ConfigReader
-ConfigReader.load_company_info()
-ConfigReader.load_email_source()
-ConfigReader.load_emd_parser_tool_data()
-ConfigReader.load_tst_parser_tool_data()
-ConfigReader.load_zenith_parser_tool_data()
-ConfigReader.load_zenith_parser_receipt_tool_data()
-ConfigReader.load_ticket_parser_tool_data()
-ConfigReader.load_fee_request_tool_data()
-ConfigReader.load_report_email_data()
-ConfigReader.load_pnr_parser_tool_data()
+# from AmadeusDecoder.utilities.ConfigReader import ConfigReader
+# ConfigReader.load_company_info()
+# ConfigReader.load_email_source()
+# ConfigReader.load_emd_parser_tool_data()
+# ConfigReader.load_tst_parser_tool_data()
+# ConfigReader.load_zenith_parser_tool_data()
+# ConfigReader.load_zenith_parser_receipt_tool_data()
+# ConfigReader.load_ticket_parser_tool_data()
+# ConfigReader.load_fee_request_tool_data()
+# ConfigReader.load_report_email_data()
+# ConfigReader.load_pnr_parser_tool_data()
 
 from AmadeusDecoder.utilities.AmadeusParser import AmadeusParser
 
@@ -23,7 +23,7 @@ if __name__ == '__main__':
     import os
     
     temp = AmadeusParser() 
-    file = '0_fnd@amadeus.com'
+    file = '1_fnd@amadeus.com'
     # file = 12656_famenontsoa@outlook.com'
     temp.set_path(os.getcwd() + '//EmailFetcher//utilities//attachments_dir//' + file + '//' + file.removeprefix('VK8PP7_Fixed/') + '.txt')
 

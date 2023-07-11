@@ -338,8 +338,8 @@ class EMDOnlyParser():
         emd.rfnd_val = rfnd_val
         emd.tax = total - fare
         emd.total = total
-        emd.doccurrency = COMPANY_CURRENCY[0]
-        emd.farecurrency = COMPANY_CURRENCY[0]
+        emd.doccurrency = COMPANY_CURRENCY
+        emd.farecurrency = COMPANY_CURRENCY
         emd.state = ticket_state
         emd.ticket_type = EMD_IDENTIFIER[0]
         emd.ticket_status = emd_status

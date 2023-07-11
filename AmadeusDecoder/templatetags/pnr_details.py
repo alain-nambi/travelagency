@@ -171,9 +171,9 @@ def get_pnr_creator(pnr):
     
 @register.filter(name='company_currency')
 def get_company_currency(company_name):
-    from AmadeusDecoder.models.company_info.CompanyInfo import CompanyInfo
+    import AmadeusDecoder.utilities.configuration_data as configs
     try:
-        return CompanyInfo.objects.filter(company_name=company_name).first().company_currency
+        return configs.COMPANY_CURRENCY_CODE
     except:
         return ''
 

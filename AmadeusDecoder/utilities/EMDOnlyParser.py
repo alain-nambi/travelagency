@@ -296,6 +296,8 @@ class EMDOnlyParser():
         for line in file_contents:
             if line.startswith(EMD_IDENTIFIER[0]):
                 info_line = line
+            elif line.startswith(PNR_NUMBER_IDENTIFIER[0]):
+                info_line += ' ' + line
             elif line.startswith(COST_DETAIL_IDENTIFIER[0]):
                 fare_line = line
             elif line.startswith(COST_DETAIL_IDENTIFIER[1]):

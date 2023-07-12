@@ -276,12 +276,13 @@ class Ticket(models.Model, BaseModel):
         self.update_pnr_state(pnr)
     
     # re-calibrate emd fee
-    def recalibrate_fee(self):
-        if self.ticket_type == 'EMD':
+    def recalibrate_fee(self, pnr):
+        active_emd = Ticket.objects.filter(pnr=pnr, ticket_type='EMD', ticket_status=1).all()
+        for emd in active_emd:
             try:
                 is_emitted_in_airport = False
-                emd_issuing_date = self.issuing_date
-                emitter = self.pnr.get_emit_agent()
+                emd_issuing_date = emd.issuing_date
+                emitter = emd.pnr.get_emit_agent()
                 # test by agent
                 if emitter is not None:
                     try:
@@ -291,39 +292,42 @@ class Ticket(models.Model, BaseModel):
                         pass
                 # test by current emd issuing agency
                 try:
-                    if self.issuing_agency.code in _AIRPORT_AGENCY_CODE_:
+                    if emd.issuing_agency.code in _AIRPORT_AGENCY_CODE_:
                         is_emitted_in_airport = True
                 except:
                     pass
                 
-                if self.ticket_ssrs.first() is not None:
-                    emd_related_segment = self.ticket_ssrs.first().ssr.segments.first().segment
+                if emd.ticket_ssrs.first() is not None:
+                    emd_related_segment = emd.ticket_ssrs.first().ssr.segments.first().segment
                     emd_segment_flight_date = emd_related_segment.departuretime.date()
                     if emd_issuing_date == emd_segment_flight_date and is_emitted_in_airport:
-                        self.is_subjected_to_fees = False
+                        emd.is_subjected_to_fees = False
                 
-                if self.ticket_parts.first() is not None:
-                    emd_related_segment = self.ticket_parts.first().segment
+                if emd.ticket_parts.first() is not None:
+                    emd_related_segment = emd.ticket_parts.first().segment
                     emd_segment_flight_date = emd_related_segment.departuretime.date()
                     if emd_issuing_date == emd_segment_flight_date and is_emitted_in_airport:
-                        self.is_subjected_to_fees = False
+                        emd.is_subjected_to_fees = False
                 
-                if self.is_subjected_to_fees:
-                    if self.tickets.first() is not None:
-                        emd_related_segment = self.tickets.first().segment
+                if emd.is_subjected_to_fees:
+                    if emd.ticket_parts.first() is not None:
+                        emd_related_segment = emd.ticket_parts.first().segment
                         emd_segment_flight_date = emd_related_segment.departuretime.date()
                         if emd_issuing_date == emd_segment_flight_date and is_emitted_in_airport:
-                            self.is_subjected_to_fees = False
+                            emd.is_subjected_to_fees = False
                 
                 # check fee subjection based on description
                 for element in _NOT_FEED_:
-                    if self.ticket_description is not None and self.ticket_description.find(element) > -1:
-                        self.is_subjected_to_fees = False
+                    if emd.ticket_description is not None and emd.ticket_description.find(element) > -1:
+                        emd.is_subjected_to_fees = False
                         break
-                    
+                
+                # save modified ticket object
+                emd.save()
+                
                 # update fee if exists
-                if not self.is_subjected_to_fees:
-                    temp_fee = self.fees.first()
+                if not emd.is_subjected_to_fees:
+                    temp_fee = emd.fees.first()
                     if temp_fee is not None:
                         temp_fee.cost = 0
                         temp_fee.tax = 0

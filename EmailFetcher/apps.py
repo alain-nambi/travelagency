@@ -120,6 +120,7 @@ def send_fee_update_list():
 def fetch_email():
     try:
         from EmailFetcher.utilities.EmailListener import EmailListener
+        print('Email listener is starting')
         EMAIL_PNR = configs.EMAIL_PNR
         email_listener_obj = EmailListener()
         # email_listener_obj.email = "mercurevoyages.pnr@gmail.com"
@@ -136,7 +137,6 @@ def fetch_email():
         email_listener_obj.folder = "Inbox"
         email_listener_obj.attachments_dir = os.path.join(os.getcwd(), "EmailFetcher/utilities/attachments_dir/")
         email_listener_obj.fetch_email()
-
     except Exception:
         traceback.print_exc()
         with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
@@ -166,6 +166,7 @@ def load_config():
     
     # assign current company to local variable 'session_variable'
     session_variables.current_company = configs.COMPANY_NAME
+    print('Configurations loaded.')
 
 class EmailfetcherConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
@@ -182,7 +183,6 @@ class EmailfetcherConfig(AppConfig):
         
         sleep(2)
         
-        print('Email listener is starting')
         email_thread_once = Thread(target=fetch_email)
         email_thread_once.start()
 
@@ -233,4 +233,3 @@ class EmailfetcherConfig(AppConfig):
         # daily_thread_once = Thread(target=send_fee_update_list)
         # daily_thread_once.start()
 
-        print('Email listener is started')

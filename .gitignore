@@ -19,3 +19,4 @@ cypress
 cypress.config.js
 yarn.lock
 /temp_requirements.txt
+/runserver.bat

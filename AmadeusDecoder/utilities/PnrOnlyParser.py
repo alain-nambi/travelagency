@@ -2346,8 +2346,7 @@ class PnrOnlyParser():
                                             ticket_obj.tax = -1 * ticket_obj.tax
                                             ticket_obj.total = -1 * ticket_obj.total
                                     # re-calibrate fee
-                                    ticket_obj.recalibrate_fee() 
-                                    ticket_obj.save()
+                                    ticket_obj.save() 
                                     ticket_obj.process_subcontract()
                                     print('saved: ' + ticket.number)
                                 except Exception:
@@ -2390,6 +2389,16 @@ class PnrOnlyParser():
                             if temp_ticket is not None:
                                 temp_ticket.get_set_regional_status()
                                 temp_ticket.save()
+                        
+                        # recalibrating ticket fees
+                        try:
+                            # ticket_obj.recalibrate_fee()
+                            Ticket().recalibrate_fee(temp_pnr)
+                        except:
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea / Fee recalibration) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
                         # update ticket status
                         try:
                             Ticket().update_ticket_status_FLOWN(temp_pnr)

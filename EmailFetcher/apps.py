@@ -133,7 +133,7 @@ def fetch_email():
         # email_listener_obj.email = "issoufali.pnr@outlook.com"
         # email_listener_obj.app_password = "Mgbi@261!+"
         email_listener_obj.folder = "Inbox"
-        email_listener_obj.attachments_dir = os.path.join(os.getcwd(), "EmailFetcher/utilities/attachments_dir/")
+        email_listener_obj.attachments_dir = os.path.join(os.getcwd(), "EmailFetcher\\utilities\\attachments_dir\\")
         email_listener_obj.fetch_email()
 
     except Exception:

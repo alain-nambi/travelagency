@@ -1429,7 +1429,7 @@ class ZenithParser():
                 j = i + 1
                 while True:
                     if other_info_part[j].startswith(COST_WORD_IDENTIFIER[0]) or j == len(other_info_part)\
-                            or other_info_part[j].startswith(ISSUING_AGENT_IDENTIFIER[0]):
+                            or (other_info_part[j].startswith(ISSUING_AGENT_IDENTIFIER[0]) if len(ISSUING_AGENT_IDENTIFIER) > 0 else False):
                         break
                     issuing_office += other_info_part[j] + ' '
                     j += 1

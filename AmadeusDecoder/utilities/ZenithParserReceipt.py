@@ -308,7 +308,6 @@ class ZenithParserReceipt():
                 if segment_departuretime is not None:
                     if segment_departuretime.date() == date_time.date():
                         tester = True
-        
         if tester:
             if ticket is not None:
                 ticket.is_subjected_to_fees = False

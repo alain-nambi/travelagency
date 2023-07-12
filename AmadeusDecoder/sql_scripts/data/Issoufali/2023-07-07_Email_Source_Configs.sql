@@ -5,7 +5,7 @@ insert into t_configuration(environment, name, to_be_applied_on, value_name, arr
 ('prod', 'Email Source', 'Global', 'Email PNR', null,
 '"address"=>"issoufali.pnr@gmail.com", "password"=>"lhlyyumveqvyqhqo"' , now(), now(), true),
 ('test', 'Email Source', 'Global', 'Email PNR', null,
-'"address"=>"tjq.issoufali@gmail.com", "password"=>"sboptodqazliqabj"' , now(), now(), true),
+'"address"=>"tjq.issoufali@gmail.com", "password"=>"gvtlqduhdbiijjsd"' , now(), now(), true),
 -- Error notification recipients
 ('prod', 'Email Source', 'Global', 'Email sending error notification recipients', ARRAY[
     'nasolo@phidia.onmicrosoft.com',

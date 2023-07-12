@@ -1,7 +1,7 @@
 delete from t_configuration where name = 'EMD Parser Tools';
 -- EMD parser tools
 insert into t_configuration(environment, name, to_be_applied_on, value_name, array_value, dict_value, created_on, last_update, is_active) values
-('all', 'EMD Parser Tools', 'Global', 'Airport agency code', ARRAY['DZAUU000B'], null, now(), now(), true),
+('all', 'EMD Parser Tools', 'Global', 'Airport agency code', ARRAY['DZAUU000B', 'Mayotte ATO'], null, now(), now(), true),
 ('all', 'EMD Parser Tools', 'Global', 'Special EMD description', ARRAY['DEPOSIT'], null, now(), now(), true),
 ('all', 'EMD Parser Tools', 'Global', 'Not feed', ARRAY['RESIDUAL VALUE', 'DISCOUNT CARD'], null, now(), now(), true),
 ('all', 'EMD Parser Tools', 'Global', 'EMD identifier', ARRAY['EMD'], null, now(), now(), true),

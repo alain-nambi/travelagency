@@ -23,9 +23,9 @@ if __name__ == '__main__':
     import os
     
     temp = AmadeusParser() 
-    file = '1_fnd@amadeus.com'
+    file = '577_issoufali.pnr@gmail.com'
     # file = 12656_famenontsoa@outlook.com'
-    temp.set_path(os.getcwd() + '//EmailFetcher//utilities//attachments_dir//' + file + '//' + file.removeprefix('VK8PP7_Fixed/') + '.txt')
+    temp.set_path(os.getcwd() + '\\EmailFetcher\\utilities\\attachments_dir\\' + file + '\\' + file.removeprefix('VK8PP7_Fixed/') + '.txt')
 
     contents = temp.read_file()
     needed_content = temp.needed_content(contents)
@@ -46,31 +46,31 @@ if __name__ == '__main__':
     # print(temp.get_tst_related_pnr(needed_content))
     temp.set_email_date(None)
     if len(contents) > 0:
-        if contents[0].startswith('TKT'):
-            try:
-                temp.parse_ticket(needed_content, temp.get_email_date())
-            except:
-                print('File (Ticket) with error: ' + file)
-                traceback.print_exc()
-        elif contents[0].startswith('EMD'):
-            try:
-                temp.parse_emd(needed_content, temp.get_email_date())
-            except:
-                print('File (EMD) with error: ' + file)
-                traceback.print_exc()
-        elif contents[0].startswith('TST'):
-            try:
-                temp.parse_tst(needed_content)
-            except:
-                print('File (TST) with error: ' + file)
-                traceback.print_exc()
-        elif contents[0].startswith('FEE MODIFY REQUEST'):
-            try:
-                temp.sf_decrease_request_update(needed_content)
-            except:
-                print('File (REQUEST) with error: ' + str(file))
-                traceback.print_exc()
-        elif contents[0].startswith('AGY'): # TJQ
+        # if contents[0].startswith('TKT'):
+        #     try:
+        #         temp.parse_ticket(needed_content, temp.get_email_date())
+        #     except:
+        #         print('File (Ticket) with error: ' + file)
+        #         traceback.print_exc()
+        # elif contents[0].startswith('EMD'):
+        #     try:
+        #         temp.parse_emd(needed_content, temp.get_email_date())
+        #     except:
+        #         print('File (EMD) with error: ' + file)
+        #         traceback.print_exc()
+        # elif contents[0].startswith('TST'):
+        #     try:
+        #         temp.parse_tst(needed_content)
+        #     except:
+        #         print('File (TST) with error: ' + file)
+        #         traceback.print_exc()
+        # elif contents[0].startswith('FEE MODIFY REQUEST'):
+        #     try:
+        #         temp.sf_decrease_request_update(needed_content)
+        #     except:
+        #         print('File (REQUEST) with error: ' + str(file))
+        #         traceback.print_exc()
+        if contents[0].startswith('AGY'): # TJQ
             try:
                 temp.parse_tjq(needed_content)
             except:
@@ -88,6 +88,36 @@ if __name__ == '__main__':
                     except:
                         print('File (PNR) with error: ' + file)
                         traceback.print_exc()
+                if contents[j].startswith('EMD'):
+                    try:
+                        print('Needed content ', needed_content)
+                        print('Needed content 2 ', temp.needed_content(contents[j:]))
+                        temp.parse_emd(temp.needed_content(contents[j:]), temp.get_email_date())
+                        break
+                    except:
+                        print('File (EMD) with error: ' + file)
+                        traceback.print_exc()
+                if contents[j].startswith('TKT'):
+                    try:
+                        temp.parse_ticket(temp.needed_content(contents[j:]), temp.get_email_date())
+                        break
+                    except:
+                        print('File (Ticket) with error: ' + file)
+                        traceback.print_exc()
+                if contents[j].startswith('TST'):
+                    try:
+                        temp.parse_tst(temp.needed_content(contents[j:]), temp.get_email_date())
+                        break
+                    except:
+                        print('File (TST) with error: ' + file)
+                        traceback.print_exc()
+                if contents[j].startswith('FEE MODIFY REQUEST'):
+                    try:
+                        temp.sf_decrease_request_update(temp.needed_content(contents[j:]))
+                        break
+                    except:
+                        print('File (REQUEST) with error: ' + file)
+                        traceback.print_exc()
                 if contents[j].startswith('VOTRE NUMERO DE DOSSIER'):
                     try:
                         needed_content = contents[j:]
@@ -95,11 +125,4 @@ if __name__ == '__main__':
                         break
                     except:
                         print('File (EWA) with error: ' + file)
-                        traceback.print_exc()
-                if contents[j].startswith('FEE MODIFY REQUEST'):
-                    try:
-                        temp.sf_decrease_request_update(needed_content)
-                        break
-                    except:
-                        print('File (FEE MODIFY REQUEST) with error: ' + str(file))
                         traceback.print_exc()

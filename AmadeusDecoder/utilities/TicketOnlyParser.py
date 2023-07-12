@@ -222,7 +222,7 @@ class TicketOnlyParser():
                 error_file.write('\n')
         
         try:
-            if COMPANY_CURRENCY[0] not in temp_fare_line_split:
+            if COMPANY_CURRENCY not in temp_fare_line_split:
                 fare = total - tax
             
             if is_ticket_modification:
@@ -306,8 +306,8 @@ class TicketOnlyParser():
         ticket.fare_type = fare_type
         ticket.tax = tax
         ticket.total = total
-        ticket.doccurrency = COMPANY_CURRENCY[0]
-        ticket.farecurrency = COMPANY_CURRENCY[0]
+        ticket.doccurrency = COMPANY_CURRENCY
+        ticket.farecurrency = COMPANY_CURRENCY
         ticket.state = ticket_state
         ticket.ticket_type = TICKET_IDENTIFIER[0]
         ticket.ticket_gp_status = gp_status

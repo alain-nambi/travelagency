@@ -525,7 +525,7 @@ class ZenithParser():
             if temp_pnr is not None:
                 if len(to_list) > 1:
                     temp_user = User.objects.filter(email=to_list[-1][1]).first()
-                    if temp_user is not None and to_list[-1][1] not in  TO_BE_EXCLUDED_PNR_RECIPIENT_EMAIL and to_list[-1][1] not in  TO_BE_EXCLUDED_PNR_RECIPIENT_EMAIL.upper():
+                    if temp_user is not None and to_list[-1][1] not in  TO_BE_EXCLUDED_PNR_RECIPIENT_EMAIL and to_list[-1][1].lower() not in  TO_BE_EXCLUDED_PNR_RECIPIENT_EMAIL and to_list[-1][1].upper() not in  TO_BE_EXCLUDED_PNR_RECIPIENT_EMAIL:
                         # assign creator agent
                         temp_pnr.agent = temp_user
                         temp_pnr.save()

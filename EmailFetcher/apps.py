@@ -165,6 +165,7 @@ def load_config():
     
     # assign current company to local variable 'session_variable'
     session_variables.current_company = configs.COMPANY_NAME
+    print('Configurations loaded.')
 
 class EmailfetcherConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'

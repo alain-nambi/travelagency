@@ -749,9 +749,8 @@
 											<!-- Ticket-related other fee -->
 											{% with ticket|ticket_other_fee as temp_other_fee %}
 												{% if temp_other_fee is not None %}
-												{% with temp_other_fee|other_fee_cancel_void_status as other_fee_cancel_void_status %}
 													{% with temp_other_fee|other_fees_orders as other_fees_orders %}
-														<tr class="tr-other-fees {% if other_fees_orders is not None and other_fees_orders.is_invoiced %} text-success {% endif %} {% if other_fee_cancel_void_status %} text-primary {% endif %} " data-other-fee-id = "{{other_fee.id}}">
+														<tr class="tr-other-fees {% if other_fees_orders is not None and other_fees_orders.is_invoiced %} text-success {% else %}  text-primary {% endif %} " data-other-fee-id = "{{other_fee.id}}">
 															<td><span class="type" style="font-size: 12px;">{{ temp_other_fee.fee_type }}</span></td>
 															<td><span class="billet">{{ temp_other_fee.designation }}</span></td>
 															{% if temp_other_fee|ancillary_passenger is not None %}
@@ -808,7 +807,6 @@
 															{% endif %}
 															
 														</tr>
-													{% endwith %}
 													{% endwith %}
 												{% endif %}
 											{% endwith %}

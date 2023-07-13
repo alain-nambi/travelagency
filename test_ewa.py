@@ -31,8 +31,8 @@ if __name__ == '__main__':
     # temp.set_path('EmailFetcher//utilities//attachments_dir//' + attachement_folder + '//' + file)
     # print(temp.get_text_from_pdf())
     temp = ZenithParser()
-    attachement_folder = '597_issoufali.pnr@gmail.com'
-    file = 'PDF_EWA.pdf'
+    attachement_folder = 'test@test.com'
+    file = 'Votre reçu pour le dossier 00D95N.pdf'
     temp.set_path('EmailFetcher//utilities//attachments_dir//' + attachement_folder + '//' + file)
     temp.set_email_date(None)
     temp.set_main_txt_path('EmailFetcher//utilities//attachments_dir//' + attachement_folder + '//' + attachement_folder + '.txt')

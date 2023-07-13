@@ -308,6 +308,7 @@ class ZenithParserReceipt():
                 if segment_departuretime is not None:
                     if segment_departuretime.date() == date_time.date():
                         tester = True
+        
         if tester:
             if ticket is not None:
                 ticket.is_subjected_to_fees = False
@@ -713,13 +714,12 @@ class ZenithParserReceipt():
                 # or (pnr.system_creation_date.date() > date_time.date()):
                 new_emd.other_fee_status = 3
             new_emd.fee_type = 'EMD'
+            new_emd.creation_date = date_time.date()
             # check fee subjection
             try:
                 self.check_fee_subjection_status(date_time, current_segment, pnr, None, new_emd, emd_single_part)
             except:
                 traceback.print_exc()
-            new_emd.creation_date = date_time.date()
-            print('new_emd.creation_date ', new_emd.creation_date)
             
             # remove fee if special condition
             if is_balancing_statement:

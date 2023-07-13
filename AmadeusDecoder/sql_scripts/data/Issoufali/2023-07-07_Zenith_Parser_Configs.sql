@@ -12,7 +12,7 @@ insert into t_configuration(environment, name, to_be_applied_on, value_name, arr
 ], null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'Header names', ARRAY['Itinéraire', 'Détails du tarif', 'Conditions tarifaires', 'Reçu de paiement'], null, null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'Service carrier', ARRAY['ZD', 'TZ'], null, null, now(), now(), true),
-('all', 'Zenith Parser Tools', 'Zenith', 'Airport agency code', ARRAY['DZAUU000B'], null, null, now(), now(), true),
+('all', 'Zenith Parser Tools', 'Zenith', 'Airport agency code', ARRAY['DZAUU000B', 'Mayotte ATO'], null, null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'Current travel agency identifier', ARRAY['Issoufali', 'ISSOUFALI', 'Mayotte ATO'], null, null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'Non relevant identifier for passenger', ARRAY['N° FFP'], null, null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'Itinerary name', ARRAY['Itinéraire'], null, null, now(), now(), true),

@@ -40,4 +40,5 @@ insert into t_configuration(environment, name, to_be_applied_on, value_name, arr
 ('all', 'Zenith Parser Tools', 'Zenith', 'Modification identifier', ARRAY['Différence tarifaire', 'Pénalité d''échange'], null, null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'Tax identifier', ARRAY['Taxes'], null, null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'Receipt identifier', ARRAY['Transaction/Synthèse des éléments financiers'], null, null, now(), now(), true),
-('all', 'Zenith Parser Tools', 'Zenith', 'Customer name identifier', ARRAY['Nom du client'], null, null, now(), now(), true);
+('all', 'Zenith Parser Tools', 'Zenith', 'Customer name identifier', ARRAY['Nom du client'], null, null, now(), now(), true),
+('all', 'Zenith Parser Tools', 'Zenith', 'Itinerary airport iata code identifier', ARRAY['–'], null, null, now(), now(), true);

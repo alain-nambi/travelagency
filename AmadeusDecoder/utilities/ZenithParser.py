@@ -11,6 +11,7 @@ import datetime
 import traceback
 import pytz
 import decimal
+from AmadeusDecoder.utilities.Utility import Utility
 
 os.environ.setdefault(
     'DJANGO_SETTINGS_MODULE', 'DjangoTravelAgency.settings'
@@ -135,6 +136,8 @@ MODIFICATION_IDENTIFIER = configs.MODIFICATION_IDENTIFIER
 TAX_IDENTIFIER = configs.TAX_IDENTIFIER
 RECEIPT_IDENTIFIER = configs.RECEIPT_IDENTIFIER
 CUSTOMER_NAME_IDENTIFIER = configs.CUSTOMER_NAME_IDENTIFIER
+
+ITINERARY_AIRPORT_IATA_CODE_IDENTIFIER = configs.ITINERARY_AIRPORT_IATA_CODE_IDENTIFIER
 
 print(CUSTOMER_NAME_IDENTIFIER)
 
@@ -646,6 +649,9 @@ class ZenithParser():
                 
         return pnr, False
     
+    '''
+    PASSENGER NAME/INFO AND TICKET NUMBER PARSING
+    '''
     # remove non relevant element from content
     def clean_content_array(self, content, non_relevant):
         cleaned_content = []
@@ -655,13 +661,9 @@ class ZenithParser():
                     cleaned_content.append(item)
         return cleaned_content
     
-    # normalize passenger and ticket
-    def normalize_passenger(self, passenger_content):
+    # separate passenger type from service or contact
+    def clean_passenger_type(self, passenger_content):
         new_content = []
-        
-        # remove some irrelevant content
-        passenger_content = self.clean_content_array(passenger_content, NON_RELEVANT_IDENTIFIER_FOR_PASSENGER)
-        
         for i in range(len(passenger_content)):
             skip = False
             # separate "passenger type" and "contact" eg: 'Adulte(s)+262639693300', 'INFT (ANDRIAMAHEFA/ASSIASHANYLA 20JUN21)Adulte(s)+33766742803'
@@ -677,38 +679,37 @@ class ZenithParser():
                     skip = True
             if not skip:
                 new_content.append(passenger_content[i])
-        
-        # normalize passenger name
-        new_content_passenger_name_assembled = []
-        for i in range(len(new_content)):
-            skip = False
-            for psg_type in PASSENGER_DESIGNATIONS:
-                # 'M. soloniaina jean francis', 'RAKOTONDRAMANANA', '7322415442815 INFT (RAKOTONDRAMANANA/YNAIA', '18DEC21)', 'Adulte(s)', '+262639215396', 'A22X460328'
-                if i > 0:
-                    if new_content[i-1].split(' ')[0].strip() == psg_type and new_content[i-1] != psg_type:
-                        if not new_content[i][0].isnumeric():
-                            new_content_passenger_name_assembled.pop()
-                            new_content_passenger_name_assembled.append(new_content[i-1].strip() + ' ' + new_content[i].strip())
-                            skip = True
-            if not skip:
-                new_content_passenger_name_assembled.append(new_content[i])
-        new_content = new_content_passenger_name_assembled
-        
-        # separate passenger with ticket number
+                
+        return new_content
+    
+    # separate ticket number from passenger or service
+    def clean_ticket_number(self, new_content):
         new_content_ticket_separated = []
+        # separate from passenger
         for i in range(len(new_content)):
             skip = False
             for psg_type in PASSENGER_TYPES:
                 if new_content[i].strip() == psg_type:
                     if not new_content[i-1].strip().isnumeric() and len(new_content[i-1].strip()) > 13:
                         previous_element_space_split = new_content[i-1].split(' ')
-                        
                         # 'Mme MARIE CHARLOTTE RAZAFIMANDIMBY 7322415445929', 'Adulte(s)'
+                        # or 'Bébé nael mchoula mcolo mchindra7322415467406', 'Bébé(s)'
                         if previous_element_space_split[0].strip() in PASSENGER_DESIGNATIONS:
-                            new_content_ticket_separated.pop()
-                            new_content_ticket_separated.append(new_content[i-1].removesuffix(previous_element_space_split[-1]).strip())
-                            new_content_ticket_separated.append(previous_element_space_split[-1])
-                            new_content_ticket_separated.append(psg_type)
+                            # 'Mme MARIE CHARLOTTE RAZAFIMANDIMBY 7322415445929', 'Adulte(s)'
+                            if previous_element_space_split[-1].isnumeric():
+                                new_content_ticket_separated.pop()
+                                new_content_ticket_separated.append(new_content[i-1].removesuffix(previous_element_space_split[-1]).strip())
+                                new_content_ticket_separated.append(previous_element_space_split[-1])
+                                new_content_ticket_separated.append(psg_type)
+                            # 'Bébé nael mchoula mcolo mchindra7322415467406', 'Bébé(s)'
+                            else:
+                                # 13 is common ticket number length
+                                separated_name_ticket = Utility.separate_number(new_content[i-1], 13)
+                                if len(separated_name_ticket) > 0 and separated_name_ticket[-1].isnumeric():
+                                    new_content_ticket_separated.pop()
+                                    new_content_ticket_separated.append(' '.join(separated_name_ticket[0:-1]))
+                                    new_content_ticket_separated.append(separated_name_ticket[-1])
+                                    new_content_ticket_separated.append(psg_type)
                             skip = True
                         # 'Mme MARIE CHARLOTTE RAZAFIMANDIMBY 7322415445929', 'INFT (LANDRIO/KHAIRANELYA 06DEC21)', 'Adulte(s)'
                         # or 'Mme KAMARIA YOUSSOUF', '7322415447799', 'INFT (SAID/CAMELIA 24MAY22)', 'Adulte(s)',
@@ -747,48 +748,94 @@ class ZenithParser():
             if not skip:
                 new_content_ticket_separated.append(new_content[i])
         
-        new_content = new_content_ticket_separated
-        
-        # separate ticket number from services
+        # separate from service
         new_content_service_separated_ticket = []
-        for i in range(len(new_content)):
+        for i in range(len(new_content_ticket_separated)):
             skip = False
-            temp_part_split_space = new_content[i-1].split(' ')
+            temp_part_split_space = new_content_ticket_separated[i-1].split(' ')
+            # 'Mme JULIE AMOLDE RASOLONIRINA 7322415457850', 'INFT (ZAMOUANTI/AUDREYRAPHAELLINA', '30AUG21)'
             if temp_part_split_space[0] in PASSENGER_DESIGNATIONS:
-                temp_ticket_number = new_content[i].split(' ')[0]
-                if not new_content[i].isnumeric() and temp_ticket_number.isnumeric():
+                temp_ticket_number = new_content_ticket_separated[i].split(' ')[0]
+                if not new_content_ticket_separated[i].isnumeric() and temp_ticket_number.isnumeric():
                     new_content_service_separated_ticket.append(temp_ticket_number)
-                    new_content_service_separated_ticket.append(new_content[i].removeprefix(temp_ticket_number).strip())
+                    new_content_service_separated_ticket.append(new_content_ticket_separated[i].removeprefix(temp_ticket_number).strip())
                     skip = True
+            # 'Mme JULIE AMOLDE RASOLONIRINA', '7322415457850INFT (ZAMOUANTI/AUDREYRAPHAELLINA', '30AUG21)', 'Adulte(s)'
+            
             if not skip:
-                new_content_service_separated_ticket.append(new_content[i])
+                new_content_service_separated_ticket.append(new_content_ticket_separated[i])
         
-        new_content = new_content_service_separated_ticket
+        print(new_content_service_separated_ticket)
+        return new_content_service_separated_ticket
+    
+    # normalize passenger name
+    def clean_passenger_name(self, passenger_content):
+        new_content_passenger_name_assembled = []
+        for i in range(len(passenger_content)):
+            skip = False
+            for psg_type in PASSENGER_DESIGNATIONS:
+                # 'M. soloniaina jean francis', 'RAKOTONDRAMANANA', '7322415442815 INFT (RAKOTONDRAMANANA/YNAIA', '18DEC21)', 'Adulte(s)', '+262639215396', 'A22X460328'
+                if i > 0:
+                    if passenger_content[i-1].split(' ')[0].strip() == psg_type and passenger_content[i-1] != psg_type:
+                        if not passenger_content[i][0].isnumeric():
+                            new_content_passenger_name_assembled.pop()
+                            new_content_passenger_name_assembled.append(passenger_content[i-1].strip() + ' ' + passenger_content[i].strip())
+                            skip = True
+            if not skip:
+                new_content_passenger_name_assembled.append(passenger_content[i])
         
         new_content_fix_passenger = []
         to_be_skipped = None
-        for i in range(len(new_content)):
+        for i in range(len(new_content_passenger_name_assembled)):
             skip = False
             # append passenger name when separated
             for psg_designation in PASSENGER_DESIGNATIONS:
-                if new_content[i].split(' ')[0].strip() == psg_designation:
-                    if i < len(new_content) - 1:
-                        if not new_content[i + 1].isnumeric() and not new_content[i + 1].startswith('N°'):
-                            new_content_fix_passenger.append(new_content[i] + ' ' + new_content[i + 1])
+                if new_content_passenger_name_assembled[i].split(' ')[0].strip() == psg_designation:
+                    if i < len(new_content_passenger_name_assembled) - 1:
+                        if not new_content_passenger_name_assembled[i + 1].isnumeric() and not new_content_passenger_name_assembled[i + 1].startswith('N°'):
+                            new_content_fix_passenger.append(new_content_passenger_name_assembled[i] + ' ' + new_content_passenger_name_assembled[i + 1])
                             skip = True
-                            to_be_skipped = new_content[i + 1]
+                            to_be_skipped = new_content_passenger_name_assembled[i + 1]
             
-            if not skip and to_be_skipped != new_content[i] and not new_content[i].startswith('N°'):
-                new_content_fix_passenger.append(new_content[i])
-            if to_be_skipped == new_content[i]:
+            if not skip and to_be_skipped != new_content_passenger_name_assembled[i] and not new_content_passenger_name_assembled[i].startswith('N°'):
+                new_content_fix_passenger.append(new_content_passenger_name_assembled[i])
+            if to_be_skipped == new_content_passenger_name_assembled[i]:
                 to_be_skipped = None
+                
+        return new_content_fix_passenger
+    
+    # normalize whole passenger content by cleaning ticket number
+    def normalize_passenger_content(self, passenger_content):
+        new_content = []
+        for content in passenger_content:
+            temp_content = Utility.separate_number(content, 13)
+            if len(temp_content) > 0:
+                for token in temp_content:
+                    new_content.append(token)
+            else:
+                new_content.append(content)
         
+        return new_content 
+    
+    # normalize passenger and ticket
+    def normalize_passenger(self, passenger_content):
+        # normalize whole passenger content by cleaning ticket number
+        passenger_content = self.normalize_passenger_content(passenger_content)
+        # remove some irrelevant content
+        passenger_content = self.clean_content_array(passenger_content, NON_RELEVANT_IDENTIFIER_FOR_PASSENGER)
+        # separate passenger type from service or contact
+        new_content = self.clean_passenger_type(passenger_content)
+        # separate ticket from passenger or service
+        new_content = self.clean_ticket_number(new_content)
+        # normalize passenger name
+        new_content = self.clean_passenger_name(new_content)
+         
         # fill service when none
         filtered_content = []
-        for i in range(len(new_content_fix_passenger)):
-            filtered_content.append(new_content_fix_passenger[i])
-            if i < len(new_content_fix_passenger) - 1:
-                if new_content_fix_passenger[i].isnumeric() and new_content_fix_passenger[i+1].strip() in PASSENGER_TYPES:
+        for i in range(len(new_content)):
+            filtered_content.append(new_content[i])
+            if i < len(new_content) - 1:
+                if new_content[i].isnumeric() and new_content[i+1].strip() in PASSENGER_TYPES:
                     filtered_content.append('')
         
         # remove duplicate service
@@ -1005,15 +1052,17 @@ class ZenithParser():
             for element in temp_content:
                 # get origin and destination
                 # when origin and destination are placed inside brackets eg: (TNR)
-                splitted_part_org_dest = element.split('(')
-                for split in splitted_part_org_dest:
-                    if split.endswith(')') and len(split.removesuffix(')')) == 3:
-                        origin_destination.append(split.removesuffix(')'))
+                if ITINERARY_AIRPORT_IATA_CODE_IDENTIFIER[0] == '(':
+                    splitted_part_org_dest = element.split('(')
+                    for split in splitted_part_org_dest:
+                        if split.endswith(')') and len(split.removesuffix(')')) == 3:
+                            origin_destination.append(split.removesuffix(')'))
                 # when origin and destination are not placed inside brackets
-                if len(origin_destination) == 0:
-                    for element_1 in temp_content:
-                        if len(element_1.replace(' ', '').removeprefix('–')) == 3:
-                            origin_destination.append(element_1.replace(' ', '').removeprefix('–'))
+                elif ITINERARY_AIRPORT_IATA_CODE_IDENTIFIER[0] == '–':
+                    if len(origin_destination) == 0:
+                        for element_1 in temp_content:
+                            if len(element_1.replace(' ', '').removeprefix('–')) == 3:
+                                origin_destination.append(element_1.replace(' ', '').removeprefix('–'))
                 
                 # get departure and arrival datetime
                 splitted_part_dep_arr = element.split('-')
@@ -1579,6 +1628,8 @@ class ZenithParser():
                             temp_ticket_obj.ticket_description = 'modif'
                             temp_ticket_obj.ticket_status = ticket_status
                             temp_ticket_obj.is_subjected_to_fees = True
+                            # as the official information will be fetched from receipt, current modification will be set as void
+                            temp_ticket_obj.ticket_status = 0
                             temp_ticket_obj.save()
                     
                     ancillaries_part = self.get_part(content, ANCILLARIES_IDENTIFIER[0])
@@ -1805,6 +1856,8 @@ class ZenithParser():
                             temp_ticket_obj.total = modification_fee;
                             temp_ticket_obj.ticket_description = 'modif'
                             temp_ticket_obj.ticket_status = ticket_status
+                            # as the official information will be fetched from receipt, current modification will be set as void
+                            temp_ticket_obj.ticket_status = 0
                             temp_ticket_obj.save()
                     
                     ancillaries_part = self.get_part(content, ANCILLARIES_IDENTIFIER[0])

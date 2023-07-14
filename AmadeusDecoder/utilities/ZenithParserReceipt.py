@@ -649,9 +649,13 @@ class ZenithParserReceipt():
                 temp_related_other_fee = OthersFee.objects.filter(creation_date=date_time.date(), is_invoiced=False, total=abs(new_emd.total)).last()
                 if temp_related_ticket is not None:
                     new_emd.ticket = temp_related_ticket
+                    temp_related_ticket.is_subjected_to_fee = False
+                    temp_related_ticket.save()
                     temp_related_ticket.fees.first().delete()
                 elif temp_related_other_fee is not None:
                     new_emd.other_fee = temp_related_other_fee
+                    temp_related_other_fee.is_subjected_to_fee = False
+                    temp_related_other_fee.save()
                     temp_related_other_fee.fees.first().delete()
                 
                 new_emd.save()

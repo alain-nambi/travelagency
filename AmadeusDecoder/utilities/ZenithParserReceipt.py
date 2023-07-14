@@ -308,6 +308,7 @@ class ZenithParserReceipt():
                 if segment_departuretime is not None:
                     if segment_departuretime.date() == date_time.date():
                         tester = True
+        
         if tester:
             if ticket is not None:
                 ticket.is_subjected_to_fees = False
@@ -653,9 +654,13 @@ class ZenithParserReceipt():
                 print('\n\n------FEE DELETED--------------------\n\n')
                 if temp_related_ticket is not None:
                     new_emd.ticket = temp_related_ticket
+                    temp_related_ticket.is_subjected_to_fee = False
+                    temp_related_ticket.save()
                     temp_related_ticket.fees.first().delete()
                 elif temp_related_other_fee is not None:
                     new_emd.other_fee = temp_related_other_fee
+                    temp_related_other_fee.is_subjected_to_fee = False
+                    temp_related_other_fee.save()
                     temp_related_other_fee.fees.first().delete()
                     
                 
@@ -719,13 +724,12 @@ class ZenithParserReceipt():
                 # or (pnr.system_creation_date.date() > date_time.date()):
                 new_emd.other_fee_status = 3
             new_emd.fee_type = 'EMD'
+            new_emd.creation_date = date_time.date()
             # check fee subjection
             try:
                 self.check_fee_subjection_status(date_time, current_segment, pnr, None, new_emd, emd_single_part)
             except:
                 traceback.print_exc()
-            new_emd.creation_date = date_time.date()
-            print('new_emd.creation_date ', new_emd.creation_date)
             
             # remove fee if special condition
             if is_balancing_statement:
@@ -894,32 +898,32 @@ class ZenithParserReceipt():
                     new_emd.is_subjected_to_fee = False
                     
                     # check if current penalty has been saved under ticket number added with DE
-                    is_already_saved = False
-                    current_ticket_modif = Ticket.objects.filter(pnr=pnr, ticket_description='modif').all()
-                    for ticket_modif in current_ticket_modif:
-                        for total in self.ajustment_total:
-                            if ticket_modif.total == (total['total']+new_emd.total):
-                                is_already_saved = True
-                                break
+                    # is_already_saved = False
+                    # current_ticket_modif = Ticket.objects.filter(pnr=pnr, ticket_description='modif').all()
+                    # for ticket_modif in current_ticket_modif:
+                    #     for total in self.ajustment_total:
+                    #         if ticket_modif.total == (total['total']+new_emd.total):
+                    #             is_already_saved = True
+                    #             break
                     
                     new_emd.creation_date = date_time.date()
                     
-                    if not is_already_saved:
-                        new_emd.save()
-                        if otherfee_saved_checker is None:
-                            if isinstance(current_segment, list):
-                                for segment in current_segment:
-                                    other_fee_passenger_segment = OtherFeeSegment()
-                                    other_fee_passenger_segment.other_fee = new_emd
-                                    other_fee_passenger_segment.passenger = current_passenger
-                                    other_fee_passenger_segment.segment = segment
-                                    other_fee_passenger_segment.save()
-                            else:
+                    new_emd.save()
+                    # if not is_already_saved:
+                    if otherfee_saved_checker is None:
+                        if isinstance(current_segment, list):
+                            for segment in current_segment:
                                 other_fee_passenger_segment = OtherFeeSegment()
                                 other_fee_passenger_segment.other_fee = new_emd
                                 other_fee_passenger_segment.passenger = current_passenger
-                                other_fee_passenger_segment.segment = current_segment
+                                other_fee_passenger_segment.segment = segment
                                 other_fee_passenger_segment.save()
+                        else:
+                            other_fee_passenger_segment = OtherFeeSegment()
+                            other_fee_passenger_segment.other_fee = new_emd
+                            other_fee_passenger_segment.passenger = current_passenger
+                            other_fee_passenger_segment.segment = current_segment
+                            other_fee_passenger_segment.save()
         
     # get each value by type and value
     def get_each_value(self):
@@ -963,7 +967,7 @@ class ZenithParserReceipt():
         self.handle_emd(pnr, passengers, receipt_parts)
         
         # re-check if re-adjustment has been saved
-        self.recheck_saved_adjustment(pnr)
+        # self.recheck_saved_adjustment(pnr)
     
     # re-check if re-adjustment has been saved
     def recheck_saved_adjustment(self, pnr):

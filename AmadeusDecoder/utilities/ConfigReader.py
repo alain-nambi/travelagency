@@ -240,6 +240,7 @@ class ConfigReader():
             configs.TAX_IDENTIFIER = Configuration.objects.filter(name=config_name, value_name='Tax identifier').first().array_value
             configs.RECEIPT_IDENTIFIER = Configuration.objects.filter(name=config_name, value_name='Receipt identifier').first().array_value
             configs.CUSTOMER_NAME_IDENTIFIER = Configuration.objects.filter(name=config_name, value_name='Customer name identifier').first().array_value
+            configs.ITINERARY_AIRPORT_IATA_CODE_IDENTIFIER = Configuration.objects.filter(name=config_name, value_name='Itinerary airport iata code identifier').first().array_value
         except:
             print('There was some error when loading Zenith parser tool data. See error.txt for details.')
             with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:

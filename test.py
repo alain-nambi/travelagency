@@ -3,7 +3,16 @@ Created on 31 Aug 2022
 
 @author: Famenontsoa
 '''
+import django 
+import os
+os.environ.setdefault(
+    'DJANGO_SETTINGS_MODULE', 'DjangoTravelAgency.settings'
+)
+django.setup()
+
 import traceback
+import datetime
+from AmadeusDecoder.models.pnr.Pnr import Pnr 
 
 # from AmadeusDecoder.utilities.ConfigReader import ConfigReader
 # ConfigReader.load_company_info()
@@ -20,16 +29,22 @@ import traceback
 from AmadeusDecoder.utilities.AmadeusParser import AmadeusParser
 
 if __name__ == '__main__':
+    from AmadeusDecoder.models.invoice.Fee import OthersFee
+    # date_time = datetime.datetime(2023, 2, 15, 10, 22, 1, 0)
+    # print(date_time.date())#
+    # temp_related_other_fee = OthersFee.objects.filter(creation_date=date_time.date(), is_invoiced=False, total=420.88).last()
+    # print(temp_related_other_fee)  
+    Pnr.objects.filter(id=16117).first().delete()
     import os
     
-    temp = AmadeusParser() 
-    file = '577_issoufali.pnr@gmail.com'
-    # file = 12656_famenontsoa@outlook.com'
-    temp.set_path(os.getcwd() + '\\EmailFetcher\\utilities\\attachments_dir\\' + file + '\\' + file.removeprefix('VK8PP7_Fixed/') + '.txt')
+    # temp = AmadeusParser() 
+    # file = '577_issoufali.pnr@gmail.com'
+    # # file = 12656_famenontsoa@outlook.com'
+    # temp.set_path(os.getcwd() + '\\EmailFetcher\\utilities\\attachments_dir\\' + file + '\\' + file.removeprefix('VK8PP7_Fixed/') + '.txt')
 
-    contents = temp.read_file()
-    needed_content = temp.needed_content(contents)
-    normalize_file = temp.normalize_file(needed_content)
+    # contents = temp.read_file()
+    # needed_content = temp.needed_content(contents)
+    # normalize_file = temp.normalize_file(needed_content)
 
     # alert_tjq()
     

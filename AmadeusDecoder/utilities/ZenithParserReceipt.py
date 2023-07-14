@@ -644,14 +644,20 @@ class ZenithParserReceipt():
                 # both ticket or other fee must not be invoiced
                 # ticket or other fee's abs total cost must be the same as abs of current cancellation 
                 # after all above conditions checked, related ticket or other fee's fee must be removed from database
+                
                 temp_related_ticket = Ticket.objects.filter(issuing_date=date_time.date(), is_invoiced=False, total=abs(new_emd.total)).last()
                 temp_related_other_fee = OthersFee.objects.filter(creation_date=date_time.date(), is_invoiced=False, total=abs(new_emd.total)).last()
+                print('\n\n------FEE DELETED--------------------\n\n')
+                print(temp_related_ticket)
+                print(temp_related_other_fee)
+                print('\n\n------FEE DELETED--------------------\n\n')
                 if temp_related_ticket is not None:
                     new_emd.ticket = temp_related_ticket
                     temp_related_ticket.fees.first().delete()
                 elif temp_related_other_fee is not None:
                     new_emd.other_fee = temp_related_other_fee
                     temp_related_other_fee.fees.first().delete()
+                    
                 
                 new_emd.save()
                 if otherfee_saved_checker is None:

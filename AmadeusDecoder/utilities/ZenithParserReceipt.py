@@ -651,12 +651,18 @@ class ZenithParserReceipt():
                     new_emd.ticket = temp_related_ticket
                     temp_related_ticket.is_subjected_to_fee = False
                     temp_related_ticket.save()
-                    temp_related_ticket.fees.first().delete()
+                    
+                    temp_related_ticket_fee = temp_related_ticket.fees.first()
+                    if temp_related_ticket_fee is not None:
+                        temp_related_ticket_fee.delete()
                 elif temp_related_other_fee is not None:
                     new_emd.other_fee = temp_related_other_fee
                     temp_related_other_fee.is_subjected_to_fee = False
                     temp_related_other_fee.save()
-                    temp_related_other_fee.fees.first().delete()
+                    
+                    temp_related_other_fee_fee = temp_related_other_fee.fees.first()
+                    if temp_related_other_fee_fee is not None:
+                        temp_related_other_fee_fee.delete()
                 
                 new_emd.save()
                 if otherfee_saved_checker is None:

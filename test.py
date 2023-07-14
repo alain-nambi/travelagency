@@ -34,7 +34,7 @@ if __name__ == '__main__':
     # print(date_time.date())#
     # temp_related_other_fee = OthersFee.objects.filter(creation_date=date_time.date(), is_invoiced=False, total=420.88).last()
     # print(temp_related_other_fee)  
-    Pnr.objects.filter(id=16117).first().delete()
+    Pnr.objects.filter(id=16118).first().delete()
     import os
     
     # temp = AmadeusParser() 

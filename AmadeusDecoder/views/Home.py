@@ -11,6 +11,8 @@ import requests
 import random
 import pandas as pd
 
+import AmadeusDecoder.utilities.configuration_data as configs
+
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render
 from django.http import JsonResponse
@@ -531,44 +533,68 @@ def pnr_details(request, pnr_id):
     context['raw_data'] = pnr_detail.pnr_data.all().order_by('-data_datetime')
 
     # PNR not invoiced 
-    # if ticket have is_no_adc=False with total amount of 0, ticket_status=1 and is_invoiced=False
-    ticket_not_order = Ticket.objects.filter(pnr=pnr_id, is_invoiced=False, ticket_status=1).exclude(total=0)
-    ticket_no_adc_order = Ticket.objects.filter(pnr=pnr_id, is_invoiced=False, ticket_status=1).filter(Q(total=0) & Q(is_no_adc=True))
-    other_fee_order = OthersFee.objects.filter(pnr=pnr_id, is_invoiced=False, other_fee_status=1).filter(Q(total__gt=0))
-
-    ticket_ordered = Ticket.objects.filter(pnr=pnr_id, is_invoiced=True, ticket_status=1).exclude(total=0)
-    ticket_no_adc_ordered = Ticket.objects.filter(pnr=pnr_id, is_invoiced=True, ticket_status=1).filter(Q(total=0) & Q(is_no_adc=True))
-    other_fee_ordered = OthersFee.objects.filter(pnr=pnr_id, is_invoiced=True, other_fee_status=1).filter(Q(total__gt=0))
-
-    ticket_invoices = PassengerInvoice.objects.filter(pnr=pnr_id, is_invoiced=True, ticket__ticket_status=1).exclude(ticket=None)
-    other_fee_invoices = PassengerInvoice.objects.filter(pnr=pnr_id, is_invoiced=True, other_fee__other_fee_status=1).exclude(other_fee=None)
-    total_line = ticket_ordered.count() + ticket_no_adc_ordered.count() + other_fee_ordered.count()
-    total_invoice = ticket_invoices.count() + other_fee_invoices.count()
-    
-    print("*** DEBUGGING PNR INVOICE STATUS ***")
-    print("ticket_not_order: " + str(ticket_not_order))
-    print("ticket_no_adc_order: " + str(ticket_no_adc_order))
-    print("other_fee_order: " + str(other_fee_order))
-    print("ticket_ordered: " + str(ticket_ordered))
-    print("ticket_no_adc_ordered: " + str(ticket_no_adc_ordered))
-    print("other_fee_ordered: " + str(other_fee_ordered))
-    print("ticket_invoices: " + str(ticket_invoices))
-    print("other_fee_invoices: " + str(other_fee_invoices))
-    print("total_line: " + str(total_line))
-    print("total_invoice: " + str(total_invoice))
-    
     if pnr_detail.status_value == 0:
-        if ticket_not_order.exists() or other_fee_order.exists() or ticket_no_adc_order.exists():
+        __ticket_base = pnr_detail.tickets.filter(ticket_status=1).exclude(Q(total=0))
+        __other_fee_base = pnr_detail.others_fees.filter(other_fee_status=1, total__gt=0).exclude(~Q(ticket=None), ~Q(other_fee=None))
+        __ticket_no_adc_base = pnr_detail.tickets.filter(ticket_status=1, total=0, is_no_adc=True)
+
+        __cancellation = pnr_detail.others_fees.filter(Q(other_fee__in=__other_fee_base)|Q(ticket__in=__ticket_base) | Q(ticket__in=__ticket_no_adc_base))
+
+        __ticket = __ticket_base
+        __other_fee = __other_fee_base.exclude(pk__in=__cancellation)
+        __ticket_no_adc = __ticket_no_adc_base
+        print('__________Cancellation____________')
+        if __cancellation.exists():
+            for cancellation in __cancellation:
+                if cancellation.other_fee is not None:
+                    cancellation.other_fee.is_invoiced = True
+                    cancellation.other_fee.save()
+                if cancellation.ticket is not None:
+                    cancellation.ticket.is_invoiced = True
+                    cancellation.ticket.save()
+                cancellation.is_invoiced = True
+                cancellation.save()
+
+        if not __ticket.exists() and not __other_fee.exists() and not __ticket_no_adc.exists():
             pnr_detail.is_invoiced = False
             pnr_detail.save()
-
-        elif not ticket_not_order.exists() and not other_fee_order.exists() and not ticket_no_adc_order.exists():
-            if ticket_invoices.exists() or other_fee_invoices.exists():
-                if total_invoice == total_line:
-                    pnr_detail.is_invoiced = True
-                    pnr_detail.save()
-            elif not ticket_invoices.exists() and not other_fee_invoices.exists():
+        elif __ticket.exists() and not __other_fee.exists() and not __ticket_no_adc.exists():
+            print('Only ticket')
+            __ticket_not_ordered = __ticket.filter(is_invoiced=False)
+            if __ticket_not_ordered.exists():
                 pnr_detail.is_invoiced = False
+                pnr_detail.save()
+            else:
+                pnr_detail.is_invoiced = True
+                pnr_detail.save()
+        elif not __ticket.exists() and __other_fee.exists() and not __ticket_no_adc.exists():
+            print('Only other fee')
+            __other_fee_not_ordered = __other_fee.filter(is_invoiced=False)
+            if __other_fee_not_ordered.exists():
+                pnr_detail.is_invoiced = False
+                pnr_detail.save()
+            else:
+                pnr_detail.is_invoiced = True
+                pnr_detail.save()
+        elif not __ticket.exists() and not __other_fee.exists() and __ticket_no_adc.exists():
+            print('Only ticket no adc')
+            __ticket_no_adc_not_ordered = __ticket_no_adc.filter(is_invoiced=False)
+            if __ticket_no_adc_not_ordered.exists():
+                pnr_detail.is_invoiced = False
+                pnr_detail.save()
+            else:
+                pnr_detail.is_invoiced = True
+                pnr_detail.save()
+        else:
+            print('All of them')
+            __ticket_not_ordered = __ticket.filter(is_invoiced=False)
+            __other_fee_not_ordered = __other_fee.filter(is_invoiced=False)
+            __ticket_no_adc_not_ordered = __ticket_no_adc.filter(is_invoiced=False)
+            if __ticket_not_ordered.exists() or __other_fee_not_ordered.exists() or __ticket_no_adc_not_ordered.exists():
+                pnr_detail.is_invoiced = False
+                pnr_detail.save()
+            elif not __ticket_not_ordered.exists() and not __other_fee_not_ordered.exists() and not __ticket_no_adc_not_ordered.exists():
+                pnr_detail.is_invoiced = True
                 pnr_detail.save()
 
     return render(request,'pnr-details.html', context)
@@ -797,14 +823,8 @@ def reduce_fee(request) :
             context['message'] = "Demande envoyée avec succès."
             
             Sending.send_email_request(
-                "feerequest.issoufali.pnr@gmail.com",
-                [
-                    "superviseur@agences-issoufali.com",
-                    "pp@phidia.onmicrosoft.com",
-                    "mihaja@phidia.onmicrosoft.com",
-                    "tahina@phidia.onmicrosoft.com",
-                    "famenontsoa@outlook.com"
-                ],
+                configs.FEE_REQUEST_SENDER['address'],
+                configs.FEE_REQUEST_RECIPIENT,
                 subject,
                 message
             )
@@ -1772,82 +1792,56 @@ def get_product(request, pnr_id):
             context['products'] = list(product.values())
     return JsonResponse(context)
 
-
-
 @login_required(login_url='index')
 def find_customer(request, pnr_id):
     context = {}
     if request.method == 'POST':
         if 'value' in request.POST:
             value = json.loads(request.POST.get('value'))
+            q = Q()
             if len(value) > 0:
                 list_clients = []
                 if len(value) == 1:
                     string = value[0].split(" ")
-                    string.reverse()
-                    reverse_string = " ".join(string)
-                    clients = Client.objects.filter(
-                        Q(last_name__icontains=value[0]) | 
-                        Q(first_name__icontains=value[0]) | 
-                        Q(intitule__icontains=value[0]) | 
-                        Q(last_name__icontains=reverse_string) | 
-                        Q(first_name__icontains=reverse_string) | 
-                        Q(intitule__icontains=reverse_string) 
-                    )
+                    for word in string:
+                        q &= Q(intitule__icontains = word)
+                    clients = Client.objects.filter(q)
                     if clients.exists():
-                        for client in clients:
-                            if client.id not in list_clients:
-                                list_clients.append(client.id)
-                        if len(list_clients) > 0:
-                            client_id = list_clients[0]
-                            client = Client.objects.filter(id=client_id).first()
-                            context = {
-                                "isCustomerFind": True, 
-                                "clientId": client.id,
-                                "clientIntitule": client.intitule,
-                                "clientAddress": client.address_1 + " " + client.address_2 if client.address_1 is not None and client.address_2 is not None else client.address_1 if client.address_1 is not None else "",
-                                "clientCity": client.city if client.city is not None else "",
-                                "clientCountry": client.country if client.country is not None else "",
-                                "clientPostalCode": client.code_postal if client.code_postal is not None else "",
-                                "clientDepartment": client.departement if client.departement is not None else "",
-                                "clientEmail": client.email if client.email is not None else "",
-                                "clientPhone": client.telephone if client.telephone is not None else "",
-                            }
+                        client = clients.first()
+                        context = {
+                            "isCustomerFind": True, 
+                            "clientId": client.id,
+                            "clientIntitule": client.intitule,
+                            "clientAddress": client.address_1 + " " + client.address_2 if client.address_1 is not None and client.address_2 is not None else client.address_1 if client.address_1 is not None else "",
+                            "clientCity": client.city if client.city is not None else "",
+                            "clientCountry": client.country if client.country is not None else "",
+                            "clientPostalCode": client.code_postal if client.code_postal is not None else "",
+                            "clientDepartment": client.departement if client.departement is not None else "",
+                            "clientEmail": client.email if client.email is not None else "",
+                            "clientPhone": client.telephone if client.telephone is not None else "",
+                        }
                     else:
                         context["isCustomerFind"] = False
                 if len(value) == 2:
-                    string = value[0] + ' ' + value[1]
-                    value.reverse()
-                    reverse_string = " ".join(value)
-                    clients = Client.objects.filter(
-                        (
-                            Q(last_name__icontains=string) | 
-                            Q(first_name__icontains=string) | 
-                            Q(intitule__icontains=string) | 
-                            Q(last_name__icontains=reverse_string) | 
-                            Q(first_name__icontains=reverse_string) | 
-                            Q(intitule__icontains=reverse_string)
-                        )
-                    )
+                    string = value[0].strip().split(" ") + value[1].strip().split(" ")
+                    print(string)
+                    for word in string:
+                        q &= Q(intitule__icontains = word)
+                    clients = Client.objects.filter(q)
                     if clients.exists():
-                        for client in clients:
-                            if client.id not in list_clients:
-                                list_clients.append(client.id)
-                        if len(list_clients) > 0:
-                            client_id = list_clients[0]
-                            client = Client.objects.filter(id=client_id).first()
-                            context = {
-                                "isCustomerFind": True, 
-                                "clientId": client.id,
-                                "clientIntitule": client.intitule,
-                                "clientAddress": client.address_1 + " " + client.address_2 if client.address_1 is not None and client.address_2 is not None else client.address_1 if client.address_1 is not None else "",
-                                "clientCity": client.city if client.city is not None else "",
-                                "clientCountry": client.country if client.country is not None else "",
-                                "clientPostalCode": client.code_postal if client.code_postal is not None else "",
-                                "clientDepartment": client.departement if client.departement is not None else "",
-                                "clientEmail": client.email if client.email is not None else "",
-                                "clientPhone": client.telephone if client.telephone is not None else "",
-                            }
+                        client = clients.first()
+                        context = {
+                            "isCustomerFind": True, 
+                            "clientId": client.id,
+                            "clientIntitule": client.intitule,
+                            "clientAddress": client.address_1 + " " + client.address_2 if client.address_1 is not None and client.address_2 is not None else client.address_1 if client.address_1 is not None else "",
+                            "clientCity": client.city if client.city is not None else "",
+                            "clientCountry": client.country if client.country is not None else "",
+                            "clientPostalCode": client.code_postal if client.code_postal is not None else "",
+                            "clientDepartment": client.departement if client.departement is not None else "",
+                            "clientEmail": client.email if client.email is not None else "",
+                            "clientPhone": client.telephone if client.telephone is not None else "",
+                        }
                     else:
                         context["isCustomerFind"] = False
             else:

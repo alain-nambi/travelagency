@@ -8,10 +8,40 @@ import datetime
 import traceback
 import decimal
 
+import AmadeusDecoder.utilities.configuration_data as configs
+
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.invoice.Ticket import Ticket
 from AmadeusDecoder.models.invoice.TicketPassengerTST import TicketPassengerTST
 from AmadeusDecoder.models.data.RawData import RawData
+
+COMPANY_CURRENCY = configs.COMPANY_CURRENCY_CODE
+
+# TICKET_IDENTIFIER = ["TKT"]
+# RELATED_PNR_NUMBER_IDENTIFIER = ["LOC"]
+# TICKET_ISSUING_DATE_IDENTIFIER = ["DOI"]
+# ALL_POSSIBLE_TICKET_STATUSES = ['OK', 'SA', 'NS']
+# IT_FARE_IDENTIFIER = ["IT"]
+# NO_ADC_IDENTIFIER = ["NO", "ADC", "NO ADC"]
+# COST_MODIFICATION_IDENTIFIER = ["A"]
+# PRIME_TICKET_IDENTIFIER = ["FE", "BP", "PRIME"]
+# INVOL_REMOTE_IDENTIFIER = ["INVOL REMOTE"]
+# CREDIT_NOTE_TICKET_IDENTIFIER = ["760901", "760-901"]
+# GP_TICKET_IDENTIFIER = ["FP OE"]
+# COST_DETAIL_IDENTIFIER = ["FARE", "TOTALTAX", "TOTAL"]
+
+TICKET_IDENTIFIER = configs.TICKET_MAIN_IDENTIFIER
+RELATED_PNR_NUMBER_IDENTIFIER = configs.RELATED_PNR_NUMBER_IDENTIFIER
+TICKET_ISSUING_DATE_IDENTIFIER = configs.TICKET_ISSUING_DATE_IDENTIFIER
+ALL_POSSIBLE_TICKET_STATUSES = configs.ALL_POSSIBLE_TICKET_STATUSES
+IT_FARE_IDENTIFIER = configs.TICKET_IT_FARE_IDENTIFIER
+NO_ADC_IDENTIFIER = configs.TICKET_NO_ADC_IDENTIFIER
+COST_MODIFICATION_IDENTIFIER = configs.TICKET_COST_MODIFICATION_IDENTIFIER
+PRIME_TICKET_IDENTIFIER = configs.PRIME_TICKET_IDENTIFIER
+INVOL_REMOTE_IDENTIFIER = configs.INVOL_REMOTE_IDENTIFIER
+CREDIT_NOTE_TICKET_IDENTIFIER = configs.CREDIT_NOTE_TICKET_IDENTIFIER
+GP_TICKET_IDENTIFIER = configs.GP_TICKET_IDENTIFIER
+COST_DETAIL_IDENTIFIER = configs.TICKET_COST_DETAIL_IDENTIFIER
 
 class TicketOnlyParser():
     '''
@@ -44,7 +74,7 @@ class TicketOnlyParser():
         ticket_number = ''
         ticket_state = 0
         for temp in ticket_info_line.split(' '):
-            if temp.startswith('TKT'):
+            if temp.startswith(TICKET_IDENTIFIER[0]):
                 # ticket number can be: TKT-7609010406291 or TKT-7602404573845-846
                 # if like TKT-7609010406291
                 temp_ticket_number_split = temp.split('-')
@@ -56,7 +86,7 @@ class TicketOnlyParser():
                         ticket_number = temp_ticket_number_split[1] + '-' + temp_ticket_number_split[2][-2:]
                     else:
                         ticket_number = temp_ticket_number_split[1] + '-' + temp_ticket_number_split[2]
-            elif temp.startswith('LOC'):
+            elif temp.startswith(RELATED_PNR_NUMBER_IDENTIFIER[0]):
                 pnr_number = temp.split('-')[1]
         
         # system_creation_date = datetime.datetime.now()
@@ -87,7 +117,7 @@ class TicketOnlyParser():
         for temp in file_contents:
             temp_space_split = temp.split(' ')
             for element in temp_space_split:
-                if element.startswith('DOI') and len(element.split('-')) > 1:
+                if element.startswith(TICKET_ISSUING_DATE_IDENTIFIER[0]) and len(element.split('-')) > 1:
                     try:
                         issuing_date = datetime.datetime.strptime(element.split('-')[1], '%d%b%y')
                     except:
@@ -97,12 +127,11 @@ class TicketOnlyParser():
             
     # get gp status
     def get_ticket_gp_status(self, file_contents):
-        all_possible_status = ['OK', 'SA', 'NS']
         gp_status = ''
         for temp in file_contents:
             if temp.split(' ')[0].isnumeric():
                 for element in temp.split(' '):
-                    if element in all_possible_status:
+                    if element in ALL_POSSIBLE_TICKET_STATUSES:
                         gp_status = element
                         break
                 break
@@ -132,18 +161,15 @@ class TicketOnlyParser():
         is_ticket_modification = False
         is_no_adc = False
         
-        # temp currency manager for issoufali only
-        issoufali_currency = 'EUR'
-        
         try:
             with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
                 fare_text = ''
                 try:
                     temp_fare_line_split = fare_line.split(' ')                        
-                    if temp_fare_line_split[-1] == 'IT':
+                    if temp_fare_line_split[-1] == IT_FARE_IDENTIFIER[0]:
                         fare_text = '0'
-                        fare_type = 'IT'
-                    if len(temp_fare_line_split) > 2 and temp_fare_line_split[-1] != 'IT':
+                        fare_type = IT_FARE_IDENTIFIER[0]
+                    if len(temp_fare_line_split) > 2 and temp_fare_line_split[-1] != IT_FARE_IDENTIFIER[0]:
                         fare_type = temp_fare_line_split[1]
                         float(temp_fare_line_split[-1])
                         fare_text = fare_line.split(' ')[-1]
@@ -179,9 +205,9 @@ class TicketOnlyParser():
                     error_file.write('{}: \n'.format(datetime.datetime.now()))
                     traceback.print_exc(file=error_file)
                     error_file.write('\n')
-                    if total_line.split(' ')[-1].endswith('A') or total_line.split(' ')[-1].endswith('ADC'):
+                    if total_line.split(' ')[-1].endswith(COST_MODIFICATION_IDENTIFIER[0]) or total_line.split(' ')[-1].endswith(NO_ADC_IDENTIFIER[1]):
                         is_ticket_modification = True
-                        if total_line.split(' ')[-1].endswith('ADC'):
+                        if total_line.split(' ')[-1].endswith(NO_ADC_IDENTIFIER[1]):
                             total_line.split(' ')[-1] = 0
                             is_no_adc = True
                     for value in total_line.split(' ')[-1]:
@@ -196,14 +222,14 @@ class TicketOnlyParser():
                 error_file.write('\n')
         
         try:
-            if issoufali_currency not in temp_fare_line_split:
+            if COMPANY_CURRENCY not in temp_fare_line_split:
                 fare = total - tax
             
             if is_ticket_modification:
                 fare = total
                 tax = 0
                 
-            if fare_type == 'IT':
+            if fare_type == IT_FARE_IDENTIFIER[0]:
                 fare = 0
                 tax = 0
                 total = 0
@@ -215,31 +241,33 @@ class TicketOnlyParser():
     # check prime status
     def check_ticket_prime_status(self, file_contents, ticket):
         for line in file_contents:
-            if line.startswith('FE'):
+            if line.startswith(PRIME_TICKET_IDENTIFIER[0]):
                 temp_line_split = line.split(' ')
                 # for issoufali only
-                if ('BP' in temp_line_split or 'PRIME' in temp_line_split) and ticket.transport_cost == 0 and ticket.fare_type != 'IT':
+                if (PRIME_TICKET_IDENTIFIER[1] in temp_line_split or PRIME_TICKET_IDENTIFIER[2] in temp_line_split) and ticket.transport_cost == 0 and ticket.fare_type != IT_FARE_IDENTIFIER[0]:
                     ticket.is_prime = True
                     
     # check invol remote status
     def check_is_subjected_to_fees(self, file_contents, ticket):
         for line in file_contents:
-            if line.startswith('FE'):
+            if line.startswith(PRIME_TICKET_IDENTIFIER[0]):
                 temp_line_split = line.split(' ')
-                if 'INVOL REMOTE' in temp_line_split:
+                if INVOL_REMOTE_IDENTIFIER[0] in temp_line_split:
                     ticket.is_subjected_to_fees = False
     
     # check if current ticket is a credit note
     def check_credit_note(self, ticket):
         # for UU ticket only and with Issoufali
-        if ticket.number.startswith('760901') or ticket.number.startswith('760-901'):
-            ticket.ticket_type = 'Credit_Note'
-            ticket.is_subjected_to_fees = False
+        for identifier in CREDIT_NOTE_TICKET_IDENTIFIER:
+            if ticket.number.startswith(identifier) or ticket.number.startswith(identifier):
+                ticket.ticket_type = 'Credit_Note'
+                ticket.is_subjected_to_fees = False
+                break
     
     # check GP status
     def check_gp_status(self, file_contents, ticket):
         for line in file_contents:
-            if line.startswith('FP OE'):
+            if line.startswith(GP_TICKET_IDENTIFIER[0]):
                 ticket.is_gp = True
                 break
     
@@ -254,13 +282,13 @@ class TicketOnlyParser():
         total_line = ''
         
         for line in file_contents:
-            if line.startswith('TKT'):
+            if line.startswith(TICKET_IDENTIFIER[0]):
                 ticket_info_line = line
-            elif line.startswith('FARE'):
+            elif line.startswith(COST_DETAIL_IDENTIFIER[0]):
                 fare_line = line
-            elif line.startswith('TOTALTAX'):
+            elif line.startswith(COST_DETAIL_IDENTIFIER[1]):
                 tax_line = line
-            elif line.startswith('TOTAL'):
+            elif line.startswith(COST_DETAIL_IDENTIFIER[2]):
                 total_line = line
         
         # save or update ticket
@@ -278,10 +306,10 @@ class TicketOnlyParser():
         ticket.fare_type = fare_type
         ticket.tax = tax
         ticket.total = total
-        ticket.doccurrency = 'EUR'
-        ticket.farecurrency = 'EUR'
+        ticket.doccurrency = COMPANY_CURRENCY
+        ticket.farecurrency = COMPANY_CURRENCY
         ticket.state = ticket_state
-        ticket.ticket_type = 'TKT'
+        ticket.ticket_type = TICKET_IDENTIFIER[0]
         ticket.ticket_gp_status = gp_status
         ticket.issuing_date = issuing_date
         ticket.is_no_adc = is_no_adc
@@ -296,7 +324,7 @@ class TicketOnlyParser():
                 # check is_subjected_to_fees status
                 self.check_is_subjected_to_fees(file_contents, ticket)
                 # prime
-                if not ticket.is_no_adc and ticket.transport_cost == 0 and fare_type != 'IT':
+                if not ticket.is_no_adc and ticket.transport_cost == 0 and fare_type != IT_FARE_IDENTIFIER[0]:
                     ticket.is_prime = True
                 # gp
                 self.check_gp_status(file_contents, ticket)
@@ -310,7 +338,7 @@ class TicketOnlyParser():
             transport_cost = fare
             ticket_tax = tax
             # ticket_total = total
-            if fare_type == 'IT':
+            if fare_type == IT_FARE_IDENTIFIER[0]:
                 try:
                     temp_tst_passenger = TicketPassengerTST.objects.filter(passenger__id=temp_ticket.passenger.id).all()
                     if len(temp_tst_passenger) == 1:
@@ -329,11 +357,11 @@ class TicketOnlyParser():
                 temp_ticket.transport_cost = transport_cost
                 temp_ticket.tax = ticket_tax
                 temp_ticket.total = decimal.Decimal(temp_ticket.transport_cost) + decimal.Decimal(temp_ticket.tax)
-            if temp_ticket.fare_type == 'IT':
+            if temp_ticket.fare_type == IT_FARE_IDENTIFIER[0]:
                 temp_ticket.fare_type = fare_type
             # if tax > 0:
             temp_ticket.state = ticket_state
-            temp_ticket.ticket_type = 'TKT'
+            temp_ticket.ticket_type = TICKET_IDENTIFIER[0]
             temp_ticket.ticket_gp_status = gp_status
             temp_ticket.issuing_date = issuing_date
             temp_ticket.is_no_adc = is_no_adc
@@ -343,7 +371,7 @@ class TicketOnlyParser():
                 # check prime status
                 self.check_ticket_prime_status(file_contents, temp_ticket)
                 # prime
-                if not temp_ticket.is_no_adc and temp_ticket.transport_cost == 0 and fare_type != 'IT':
+                if not temp_ticket.is_no_adc and temp_ticket.transport_cost == 0 and fare_type != IT_FARE_IDENTIFIER[0]:
                     temp_ticket.is_prime = True
                 # check is_subjected_to_fees status
                 self.check_is_subjected_to_fees(file_contents, temp_ticket)

@@ -107,9 +107,9 @@ class ReportUtility():
         ]
         
         other_users_mail = [
-            "stephanie@agences-issoufali.com",
-            # "fahar@agences-issoufali.com",
-            # "samir@agences-issoufali.com",
+            "missoufali@agences-issoufali.com",
+            "lamia@agences-issoufali.com",
+            "asmakalfane@agences-issoufali.com",
             # "oulfate@agences-issoufali.com",
             # "mraati@agences-issoufali.com",
             # "fouadi@agences-issoufali.com",
@@ -132,9 +132,9 @@ class ReportUtility():
             # "madjid@agences-issoufali.com",
             # "sity@agences-issoufali.com",
             # "koro@agences-issoufali.com",
-            "issoufali.pnr@outlook.com",
+            # "issoufali.pnr@outlook.com",
             # "danielbehava2@agences-issoufali.com",
-            "david.domitin@agences-issoufali.com",
+            # "david.domitin@agences-issoufali.com",
             # "eric@agences-issoufali.com",
             # "taanli@agences-issoufali.com",
             # "shoulaya@agences-issoufali.com",

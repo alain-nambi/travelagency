@@ -16,11 +16,10 @@ def create_customer(request):
 
     exists = 0
     if request.method == 'POST':
-        if 'Name' and 'FirstName' and 'Address' and 'Address_2' and 'Country' and 'City' and 'Type' and 'Company' and 'Code_postal' and 'Departement' and 'Email' and 'Phone' in request.POST:
+        if 'Name' and 'FirstName' and 'Address' and 'Country' and 'City' and 'Type' and 'Company' and 'Code_postal' and 'Departement' and 'Email' and 'Phone' in request.POST:
             name = request.POST.get('Name')
             first_name = request.POST.get('FirstName')
             address = request.POST.get('Address')
-            address_2 = request.POST.get('Address_2')
             email = request.POST.get('Email')
             telephone = request.POST.get('Phone')
             country = request.POST.get('Country')
@@ -30,65 +29,46 @@ def create_customer(request):
             code_postal = request.POST.get('Code_postal')
             departement = request.POST.get('Departement')
 
-            complete_name = str(name.strip()) + ' ' + str(first_name.strip())
-            # reverse_name = str(first_name.strip()) + ' ' + str(name.strip())
-            
-            if type == 'Particulier':
-                customer = Client.objects.filter(first_name__iexact=first_name.strip(), last_name__iexact=name.strip())
-                reverse_customer = Client.objects.filter(last_name__iexact=first_name.strip(), first_name__iexact=name.strip())
-                if customer.exists() or reverse_customer.exists():
-                    exists = 1
-                else:
-                    exists = 0
-                    customer = Client(last_name=name.strip(),
-                                      first_name=first_name.strip(),
-                                      intitule=complete_name.strip(), 
-                                      address_1=address.strip(), 
-                                      address_2=address_2.strip(), 
-                                      country=country.strip(), 
-                                      city=city.strip(), 
-                                      type=type, 
-                                      code_postal=code_postal.strip(), 
-                                      departement=departement.strip(), 
-                                      email=email.strip(), 
-                                      telephone=telephone.strip())
-                    customer.save()
+            intitule_string = str(name.strip()) + ' ' + str(first_name.strip())
+            intitule = intitule_string.split(' ')
+            q = Q()
+            last_name, first_name = '', ''
+            new_customer = None
 
-            elif type == 'Société':
-                customer = Client.objects.filter(intitule__iexact=company)
-                if customer.exists():
-                    exists = 1
-                else:
-                    exists = 0
-                    customer = Client(last_name=None,
-                                      first_name=None,
-                                      intitule=company.strip(), 
-                                      address_1=address.strip(), 
-                                      address_2=address_2.strip(), 
-                                      country=country.strip(), 
-                                      city=city.strip(), 
-                                      type=type, 
-                                      code_postal=code_postal.strip(), 
-                                      departement=departement.strip(), 
-                                      email=email.strip(), 
-                                      telephone=telephone.strip())
-                    customer.save()
-                    
-            customers = Client.objects.filter(intitule=complete_name.strip() if type == 'Particulier' else company.strip(), 
-                                              address_1=address.strip(), 
-                                              address_2=address_2.strip(), 
-                                              country=country.strip(), 
-                                              city=city.strip(), 
-                                              type=type, 
-                                              code_postal=code_postal.strip(), 
-                                              departement=departement.strip(), 
-                                              email=email.strip(), 
-                                              telephone=telephone.strip())  
+            for word in intitule:
+                q &= Q(intitule__icontains = word)
+            
+            customer = Client.objects.filter(q)
+            if customer.exists():
+                exists = 1
+                new_customer = customer.first()
+            else:
+                exists = 0
+                if type == 'Particulier':
+                    last_name=name.strip()
+                    first_name=first_name.strip()
+
+                elif type == 'Société':
+                    last_name=None
+                    first_name=None
+
+                new_customer = Client(last_name=last_name,
+                                first_name=first_name,
+                                intitule=intitule_string.strip(), 
+                                address_1=address.strip(),
+                                country=country.strip(), 
+                                city=city.strip(), 
+                                type=type, 
+                                code_postal=code_postal.strip(), 
+                                departement=departement.strip(), 
+                                email=email.strip(), 
+                                telephone=telephone.strip())
+                new_customer.save() 
             
             context['name'] = name
             context['first_name'] = first_name
-            context['intitule'] = complete_name if type == 'Particulier' else company
-            context['customer_id'] = customers.first().id if customers.exists() else ''
+            context['intitule'] = intitule_string if type == 'Particulier' else company
+            context['customer_id'] = new_customer.id if new_customer is not None else ''
             context['exist'] = exists
 
     return JsonResponse(context)

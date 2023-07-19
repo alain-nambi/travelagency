@@ -1,4 +1,3 @@
-
 from django.urls import path
 from . import views
 
@@ -54,8 +53,3 @@ urlpatterns = [
     path('home/product/import_product_odoo/', call_product_import, name='import_product_odoo'),
     path('home/search-customer/', search_client_by_intitule, name= 'search_client_by_intitule')
 ]
-
-# assign current company to local variable 'session_variable'
-import AmadeusDecoder.utilities.session_variables as session_variables
-from AmadeusDecoder.utilities.ConfigReader import ConfigReader
-session_variables.current_company = ConfigReader.get_company()

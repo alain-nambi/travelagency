@@ -115,59 +115,59 @@ class AmadeusParser(PnrOnlyParser, TicketOnlyParser, PnrCostParser, EMDOnlyParse
             needed_content = temp.needed_content(contents)
             # save pnr data
             if len(contents) > 0:
-                if contents[0].startswith('TKT'):
-                    try:
-                        temp.parse_ticket(needed_content, temp.get_email_date())
-                    except Exception as e:
-                        print('File (Ticket) with error: ' + str(temp.get_path()))
-                        with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
-                            error_file.write('{}: \n'.format(datetime.datetime.now()))
-                            error_file.write('File (Ticket) with error: {} \n'.format(str(temp.get_path())))
-                            traceback.print_exc(file=error_file)
-                            error_file.write('\n')
-                        if (str(e) == "connection already closed"):
-                            Sending.send_email_pnr_parsing(temp.get_path())
-                        continue
-                elif contents[0].startswith('EMD'):
-                    try:
-                        temp.parse_emd(needed_content, temp.get_email_date())
-                    except Exception as e:
-                        print('File (EMD) with error: ' + str(temp.get_path()))
-                        with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
-                            error_file.write('{}: \n'.format(datetime.datetime.now()))
-                            error_file.write('File (EMD) with error: {} \n'.format(str(temp.get_path())))
-                            traceback.print_exc(file=error_file)
-                            error_file.write('\n')
-                        if (str(e) == "connection already closed"):
-                            Sending.send_email_pnr_parsing(temp.get_path())
-                        continue
-                elif contents[0].startswith('TST'):
-                    try:
-                        temp.parse_tst(needed_content)
-                    except Exception as e:
-                        print('File (TST) with error: ' + str(temp.get_path()))
-                        with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
-                            error_file.write('{}: \n'.format(datetime.datetime.now()))
-                            error_file.write('File (TST) with error: {} \n'.format(str(temp.get_path())))
-                            traceback.print_exc(file=error_file)
-                            error_file.write('\n')
-                        if (str(e) == "connection already closed"):
-                            Sending.send_email_pnr_parsing(temp.get_path())
-                        continue
-                elif contents[0].startswith('FEE MODIFY REQUEST'):
-                    try:
-                        temp.sf_decrease_request_update(needed_content)
-                    except:
-                        print('File (REQUEST) with error: ' + str(file))
-                        with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
-                            error_file.write('{}: \n'.format(datetime.datetime.now()))
-                            error_file.write('File (REQUEST) with error: {} \n'.format(str(temp.get_path())))
-                            traceback.print_exc(file=error_file)
-                            error_file.write('\n')
-                        if (str(e) == "connection already closed"):
-                            Sending.send_email_pnr_parsing(temp.get_path())
-                        continue
-                elif contents[0].startswith('AGY'): # TJQ
+                # if contents[0].startswith('TKT'):
+                #     try:
+                #         temp.parse_ticket(needed_content, temp.get_email_date())
+                #     except Exception as e:
+                #         print('File (Ticket) with error: ' + str(temp.get_path()))
+                #         with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
+                #             error_file.write('{}: \n'.format(datetime.datetime.now()))
+                #             error_file.write('File (Ticket) with error: {} \n'.format(str(temp.get_path())))
+                #             traceback.print_exc(file=error_file)
+                #             error_file.write('\n')
+                #         if (str(e) == "connection already closed"):
+                #             Sending.send_email_pnr_parsing(temp.get_path())
+                #         continue
+                # elif contents[0].startswith('EMD'):
+                #     try:
+                #         temp.parse_emd(needed_content, temp.get_email_date())
+                #     except Exception as e:
+                #         print('File (EMD) with error: ' + str(temp.get_path()))
+                #         with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
+                #             error_file.write('{}: \n'.format(datetime.datetime.now()))
+                #             error_file.write('File (EMD) with error: {} \n'.format(str(temp.get_path())))
+                #             traceback.print_exc(file=error_file)
+                #             error_file.write('\n')
+                #         if (str(e) == "connection already closed"):
+                #             Sending.send_email_pnr_parsing(temp.get_path())
+                #         continue
+                # elif contents[0].startswith('TST'):
+                #     try:
+                #         temp.parse_tst(needed_content)
+                #     except Exception as e:
+                #         print('File (TST) with error: ' + str(temp.get_path()))
+                #         with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
+                #             error_file.write('{}: \n'.format(datetime.datetime.now()))
+                #             error_file.write('File (TST) with error: {} \n'.format(str(temp.get_path())))
+                #             traceback.print_exc(file=error_file)
+                #             error_file.write('\n')
+                #         if (str(e) == "connection already closed"):
+                #             Sending.send_email_pnr_parsing(temp.get_path())
+                #         continue
+                # elif contents[0].startswith('FEE MODIFY REQUEST'):
+                #     try:
+                #         temp.sf_decrease_request_update(needed_content)
+                #     except:
+                #         print('File (REQUEST) with error: ' + str(file))
+                #         with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
+                #             error_file.write('{}: \n'.format(datetime.datetime.now()))
+                #             error_file.write('File (REQUEST) with error: {} \n'.format(str(temp.get_path())))
+                #             traceback.print_exc(file=error_file)
+                #             error_file.write('\n')
+                #         if (str(e) == "connection already closed"):
+                #             Sending.send_email_pnr_parsing(temp.get_path())
+                #         continue
+                if contents[0].startswith('AGY'): # TJQ
                     try:
                         temp.parse_tjq(needed_content)
                     except Exception as e:
@@ -214,18 +214,61 @@ class AmadeusParser(PnrOnlyParser, TicketOnlyParser, PnrCostParser, EMDOnlyParse
                                 if (str(e) == "connection already closed"):
                                     Sending.send_email_pnr_parsing(temp.get_path())
                                 continue
-                        if contents[j].startswith('FEE MODIFY REQUEST'):
+                        if contents[j].startswith('EMD'):
                             try:
-                                temp.sf_decrease_request_update(needed_content)
+                                temp.parse_emd(temp.needed_content(contents[j:]), temp.get_email_date())
                                 break
-                            except Exception as e:
-                                print('File (FEE MODIFY REQUEST) with error: ' + str(temp.get_path()))
+                            except:
+                                print('File (EMD) with error: ' + file)
                                 with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
                                     error_file.write('{}: \n'.format(datetime.datetime.now()))
-                                    error_file.write('File (FEE MODIFY REQUEST) with error: {} \n'.format(str(temp.get_path())))
+                                    error_file.write('File (EMD) with error: {} \n'.format(str(temp.get_path())))
                                     traceback.print_exc(file=error_file)
                                     error_file.write('\n')
                                 if (str(e) == "connection already closed"):
                                     Sending.send_email_pnr_parsing(temp.get_path())
                                 continue
+                        if contents[j].startswith('TKT'):
+                            try:
+                                temp.parse_ticket(temp.needed_content(contents[j:]), temp.get_email_date())
+                                break
+                            except:
+                                print('File (Ticket) with error: ' + file)
+                                with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
+                                    error_file.write('{}: \n'.format(datetime.datetime.now()))
+                                    error_file.write('File (Ticket) with error: {} \n'.format(str(temp.get_path())))
+                                    traceback.print_exc(file=error_file)
+                                    error_file.write('\n')
+                                if (str(e) == "connection already closed"):
+                                    Sending.send_email_pnr_parsing(temp.get_path())
+                                continue
+                        if contents[j].startswith('TST'):
+                            try:
+                                temp.parse_tst(temp.needed_content(contents[j:]), temp.get_email_date())
+                                break
+                            except:
+                                print('File (TST) with error: ' + file)
+                                with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
+                                    error_file.write('{}: \n'.format(datetime.datetime.now()))
+                                    error_file.write('File (TST) with error: {} \n'.format(str(temp.get_path())))
+                                    traceback.print_exc(file=error_file)
+                                    error_file.write('\n')
+                                if (str(e) == "connection already closed"):
+                                    Sending.send_email_pnr_parsing(temp.get_path())
+                                continue
+                        if contents[j].startswith('FEE MODIFY REQUEST'):
+                            try:
+                                temp.sf_decrease_request_update(temp.needed_content(contents[j:]))
+                                break
+                            except:
+                                print('File (REQUEST) with error: ' + file)
+                                with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
+                                    error_file.write('{}: \n'.format(datetime.datetime.now()))
+                                    error_file.write('File (REQUEST) with error: {} \n'.format(str(temp.get_path())))
+                                    traceback.print_exc(file=error_file)
+                                    error_file.write('\n')
+                                if (str(e) == "connection already closed"):
+                                    Sending.send_email_pnr_parsing(temp.get_path())
+                                continue
+                        
     

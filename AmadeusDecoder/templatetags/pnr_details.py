@@ -171,9 +171,9 @@ def get_pnr_creator(pnr):
     
 @register.filter(name='company_currency')
 def get_company_currency(company_name):
-    from AmadeusDecoder.models.company_info.CompanyInfo import CompanyInfo
+    import AmadeusDecoder.utilities.configuration_data as configs
     try:
-        return CompanyInfo.objects.filter(company_name=company_name).first().company_currency
+        return configs.COMPANY_CURRENCY_CODE
     except:
         return ''
 
@@ -1776,6 +1776,48 @@ def get_find_fee_reduce_request(pnr, fee):
     else:
         return False
         
+# check if current ticket has been issued at airport #
+@register.simple_tag
+def is_issued_at_airport(ticket, other_fee):
+    from AmadeusDecoder.models.invoice.Ticket import Ticket
+    from AmadeusDecoder.models.invoice.Fee import OthersFee
+    
+    # for ticket
+    if ticket is not None:
+        current_ticket = Ticket.objects.filter(id=ticket.id, ticket_type='EMD').first()
+        if current_ticket is not None:
+            # ticket has agency name: mostly for Zenith
+            if current_ticket.issuing_agency_name in _AIRPORT_AGENCY_CODE_:
+                return True
+            # ticket has agency object: mostly for Altea
+            if current_ticket.issuing_agency is not None:
+                if current_ticket.issuing_agency.name in _AIRPORT_AGENCY_CODE_ or \
+                    current_ticket.issuing_agency.code in _AIRPORT_AGENCY_CODE_:
+                    return True
+    # for other fee: mostly for Zenith
+    elif other_fee is not None:
+        current_other_fee = OthersFee.objects.filter(id=other_fee.id, fee_type='EMD').first()
+        if current_other_fee is not None:
+            # other fee agency name
+            if current_other_fee.issuing_agency_name in _AIRPORT_AGENCY_CODE_:
+                return True
+        
+    return False
+
+# get flight cabin from segment's flight class
+@register.filter(name='flight_cabin')
+def get_segment_cabin(segment):
+    from AmadeusDecoder.models.invoice.ServiceFees import ClassCabin
+    
+    flight_cabin = ''
+    try:
+        related_pnr = segment.pnr
+        related_cabin = ClassCabin.objects.filter(sign__contains=[segment.flightclass], gdsprovider=related_pnr.type).first()
+        if related_cabin is not None:
+            return related_cabin.type
+    except Exception as e:
+        print('Getting flight cabin encountered some error (templatetags/pnr_details.py (name=flight_cabin)): ', e)
+        return flight_cabin
 @register.filter(name='manage_pnr_switch_with_button')
 def get_all_pnr_to_switch(request):
     from AmadeusDecoder.models.pnr.Pnr import Pnr
@@ -1895,7 +1937,7 @@ def get_ticket_cancel_void_status(ticket):
     is_cancelled = False
     ticket_line_canceller = OthersFee.objects.filter(ticket_id=ticket.id)
 
-    if ticket_line_canceller.exists() and not ticket.is_subjected_to_fees and not ticket.is_invoiced:
+    if ticket_line_canceller.exists() and not ticket.is_subjected_to_fees and ticket.is_invoiced:
         is_cancelled = True
     else:
         is_cancelled= False
@@ -1908,7 +1950,7 @@ def get_other_fee_cancel_void_status(other_fee):
     is_cancelled = False
     other_fee_line_canceller = OthersFee.objects.filter(other_fee_id=other_fee.id) # type: ignore
 
-    if other_fee_line_canceller.exists() and not other_fee.is_subjected_to_fee and not other_fee.is_invoiced:
+    if other_fee_line_canceller.exists() and not other_fee.is_subjected_to_fee and other_fee.is_invoiced:
         is_cancelled = True
     else:
         is_cancelled= False

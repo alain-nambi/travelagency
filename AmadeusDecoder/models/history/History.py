@@ -43,6 +43,10 @@ class History(models.Model, BaseModel):
     # pnr, ticket, fee, flight, other_fee, ...
     modification_type = models.CharField(max_length=100)
     
+    # related modified object id
+    # e.g: if fee => ticket id or other fee id
+    related_object_id = models.IntegerField(null=True)
+    
     # the modification
     # For fee: initial_cost: ?, new_cost: ?, target_object: "parent ticket number" or "parent other fee designation"
     modification = HStoreField()
@@ -65,10 +69,17 @@ class History(models.Model, BaseModel):
                 fee_id = fee.id
                 user_id = user.id
                 
+                # get related object id
+                related_object_id = None
+                if fee.ticket is not None:
+                    related_object_id = fee.ticket.id
+                elif fee.other_fee is not None:
+                    related_object_id = fee.other_fee.id
+                
                 connection = DBConnect.db_connect()
                 c = connection.cursor()
                 c.execute("BEGIN")
-                c.callproc("f_create_fee_history", (pnr_id, user_id, fee_id, initial_cost, new_cost, initial_total))
+                c.callproc("f_create_fee_history", (pnr_id, user_id, fee_id, related_object_id, initial_cost, new_cost, initial_total))
                 c.execute("COMMIT")
         except:
             print('An error occurred while saving fee update history: Check error.txt for further detail.')

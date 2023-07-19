@@ -732,7 +732,6 @@ document.getElementById("save").addEventListener("click", (e) => {
   ) {
     console.log("AJAX Launched");
     console.log(customerListSelection.value);
-    listTicketCheckboxesAddAfterOrderAlreadyCreated.splice(1, 0, '52884');
     $.ajax({
       type: "POST",
       dataType: "json",

@@ -949,7 +949,7 @@ def save_pnr_detail_modification(request, pnr_id):
                 pnr.customer_id = customer.id
                 pnr.save() 
 
-        elif 'otherfeesIdsChecked' and 'customerId' and 'refCde' in request.POST:
+        if 'otherfeesIdsChecked' and 'customerId' and 'refCde' in request.POST:
             list_other_fees_id = json.loads(request.POST.get('otherfeesIdsChecked'))
             customer_id = request.POST.get('customerId')
             reference = request.POST.get('refCde')

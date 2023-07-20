@@ -1,11 +1,16 @@
 from django.apps import AppConfig
 from threading import Thread, Timer
-import datetime
 import os
 import traceback
+import schedule
+import time
+from django.apps.registry import apps
+
+import AmadeusDecoder.utilities.configuration_data as configs
 
 from datetime import datetime, timedelta, timezone
 
+from time import sleep
 
 class RepeatTimer(Timer):  
     daemon=True 
@@ -97,10 +102,26 @@ def checking_pnr_not_sent_to_odoo():
     
     # ==================== PNR not sent to Odoo checking ====================
     MailNotification.pnr_not_sent_to_odoo(now)
+    
+# send fee modification history
+def send_fee_update_list():
+    from AmadeusDecoder.utilities.ReportUtility import ReportUtility
+    
+    def task():
+        ReportUtility().fee_history_report(datetime.now())
+        
+    # Schedule operation to run every day at 5:00 PM
+    schedule.every().day.at("17:00").do(task)
+    
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
 
 def fetch_email():
     try:
         from EmailFetcher.utilities.EmailListener import EmailListener
+        print('Email listener is starting')
+        EMAIL_PNR = configs.EMAIL_PNR
         email_listener_obj = EmailListener()
         # email_listener_obj.email = "mercurevoyages.pnr@gmail.com"
         # email_listener_obj.app_password = "ftraxhoftbbkicps"
@@ -108,21 +129,43 @@ def fetch_email():
         # email_listener_obj.app_password = "lhlyyumveqvyqhqo"
         # email_listener_obj.email = "central.dev19@gmail.com"
         # email_listener_obj.app_password = "aqygdmkcedxmimyk"
-        email_listener_obj.email = "tjq.issoufali@gmail.com"
-        email_listener_obj.app_password = "sboptodqazliqabj"
+        email_listener_obj.email = EMAIL_PNR['address']
+        email_listener_obj.app_password = EMAIL_PNR['password']
         # email_listener_obj.email = "issoufali.pnr@outlook.com"
         # email_listener_obj.app_password = "Mgbi@261!+"
         email_listener_obj.folder = "Inbox"
-        email_listener_obj.attachments_dir = os.path.join(os.getcwd(), "EmailFetcher/utilities/attachments_dir/")
+        email_listener_obj.attachments_dir = os.path.join(os.getcwd(), "EmailFetcher\\utilities\\attachments_dir\\")
         email_listener_obj.fetch_email()
-
     except Exception:
         traceback.print_exc()
         with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
-            error_file.write('{}: \n'.format(datetime.datetime.now()))
+            error_file.write('{}: \n'.format(datetime.now()))
             traceback.print_exc(file=error_file)
             error_file.write('\n')
 
+def load_config():
+    print('Loading configurations ...')
+    # assign current company to local variable 'session_variable'
+    import AmadeusDecoder.utilities.session_variables as session_variables
+    from AmadeusDecoder.utilities.ConfigReader import ConfigReader
+    # session_variables.current_company = ConfigReader.get_company()
+    
+    apps.get_models()
+    # load company info
+    ConfigReader.load_company_info()
+    ConfigReader.load_email_source()
+    ConfigReader.load_emd_parser_tool_data()
+    ConfigReader.load_tst_parser_tool_data()
+    ConfigReader.load_zenith_parser_tool_data()
+    ConfigReader.load_zenith_parser_receipt_tool_data()
+    ConfigReader.load_ticket_parser_tool_data()
+    ConfigReader.load_fee_request_tool_data()
+    ConfigReader.load_report_email_data()
+    ConfigReader.load_pnr_parser_tool_data()
+    
+    # assign current company to local variable 'session_variable'
+    session_variables.current_company = configs.COMPANY_NAME
+    print('Configurations loaded.')
 
 class EmailfetcherConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
@@ -134,13 +177,17 @@ class EmailfetcherConfig(AppConfig):
             return
         os.environ['CMDLINERUNNER_RUN_ONCE'] = 'True'
         
-        print('Email listener is starting')
+        load_configs = Thread(target=load_config)
+        load_configs.start()
+        
+        sleep(2)
+        
         email_thread_once = Thread(target=fetch_email)
         email_thread_once.start()
 
         # now = datetime.now()
         # repeat_timer_for_pnr_upload_notification = 0
-        
+        #
         # def pnr_upload_repeat_timer(repeat_timer_for_pnr_upload_notification):
         #     print("📢 Mail notification for pnr not updated in pnr management...")
         #     timer_update_check = RepeatTimer(repeat_timer_for_pnr_upload_notification, checking_pnr_not_uploaded_in_pnr_management)
@@ -180,5 +227,8 @@ class EmailfetcherConfig(AppConfig):
 
         # from AmadeusDecoder.utilities.FtpConnection import download_file
         # dest_dir = '/export/products'
+        
+        # send daily pnr fee update report
+        daily_thread_once = Thread(target=send_fee_update_list)
+        daily_thread_once.start()
 
-        print('Email listener is started')

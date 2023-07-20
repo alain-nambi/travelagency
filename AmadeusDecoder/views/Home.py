@@ -11,6 +11,8 @@ import requests
 import random
 import pandas as pd
 
+import AmadeusDecoder.utilities.configuration_data as configs
+
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render
 from django.http import JsonResponse
@@ -821,14 +823,8 @@ def reduce_fee(request) :
             context['message'] = "Demande envoyée avec succès."
             
             Sending.send_email_request(
-                "feerequest.issoufali.pnr@gmail.com",
-                [
-                    "superviseur@agences-issoufali.com",
-                    "pp@phidia.onmicrosoft.com",
-                    "mihaja@phidia.onmicrosoft.com",
-                    "tahina@phidia.onmicrosoft.com",
-                    "famenontsoa@outlook.com"
-                ],
+                configs.FEE_REQUEST_SENDER['address'],
+                configs.FEE_REQUEST_RECIPIENT,
                 subject,
                 message
             )
@@ -998,7 +994,7 @@ def save_pnr_detail_modification(request, pnr_id):
             
         if 'feeCost' in request.POST:
             fee_cost = json.loads(request.POST.get('feeCost'))
-    
+            
             for item in fee_cost:
                 cost = item[1]
                 service_fee = Fee.objects.filter(pk=int(item[0]))

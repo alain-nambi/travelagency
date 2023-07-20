@@ -14,6 +14,9 @@ class FlightType(models.Model, BaseModel):
     
     class Meta:
         db_table = 't_flighttype'
+        constraints = [
+            models.UniqueConstraint(fields=['type'], name="unique_flight_type")
+        ]
     
     type = models.CharField(max_length=50, null=False)
 
@@ -21,10 +24,13 @@ class FlightClass(models.Model, BaseModel):
     
     class Meta:
         db_table = 't_flightclass'
+        constraints = [
+            models.UniqueConstraint(fields=['flightclass'], name="unique_flight_class")
+        ]
         
     flightclass = models.CharField(max_length=50, null=False)
     
-class ServiceFeesMercure(models.Model, BaseModel):
+class ServiceFeesClassBased(models.Model, BaseModel):
     
     class Meta:
         db_table = 't_servicefees_flight_class_based'
@@ -39,7 +45,7 @@ class ServiceFeesMercure(models.Model, BaseModel):
     )
     price = models.DecimalField(max_digits=11, decimal_places=4, default=0)
 
-class ServiceFeesIssoufali(models.Model, BaseModel):
+class ServiceFeesAmountBased(models.Model, BaseModel):
     
     class Meta:
         db_table = 't_servicefees_amount_based'
@@ -60,10 +66,10 @@ class ServiceFeesIssoufali(models.Model, BaseModel):
     from django.utils import timezone
     effective_date = models.DateTimeField(default=timezone.now)
     
-class ClassSign(models.Model, BaseModel):
+class ClassCabin(models.Model, BaseModel):
     
     class Meta:
-        db_table = 't_classsign'
+        db_table = 't_class_cabin'
         
     type = models.CharField(max_length=50, null=False)
     gdsprovider = models.CharField(max_length=100, null=False)
@@ -98,14 +104,8 @@ class RegionalFlight(models.Model, BaseModel):
     class Meta:
         db_table = 't_company_regional_flight'
         constraints = [
-            models.UniqueConstraint(fields=['company', 'country'], name="unique_region_company")
+            models.UniqueConstraint(fields=['country'], name="unique_region_company")
         ]
-    
-    company = models.ForeignKey(
-        "AmadeusDecoder.CompanyInfo",
-        on_delete=models.CASCADE,
-        related_name='regional_flights'
-    )
     
     country = models.ForeignKey(
         "AmadeusDecoder.Country",

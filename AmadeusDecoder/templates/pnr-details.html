@@ -581,6 +581,7 @@
 												<th width="10%">Segment</th>
 												<th width="10%">Vols</th>
 												<th width="10%">Classe</th>
+												<th width="10%">Cabine</th>
 												<th width="10%">Départ</th>
 												<th width="10%">Arrivée</th>
 												<th>Date et heure de départ</th>
@@ -596,6 +597,7 @@
 												<td>{{ segment.segmentorder }}</td>
 												<td>{{ segment }}</td>
 												<td>{{ segment.flightclass }}</td>
+												<td>{{ segment|flight_cabin }}</td>
 												<td>{{ segment.codeorg.iata_code }}</td>
 												<td>{{ segment.codedest.iata_code }}</td>
 												<td>
@@ -835,7 +837,8 @@
 																		
 																	data-fee-id="{{fee.id}}" 
 																	data-total-fee-cost="{{ fee.total|floatformat:'2' }}"
-																	old-data-cost= "{{ fee.newest_cost|floatformat:'2' }}" 
+																	old-data-cost= "{{ fee.newest_cost|floatformat:'2' }}"
+																	is-at-airport = "{% is_issued_at_airport ticket None %}"
 																	data-cost="{{ fee.cost|floatformat:'2' }}" 
 																	value="{{ fee.cost|floatformat:'2' }}" 
 																	name="service-fees-cost-{{fee.id}}"
@@ -978,6 +981,7 @@
 																	data-fee-id="{{fee.id}}" 
 																	data-total-fee-cost="{{ fee.total|floatformat:'2' }}"
 																	old-data-cost= "{{ fee.newest_cost|floatformat:'2' }}" 
+																	is-at-airport = "{% is_issued_at_airport None other_fee %}"
 																	data-cost="{{ fee.cost|floatformat:'2' }}" 
 																	value="{{ fee.cost|floatformat:'2' }}" 
 																	name="service-fees-cost-{{fee.id}}"

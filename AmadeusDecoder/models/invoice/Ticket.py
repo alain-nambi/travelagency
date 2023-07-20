@@ -13,6 +13,9 @@ from datetime import datetime
 from AmadeusDecoder.models.user.Users import OfficeSubcontractor
 from AmadeusDecoder.models.invoice.Fee import OthersFee
 
+_AIRPORT_AGENCY_CODE_ = ['DZAUU000B']
+_NOT_FEED_ = ['RESIDUAL VALUE', 'DISCOUNT CARD']
+
 class Ticket(models.Model, BaseModel):
     '''
     classdocs
@@ -102,6 +105,8 @@ class Ticket(models.Model, BaseModel):
     is_ticket_modification = models.BooleanField(default=0) # true: current ticket is a modification
     # temp ticket status field to store original ticket status
     original_ticket_status = models.IntegerField(default=1) 
+    # issuing agency name (original issuing agency name when ID cannot be found)
+    issuing_agency_name = models.CharField(max_length=200, null=True)
     
     # update ticket status if PNR has been reissued with different tickets
     def update_ticket_status_PNR_reissued(self, pnr, new_ticket_list):
@@ -186,14 +191,14 @@ class Ticket(models.Model, BaseModel):
             
     # check and set regional status
     def get_set_regional_status(self):
-        from AmadeusDecoder.utilities.session_variables import current_company
+        import AmadeusDecoder.utilities.configuration_data as configs
         try:
-            temp_company = current_company
             ticket_destination_countries = []
             temp_company_regional_countries = []
-            if temp_company is not None:
-                for country_iso in Country.objects.filter(company_as_regional__company=temp_company).all():
-                    temp_company_regional_countries.append(country_iso.code)
+            for country_name in configs.REGIONAL_COUNTRIES:
+                temp_country = Country.objects.filter(name=country_name).first()
+                if temp_country is not None:
+                    temp_company_regional_countries.append(temp_country.code)
             # ticket parts: ticket and segment
             temp_tickets_parts = self.ticket_parts.all()
             for ticket_part in temp_tickets_parts:
@@ -269,6 +274,70 @@ class Ticket(models.Model, BaseModel):
                 ticket.is_issued_outside = True
                 ticket.save()
         self.update_pnr_state(pnr)
+    
+    # re-calibrate emd fee
+    def recalibrate_fee(self, pnr):
+        active_emd = Ticket.objects.filter(pnr=pnr, ticket_type='EMD', ticket_status=1).all()
+        for emd in active_emd:
+            try:
+                is_emitted_in_airport = False
+                emd_issuing_date = emd.issuing_date
+                emitter = emd.pnr.get_emit_agent()
+                # test by agent
+                if emitter is not None:
+                    try:
+                        if emitter.office.code in _AIRPORT_AGENCY_CODE_:
+                            is_emitted_in_airport = True
+                    except:
+                        pass
+                # test by current emd issuing agency
+                try:
+                    if emd.issuing_agency.code in _AIRPORT_AGENCY_CODE_:
+                        is_emitted_in_airport = True
+                except:
+                    pass
+                
+                if emd.ticket_ssrs.first() is not None:
+                    emd_related_segment = emd.ticket_ssrs.first().ssr.segments.first().segment
+                    emd_segment_flight_date = emd_related_segment.departuretime.date()
+                    if emd_issuing_date == emd_segment_flight_date and is_emitted_in_airport:
+                        emd.is_subjected_to_fees = False
+                
+                if emd.ticket_parts.first() is not None:
+                    emd_related_segment = emd.ticket_parts.first().segment
+                    emd_segment_flight_date = emd_related_segment.departuretime.date()
+                    if emd_issuing_date == emd_segment_flight_date and is_emitted_in_airport:
+                        emd.is_subjected_to_fees = False
+                
+                if emd.is_subjected_to_fees:
+                    if emd.ticket_parts.first() is not None:
+                        emd_related_segment = emd.ticket_parts.first().segment
+                        emd_segment_flight_date = emd_related_segment.departuretime.date()
+                        if emd_issuing_date == emd_segment_flight_date and is_emitted_in_airport:
+                            emd.is_subjected_to_fees = False
+                
+                # check fee subjection based on description
+                for element in _NOT_FEED_:
+                    if emd.ticket_description is not None and emd.ticket_description.find(element) > -1:
+                        emd.is_subjected_to_fees = False
+                        break
+                
+                # save modified ticket object
+                emd.save()
+                
+                # update fee if exists
+                if not emd.is_subjected_to_fees:
+                    temp_fee = emd.fees.first()
+                    if temp_fee is not None:
+                        temp_fee.cost = 0
+                        temp_fee.tax = 0
+                        temp_fee.total = 0
+                        temp_fee.newest_cost = 0
+                        temp_fee.old_cost = 0
+                        temp_fee.save()
+            except:
+                traceback.print_exc()
+            
     
     # ticket issued by subcontractor
     def process_subcontract(self):

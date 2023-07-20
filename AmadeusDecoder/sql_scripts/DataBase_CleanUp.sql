@@ -1,3 +1,4 @@
+delete from t_passenger_invoice;
 delete from t_pnr_contact;
 delete from t_pnr_flight;
 delete from t_pnr_passengers;

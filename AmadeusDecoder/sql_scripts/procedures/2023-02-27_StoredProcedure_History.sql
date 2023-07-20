@@ -6,17 +6,17 @@ returns character varying(100)
 as 
 $body$
 declare
-	ticket_id integer;
-	other_fee_id integer;
+	ticket_id_ integer;
+	other_fee_id_ integer;
 	return_val character varying(100);
 begin
-	select t_fee.other_fee_id into other_fee_id from t_fee where  t_fee.id = fee_id;
-	select t_fee.ticket_id into ticket_id from t_fee where t_fee.id = fee_id;
+	select t_fee.other_fee_id into other_fee_id_ from t_fee where  t_fee.id = fee_id;
+	select t_fee.ticket_id into ticket_id_ from t_fee where t_fee.id = fee_id;
 	case
-		when other_fee_id is not null then
-			select t_other_fee.designation into return_val from t_other_fee where t_other_fee.id = other_fee_id;
-		when ticket_id is not null then
-			select t_ticket.number into return_val from t_ticket where t_ticket.id = ticket_id;
+		when other_fee_id_ is not null then
+			select t_other_fee.designation into return_val from t_other_fee where t_other_fee.id = other_fee_id_;
+		when ticket_id_ is not null then
+			select t_ticket.number into return_val from t_ticket where t_ticket.id = ticket_id_;
 		else
 			return null;
 	end case;
@@ -26,7 +26,7 @@ $body$
 language plpgsql;
 
 -- create fee history
-create or replace function f_create_fee_history(pnrId integer, user_id integer, fee_id integer, initial_cost double precision, new_cost double precision, initial_total double precision)
+create or replace function f_create_fee_history(pnrId integer, user_id integer, fee_id integer, related_object_id integer, initial_cost double precision, new_cost double precision, initial_total double precision)
 returns void
 as 
 $body$
@@ -50,13 +50,14 @@ begin
 		and
 		t_invoice.pnr_id = pnrId;
 	-- save history
-	insert into t_history (pnr_id, pnr_number, user_id, username, modification_type, modification, modification_date) values
+	insert into t_history (pnr_id, pnr_number, user_id, username, modification_type, related_object_id, modification, modification_date) values
 	(
 		pnrId,
 		pnr_number,
 		user_id,
 		user_name,
 		modif_type,
+		related_object_id,
 		hstore(array['initial_cost', 'new_cost', 'target_object', 'initial_total', 'new_total'], array[initial_cost::text, new_cost::text, target_object::text, initial_total::text, current_total::text]),
 		curtime
 	);

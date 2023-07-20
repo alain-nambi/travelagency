@@ -823,8 +823,10 @@ def reduce_fee(request) :
             context['message'] = "Demande envoyée avec succès."
             
             Sending.send_email_request(
-                configs.FEE_REQUEST_SENDER['address'],
-                configs.FEE_REQUEST_RECIPIENT,
+                # configs.FEE_REQUEST_SENDER['address'],
+                "feerequest.issoufali.pnr@gmail.com",
+                ["superviseur@agences-issoufali.com", "pp@phidia.onmicrosoft.com", "mihaja@phidia.onmicrosoft.com", "tahina@phidia.onmicrosoft.com"],
+                # configs.FEE_REQUEST_RECIPIENT,
                 subject,
                 message
             )

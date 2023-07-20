@@ -11,8 +11,6 @@ import requests
 import random
 import pandas as pd
 
-import AmadeusDecoder.utilities.configuration_data as configs
-
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render
 from django.http import JsonResponse
@@ -38,8 +36,15 @@ from AmadeusDecoder.models.history.History import History
 
 # from AmadeusDecoder.utilities.FtpConnection import upload_file
 from AmadeusDecoder.utilities.SendMail import Sending
-from AmadeusDecoder.utilities.ServiceFeesDecreaseRequest import ServiceFeesDecreaseRequest
 import traceback
+
+import AmadeusDecoder.utilities.configuration_data as configs
+
+FEE_REQUEST_SENDER = {"port":587, "smtp":"smtp.gmail.com", "address":"feerequest.issoufali.pnr@gmail.com", "password":"tnkunwvygtdkxfxg"}
+FEE_REQUEST_RECIPIENT = ['superviseur@agences-issoufali.com','pp@phidia.onmicrosoft.com','mihaja@phidia.onmicrosoft.com','tahina@phidia.onmicrosoft.com']
+
+# FEE_REQUEST_SENDER = configs.FEE_REQUEST_SENDER,
+# FEE_REQUEST_RECIPIENT = configs.FEE_REQUEST_RECIPIENT,
 
 @login_required(login_url='index')
 def home(request): 
@@ -693,7 +698,8 @@ def pnr_search_by_pnr_number(request):
     return JsonResponse(context)
 
 # @login_required(login_url='index')
-def reduce_fee_request_accepted(request, request_id, amount, choice_type, token):  
+def reduce_fee_request_accepted(request, request_id, amount, choice_type, token):
+    from AmadeusDecoder.utilities.ServiceFeesDecreaseRequest import ServiceFeesDecreaseRequest
     context = {}
 
     request_obj = ReducePnrFeeRequest.objects.get(pk=request_id, token=token)
@@ -735,7 +741,8 @@ def reduce_fee_request_accepted(request, request_id, amount, choice_type, token)
     return render(request,'validate-request.html', context) 
 
 # @login_required(login_url='index')
-def reduce_fee_request_rejected(request, request_id, choice_type, token):  
+def reduce_fee_request_rejected(request, request_id, choice_type, token):
+    from AmadeusDecoder.utilities.ServiceFeesDecreaseRequest import ServiceFeesDecreaseRequest
     context = {}
 
     request_obj = ReducePnrFeeRequest.objects.get(pk=request_id, token=token)
@@ -783,6 +790,8 @@ def reduce_fee_request_modify(request, request_id, choice_type, token):
 
 @login_required(login_url='index')
 def reduce_fee(request) :
+    print('Home.py, Line 787: ', configs.FEE_REQUEST_RESPONSE_RECIPIENT)
+    from AmadeusDecoder.utilities.ServiceFeesDecreaseRequest import ServiceFeesDecreaseRequest
     context = {}
     if request.method == 'POST' and request.POST.get('pnrId') and request.POST.get('feeId'):
         pnrId = request.POST.get('pnrId')
@@ -799,8 +808,8 @@ def reduce_fee(request) :
             context['message'] = "Demande envoyée avec succès."
             
             Sending.send_email_request(
-                configs.FEE_REQUEST_SENDER['address'],
-                configs.FEE_REQUEST_RECIPIENT,
+                FEE_REQUEST_SENDER['address'],
+                FEE_REQUEST_RECIPIENT,
                 subject,
                 message
             )

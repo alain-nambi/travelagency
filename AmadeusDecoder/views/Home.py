@@ -40,11 +40,11 @@ import traceback
 
 import AmadeusDecoder.utilities.configuration_data as configs
 
-FEE_REQUEST_SENDER = {"port":587, "smtp":"smtp.gmail.com", "address":"feerequest.issoufali.pnr@gmail.com", "password":"tnkunwvygtdkxfxg"}
-FEE_REQUEST_RECIPIENT = ['superviseur@agences-issoufali.com','pp@phidia.onmicrosoft.com','mihaja@phidia.onmicrosoft.com','tahina@phidia.onmicrosoft.com']
+# FEE_REQUEST_SENDER = {"port":587, "smtp":"smtp.gmail.com", "address":"feerequest.issoufali.pnr@gmail.com", "password":"tnkunwvygtdkxfxg"}
+# FEE_REQUEST_RECIPIENT = ['superviseur@agences-issoufali.com','pp@phidia.onmicrosoft.com','mihaja@phidia.onmicrosoft.com','tahina@phidia.onmicrosoft.com']
 
-# FEE_REQUEST_SENDER = configs.FEE_REQUEST_SENDER,
-# FEE_REQUEST_RECIPIENT = configs.FEE_REQUEST_RECIPIENT,
+FEE_REQUEST_SENDER = configs.FEE_REQUEST_SENDER
+FEE_REQUEST_RECIPIENT = configs.FEE_REQUEST_RECIPIENT
 
 @login_required(login_url='index')
 def home(request): 
@@ -790,7 +790,6 @@ def reduce_fee_request_modify(request, request_id, choice_type, token):
 
 @login_required(login_url='index')
 def reduce_fee(request) :
-    print('Home.py, Line 787: ', configs.FEE_REQUEST_RESPONSE_RECIPIENT)
     from AmadeusDecoder.utilities.ServiceFeesDecreaseRequest import ServiceFeesDecreaseRequest
     context = {}
     if request.method == 'POST' and request.POST.get('pnrId') and request.POST.get('feeId'):

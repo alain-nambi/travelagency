@@ -36,6 +36,6 @@ class Configuration(models.Model, BaseModel):
             null=True, blank=True
         )
     dict_value = HStoreField(null=True)
-    created_on = models.DateTimeField()
-    last_update = models.DateTimeField()
+    created_on = models.DateTimeField(auto_now=True)
+    last_update = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)

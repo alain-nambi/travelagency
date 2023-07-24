@@ -13,31 +13,21 @@ def decrypt_text(text):
     text_decrypt = fernet.decrypt(text).decode()
     return text_decrypt
 
-def connect():
-    username = b'gAAAAABjakVlrbIOLh-YhxnpByNZEUH9AwJD_1goQqxCm5O_YKCAsfGVyenSJZTlRnxJ4EF4CExj-c6oS-Tm7mJ3t8AgpvZwgA=='
-    password = 'MGbi@261**'
-    hostname = '5.135.136.201'
-    port = 22
+def connect(username, password, hostname, port):
     ftp_server = ftplib.FTP()
-    ftp_server.connect(hostname, 22)
-    ftp_server.login(decrypt_text(username), password)
+    ftp_server.connect(hostname, port)
+    ftp_server.login(username, password)
 
     return ftp_server
 
-def upload_file(file, des_path, des_file):
-    session = connect()
+def upload_file(file, des_path, des_file, username, password, hostname, port):
+    session = connect(username, password, hostname, port)
     session.cwd(des_path)
     with open(file, 'rb') as f:
         session.storbinary('STOR {}'.format(des_file), f)
-
-    # Call Odoo import
-    print("------------------Call Odoo import-----------------------")
-    response = requests.get("http://5.135.136.201:8075/web/syncorders")
-    print(response.content)
+        print('File upload successfully')
 
     session.quit()
-
-    
 
 def download_file(ftp_dir):
     session = connect()

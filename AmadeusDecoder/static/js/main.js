@@ -1299,6 +1299,28 @@ $(document).ready(function () {
   $('.customer-select').select2({
     placeholder: "Sélectionner client",
     allowClear: true,
+    "language": {
+      "noResults": function(){
+          const noResultsFoundHTML = `
+            <div class="d-flex align-items-center" style="gap: 1rem;"> 
+              <i class="fa fa-search" aria-hidden="true"></i>
+              <span class="text-sm"> 
+                <strong class="text-sm">
+                  Aucun résultat trouvé. <br> 
+                </strong>
+                <span style="display: block; width: 100%; height: 1px; background: #fff; margin: 6px 0 6px 0;"></span>
+                Veuillez taper 
+                <strong class="text-sm"> le nom <span class="text-warning text-sm">exact</span> du client </strong> 
+              </span>
+            </div>
+          ` 
+
+          return noResultsFoundHTML;
+      }
+    },
+    escapeMarkup: function (markup) {
+        return markup;
+    },
     ajax: {
       type: 'POST',
       url: '/home/search-customer/',
@@ -1322,7 +1344,7 @@ $(document).ready(function () {
             }
           })
         };
-      }
+      },
     }
   });
 });
@@ -1336,6 +1358,28 @@ $(document).ready(function () {
     $(".customer-modification-selection").select2({
       placeholder: "Sélectionner client",
       allowClear: true,
+      "language": {
+        "noResults": function(){
+            const noResultsFoundHTML = `
+              <div class="d-flex align-items-center" style="gap: 1rem;"> 
+                <i class="fa fa-search" aria-hidden="true"></i>
+                <span class="text-sm"> 
+                  <strong class="text-sm">
+                    Aucun résultat trouvé. <br> 
+                  </strong>
+                  <span style="display: block; width: 100%; height: 1px; background: #fff; margin: 6px 0 6px 0;"></span>
+                  Veuillez taper 
+                  <strong class="text-sm"> le nom <span class="text-warning text-sm">exact</span> du client </strong> 
+                </span>
+              </div>
+            ` 
+  
+            return noResultsFoundHTML;
+        },
+      },
+      escapeMarkup: function (markup) {
+        return markup;
+      },
       ajax: {
         type: 'POST',
         url: '/home/search-customer/',

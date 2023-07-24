@@ -383,6 +383,37 @@ $(function() {
     $creatorMenu.hide();
   });
 
+  document.addEventListener('click', function(event) {
+    console.log(event.target);
+  
+    // Vérifie si la variable isMenuOpen est définie et est de type boolean
+    if (typeof isMenuOpen === 'boolean') {
+      // Vérifie si le menu est ouvert (isMenuOpen est true) et si l'élément cliqué se trouve en dehors du menu
+      if (isMenuOpen && !event.target.closest("#buttonMenuFilter, .wrapper-menu-filter, .pnr-menu, .pnr-status, .date-range-menu, .creator-group-menu, .filter-menu > .list, .pnr-menu .pnr-list, .pnr-status .pnr-list, #reportrange, .daterangepicker, .next, .prev")) {
+        // Si les conditions sont remplies, cela signifie que vous avez cliqué en dehors du menu, donc le menu doit être fermé
+  
+        // Inverse la valeur de isMenuOpen (true devient false, et vice versa)
+        isMenuOpen = !isMenuOpen;
+  
+        // Vérifie si les variables sont définies avant de les utiliser
+        if ($wrapperMenuFilter && $pnrMenu && $pnrStatus && $dateRangeMenu && $creatorMenu) {
+          // Masque les éléments suivants pour les rendre invisibles sur la page
+          $wrapperMenuFilter.hide();
+          $pnrMenu.hide();
+          $pnrStatus.hide();
+          $dateRangeMenu.hide();
+          $creatorMenu.hide();
+        } else {
+          console.error('Une ou plusieurs variables ne sont pas définies.');
+        }
+      }
+    } else {
+      console.error('La variable isMenuOpen doit être définie et de type boolean.');
+    }
+  
+    console.log(isMenuOpen);
+  });
+
   // Attache un gestionnaire d'événements pour chaque élément de menu de filtre afin de sélectionner/désélectionner les filtres et d'afficher/cacher les menus correspondants.
   liElements.click(function(li) {
     liElements.removeClass("active");

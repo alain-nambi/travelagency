@@ -1424,11 +1424,10 @@ def get_quotation(request, pnr_id):
     ticket = ''
     vendor_user = None
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
+    config = Configuration.objects.filter(name='File saving configuration', value_name='Saving protocol', environment='test')
 
     file_dir = 'D:\\Projects\\Django\\Issoufali\\travelagency\\AmadeusDecoder\\export'
     customer_dir = 'D:\\Projects\\Django\\Issoufali\\travelagency\\AmadeusDecoder\\export'
-
-    
 
     customer_row = {}
     fieldnames_order = [
@@ -1731,12 +1730,16 @@ def get_quotation(request, pnr_id):
         customer_df = pd.concat([customer_df, pd.DataFrame(csv_customer_lines)])
 
         if not quotation_df.empty and not customer_df.empty:
-            quotation_df.to_csv(os.path.join(file_dir, 'FormatsSaleOrderExportOdoo{}.csv'.format(today)), index=False, sep=';')
-            customer_df.to_csv(os.path.join(customer_dir, 'CustomerExport{}.csv'.format(today)), index=False, sep=';')
-
-        print("------------------Call Odoo import-----------------------")
-        response = requests.get("https://testodoo.issoufali.phidia.fr/web/syncorders")
-        print(response.content)
+            quotation_file = os.path.join(file_dir, 'FormatsSaleOrderExportOdoo{}.csv'.format(today))
+            customer_file = os.path.join(customer_dir, 'CustomerExport{}.csv'.format(today))
+            quotation_df.to_csv(quotation_file, index=False, sep=';')
+            customer_df.to_csv(customer_file, index=False, sep=';')
+            if config.exists() and config.first().single_value == 'FTP':
+                hostname, port, password, username, order_repository, customer_repository, odoo_link = config.first().dict_value.get('hostname'), int(config.first().dict_value.get('port')), config.first().dict_value.get('password'), config.first().dict_value.get('username'), config.first().dict_value.get('repository') + '/Order/', config.first().dict_value.get('repository') + '/Customer/', config.first().dict_value.get('link')
+                upload_file(quotation_file, order_repository, 'FormatsSaleOrderExportOdoo{}.csv'.format(today), username, password, hostname, port)
+                upload_file(customer_file, customer_repository, 'CustomerExport{}.csv'.format(today), username, password, hostname, port)
+                print("------------------Call Odoo import-----------------------")
+                response = requests.get(odoo_link)
         
 
     return JsonResponse(context)

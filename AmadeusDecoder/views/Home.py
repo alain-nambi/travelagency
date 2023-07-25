@@ -20,6 +20,7 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.forms.models import model_to_dict
+from django.conf import settings
 
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.pnr.PnrPassenger import PnrPassenger
@@ -1072,7 +1073,7 @@ def get_order(request, pnr_id):
     vendor_user = None
     user_copy = None
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
-    config = Configuration.objects.filter(name='File saving configuration', value_name='Saving protocol', environment='test')
+    config = Configuration.objects.filter(name='File saving configuration', value_name='Saving protocol', environment=settings.ENVIRONMENT)
 
     
     file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
@@ -1453,6 +1454,9 @@ def get_order(request, pnr_id):
                 upload_file(customer_file, customer_repository, 'CustomerExport{}.csv'.format(today), username, password, hostname, port)
                 print("------------------Call Odoo import-----------------------")
                 response = requests.get(odoo_link)
+            if config.exists() and config.first().single_value == 'Local':
+                print("------------------Call Odoo import-----------------------")
+                response = requests.get(odoo_link)
 
         ticket_not_order = Ticket.objects.filter(pnr=pnr_id, is_invoiced=False, ticket_status=1).exclude(total=0)
         ticket_no_adc_order = Ticket.objects.filter(pnr=pnr_id, is_invoiced=False, ticket_status=1).filter(Q(total=0) & Q(is_no_adc=True))
@@ -1473,7 +1477,7 @@ def get_quotation(request, pnr_id):
     ticket = ''
     vendor_user = None
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
-    config = Configuration.objects.filter(name='File saving configuration', value_name='Saving protocol', environment='test')
+    config = Configuration.objects.filter(name='File saving configuration', value_name='Saving protocol', environment=settings.ENVIRONMENT)
 
     file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
     customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
@@ -1787,6 +1791,9 @@ def get_quotation(request, pnr_id):
                 hostname, port, password, username, order_repository, customer_repository, odoo_link = config.first().dict_value.get('hostname'), int(config.first().dict_value.get('port')), config.first().dict_value.get('password'), config.first().dict_value.get('username'), config.first().dict_value.get('repository') + '/Order/', config.first().dict_value.get('repository') + '/Customer/', config.first().dict_value.get('link')
                 upload_file(quotation_file, order_repository, 'FormatsSaleOrderExportOdoo{}.csv'.format(today), username, password, hostname, port)
                 upload_file(customer_file, customer_repository, 'CustomerExport{}.csv'.format(today), username, password, hostname, port)
+                print("------------------Call Odoo import-----------------------")
+                response = requests.get(odoo_link)
+            if config.exists() and config.first().single_value == 'Local':
                 print("------------------Call Odoo import-----------------------")
                 response = requests.get(odoo_link)
         

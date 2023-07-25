@@ -1762,12 +1762,17 @@ def get_pnr_comment_state(pnr):
 def get_find_fee_reduce_request(pnr, fee):
     from AmadeusDecoder.models.invoice.Fee import ReducePnrFeeRequest
     reduce_pnr_fee_requests = ReducePnrFeeRequest.objects.filter(pnr_id=pnr.id, fee_id=fee.id)
+    fee_reduce_request_found = 0
     if reduce_pnr_fee_requests.exists():
         for reduce_pnr_fee_request in reduce_pnr_fee_requests:
             if reduce_pnr_fee_request.status == 0:
-                return True
+                fee_reduce_request_found += 1
             else:
-                return False
+                fee_reduce_request_found += 0
+        if fee_reduce_request_found > 0:
+            return True
+        else:
+            return False
     else:
         return False
         

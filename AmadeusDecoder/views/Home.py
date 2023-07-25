@@ -1073,7 +1073,7 @@ def get_order(request, pnr_id):
     vendor_user = None
     user_copy = None
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
-    config = Configuration.objects.filter(name='File saving configuration', value_name='Saving protocol', environment=settings.ENVIRONMENT)
+    config = Configuration.objects.filter(name='Saving File Tools', value_name='File protocol', environment=settings.ENVIRONMENT)
 
     
     file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'

@@ -1071,7 +1071,6 @@ def get_order(request, pnr_id):
     fee = ''
     ticket = ''
     vendor_user = None
-    user_copy = None
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
     config = Configuration.objects.filter(name='Saving File Tools', value_name='File protocol', environment=settings.ENVIRONMENT)
 
@@ -1455,8 +1454,10 @@ def get_order(request, pnr_id):
                 print("------------------Call Odoo import-----------------------")
                 response = requests.get(odoo_link)
             if config.exists() and config.first().single_value == 'Local':
+                odoo_link = config.first().dict_value.get('link')
                 print("------------------Call Odoo import-----------------------")
                 response = requests.get(odoo_link)
+                print(response.content)
 
         ticket_not_order = Ticket.objects.filter(pnr=pnr_id, is_invoiced=False, ticket_status=1).exclude(total=0)
         ticket_no_adc_order = Ticket.objects.filter(pnr=pnr_id, is_invoiced=False, ticket_status=1).filter(Q(total=0) & Q(is_no_adc=True))
@@ -1794,6 +1795,7 @@ def get_quotation(request, pnr_id):
                 print("------------------Call Odoo import-----------------------")
                 response = requests.get(odoo_link)
             if config.exists() and config.first().single_value == 'Local':
+                odoo_link = config.first().dict_value.get('link')
                 print("------------------Call Odoo import-----------------------")
                 response = requests.get(odoo_link)
         

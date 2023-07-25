@@ -364,3 +364,19 @@ class ConfigReader():
                 error_file.write('Getting PNR parser tool data failed. \n')
                 traceback.print_exc(file=error_file)
                 error_file.write('\n')
+                
+    # load a chain of configs
+    def load_congig(self):
+        print('Loading configuration ...')
+        self.load_company_info()
+        self.load_email_source()
+        self.load_emd_parser_tool_data()
+        self.load_tst_parser_tool_data()
+        self.load_zenith_parser_tool_data()
+        self.load_zenith_parser_receipt_tool_data()
+        self.load_ticket_parser_tool_data()
+        self.load_fee_request_tool_data()
+        self.load_report_email_data()
+        self.load_pnr_parser_tool_data()
+        print('Configuration loaded.')
+    

@@ -1404,6 +1404,9 @@ def get_order(request, pnr_id):
                 upload_file(customer_file, customer_repository, 'CustomerExport{}.csv'.format(today), username, password, hostname, port)
                 print("------------------Call Odoo import-----------------------")
                 response = requests.get(odoo_link)
+            if config.exists() and config.first().single_value == 'Local':
+                print("------------------Call Odoo import-----------------------")
+                response = requests.get(odoo_link)
 
         ticket_not_order = Ticket.objects.filter(pnr=pnr_id, is_invoiced=False, ticket_status=1).exclude(total=0)
         ticket_no_adc_order = Ticket.objects.filter(pnr=pnr_id, is_invoiced=False, ticket_status=1).filter(Q(total=0) & Q(is_no_adc=True))
@@ -1738,6 +1741,9 @@ def get_quotation(request, pnr_id):
                 hostname, port, password, username, order_repository, customer_repository, odoo_link = config.first().dict_value.get('hostname'), int(config.first().dict_value.get('port')), config.first().dict_value.get('password'), config.first().dict_value.get('username'), config.first().dict_value.get('repository') + '/Order/', config.first().dict_value.get('repository') + '/Customer/', config.first().dict_value.get('link')
                 upload_file(quotation_file, order_repository, 'FormatsSaleOrderExportOdoo{}.csv'.format(today), username, password, hostname, port)
                 upload_file(customer_file, customer_repository, 'CustomerExport{}.csv'.format(today), username, password, hostname, port)
+                print("------------------Call Odoo import-----------------------")
+                response = requests.get(odoo_link)
+            if config.exists() and config.first().single_value == 'Local':
                 print("------------------Call Odoo import-----------------------")
                 response = requests.get(odoo_link)
         

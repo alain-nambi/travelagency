@@ -20,6 +20,7 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.forms.models import model_to_dict
+from django.conf import settings
 
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.pnr.PnrPassenger import PnrPassenger
@@ -1024,7 +1025,7 @@ def get_order(request, pnr_id):
     vendor_user = None
     user_copy = None
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
-    config = Configuration.objects.filter(name='File saving configuration', value_name='Saving protocol', environment='test')
+    config = Configuration.objects.filter(name='File saving configuration', value_name='Saving protocol', environment=settings.ENVIRONMENT)
 
     
     file_dir = 'C:\\Users\\NEC04\\Documents\\Gestion PNR\\travelagency\\AmadeusDecoder\\export'
@@ -1427,7 +1428,7 @@ def get_quotation(request, pnr_id):
     ticket = ''
     vendor_user = None
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
-    config = Configuration.objects.filter(name='File saving configuration', value_name='Saving protocol', environment='test')
+    config = Configuration.objects.filter(name='File saving configuration', value_name='Saving protocol', environment=settings.ENVIRONMENT)
 
     file_dir = 'D:\\Projects\\Django\\Issoufali\\travelagency\\AmadeusDecoder\\export'
     customer_dir = 'D:\\Projects\\Django\\Issoufali\\travelagency\\AmadeusDecoder\\export'

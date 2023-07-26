@@ -20,6 +20,9 @@ from datetime import datetime
 
 if __name__ == '__main__':
     
+    '''
+        !!!! Be careful bellow lines will send emails !!!!
+    '''
     try:
         targeted_request_list = ReducePnrFeeRequest.objects.filter(system_creation_date__date=datetime(2023, 7, 19, 0, 0, 0, 0).date()).all()
         for request in targeted_request_list:

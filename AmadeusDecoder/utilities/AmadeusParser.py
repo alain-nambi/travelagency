@@ -219,7 +219,7 @@ class AmadeusParser(PnrOnlyParser, TicketOnlyParser, PnrCostParser, EMDOnlyParse
                                 temp.parse_emd(temp.needed_content(contents[j:]), temp.get_email_date())
                                 break
                             except:
-                                print('File (EMD) with error: ' + file)
+                                print('File (EMD) with error: ' + str(temp.get_path()))
                                 with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
                                     error_file.write('{}: \n'.format(datetime.datetime.now()))
                                     error_file.write('File (EMD) with error: {} \n'.format(str(temp.get_path())))
@@ -233,7 +233,7 @@ class AmadeusParser(PnrOnlyParser, TicketOnlyParser, PnrCostParser, EMDOnlyParse
                                 temp.parse_ticket(temp.needed_content(contents[j:]), temp.get_email_date())
                                 break
                             except:
-                                print('File (Ticket) with error: ' + file)
+                                print('File (Ticket) with error: ' + str(temp.get_path()))
                                 with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
                                     error_file.write('{}: \n'.format(datetime.datetime.now()))
                                     error_file.write('File (Ticket) with error: {} \n'.format(str(temp.get_path())))
@@ -247,7 +247,7 @@ class AmadeusParser(PnrOnlyParser, TicketOnlyParser, PnrCostParser, EMDOnlyParse
                                 temp.parse_tst(temp.needed_content(contents[j:]))
                                 break
                             except:
-                                print('File (TST) with error: ' + file)
+                                print('File (TST) with error: ' + str(temp.get_path()))
                                 with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
                                     error_file.write('{}: \n'.format(datetime.datetime.now()))
                                     error_file.write('File (TST) with error: {} \n'.format(str(temp.get_path())))
@@ -261,7 +261,7 @@ class AmadeusParser(PnrOnlyParser, TicketOnlyParser, PnrCostParser, EMDOnlyParse
                                 temp.sf_decrease_request_update(temp.needed_content(contents[j:]))
                                 break
                             except:
-                                print('File (REQUEST) with error: ' + file)
+                                print('File (REQUEST) with error: ' + str(temp.get_path()))
                                 with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
                                     error_file.write('{}: \n'.format(datetime.datetime.now()))
                                     error_file.write('File (REQUEST) with error: {} \n'.format(str(temp.get_path())))

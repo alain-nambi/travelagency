@@ -70,6 +70,7 @@ ServiceFeesInput.forEach((inputFees, index) => {
                 $('.fee-total').text(inputCurrentCost);
                 $('#fee-id-request').val(fee_id);
                 $('#fee-origin-cost').val(inputCurrentCost);
+                $("#feeRequestAlert").attr("style", "display: none !important")
             
             
         }
@@ -341,8 +342,28 @@ $(document).ready(function () {
   }
 });
 
-$("#fee-amount-request").attr("disabled", "true");
+function parseDateTimeToFrenchType(datetime) {
+  let dateToday = new Date(datetime);
+  let dateOptions = { month: "long", day: "numeric", year: "numeric" };
+  let hours =
+    dateToday.getHours() < 10 ? `0${dateToday.getHours()}` : dateToday.getHours();
+  let minutes =
+    dateToday.getMinutes() < 10
+      ? `0${dateToday.getMinutes()}`
+      : dateToday.getMinutes();
+  let seconds = 
+    dateToday.getSeconds() < 10
+      ? `0${dateToday.getSeconds()}`
+      : dateToday.getSeconds();
+  let dateHoursForToday = `${dateToday.toLocaleString(
+    "fr-FR",
+    dateOptions
+  )}, à ${hours}:${minutes}:${seconds}`;
+  return dateHoursForToday;
+}
 
+$("#fee-amount-request").attr("disabled", "true");
+$("#feeRequestAlert").attr("style", "display: none !important")
 reduceFeeRequest.addEventListener("click", (e) => {
   fee_id = $("#fee-id-request").val();
   fee_amount = $("#fee-amount-request").val();
@@ -350,7 +371,7 @@ reduceFeeRequest.addEventListener("click", (e) => {
   choice_type = $("input[name=fee-decrease-application]:checked").val();
   motif = $("#feeReduceMotif").val();
 
-  $("#modal-dmdfrs").modal("hide");
+  // $("#modal-dmdfrs").modal("hide");
   $(".loadings").show("fade");
   $(".spinner-wrappers").show();
   $(".spinner-wrappers").css("position", "fixed");
@@ -369,21 +390,65 @@ reduceFeeRequest.addEventListener("click", (e) => {
       motif: motif,
     },
     success: (response) => {
-      // console.log(response);
+      console.log(response);
 
       if (response.status == 1) {
-        toastr.info(response.message);
+        // toastr.info(response.message);
+        $("#feeRequestAlert").attr("style", "display: flex !important; gap: 1rem;")
+        $("#feeRequestAlert").removeClass("alert-info")
+        $("#feeRequestAlert").addClass("alert-success")
+        $("#feeRequestAlert").html(`
+          <i class="fa fa-check" style="font-size: 2rem !important"></i>
+          <span>${response.message}</span>
+        `)
+
+        // hide loader
+        $(".spinner-wrappers").hide();
+        $(".spinner-wrappers").css("position", "relative");
+        setInterval(() => {
+          window.location.reload();
+        }, 1000)
+      } else if (response.status == 3) {
+        // toastr.info(response.message);
+        submitFeeRequest.setAttribute("disabled", true)
+        const datetimeFeeReduceRequest = parseDateTimeToFrenchType(response.date_creation)
+        $("#feeRequestAlert").attr("style", "display: flex !important; gap: 1rem;")
+        $("#feeRequestAlert").removeClass("alert-success")
+        $("#feeRequestAlert").addClass("alert-info")
+        $("#feeRequestAlert").html(`
+          <i class="fa fa-exclamation-triangle" style="font-size: 2.5rem !important"></i>
+          <div class="d-flex" style="flex-direction: column">
+            <span class="text-center">Une demande de diminution est déja en cours. Veuillez attendre la validation s'il vous plaît...</span>
+            <span style="width: 100%; height: 1px; background: white; margin: 6px 0 6px 0;"></span>
+            <span>
+              <strong class="text-white">
+                Montant demandée: ${response.fee_origin} 
+                <i class="fa-solid fa-euro-sign"></i>
+                <i class="fa-solid fa-arrow-right"></i>
+              </strong>
+              
+              <strong class="text-warning"> ${response.fee_amount}
+                <i class="fa-solid fa-euro-sign"></i>
+              </strong>
+            </span>
+            <span><strong class="text-white">Date du demande: </strong>${datetimeFeeReduceRequest}</span>
+            <span><strong class="text-white">Demandé(e) par: </strong>${response.user}</span>
+          </div>
+        `)
 
         // hide loader
         $(".spinner-wrappers").hide();
         $(".spinner-wrappers").css("position", "relative");
       } else {
         toastr.error(response.message);
+        $("#modal-dmdfrs").modal("hide");
+
         // hide loader
         $(".spinner-wrappers").hide();
         $(".spinner-wrappers").css("position", "relative");
+        window.location.reload();
       }
-      window.location.reload();
+      // window.location.reload();
       // toastr.info('');
     },
     error: (response) => {
@@ -757,15 +822,11 @@ document.getElementById("save").addEventListener("click", (e) => {
         window.location.reload();
       },
       error: (response) => {
-        $("#error-saving").show();
+        console.log(response);
       },
     });
   }
 });
-
-document.getElementById('refresh-after-error').addEventListener('click', ()=> {
-  window.location.reload();
-})
 
 document.querySelectorAll(".delete-other-fee-row").forEach((button) => {
   button.addEventListener("click", (e) => {
@@ -1012,10 +1073,10 @@ if (button__createCustomer != null) {
 
         try {
           if (response) {
-            select__customersList.innerHTML += `
-              <option value=${response.clientId} selected="true"> ${response.clientIntitule} </option> 
-            `;
-          }
+            select__customersList.insertAdjacentHTML('afterbegin', `
+              <option value=${response.clientId} selected="true"> ${response.clientIntitule} </option>
+            `);
+          } 
         } catch (error) {
           console.log('====================================');
           console.log("CLIENT NOT FOUND")

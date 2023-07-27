@@ -1365,3 +1365,8 @@ button[cy-data="span-creator-name"]:hover,
 button[cy-data="span-date-range"]:hover {
 	background-color: #dc3848a6 !important
 }
+
+.select2-results__option.select2-results__message {
+	background: #17a2b8 !important;
+	color: #fff;
+}

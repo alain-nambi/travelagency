@@ -15,9 +15,9 @@ class PassengerInvoice(models.Model):
     pnr = models.ForeignKey('Pnr', on_delete=models.CASCADE, related_name='passenger_invoice')
     client = models.ForeignKey('Client', on_delete=models.CASCADE, null=True)
     user_follower = models.ForeignKey('User', on_delete=models.CASCADE)
-    ticket = models.OneToOneField('Ticket', on_delete=models.CASCADE, default=False, null=True)
-    fee = models.OneToOneField('Fee', on_delete=models.CASCADE, default=False, null=True)
-    other_fee = models.OneToOneField('OthersFee', on_delete=models.CASCADE, default=None, null=True)
+    ticket = models.ForeignKey('Ticket', on_delete=models.CASCADE, default=False, null=True)
+    fee = models.ForeignKey('Fee', on_delete=models.CASCADE, default=False, null=True)
+    other_fee = models.ForeignKey('OthersFee', on_delete=models.CASCADE, default=None, null=True)
 
     reference = models.CharField(max_length=100)
     is_invoiced = models.BooleanField(default=False)

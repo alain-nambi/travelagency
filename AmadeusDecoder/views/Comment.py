@@ -9,6 +9,8 @@ from AmadeusDecoder.models.user.Users import User
 from AmadeusDecoder.utilities.SendMail import Sending
 from datetime import date
 
+from django.db.models import Q
+
 
 @login_required(login_url='index')
 def comment(request):
@@ -61,8 +63,10 @@ def comment(request):
 
 @login_required(login_url='index')
 def comment_list(request):
+    maximum_timezone = "2023-01-01 01:00:00.000000+03:00"
+    
     context = {}
-    comments = Comment.objects.all().order_by("-creation_date")
+    comments = Comment.objects.filter(Q(creation_date__gt=maximum_timezone)).order_by("-creation_date")
     context['comments'] = comments
 
     return render(request, 'comment-list.html', context)

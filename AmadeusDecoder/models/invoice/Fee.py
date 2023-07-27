@@ -76,13 +76,6 @@ class OthersFee(models.Model, BaseModel):
         null=True
     )
 
-    emitter = models.ForeignKey(
-        "AmadeusDecoder.User",
-        on_delete=models.CASCADE,
-        related_name='emitted_other_fees',
-        null=True
-    )
-
     designation = models.CharField(max_length=100, null=True)
     quantity = models.IntegerField(default=1)
     value = models.DecimalField(max_digits=11, decimal_places=4, null=True)

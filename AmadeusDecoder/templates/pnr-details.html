@@ -124,11 +124,7 @@
 													<i class="fa fa-chevron-left"></i>
 												</button>
 
-												<span id="pnrPosition" class="text-sm">
-													<div class="spinner-border spinner-border-sm" role="status">
-														<span class="sr-only">Loading...</span>
-													</div>
-												</span>
+												<span id="pnrPosition" class="text-sm"></span>
 
 												<button type="button" id="nextPNR" class="next-pnr ml-2 btn btn-sm btn-primary" title="Suivant">
 													<i class="fa fa-chevron-right"></i>
@@ -171,11 +167,11 @@
 												<span class="details-span text-primary">Client</span>
 												{% with pnr|get_order_customer as order_customer %}
 													{% if order_customer is not None and pnr.status_value == 1 %}
-														<select class="form-control form-control-sm customer-select sm-height" style="display: none; font-size: 12px;" id="customer-list" name="customer-selection-input" data-live-search="true" data-placeholder="Sélectionner" >		
+														<select class="form-control form-control-sm customer-select sm-height" style="display: none; font-size: 12px;" id="customer-list" name="customer-selection-input" data-placeholder="Sélectionner le client" >		
 															<option value="" id=""></option>																						
-															{% for client in clients %}
+															{% comment %} {% for client in clients %}
 																<option value="{{ client.id }}">{{ client }} </option>
-															{% endfor %}
+															{% endfor %} {% endcomment %}
 														</select>
 														{% for order in order_customer %}
 															{% if order.ticket is not None or order.invoice_id is not None %}
@@ -236,11 +232,11 @@
 															{% endif %}
 														{% endfor %}
 													{% else %}
-														<select class="form-control form-control-sm customer-select sm-height" style="display: none; font-size: 12px;" id="customer-list" name="customer-selection-input" data-live-search="true" data-placeholder="Sélectionner" >		
+														<select class="form-control form-control-sm customer-select sm-height" style="display: none; font-size: 12px;" id="customer-list" name="customer-selection-input" data-placeholder="Sélectionner le client" >		
 															<option value="" id=""></option>																						
-															{% for client in clients %}
+															{% comment %} {% for client in clients %}
 																<option value="{{ client.id }}">{{ client }} </option>
-															{% endfor %}
+															{% endfor %} {% endcomment %}
 														</select>
 													{% endif %}
 													{% for other_fee in other_fees %}
@@ -641,14 +637,14 @@
 												<th>Date d'émission</th>
 												<th>Date de commande</th>
 												<th>Numéro de commande</th>
-												<th>Émetteur</th>
+												<!--<th>Status</th>-->
 												<th width="10%">Référence</th>
 												<th width="2%"></th>
 												<th width="2%"></th>
 											</tr>
 										</thead>
 										<tbody id="table-ticket-fees-body">
-											{% for ticket in tickets %}
+										{% for ticket in tickets %}
 											{% with ticket|ticket_not_ordered as ticket_not_ordered %}
 											{% with ticket|ticket_cancel_void_status as ticket_cancel_void_status %}
 											<tr class="{%if ticket_not_ordered.is_invoiced or ticket_not_ordered.is_quotation %} text-success {%endif%} {% if ticket_cancel_void_status %} text-primary {% endif %}">
@@ -725,7 +721,6 @@
 														{% endif %}
 													{% endif %}
 												</td>
-												<td>{{ ticket.emitter.username }}</td>
 												<td>
 													{% if ticket.is_refund and not ticket.is_deposit %}
 														{{ "Remboursement" }}
@@ -746,70 +741,6 @@
 												</td>
 											</tr>
 											{% endwith %}
-											
-											
-											<!-- Ticket-related other fee -->
-											<!--{% with ticket|ticket_other_fee as temp_other_fee %}
-												{% if temp_other_fee is not None %}
-													<tr class="tr-other-fees {% if other_fees_orders is not None %} text-success {% else %} text-primary {% endif %} " data-other-fee-id = "{{other_fee.id}}">
-														<td><span class="type" style="font-size: 12px;">{{ temp_other_fee.fee_type }}</span></td>
-														<td><span class="billet">{{ temp_other_fee.designation }}</span></td>
-														{% if temp_other_fee|ancillary_passenger is not None %}
-														<td>
-															{{ temp_other_fee|ancillary_passenger }}
-														</td>
-														{% else %}
-														<td> </td>
-														{% endif %}
-														<td><span class="montant">{{ temp_other_fee.cost|floatformat:'2' }}</span>
-														</td>
-														<td><span class="montant">{{ temp_other_fee.tax|floatformat:'2' }}</span></td>
-														<td><span class="montant ticket" value="{{ temp_other_fee.total|floatformat:'2' }}">{{ temp_other_fee.total|floatformat:'2' }}</span></td>
-														{% if temp_other_fee|ancillary_passenger_segment != '' %}
-														<td>
-															{{ temp_other_fee|ancillary_passenger_segment }}
-														</td>
-														{% else %}
-														<td>
-															{% if temp_other_fee.passenger_segment is not None %}
-																{{ temp_other_fee.passenger_segment }}
-															{% endif %}
-														</td>
-														{% endif %}
-														<td>
-															{% if temp_other_fee.creation_date is not None %}
-																{{ temp_other_fee.creation_date|date:"d/m/y" }}
-															{% else %}
-																{{ 'Non émis' }}
-															{% endif %}
-														</td>
-														<td>
-															{% if temp_other_fee.pnr_id is not None and temp_other_fee.pnr_id|other_fee_datetime_invoice_created:temp_other_fee.id is not None %}
-																{{ temp_other_fee.pnr_id|other_fee_datetime_invoice_created:temp_other_fee.id|date:"d/m/y" }}
-															{% else %}
-																{{ '' }}
-															{% endif %}
-														</td>
-														<td>
-															{% if temp_other_fee.pnr_id is not None %}
-																{% if temp_other_fee.pnr_id|other_fee_invoice_number:temp_other_fee.id is not None %}
-																	{{ temp_other_fee.pnr_id|other_fee_invoice_number:temp_other_fee.id }}
-																{% else %}
-																	{{ '' }}
-																{% endif %}
-															{% endif %}
-														</td>
-														<td>{{temp_other_fee.emitter.username}}</td>
-														<td></td>
-														{% if other_fees_orders is not None%}
-														<td class="checkbox"><input type="checkbox" class="to-hide-when-cancel other-fees-check p-checkbox other-fees-checkboxes check{{ temp_other_fee.id }} checkbox-line-below" id="passagers-check" data-other-fees-id = "{{temp_other_fee.id}}" data-id="{{ temp_other_fee.id }}" data-commune-id = "{{temp_other_fee.id}}" data-amount-total="{{ temp_other_fee.total|floatformat:'2' }}" data-type="other-fee" checked hidden></td>
-														{% else %}
-														<td class="checkbox"><input type="checkbox" class="to-hide-when-cancel other-fees-check p-checkbox other-fees-checkboxes check{{ temp_other_fee.id }} checkbox-line-below" id="passagers-check" data-other-fees-id = "{{temp_other_fee.id}}" data-id="{{ temp_other_fee.id }}" data-commune-id = "{{temp_other_fee.id}}" data-amount-total="{{ temp_other_fee.total|floatformat:'2' }}" data-type="other-fee" checked disabled></td>
-														{% endif %}
-														
-													</tr>
-												{% endif %}
-											{% endwith %}-->
 											
 											{% with ticket.id|fee as fee %}
 											{% if fee is not None %}
@@ -876,7 +807,6 @@
 												</td>
 												<td>{{ '' }}</td>
 												<td>{{ '' }}</td>
-												<td>{{ '' }}</td>
 												<td class="checkbox">
 													{% if fee_not_ordered %}
 														<input type="checkbox" class="to-hide-when-cancel passagers-check checkto{{ticket.passenger.id}} checkbox-line-below ticket-fee-checkbox" id="passagers-check" data-amount-total="{{ fee.total|floatformat:'2' }}" data-id="{{ ticket.passenger.id }}" data-commune-id = "{{ticket.id}}" data-type="fee" checked hidden>
@@ -890,9 +820,9 @@
 											{% endif %}
 											{% endwith %}
 											{% endwith %}
-											{% endfor %}
+										{% endfor %}
 											<!-- Other fees -->
-											{% for other_fee in other_fees %}
+										{% for other_fee in other_fees %}
 											{% with other_fee|other_fees_orders as other_fees_orders %}
 											{% with other_fee|other_fee_cancel_void_status as other_fee_cancel_void_status %}
 											<tr class="tr-other-fees {% if other_fees_orders is not None and other_fees_orders.is_invoiced %} text-success {% endif %} {% if other_fee_cancel_void_status or other_fee.ticket is not None or other_fee.other_fee is not None %} text-primary {% endif %}" data-other-fee-id = "{{other_fee.id}}">
@@ -943,8 +873,7 @@
 														{% endif %}
 													{% endif %}
 												</td>
-												<td>{{ other_fee.emitter.username }}</td>
-												<td></td>
+												<td>{{other_fee.emitter.usename}}</td>
 												<td></td>
 												{% if other_fees_orders is not None or other_fee_cancel_void_status or other_fee.ticket is not None or other_fee.other_fee is not None %}
 												<td class="checkbox"><input type="checkbox" class="to-hide-when-cancel other-fees-check p-checkbox other-fees-checkboxes check{{ other_fee.id }} checkbox-line-below" id="passagers-check" data-other-fees-id = "{{other_fee.id}}" data-id="{{ other_fee.id }}" data-commune-id = "{{other_fee.id}}" data-amount-total="{{ other_fee.total|floatformat:'2' }}" data-type="other-fee" checked hidden></td>
@@ -1019,7 +948,6 @@
 												</td>
 												<td>{{ '' }}</td>
 												<td>{{ '' }}</td>
-												<td>{{ '' }}</td>
 												{% if other_fees_fees_orders is not None %}
 												<td class="checkbox"><input type="checkbox" class="to-hide-when-cancel p-checkbox checkto{{other_fee.id}} other-fee-fee-checkbox" id="passagers-check checkbox-line-below" data-amount-total= "{{ fee.total|floatformat:'2' }}" data-commune-id = "{{other_fee.id}}" data-type="fee" checked hidden></td>
 												{% else %}
@@ -1032,7 +960,7 @@
 											{% endwith %}
 											{% endwith %}
 											{% endwith %}
-											{% endfor %}
+										{% endfor %}
 											
 											<tr class="new-line" hidden>
 												<td id="product-type-initial">Autres</td>
@@ -1054,7 +982,6 @@
 												<td name="total-input-line" style="padding-top:15px; text-align:right;"></td>
 												<td><input type="text" class="form-control form-control-sm"
 														placeholder="Passager/Segment" name="passenger-input-line"></td>
-												<td></td>
 												<td></td>
 												<td></td>
 												<td></td>
@@ -1540,7 +1467,7 @@
 	</div>
 </div>
 <!--modal add customer-->
-<div class="modal fade" id="add-customer" style="display: none; z-index: 1080" aria-hidden="true">
+<div class="modal fade" id="add-customer" style="display: none; z-index: 1080; overflow-y: auto;" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -1742,10 +1669,10 @@
 				<div class="mb-2">
 					<label class="form-label mb-0">Intitulé</label>
 					<p id="modalBodyCustomerIntitule"></p>
-					<select class="form-control form-control-sm sm-height customer-modification-selection" style="font-size: 12px;" id="customerModificationSelectionList" data-live-search="true" data-placeholder="Sélectionner" >																								
-						{% for client in clients %}
+					<select class="form-control form-control-sm sm-height customer-modification-selection" style="font-size: 12px;" id="customerModificationSelectionList" data-live-search="true" data-placeholder="Sélectionner le client" >																								
+						{% comment %} {% for client in clients %}
 							<option value="{{ client.id }}">{{ client }} </option>
-						{% endfor %}
+						{% endfor %} {% endcomment %}
 					</select>
 					{% with pnr|passenger_informations as passenger_informations %}
 						<a 
@@ -1925,12 +1852,15 @@
 						id="feeReduceMotif" 
 						placeholder="Quel est le motif ?"
 					required></textarea>
-				  </div>
+				</div>
 				<div class="input-group mb-2">
 					<label for="only-current-ticket">Appliquer sur ce billet seulement</label>
 					<input type="radio" class="form-control" id="only-current-ticket" name="fee-decrease-application" value="one" checked>
 					<label for="all-ticket">Appliquer sur tous les billets</label>
 					<input type="radio" class="form-control" id="all-ticket" name="fee-decrease-application" value="all">
+				</div>
+				<div class="alert align-items-center justify-content-center" role="alert" id="feeRequestAlert">
+					A simple warning alert—check it out!
 				</div>
 			</div>
 			<div class="modal-footer">
@@ -2021,24 +1951,6 @@
 		<button type="button" class="btn btn-success" id="exitRemoveCustomer"><i class="fa-solid fa-trash"></i> Confirmer</button>
 		<button type="button" class="btn btn-danger" data-dismiss="modal"><i></i>Annuler</button>
 		</div>
-		</div>
-	</div>
-</div>
-<div class="modal" tabindex="-1" role="dialog" id="error-saving">
-	<div class="modal-dialog" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title text-danger">Érreur</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-				<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-			<div class="modal-body">
-				<p class="text-danger">Une érreur est survenue lors de l'enregistrement, veuillez réessayer après avoir actualiser la page.</p>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-primary" data-dismiss="modal" id="refresh-after-error">Actualiser</button>
-			</div>
 		</div>
 	</div>
 </div>

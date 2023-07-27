@@ -383,6 +383,37 @@ $(function() {
     $creatorMenu.hide();
   });
 
+  document.addEventListener('click', function(event) {
+    console.log(event.target);
+  
+    // Vérifie si la variable isMenuOpen est définie et est de type boolean
+    if (typeof isMenuOpen === 'boolean') {
+      // Vérifie si le menu est ouvert (isMenuOpen est true) et si l'élément cliqué se trouve en dehors du menu
+      if (isMenuOpen && !event.target.closest("#buttonMenuFilter, .wrapper-menu-filter, .pnr-menu, .pnr-status, .date-range-menu, .creator-group-menu, .filter-menu > .list, .pnr-menu .pnr-list, .pnr-status .pnr-list, #reportrange, .daterangepicker, .next, .prev")) {
+        // Si les conditions sont remplies, cela signifie que vous avez cliqué en dehors du menu, donc le menu doit être fermé
+  
+        // Inverse la valeur de isMenuOpen (true devient false, et vice versa)
+        isMenuOpen = !isMenuOpen;
+  
+        // Vérifie si les variables sont définies avant de les utiliser
+        if ($wrapperMenuFilter && $pnrMenu && $pnrStatus && $dateRangeMenu && $creatorMenu) {
+          // Masque les éléments suivants pour les rendre invisibles sur la page
+          $wrapperMenuFilter.hide();
+          $pnrMenu.hide();
+          $pnrStatus.hide();
+          $dateRangeMenu.hide();
+          $creatorMenu.hide();
+        } else {
+          console.error('Une ou plusieurs variables ne sont pas définies.');
+        }
+      }
+    } else {
+      console.error('La variable isMenuOpen doit être définie et de type boolean.');
+    }
+  
+    console.log(isMenuOpen);
+  });
+
   // Attache un gestionnaire d'événements pour chaque élément de menu de filtre afin de sélectionner/désélectionner les filtres et d'afficher/cacher les menus correspondants.
   liElements.click(function(li) {
     liElements.removeClass("active");
@@ -1273,25 +1304,80 @@ setInterval(blinker, 1000);
 
 //
 $(document).ready(function () {
-  var typed = "";
+  // var typed = "";
   if ($(".customer-select").length > 0) {
-    $(".customer-select").select2({
-      placeholder: "Sélectionner client",
-      allowClear: true,
-      language: {
-        noResults: function (term) {
-          typed = $(".select2-search__field").val();
-        },
-      },
-    });
-    $(".customer-select").on("select2:select", function (e) {
-      typed = ""; // clear
-    });
+    // $(".customer-select").select2({
+    //   placeholder: "Sélectionner client",
+    //   allowClear: true,
+    //   language: {
+    //     noResults: function (term) {
+    //       typed = $(".select2-search__field").val();
+    //     },
+    //   },
+    // });
+    // $(".customer-select").on("select2:select", function (e) {
+    //   typed = ""; // clear
+    // });
     $(".edit-customer").click(function () {
       $("#show-customer").modal("hide");
       $("#edit-customers").modal("show");
     });
   }
+
+  // console.log($(".select2-search__field"));
+
+  // Allow searching customer directly on database
+  $('.customer-select').select2({
+    placeholder: "Sélectionner client",
+    allowClear: true,
+    "language": {
+      "noResults": function(){
+          const noResultsFoundHTML = `
+            <div class="d-flex align-items-center" style="gap: 1rem;"> 
+              <i class="fa fa-search" aria-hidden="true"></i>
+              <span class="text-sm"> 
+                <strong class="text-sm">
+                  Aucun résultat trouvé. <br> 
+                </strong>
+                <span style="display: block; width: 100%; height: 1px; background: #fff; margin: 6px 0 6px 0;"></span>
+                Veuillez taper 
+                <strong class="text-sm"> le nom <span class="text-warning text-sm">exact</span> du client </strong> 
+              </span>
+            </div>
+          ` 
+
+          return noResultsFoundHTML;
+      }
+    },
+    escapeMarkup: function (markup) {
+        return markup;
+    },
+    ajax: {
+      type: 'POST',
+      url: '/home/search-customer/',
+      dataType: 'json',
+      delay: 250,
+      data: function (params) {
+        const query =
+          params.term && params.term.trim() !== ""
+            ? { term: params.term, csrfmiddlewaretoken: csrftoken }
+            : { csrfmiddlewaretoken: csrftoken };
+
+        return query;
+      },
+      processResults: function (data) {
+        // console.log(data);
+        return {
+          results: $.map(data, function (item) {
+            return {
+              text: `${item.intitule} (${item.id})` ,
+              id: item.id
+            }
+          })
+        };
+      },
+    }
+  });
 });
 
 /*************************
@@ -1303,11 +1389,53 @@ $(document).ready(function () {
     $(".customer-modification-selection").select2({
       placeholder: "Sélectionner client",
       allowClear: true,
-      language: {
-        noResults: function (term) {
-          typed = $(".select2-search__field").val();
+      "language": {
+        "noResults": function(){
+            const noResultsFoundHTML = `
+              <div class="d-flex align-items-center" style="gap: 1rem;"> 
+                <i class="fa fa-search" aria-hidden="true"></i>
+                <span class="text-sm"> 
+                  <strong class="text-sm">
+                    Aucun résultat trouvé. <br> 
+                  </strong>
+                  <span style="display: block; width: 100%; height: 1px; background: #fff; margin: 6px 0 6px 0;"></span>
+                  Veuillez taper 
+                  <strong class="text-sm"> le nom <span class="text-warning text-sm">exact</span> du client </strong> 
+                </span>
+              </div>
+            ` 
+  
+            return noResultsFoundHTML;
         },
       },
+      escapeMarkup: function (markup) {
+        return markup;
+      },
+      ajax: {
+        type: 'POST',
+        url: '/home/search-customer/',
+        dataType: 'json',
+        delay: 250,
+        data: function (params) {
+          const query =
+            params.term && params.term.trim() !== ""
+              ? { term: params.term, csrfmiddlewaretoken: csrftoken }
+              : { csrfmiddlewaretoken: csrftoken };
+  
+          return query;
+        },
+        processResults: function (data) {
+          // console.log(data);
+          return {
+            results: $.map(data, function (item) {
+              return {
+                text: `${item.intitule} (${item.id})`,
+                id: item.id
+              }
+            })
+          };
+        }
+      }
     });
 
     const selectSelect2Container =
@@ -3939,44 +4067,45 @@ if (managePnrToSwitch && managePnrToSwitch.getAttribute("data-pnr-to-switch")) {
       );
     } else {
       console.log("Aucune donnée n'a été récupérée");
+      $("#pnrPosition").text("1 sur 1");
     }
   } catch (error) {
     console.log(`Une erreur lors de la récupération des données : ${error}`);
     console.log(error);
 
     // Remove loading effect
-    $("#pnrPosition").text("");
+    $("#pnrPosition").text("1 sur 1");
 
-    // Get the span element with the id "pnrPosition"
-    const pnrPosition = document.getElementById("pnrPosition");
+    // // Get the span element with the id "pnrPosition"
+    // const pnrPosition = document.getElementById("pnrPosition");
 
-    // Create a new div element
-    const newDiv = document.createElement("div");
+    // // Create a new div element
+    // const newDiv = document.createElement("div");
 
-    // Add a button to the new div
-    newDiv.innerHTML += `
-      <button id="goBackHome" class="btn btn-sm btn-secondary" title="Revenir dans le menu principal"> Cliquer ici </button>
-    `;
+    // // Add a button to the new div
+    // newDiv.innerHTML += `
+    //   <button id="goBackHome" class="btn btn-sm btn-secondary" title="Revenir dans le menu principal"> Cliquer ici </button>
+    // `;
 
-    // Append the new div element to the span element
-    pnrPosition.appendChild(newDiv);
+    // // Append the new div element to the span element
+    // pnrPosition.appendChild(newDiv);
 
     // Disabled buttons
     buttonNextPNR.setAttribute("disabled", true);
     buttonPreviousPNR.setAttribute("disabled", true);
 
-    // Redirect to home page on click button
-    $("#goBackHome").click(function (e) {
-      e.preventDefault();
-      goBackHome();
-    });
+    // // Redirect to home page on click button
+    // $("#goBackHome").click(function (e) {
+    //   e.preventDefault();
+    //   goBackHome();
+    // });
 
-    function goBackHome() {
-      const url = window.location.href;
-      const baseUrl = url.split("/").slice(0, 4).join("/");
-      // Redirect to home page
-      window.location.href = baseUrl;
-    }
+    // function goBackHome() {
+    //   const url = window.location.href;
+    //   const baseUrl = url.split("/").slice(0, 4).join("/");
+    //   // Redirect to home page
+    //   window.location.href = baseUrl;
+    // }
   }
 } else {
   console.log(

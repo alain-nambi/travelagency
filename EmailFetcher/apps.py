@@ -129,12 +129,13 @@ def fetch_email():
         # email_listener_obj.app_password = "lhlyyumveqvyqhqo"
         # email_listener_obj.email = "central.dev19@gmail.com"
         # email_listener_obj.app_password = "aqygdmkcedxmimyk"
+        print(EMAIL_PNR)
         email_listener_obj.email = EMAIL_PNR['address']
         email_listener_obj.app_password = EMAIL_PNR['password']
         # email_listener_obj.email = "issoufali.pnr@outlook.com"
         # email_listener_obj.app_password = "Mgbi@261!+"
         email_listener_obj.folder = "Inbox"
-        email_listener_obj.attachments_dir = os.path.join(os.getcwd(), "EmailFetcher\\utilities\\attachments_dir\\")
+        email_listener_obj.attachments_dir = os.path.join(os.getcwd(), "EmailFetcher/utilities/attachments_dir/")
         email_listener_obj.fetch_email()
     except Exception:
         traceback.print_exc()
@@ -229,6 +230,6 @@ class EmailfetcherConfig(AppConfig):
         # dest_dir = '/export/products'
         
         # send daily pnr fee update report
-        daily_thread_once = Thread(target=send_fee_update_list)
-        daily_thread_once.start()
+        # daily_thread_once = Thread(target=send_fee_update_list)
+        # daily_thread_once.start()
 

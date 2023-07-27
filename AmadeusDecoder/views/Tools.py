@@ -18,7 +18,7 @@ def tools(request):
 def call_product_import(request):
     status = ''
     try:
-        directory = 'C:\\Users\\NEC04\\Documents\\Gestion PNR\\csv\\Products'
+        directory = 'D:\Projects\Django\csv\Products'
         for file in os.listdir(directory):
             if os.path.isfile(os.path.join(directory, file)):
                 ProductParser.import_product(os.path.join(directory, file), directory)
@@ -33,7 +33,7 @@ def call_product_import(request):
 def call_customer_import(request):
     status = ''
     try:
-        directory = 'C:\\Users\\NEC04\\Documents\\Gestion PNR\\csv\\Contacts'
+        directory = 'D:\Projects\Django\csv\Contacts'
         for file in os.listdir(directory):
             if os.path.isfile(os.path.join(directory, file)):
                 CustomerParser.import_customer(os.path.join(directory, file), directory)

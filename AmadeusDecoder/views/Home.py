@@ -15,7 +15,7 @@ import AmadeusDecoder.utilities.configuration_data as configs
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -527,7 +527,7 @@ def pnr_details(request, pnr_id):
     context['tickets'] = pnr_detail.tickets.filter(ticket_status=1).filter(Q(total__gt=0) | Q(is_no_adc=True) | (Q(is_refund=True) & Q(total__lt=0))).all().order_by('passenger_id')
     # context['tickets'] = pnr_detail.tickets.filter().all()
     context['other_fees'] = pnr_detail.others_fees.filter(other_fee_status=1, ticket=None).all()
-    context['clients'] = Client.objects.all().order_by('intitule')
+    # context['clients'] = Client.objects.all().order_by('intitule')
     context['users'] = User.objects.all()
     context['comments'] = Comment.objects.filter(pnr_id=pnr_id)
     context['responses'] = Response.objects.filter(pnr_id=pnr_id)
@@ -815,23 +815,49 @@ def reduce_fee(request) :
         feeOriginAmount = request.POST.get('feeOriginAmount')
         choiceType = request.POST.get('choiceType')
         motif = request.POST.get('motif')
-        
-        try :
-            subject, message = ServiceFeesDecreaseRequest().inquiry_formatting(choiceType, request, feeId, pnrId, feeOriginAmount, feeAmount, motif)
-            
-            context['status'] = 1 
-            context['message'] = "Demande envoyée avec succès."
-            
-            Sending.send_email_request(
-                configs.FEE_REQUEST_SENDER['address'],
-                configs.FEE_REQUEST_RECIPIENT,
-                subject,
-                message
-            )
-        except Exception as e :
-            raise e
+
+        # Code à vérifier car changement radical dans le processus de demande de diminution de frais de service
+        if pnrId is not None and feeId is not None:
+            reduce_fee_request_ongoing = ReducePnrFeeRequest.objects.filter(pnr=pnrId, fee=feeId, status=0).last()
+            print(reduce_fee_request_ongoing)
+            if reduce_fee_request_ongoing is not None:
+                fee_amount = round(reduce_fee_request_ongoing.amount, 2)
+                fee_origin = round(reduce_fee_request_ongoing.origin_amount, 2)
+                date_creation = reduce_fee_request_ongoing.system_creation_date
+                user = reduce_fee_request_ongoing.user.username
+
+                context['status'] = 3
+                context['fee_amount'] = fee_amount
+                context['fee_origin'] = fee_origin
+                context['user'] = user
+                context['date_creation'] = date_creation
+            else:
+                try :
+                    subject, message = ServiceFeesDecreaseRequest().inquiry_formatting(choiceType, request, feeId, pnrId, feeOriginAmount, feeAmount, motif)
+                    
+                    context['status'] = 1 
+                    context['message'] = "Demande envoyée avec succès."
+                    
+                    Sending.send_email_request(
+                        "feerequest.issoufali.pnr@gmail.com",
+                        [
+                            # "superviseur@agences-issoufali.com",
+                            # "pp@phidia.onmicrosoft.com",
+                            "mihaja@phidia.onmicrosoft.com",
+                            # "tahina@phidia.onmicrosoft.com",
+                            # "famenontsoa@outlook.com"
+                            # "alain@phidia.onmicrosoft.com"
+                        ],
+                        subject,
+                        message
+                    )
+                except Exception as e :
+                    context['status'] = 0
+                    context['message'] = "ERREUR: %s " % str(e)
+                    raise e
+        else:
             context['status'] = 0
-            context['message'] = "ERREUR: %s " % str(e)
+            context['message'] = "ERREUR: Impossible d'envoyer la demande."
 
     else :
         context['status'] = 0
@@ -852,16 +878,14 @@ def save_pnr_detail_modification(request, pnr_id):
             user = User.objects.get(pk=int(request.user.id))
             if ticket_checked != [] and ticket_checked != '' and customer_id != '':
                 customer = Client.objects.get(pk=int(customer_id))
-                orders = PassengerInvoice.objects.filter(pnr=pnr)
-                print(ticket_checked)
+                passenger_invoice = PassengerInvoice.objects.filter(pnr=pnr)
 
 
                 if pnr.status_value == 0:
                     print('Entry issuing part')
-                    if orders.filter(status='sale').exists():
+                    if passenger_invoice.filter(status='sale').exists():
                         print('Enty to issuing first part with : ' + str(ticket_checked))
                         count = 0
-                        passenger_invoice = orders.filter(status='sale')
                         for ids in ticket_checked:
                             tickets = Ticket.objects.filter(pk=int(ids), pnr=pnr_id, ticket_status=1).exclude(ticket_type='TST')
                             for ticket in tickets:
@@ -879,10 +903,14 @@ def save_pnr_detail_modification(request, pnr_id):
                                                 invoice_fee_passenger = PassengerInvoice(
                                                     fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, status='sale')
                                                 invoice_fee_passenger.save()
+                                            else:
+                                                invoice_fee_passenger.filter(is_invoiced=False).update(
+                                                    fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, status='sale')
+                                else:
+                                    passenger_invoice.filter(ticket=ticket.id, is_invoiced=False).update(ticket=ticket, pnr=pnr, type=ticket.ticket_type, client=customer, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, fee=None, status='sale')
 
-                    elif not orders.filter(status='sale').exists():
+                    elif not passenger_invoice.filter(status='sale').exists():
                         print('Enty to issuing second part with : ' + str(ticket_checked))
-                        passenger_invoice = orders.filter(status='sale')
                         for ids in ticket_checked:
                             tickets = Ticket.objects.filter(pk=int(ids), pnr=int(pnr_id), ticket_status=1).exclude(ticket_type='TST')
                             for ticket in tickets:
@@ -899,6 +927,10 @@ def save_pnr_detail_modification(request, pnr_id):
                                                 invoice_fee_passenger = PassengerInvoice(
                                                     fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, status='sale', other_fee=None)
                                                 invoice_fee_passenger.save()
+                                            else:
+                                                invoice_fee_passenger.filter(is_invoiced=False).update(fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, status='sale')
+                                else:
+                                    passenger_invoice.filter(ticket=ticket.id, is_invoiced=False).update(ticket=ticket, pnr=pnr, type=ticket.ticket_type, client=customer, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, fee=None, status='sale')
 
                 elif pnr.status_value == 1:
                     count = 0
@@ -910,7 +942,10 @@ def save_pnr_detail_modification(request, pnr_id):
                             count+=1
                             print('Count : ' + str(count))
                             invoice_tickets_passenger = PassengerInvoice.objects.filter(ticket=ticket_object.id, pnr=int(pnr_id))
-                            if not invoice_tickets_passenger.exists():
+                            if invoice_tickets_passenger.exists():
+                                invoice_tickets_passenger.update(ticket=ticket_object, pnr=pnr, type=ticket_object.ticket_type, client=customer, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, fee=None, status='quotation', other_fee=None)
+                                print('ticket unissued updated')
+                            else:
                                 invoice_tickets_passenger = PassengerInvoice(ticket=ticket_object, pnr=pnr, type=ticket_object.ticket_type, client=customer, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, fee=None, status='quotation', other_fee=None)
                                 invoice_tickets_passenger.save()
                                 print('ticket unissued saved')
@@ -919,7 +954,10 @@ def save_pnr_detail_modification(request, pnr_id):
                             if fee_objects.exists():
                                 for fee_item in fee_objects:
                                     invoice_fee_passenger = PassengerInvoice.objects.filter(fee=fee_item.id, pnr=int(pnr_id))
-                                    if not invoice_fee_passenger.exists():
+                                    if invoice_fee_passenger.exists():
+                                        invoice_fee_passenger.update(fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, status='quotation', other_fee=None)
+                                        print('fee unissued updated')
+                                    else:
                                         invoice_fee_passenger = PassengerInvoice(fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, status='quotation', other_fee=None)
                                         invoice_fee_passenger.save()
                                         print('fee unissued saved')
@@ -927,7 +965,7 @@ def save_pnr_detail_modification(request, pnr_id):
                 pnr.customer_id = customer.id
                 pnr.save()
 
-            elif pnr.type == 'EWA' and pnr.status_value == 1:
+            if pnr.type == 'EWA' and pnr.status_value == 1:
                 if customer_id != '':
                     invoice_ewa = Invoice.objects.filter(pnr=pnr_id)
                     customer = Client.objects.get(pk=int(customer_id))
@@ -938,6 +976,8 @@ def save_pnr_detail_modification(request, pnr_id):
                         if not passenger_invoice.exists():
                             passenger_invoice = PassengerInvoice(ticket=None, pnr=pnr, type='Billet', client=customer, user_follower=user, is_checked=True, fee=None, status='quotation',invoice_id = invoice_ewa_detail, other_fee=None)
                             passenger_invoice.save()
+                        else:
+                            passenger_invoice.update(ticket=None, pnr=pnr, type='Billet', client=customer, user_follower=user, is_checked=True, fee=None, status='quotation',invoice_id = invoice_ewa_detail, other_fee=None)
 
                         pnr.customer_id = customer.id
                         pnr.save()
@@ -962,7 +1002,7 @@ def save_pnr_detail_modification(request, pnr_id):
                     for other_fees_id in list_other_fees_id:
                         other_fees = OthersFee.objects.filter(pk=int(other_fees_id),pnr=int(pnr_id), other_fee_status=1)
                         for other_fees_item in other_fees:
-                            invoice_fee_passenger = PassengerInvoice.objects.filter(fee=other_fees_item.id, pnr=int(pnr_id), status='sale')
+                            invoice_fee_passenger = PassengerInvoice.objects.filter(fee=other_fees_item.id, pnr=int(pnr_id))
                             if not invoice_fee_passenger.exists():
                                 invoice_fee_passenger = PassengerInvoice(
                                     fee=None, pnr=pnr, client=customer, type=other_fees_item.fee_type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=other_fees_item, status='sale')
@@ -974,12 +1014,16 @@ def save_pnr_detail_modification(request, pnr_id):
                                         invoice_fee_passenger = PassengerInvoice(
                                             fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=None, status='sale')
                                         invoice_fee_passenger.save()
+                                    else:
+                                        invoice_fee_passenger.filter(is_invoiced=False).update(fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=None, status='sale')
+                            elif invoice_fee_passenger.exists():
+                                invoice_fee_passenger.filter(is_invoiced=False).update(fee=None, pnr=pnr, client=customer, type=other_fees_item.fee_type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=other_fees_item, status='sale')
 
                 elif pnr.status_value == 1:
                     print('Unissuing other_fees')
                     other_fees = OthersFee.objects.filter(pnr=pnr_id, other_fee_status=1)
                     for other_fees_item in other_fees:
-                        invoice_fee_passenger = PassengerInvoice.objects.filter(fee=other_fees_item.id, pnr=int(pnr_id), status='quotation')
+                        invoice_fee_passenger = PassengerInvoice.objects.filter(fee=other_fees_item.id, pnr=int(pnr_id))
                         if not invoice_fee_passenger.exists():
                             invoice_fee_passenger = PassengerInvoice(
                                 fee=None, pnr=pnr, client=customer, type=other_fees_item.fee_type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=other_fees_item, status='quotation')
@@ -991,7 +1035,11 @@ def save_pnr_detail_modification(request, pnr_id):
                                     invoice_fee_passenger = PassengerInvoice(
                                         fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=None, status='quotation')
                                     invoice_fee_passenger.save()
-            
+                                else:
+                                    invoice_fee_passenger.filter(is_invoiced=False).update(fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=None, status='quotation')
+                        elif invoice_fee_passenger.exists() and pnr.type == 'EWA':
+                            invoice_fee_passenger.filter(is_invoiced=False).update(fee=None, pnr=pnr, client=customer, type=other_fees_item.fee_type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=other_fees_item, status='quotation')
+
         if 'feeCost' in request.POST:
             fee_cost = json.loads(request.POST.get('feeCost'))
             
@@ -1027,9 +1075,10 @@ def get_order(request, pnr_id):
     config = Configuration.objects.filter(name='Saving File Tools', value_name='File protocol', environment=settings.ENVIRONMENT)
 
     
-    file_dir = 'C:\\Users\\NEC04\\Documents\\Gestion PNR\\travelagency\\AmadeusDecoder\\export'
-    customer_dir = 'C:\\Users\\NEC04\\Documents\\Gestion PNR\\travelagency\\AmadeusDecoder\\export'
+    file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
+    customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
     
+
 
     customer_row = {}
     fieldnames_order = [
@@ -1431,8 +1480,8 @@ def get_quotation(request, pnr_id):
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
     config = Configuration.objects.filter(name='File saving configuration', value_name='Saving protocol', environment=settings.ENVIRONMENT)
 
-    file_dir = 'D:\\Projects\\Django\\Issoufali\\travelagency\\AmadeusDecoder\\export'
-    customer_dir = 'D:\\Projects\\Django\\Issoufali\\travelagency\\AmadeusDecoder\\export'
+    file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
+    customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
 
     customer_row = {}
     fieldnames_order = [
@@ -1843,3 +1892,19 @@ def find_customer(request, pnr_id):
                 context["isCustomerFind"] = False
             
     return JsonResponse(context)
+
+# Define a function that requires a login to access
+@login_required(login_url='index')
+def search_client_by_intitule(request):
+    # Get the search term from the request POST data or set it to an empty string if not present
+    term = request.POST.get('term', '')
+    # If the search term is empty, return an empty JSON response
+    if not term:
+        return JsonResponse([], safe=False)
+    # Filter the Client objects that have an 'intitule' field containing the search term,
+    # then select only the 'id' and 'intitule' fields to optimize performance
+    clients = Client.objects.filter(intitule__icontains=term).values('id', 'intitule')
+    # Convert the filtered QuerySet into a list
+    client_list = list(clients)
+    # Return the filtered list as a JSON response with the 'safe' argument set to False to allow serializing lists
+    return JsonResponse(client_list, safe=False)

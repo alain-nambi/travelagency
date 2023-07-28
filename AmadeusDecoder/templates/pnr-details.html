@@ -637,7 +637,7 @@
 												<th>Date d'émission</th>
 												<th>Date de commande</th>
 												<th>Numéro de commande</th>
-												<!--<th>Status</th>-->
+												<th>Emetteur</th>
 												<th width="10%">Référence</th>
 												<th width="2%"></th>
 												<th width="2%"></th>
@@ -721,6 +721,7 @@
 														{% endif %}
 													{% endif %}
 												</td>
+												<td>{{ticket.emitter.username}}</td>
 												<td>
 													{% if ticket.is_refund and not ticket.is_deposit %}
 														{{ "Remboursement" }}
@@ -805,6 +806,7 @@
 														{% endif %}
 													{% endif %}
 												</td>
+												<td>{{ ticket.emitter.username }}</td>
 												<td>{{ '' }}</td>
 												<td>{{ '' }}</td>
 												<td class="checkbox">
@@ -874,6 +876,7 @@
 													{% endif %}
 												</td>
 												<td>{{other_fee.emitter.usename}}</td>
+												<td></td>
 												<td></td>
 												{% if other_fees_orders is not None or other_fee_cancel_void_status or other_fee.ticket is not None or other_fee.other_fee is not None %}
 												<td class="checkbox"><input type="checkbox" class="to-hide-when-cancel other-fees-check p-checkbox other-fees-checkboxes check{{ other_fee.id }} checkbox-line-below" id="passagers-check" data-other-fees-id = "{{other_fee.id}}" data-id="{{ other_fee.id }}" data-commune-id = "{{other_fee.id}}" data-amount-total="{{ other_fee.total|floatformat:'2' }}" data-type="other-fee" checked hidden></td>
@@ -946,6 +949,7 @@
 														{% endif %}
 													{% endif %}
 												</td>
+												<td>{{other_fee.emitter.usename}}</td>
 												<td>{{ '' }}</td>
 												<td>{{ '' }}</td>
 												{% if other_fees_fees_orders is not None %}

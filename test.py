@@ -121,7 +121,7 @@ if __name__ == '__main__':
                         traceback.print_exc()
                 if contents[j].startswith('TST'):
                     try:
-                        temp.parse_tst(temp.needed_content(contents[j:]), temp.get_email_date())
+                        temp.parse_tst(temp.needed_content(contents[j:]))
                         break
                     except:
                         print('File (TST) with error: ' + file)

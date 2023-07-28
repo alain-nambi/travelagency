@@ -346,7 +346,8 @@ class ZenithParserReceipt():
                         ticket.total = ticket_total
                         ticket.transport_cost = ticket_total - ticket.tax
                         ticket.issuing_date  = date_time.date()
-                    if not is_created_by_us or self.check_issuing_date(date_time.date()) or (pnr.system_creation_date.date() > date_time.date() and self.check_is_invoiced_status(ticket, None)):
+                    if not is_created_by_us or self.check_issuing_date(date_time.date()):
+                        # or (pnr.system_creation_date.date() > date_time.date() and self.check_is_invoiced_status(ticket, None)):
                         ticket.state = 0
                         ticket.ticket_status = 3
                     ticket.is_subjected_to_fees = True
@@ -371,7 +372,8 @@ class ZenithParserReceipt():
                         if temp_new_payment is not None:
                             new_payment = temp_new_payment
                         
-                        if not is_created_by_us or self.check_issuing_date(date_time.date()) or (pnr.system_creation_date.date() > date_time.date() and self.check_is_invoiced_status(None, new_payment)):
+                        if not is_created_by_us or self.check_issuing_date(date_time.date()):
+                            # or (pnr.system_creation_date.date() > date_time.date() and self.check_is_invoiced_status(None, new_payment)):
                             new_payment.other_fee_status = 3
                             
                         if current_passenger.passenger_status == 0:
@@ -409,11 +411,13 @@ class ZenithParserReceipt():
             current_passenger, next_index = self.get_passenger_assigned_on_part(passengers, part)
             is_created_by_us = self.check_part_emitter(part)
             # make current tickets as flown
-            temp_ticket = Ticket.objects.filter(pnr=pnr, passenger=current_passenger, ticket_type='TKT').order_by('-id').first()
-            if temp_ticket is not None:
-                if self.check_is_invoiced_status(temp_ticket, None):
-                    temp_ticket.ticket_status = 3
-                    temp_ticket.save()
+            # temp_ticket = Ticket.objects.filter(pnr=pnr, passenger=current_passenger, ticket_type='TKT').order_by('-id').first()
+            
+            # remove line from display when an invoice has already been created
+            # if temp_ticket is not None:
+            #     if self.check_is_invoiced_status(temp_ticket, None):
+            #         temp_ticket.ticket_status = 3
+            #         temp_ticket.save()
             
             # amount
             transport_cost = 0
@@ -464,7 +468,8 @@ class ZenithParserReceipt():
                             previous_ticket.ticket_status = 3
                         
                         # if ((pnr.system_creation_date.date() > date_time.date()) and self.check_is_invoiced_status(previous_ticket, None)) or self.check_issuing_date(date_time.date()):
-                        if self.check_is_invoiced_status(previous_ticket, None) or self.check_issuing_date(date_time.date()):
+                        if self.check_issuing_date(date_time.date()):
+                            #self.check_is_invoiced_status(previous_ticket, None) or 
                             previous_ticket.ticket_status = 3
                         
                         previous_ticket.ticket_description = 'modif'
@@ -545,6 +550,7 @@ class ZenithParserReceipt():
             is_created_by_us = self.check_part_emitter(part)
             
             # make current other_fee as flown
+            '''
             temp_emd = Ticket.objects.filter(pnr=pnr, passenger=current_passenger, ticket_type='EMD').order_by('-id').first()
             if temp_emd is not None:
                 if self.check_is_invoiced_status(temp_emd, None):
@@ -555,7 +561,7 @@ class ZenithParserReceipt():
             for other_fee in temp_other_fees:
                 if self.check_is_invoiced_status(None, other_fee):
                     other_fee.other_fee_status = 3
-                    other_fee.save()
+                    other_fee.save()'''
                 
             # get cancellation
             if new_emd.designation is not None:
@@ -571,8 +577,8 @@ class ZenithParserReceipt():
                     new_emd = otherfee_saved_checker
                     if is_created_by_us:
                         new_emd.other_fee_status = 1
-                    if (pnr.system_creation_date.date() > date_time.date()) and self.check_is_invoiced_status(otherfee_saved_checker, None):
-                        otherfee_saved_checker.other_fee_status = 3
+                    # if (pnr.system_creation_date.date() > date_time.date()) and self.check_is_invoiced_status(otherfee_saved_checker, None):
+                    #     otherfee_saved_checker.other_fee_status = 3
                 if not is_created_by_us or self.check_issuing_date(date_time.date()):
                     new_emd.other_fee_status = 3
                 new_emd.fee_type = 'Cancellation'
@@ -609,6 +615,7 @@ class ZenithParserReceipt():
             is_created_by_us = self.check_part_emitter(part)
             
             # make current other_fee as flown
+            '''
             temp_emd = Ticket.objects.filter(pnr=pnr, passenger=current_passenger, ticket_type='EMD').order_by('-id').first()
             if temp_emd is not None:
                 if self.check_is_invoiced_status(temp_emd, None):
@@ -619,7 +626,7 @@ class ZenithParserReceipt():
             for other_fee in temp_other_fees:
                 if self.check_is_invoiced_status(None, other_fee):
                     other_fee.other_fee_status = 3
-                    other_fee.save()
+                    other_fee.save()'''
                 
             # get cancellation
             if new_emd.designation is not None:
@@ -635,8 +642,8 @@ class ZenithParserReceipt():
                     new_emd = otherfee_saved_checker
                     if is_created_by_us:
                         new_emd.other_fee_status = 1
-                    if (pnr.system_creation_date.date() > date_time.date()) and self.check_is_invoiced_status(otherfee_saved_checker, None):
-                        otherfee_saved_checker.other_fee_status = 3
+                    # if (pnr.system_creation_date.date() > date_time.date()) and self.check_is_invoiced_status(otherfee_saved_checker, None):
+                    #     otherfee_saved_checker.other_fee_status = 3
                 if not is_created_by_us or self.check_issuing_date(date_time.date()):
                     new_emd.other_fee_status = 3
                 new_emd.fee_type = 'Cancellation'
@@ -720,8 +727,8 @@ class ZenithParserReceipt():
                 new_emd.other_fee_status = 1
                 if is_created_by_us:
                     new_emd.other_fee_status = 1
-                if self.check_is_invoiced_status(None, otherfee_saved_checker):
-                    new_emd.other_fee_status = 3
+                # if self.check_is_invoiced_status(None, otherfee_saved_checker):
+                #     new_emd.other_fee_status = 3
             if not is_created_by_us or self.check_issuing_date(date_time.date()):
                 # or (pnr.system_creation_date.date() > date_time.date()):
                 new_emd.other_fee_status = 3
@@ -770,30 +777,33 @@ class ZenithParserReceipt():
                 # new emd to be inserted
                 new_emd = Ticket()
                 new_emd.pnr = pnr
-                transport_cost = 0
+                # transport_cost = 0
                 try:
                     new_emd.transport_cost = decimal.Decimal(part[next_index+1].split(' ')[0].replace(',','.'))
-                    transport_cost = new_emd.transport_cost
+                    # transport_cost = new_emd.transport_cost
                     new_emd.total = decimal.Decimal(part[next_index+1].split(' ')[0].replace(',','.'))
                 except:
                     pass
 
                 is_created_by_us = self.check_part_emitter(part)
                 # make current other_fee as flown
+                '''
                 temp_emd = Ticket.objects.filter(pnr=pnr, passenger=current_passenger, ticket_type='EMD').order_by('-id').first()
                 if temp_emd is not None:
                     if self.check_is_invoiced_status(temp_emd, None):
                         temp_emd.ticket_status = 3
-                        temp_emd.save()
+                        temp_emd.save()'''
                 
+                '''
                 if isinstance(current_segment, list):
                     temp_other_fees = OthersFee.objects.filter(pnr=pnr, related_segments__passenger=current_passenger, fee_type='EMD').all()
                 else:
                     temp_other_fees = OthersFee.objects.filter(pnr=pnr, related_segments__passenger=current_passenger, related_segments__segment=current_segment, fee_type='EMD').all()
+                
                 for other_fee in temp_other_fees:
                     if self.check_is_invoiced_status(None, other_fee) or other_fee.cost == transport_cost:
                         other_fee.other_fee_status = 3
-                        other_fee.save()
+                        other_fee.save() '''
                 
                 # get emd
                 # for element in part:
@@ -813,8 +823,9 @@ class ZenithParserReceipt():
                         new_emd = ticket_saved_checker
                         if is_created_by_us:
                             new_emd.ticket_status = 1
+                        '''
                         if self.check_is_invoiced_status(new_emd, None):
-                            new_emd.ticket_status = 3
+                            new_emd.ticket_status = 3 '''
                     if not is_created_by_us or self.check_issuing_date(date_time.date()):
                         # or (pnr.system_creation_date.date() > date_time.date()):
                         new_emd.ticket_status = 3
@@ -859,6 +870,7 @@ class ZenithParserReceipt():
                 is_created_by_us = self.check_part_emitter(part)
                 
                 # make current other_fee as flown
+                '''
                 temp_emd = Ticket.objects.filter(pnr=pnr, passenger=current_passenger, ticket_type='EMD').order_by('-id').first()
                 if temp_emd is not None:
                     # if pnr.system_creation_date.date() > date_time.date():
@@ -876,7 +888,7 @@ class ZenithParserReceipt():
                 for other_emd in temp_other_emd:
                     if self.check_is_invoiced_status(other_emd, None):
                         other_emd.ticket_status = 3
-                        other_emd.save()
+                        other_emd.save()'''
                 
                 # get penalty
                 if new_emd.designation is not None:
@@ -894,8 +906,8 @@ class ZenithParserReceipt():
                         new_emd = otherfee_saved_checker
                         if is_created_by_us:
                             new_emd.other_fee_status = 1
-                        if self.check_is_invoiced_status(None, otherfee_saved_checker):
-                            otherfee_saved_checker.other_fee_status = 3
+                        # if self.check_is_invoiced_status(None, otherfee_saved_checker):
+                        #     otherfee_saved_checker.other_fee_status = 3
                     new_emd.fee_type = 'TKT'
                     new_emd.is_subjected_to_fee = False
                     

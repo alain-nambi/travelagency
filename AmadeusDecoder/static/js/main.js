@@ -383,6 +383,37 @@ $(function() {
     $creatorMenu.hide();
   });
 
+  document.addEventListener('click', function(event) {
+    console.log(event.target);
+  
+    // Vérifie si la variable isMenuOpen est définie et est de type boolean
+    if (typeof isMenuOpen === 'boolean') {
+      // Vérifie si le menu est ouvert (isMenuOpen est true) et si l'élément cliqué se trouve en dehors du menu
+      if (isMenuOpen && !event.target.closest("#buttonMenuFilter, .wrapper-menu-filter, .pnr-menu, .pnr-status, .date-range-menu, .creator-group-menu, .filter-menu > .list, .pnr-menu .pnr-list, .pnr-status .pnr-list, #reportrange, .daterangepicker, .next, .prev")) {
+        // Si les conditions sont remplies, cela signifie que vous avez cliqué en dehors du menu, donc le menu doit être fermé
+  
+        // Inverse la valeur de isMenuOpen (true devient false, et vice versa)
+        isMenuOpen = !isMenuOpen;
+  
+        // Vérifie si les variables sont définies avant de les utiliser
+        if ($wrapperMenuFilter && $pnrMenu && $pnrStatus && $dateRangeMenu && $creatorMenu) {
+          // Masque les éléments suivants pour les rendre invisibles sur la page
+          $wrapperMenuFilter.hide();
+          $pnrMenu.hide();
+          $pnrStatus.hide();
+          $dateRangeMenu.hide();
+          $creatorMenu.hide();
+        } else {
+          console.error('Une ou plusieurs variables ne sont pas définies.');
+        }
+      }
+    } else {
+      console.error('La variable isMenuOpen doit être définie et de type boolean.');
+    }
+  
+    console.log(isMenuOpen);
+  });
+
   // Attache un gestionnaire d'événements pour chaque élément de menu de filtre afin de sélectionner/désélectionner les filtres et d'afficher/cacher les menus correspondants.
   liElements.click(function(li) {
     liElements.removeClass("active");
@@ -1299,6 +1330,28 @@ $(document).ready(function () {
   $('.customer-select').select2({
     placeholder: "Sélectionner client",
     allowClear: true,
+    "language": {
+      "noResults": function(){
+          const noResultsFoundHTML = `
+            <div class="d-flex align-items-center" style="gap: 1rem;"> 
+              <i class="fa fa-search" aria-hidden="true"></i>
+              <span class="text-sm"> 
+                <strong class="text-sm">
+                  Aucun résultat trouvé. <br> 
+                </strong>
+                <span style="display: block; width: 100%; height: 1px; background: #fff; margin: 6px 0 6px 0;"></span>
+                Veuillez taper 
+                <strong class="text-sm"> le nom <span class="text-warning text-sm">exact</span> du client </strong> 
+              </span>
+            </div>
+          ` 
+
+          return noResultsFoundHTML;
+      }
+    },
+    escapeMarkup: function (markup) {
+        return markup;
+    },
     ajax: {
       type: 'POST',
       url: '/home/search-customer/',
@@ -1322,7 +1375,7 @@ $(document).ready(function () {
             }
           })
         };
-      }
+      },
     }
   });
 });
@@ -1336,6 +1389,28 @@ $(document).ready(function () {
     $(".customer-modification-selection").select2({
       placeholder: "Sélectionner client",
       allowClear: true,
+      "language": {
+        "noResults": function(){
+            const noResultsFoundHTML = `
+              <div class="d-flex align-items-center" style="gap: 1rem;"> 
+                <i class="fa fa-search" aria-hidden="true"></i>
+                <span class="text-sm"> 
+                  <strong class="text-sm">
+                    Aucun résultat trouvé. <br> 
+                  </strong>
+                  <span style="display: block; width: 100%; height: 1px; background: #fff; margin: 6px 0 6px 0;"></span>
+                  Veuillez taper 
+                  <strong class="text-sm"> le nom <span class="text-warning text-sm">exact</span> du client </strong> 
+                </span>
+              </div>
+            ` 
+  
+            return noResultsFoundHTML;
+        },
+      },
+      escapeMarkup: function (markup) {
+        return markup;
+      },
       ajax: {
         type: 'POST',
         url: '/home/search-customer/',

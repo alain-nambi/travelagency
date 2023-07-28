@@ -23,7 +23,7 @@ if __name__ == '__main__':
     import os
     
     temp = AmadeusParser() 
-    file = '1_fnd@amadeus.com'
+    file = '0_fnd@amadeus.com'
     # file = 12656_famenontsoa@outlook.com'
     temp.set_path(os.getcwd() + '\\EmailFetcher\\utilities\\attachments_dir\\' + file + '\\' + file.removeprefix('VK8PP7_Fixed/') + '.txt')
 
@@ -106,7 +106,7 @@ if __name__ == '__main__':
                         traceback.print_exc()
                 if contents[j].startswith('TST'):
                     try:
-                        temp.parse_tst(temp.needed_content(contents[j:]), temp.get_email_date())
+                        temp.parse_tst(temp.needed_content(contents[j:]))
                         break
                     except:
                         print('File (TST) with error: ' + file)

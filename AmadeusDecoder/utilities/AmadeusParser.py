@@ -244,7 +244,7 @@ class AmadeusParser(PnrOnlyParser, TicketOnlyParser, PnrCostParser, EMDOnlyParse
                                 continue
                         if contents[j].startswith('TST'):
                             try:
-                                temp.parse_tst(temp.needed_content(contents[j:]), temp.get_email_date())
+                                temp.parse_tst(temp.needed_content(contents[j:]))
                                 break
                             except:
                                 print('File (TST) with error: ' + file)

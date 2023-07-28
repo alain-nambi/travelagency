@@ -5,35 +5,35 @@ import smtplib
 
 import AmadeusDecoder.utilities.configuration_data as configs
 
-EMAIL_SENDING_ERROR_NOTIFICATION_RECIPIENTS = [
-    'nasolo@phidia.onmicrosoft.com',
-    'mihaja@phidia.onmicrosoft.com',
-    'alain@phidia.onmicrosoft.com',
-    'remi@phidia.onmicrosoft.com',
-    'famenontsoa@outlook.com',
-    'tahina@phidia.onmicrosoft.com',
-    'pp@phidia.onmicrosoft.com']
-EMAIL_SENDING_ERROR_NOTIFICATION = {"port":587, "smtp":"smtp.gmail.com", "address":"errorreport.issoufali.pnr@gmail.com", "password":"chnversafifnzagp"}
-ANOMALY_EMAIL_SENDER = {"port":587, "smtp":"smtp.gmail.com", "address":"anomalie.issoufali.pnr@gmail.com", "password":"qczyzeytdvlbcysq"}
-PNR_NOT_FETCHED_NOTIFICATION_SENDER = {"port":587, "smtp":"smtp.gmail.com", "address":"anomalie.issoufali.pnr@gmail.com", "password":"qczyzeytdvlbcysq"}
-FEE_REQUEST_SENDER = {"port":587, "smtp":"smtp.gmail.com", "address":"feerequest.issoufali.pnr@gmail.com", "password":"tnkunwvygtdkxfxg"}
-PNR_PARSING_ERROR_NOTIFICATION_SENDER = {"port":587, "smtp":"smtp.gmail.com", "address":"errorreport.issoufali.pnr@gmail.com", "password":"chnversafifnzagp"}
-PNR_PARSING_ERROR_NOTIFICATION_RECIPIENTS = [
-    'nasolo@phidia.onmicrosoft.com',
-    'mihaja@phidia.onmicrosoft.com',
-    'alain@phidia.onmicrosoft.com',
-    'remi@phidia.onmicrosoft.com',
-    'famenontsoa@outlook.com',
-    'tahina@phidia.onmicrosoft.com',
-    'pp@phidia.onmicrosoft.com']
+# EMAIL_SENDING_ERROR_NOTIFICATION_RECIPIENTS = [
+#     'nasolo@phidia.onmicrosoft.com',
+#     'mihaja@phidia.onmicrosoft.com',
+#     'alain@phidia.onmicrosoft.com',
+#     'remi@phidia.onmicrosoft.com',
+#     'famenontsoa@outlook.com',
+#     'tahina@phidia.onmicrosoft.com',
+#     'pp@phidia.onmicrosoft.com']
+# EMAIL_SENDING_ERROR_NOTIFICATION = {"port":587, "smtp":"smtp.gmail.com", "address":"errorreport.issoufali.pnr@gmail.com", "password":"chnversafifnzagp"}
+# ANOMALY_EMAIL_SENDER = {"port":587, "smtp":"smtp.gmail.com", "address":"anomalie.issoufali.pnr@gmail.com", "password":"qczyzeytdvlbcysq"}
+# PNR_NOT_FETCHED_NOTIFICATION_SENDER = {"port":587, "smtp":"smtp.gmail.com", "address":"anomalie.issoufali.pnr@gmail.com", "password":"qczyzeytdvlbcysq"}
+# FEE_REQUEST_SENDER = {"port":587, "smtp":"smtp.gmail.com", "address":"feerequest.issoufali.pnr@gmail.com", "password":"tnkunwvygtdkxfxg"}
+# PNR_PARSING_ERROR_NOTIFICATION_SENDER = {"port":587, "smtp":"smtp.gmail.com", "address":"errorreport.issoufali.pnr@gmail.com", "password":"chnversafifnzagp"}
+# PNR_PARSING_ERROR_NOTIFICATION_RECIPIENTS = [
+#     'nasolo@phidia.onmicrosoft.com',
+#     'mihaja@phidia.onmicrosoft.com',
+#     'alain@phidia.onmicrosoft.com',
+#     'remi@phidia.onmicrosoft.com',
+#     'famenontsoa@outlook.com',
+#     'tahina@phidia.onmicrosoft.com',
+#     'pp@phidia.onmicrosoft.com']
 
-# EMAIL_SENDING_ERROR_NOTIFICATION_RECIPIENTS = configs.EMAIL_SENDING_ERROR_NOTIFICATION_RECIPIENTS
-# EMAIL_SENDING_ERROR_NOTIFICATION = configs.EMAIL_SENDING_ERROR_NOTIFICATION
-# ANOMALY_EMAIL_SENDER = configs.ANOMALY_EMAIL_SENDER
-# PNR_NOT_FETCHED_NOTIFICATION_SENDER = configs.PNR_NOT_FETCHED_NOTIFICATION_SENDER
-# FEE_REQUEST_SENDER = configs.FEE_REQUEST_SENDER
-# PNR_PARSING_ERROR_NOTIFICATION_SENDER = configs.PNR_PARSING_ERROR_NOTIFICATION_SENDER
-# PNR_PARSING_ERROR_NOTIFICATION_RECIPIENTS = configs.PNR_PARSING_ERROR_NOTIFICATION_RECIPIENTS
+EMAIL_SENDING_ERROR_NOTIFICATION_RECIPIENTS = configs.EMAIL_SENDING_ERROR_NOTIFICATION_RECIPIENTS
+EMAIL_SENDING_ERROR_NOTIFICATION = configs.EMAIL_SENDING_ERROR_NOTIFICATION
+ANOMALY_EMAIL_SENDER = configs.ANOMALY_EMAIL_SENDER
+PNR_NOT_FETCHED_NOTIFICATION_SENDER = configs.PNR_NOT_FETCHED_NOTIFICATION_SENDER
+FEE_REQUEST_SENDER = configs.FEE_REQUEST_SENDER
+PNR_PARSING_ERROR_NOTIFICATION_SENDER = configs.PNR_PARSING_ERROR_NOTIFICATION_SENDER
+PNR_PARSING_ERROR_NOTIFICATION_RECIPIENTS = configs.PNR_PARSING_ERROR_NOTIFICATION_RECIPIENTS
 
 class Sending():
     

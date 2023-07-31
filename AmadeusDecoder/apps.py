@@ -5,8 +5,9 @@ import datetime
 from datetime import datetime, timedelta, timezone
 from django.apps.registry import apps
 
-import AmadeusDecoder.utilities.configuration_data as configs
 from time import sleep
+
+# import AmadeusDecoder.utilities.configuration_data as configs
 
 class RepeatTimer(Timer):  
     daemon=True 
@@ -99,7 +100,7 @@ def checking_pnr_not_sent_to_odoo():
     # ==================== PNR not sent to Odoo checking ====================
     MailNotification.pnr_not_sent_to_odoo(now)
     
-def load_config():
+def load_config(configs):
     print('Loading configurations ...')
     # assign current company to local variable 'session_variable'
     import AmadeusDecoder.utilities.session_variables as session_variables
@@ -133,10 +134,15 @@ class AmadeusdecoderConfig(AppConfig):
             return 
         os.environ['CMDLINERUNNER_RUN_ONCE'] = 'True'
         
-        load_configs = Thread(target=load_config)
-        load_configs.start()
+        # import AmadeusDecoder.utilities.configuration_data as configs
+        #
+        # load_configs = Thread(target=load_config, args=(configs, ))
+        # load_configs.start()
+        #
+        # sleep(2)
         
-        sleep(1)
+        # print(configs.FEE_REQUEST_RESPONSE_RECIPIENT)
+        
         # now = datetime.now()
         # repeat_timer_for_pnr_upload_notification = 0
         #

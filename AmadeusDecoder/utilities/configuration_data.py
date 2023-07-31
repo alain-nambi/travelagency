@@ -4,6 +4,8 @@ Created on Jul 5, 2023
 @author: Famenontsoa
 '''
 
+from AmadeusDecoder.utilities.ConfigReader import ConfigReader
+
 # Company information
 COMPANY_NAME = None
 COMPANY_CURRENCY_NAME = None
@@ -140,3 +142,5 @@ REMARK_IDENTIFIER = []
 PNR_PASSENGER_DESIGNATIONS = []
 POSSIBLE_COST_CURRENCY = []
 AM_H_LINE_IDENTIFIER = []
+
+ConfigReader().load_congig()

@@ -29,7 +29,11 @@ def create_customer(request):
             code_postal = request.POST.get('Code_postal')
             departement = request.POST.get('Departement')
 
-            intitule_string = str(name.strip()) + ' ' + str(first_name.strip())
+            if type == 'Particulier':
+                intitule_string = str(name.strip()) + ' ' + str(first_name.strip())
+            else:
+                intitule_string = str(company.strip())
+                
             intitule = intitule_string.split(' ')
             q = Q()
             last_name, first_name = '', ''

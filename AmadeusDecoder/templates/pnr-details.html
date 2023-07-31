@@ -744,69 +744,67 @@
 											
 											
 											<!-- Ticket-related other fee -->
-											{% with ticket|ticket_other_fee as temp_other_fee %}
+											<!--{% with ticket|ticket_other_fee as temp_other_fee %}
 												{% if temp_other_fee is not None %}
-													{% with temp_other_fee|other_fees_orders as other_fees_orders %}
-														<tr class="tr-other-fees {% if other_fees_orders is not None and other_fees_orders.is_invoiced %} text-success {% endif %}" data-other-fee-id = "{{other_fee.id}}">
-															<td><span class="type" style="font-size: 12px;">{{ temp_other_fee.fee_type }}</span></td>
-															<td><span class="billet">{{ temp_other_fee.designation }}</span></td>
-															{% if temp_other_fee|ancillary_passenger is not None %}
-															<td>
-																{{ temp_other_fee|ancillary_passenger }}
-															</td>
-															{% else %}
-															<td> </td>
+													<tr class="tr-other-fees {% if other_fees_orders is not None %} text-success {% else %} text-primary {% endif %} " data-other-fee-id = "{{other_fee.id}}">
+														<td><span class="type" style="font-size: 12px;">{{ temp_other_fee.fee_type }}</span></td>
+														<td><span class="billet">{{ temp_other_fee.designation }}</span></td>
+														{% if temp_other_fee|ancillary_passenger is not None %}
+														<td>
+															{{ temp_other_fee|ancillary_passenger }}
+														</td>
+														{% else %}
+														<td> </td>
+														{% endif %}
+														<td><span class="montant">{{ temp_other_fee.cost|floatformat:'2' }}</span>
+														</td>
+														<td><span class="montant">{{ temp_other_fee.tax|floatformat:'2' }}</span></td>
+														<td><span class="montant ticket" value="{{ temp_other_fee.total|floatformat:'2' }}">{{ temp_other_fee.total|floatformat:'2' }}</span></td>
+														{% if temp_other_fee|ancillary_passenger_segment != '' %}
+														<td>
+															{{ temp_other_fee|ancillary_passenger_segment }}
+														</td>
+														{% else %}
+														<td>
+															{% if temp_other_fee.passenger_segment is not None %}
+																{{ temp_other_fee.passenger_segment }}
 															{% endif %}
-															<td><span class="montant">{{ temp_other_fee.cost|floatformat:'2' }}</span>
-															</td>
-															<td><span class="montant">{{ temp_other_fee.tax|floatformat:'2' }}</span></td>
-															<td><span class="montant ticket" value="{{ temp_other_fee.total|floatformat:'2' }}">{{ temp_other_fee.total|floatformat:'2' }}</span></td>
-															{% if temp_other_fee|ancillary_passenger_segment != '' %}
-															<td>
-																{{ temp_other_fee|ancillary_passenger_segment }}
-															</td>
+														</td>
+														{% endif %}
+														<td>
+															{% if temp_other_fee.creation_date is not None %}
+																{{ temp_other_fee.creation_date|date:"d/m/y" }}
 															{% else %}
-															<td>
-																{% if temp_other_fee.passenger_segment is not None %}
-																	{{ temp_other_fee.passenger_segment }}
-																{% endif %}
-															</td>
+																{{ 'Non émis' }}
 															{% endif %}
-															<td>
-																{% if temp_other_fee.creation_date is not None %}
-																	{{ temp_other_fee.creation_date|date:"d/m/y" }}
-																{% else %}
-																	{{ 'Non émis' }}
-																{% endif %}
-															</td>
-															<td>
-																{% if temp_other_fee.pnr_id is not None and temp_other_fee.pnr_id|other_fee_datetime_invoice_created:temp_other_fee.id is not None %}
-																	{{ temp_other_fee.pnr_id|other_fee_datetime_invoice_created:temp_other_fee.id|date:"d/m/y" }}
+														</td>
+														<td>
+															{% if temp_other_fee.pnr_id is not None and temp_other_fee.pnr_id|other_fee_datetime_invoice_created:temp_other_fee.id is not None %}
+																{{ temp_other_fee.pnr_id|other_fee_datetime_invoice_created:temp_other_fee.id|date:"d/m/y" }}
+															{% else %}
+																{{ '' }}
+															{% endif %}
+														</td>
+														<td>
+															{% if temp_other_fee.pnr_id is not None %}
+																{% if temp_other_fee.pnr_id|other_fee_invoice_number:temp_other_fee.id is not None %}
+																	{{ temp_other_fee.pnr_id|other_fee_invoice_number:temp_other_fee.id }}
 																{% else %}
 																	{{ '' }}
 																{% endif %}
-															</td>
-															<td>
-																{% if temp_other_fee.pnr_id is not None %}
-																	{% if temp_other_fee.pnr_id|other_fee_invoice_number:temp_other_fee.id is not None %}
-																		{{ temp_other_fee.pnr_id|other_fee_invoice_number:temp_other_fee.id }}
-																	{% else %}
-																		{{ '' }}
-																	{% endif %}
-																{% endif %}
-															</td>
-															<td></td>
-															<td></td>
-															{% if other_fees_orders is not None %}
-															<td class="checkbox"><input type="checkbox" class="to-hide-when-cancel other-fees-check p-checkbox other-fees-checkboxes check{{ temp_other_fee.id }} checkbox-line-below" id="passagers-check" data-other-fees-id = "{{temp_other_fee.id}}" data-id="{{ temp_other_fee.id }}" data-commune-id = "{{temp_other_fee.id}}" data-amount-total="{{ temp_other_fee.total|floatformat:'2' }}" data-type="other-fee" checked hidden></td>
-															{% else %}
-															<td class="checkbox"><input type="checkbox" class="to-hide-when-cancel other-fees-check p-checkbox other-fees-checkboxes check{{ temp_other_fee.id }} checkbox-line-below" id="passagers-check" data-other-fees-id = "{{temp_other_fee.id}}" data-id="{{ temp_other_fee.id }}" data-commune-id = "{{temp_other_fee.id}}" data-amount-total="{{ temp_other_fee.total|floatformat:'2' }}" data-type="other-fee" checked disabled></td>
 															{% endif %}
-															
-														</tr>
-													{% endwith %}
+														</td>
+														<td>{{temp_other_fee.emitter.username}}</td>
+														<td></td>
+														{% if other_fees_orders is not None%}
+														<td class="checkbox"><input type="checkbox" class="to-hide-when-cancel other-fees-check p-checkbox other-fees-checkboxes check{{ temp_other_fee.id }} checkbox-line-below" id="passagers-check" data-other-fees-id = "{{temp_other_fee.id}}" data-id="{{ temp_other_fee.id }}" data-commune-id = "{{temp_other_fee.id}}" data-amount-total="{{ temp_other_fee.total|floatformat:'2' }}" data-type="other-fee" checked hidden></td>
+														{% else %}
+														<td class="checkbox"><input type="checkbox" class="to-hide-when-cancel other-fees-check p-checkbox other-fees-checkboxes check{{ temp_other_fee.id }} checkbox-line-below" id="passagers-check" data-other-fees-id = "{{temp_other_fee.id}}" data-id="{{ temp_other_fee.id }}" data-commune-id = "{{temp_other_fee.id}}" data-amount-total="{{ temp_other_fee.total|floatformat:'2' }}" data-type="other-fee" checked disabled></td>
+														{% endif %}
+														
+													</tr>
 												{% endif %}
-											{% endwith %}
+											{% endwith %}-->
 											
 											{% with ticket.id|fee as fee %}
 											{% if fee is not None %}

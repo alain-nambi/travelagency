@@ -11,8 +11,6 @@ import requests
 import random
 import pandas as pd
 
-import AmadeusDecoder.utilities.configuration_data as configs
-
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
@@ -20,6 +18,7 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.forms.models import model_to_dict
+from django.conf import settings
 
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.pnr.PnrPassenger import PnrPassenger
@@ -35,11 +34,19 @@ from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
 from AmadeusDecoder.models.invoice.Fee import Product
 from AmadeusDecoder.models.pnrelements.PnrAirSegments import PnrAirSegments
 from AmadeusDecoder.models.history.History import History
+from AmadeusDecoder.models.configuration.Configuration import Configuration
 
-# from AmadeusDecoder.utilities.FtpConnection import upload_file
+from AmadeusDecoder.utilities.FtpConnection import upload_file
 from AmadeusDecoder.utilities.SendMail import Sending
-from AmadeusDecoder.utilities.ServiceFeesDecreaseRequest import ServiceFeesDecreaseRequest
 import traceback
+
+import AmadeusDecoder.utilities.configuration_data as configs
+
+# FEE_REQUEST_SENDER = {"port":587, "smtp":"smtp.gmail.com", "address":"feerequest.issoufali.pnr@gmail.com", "password":"tnkunwvygtdkxfxg"}
+# FEE_REQUEST_RECIPIENT = ['superviseur@agences-issoufali.com','pp@phidia.onmicrosoft.com','mihaja@phidia.onmicrosoft.com','tahina@phidia.onmicrosoft.com']
+
+FEE_REQUEST_SENDER = configs.FEE_REQUEST_SENDER
+FEE_REQUEST_RECIPIENT = configs.FEE_REQUEST_RECIPIENT
 
 @login_required(login_url='index')
 def home(request): 
@@ -535,14 +542,11 @@ def pnr_details(request, pnr_id):
     # PNR not invoiced 
     if pnr_detail.status_value == 0:
         __ticket_base = pnr_detail.tickets.filter(ticket_status=1).exclude(Q(total=0))
-        __other_fee_base = pnr_detail.others_fees.filter(other_fee_status=1, total__gt=0).exclude(~Q(ticket=None), ~Q(other_fee=None))
+        __other_fee_base = pnr_detail.others_fees.filter(other_fee_status=1).exclude(~Q(ticket=None), ~Q(other_fee=None), total=0)
         __ticket_no_adc_base = pnr_detail.tickets.filter(ticket_status=1, total=0, is_no_adc=True)
 
         __cancellation = pnr_detail.others_fees.filter(Q(other_fee__in=__other_fee_base)|Q(ticket__in=__ticket_base) | Q(ticket__in=__ticket_no_adc_base))
 
-        __ticket = __ticket_base
-        __other_fee = __other_fee_base.exclude(pk__in=__cancellation)
-        __ticket_no_adc = __ticket_no_adc_base
         print('__________Cancellation____________')
         if __cancellation.exists():
             for cancellation in __cancellation:
@@ -555,30 +559,31 @@ def pnr_details(request, pnr_id):
                 cancellation.is_invoiced = True
                 cancellation.save()
 
-        if not __ticket.exists() and not __other_fee.exists() and not __ticket_no_adc.exists():
+        if not __ticket_base.exists() and not __other_fee_base.exists() and not __ticket_no_adc_base.exists():
             pnr_detail.is_invoiced = False
             pnr_detail.save()
-        elif __ticket.exists() and not __other_fee.exists() and not __ticket_no_adc.exists():
+        elif __ticket_base.exists() and not __other_fee_base.exists() and not __ticket_no_adc_base.exists():
             print('Only ticket')
-            __ticket_not_ordered = __ticket.filter(is_invoiced=False)
+            __ticket_not_ordered = __ticket_base.filter(is_invoiced=False)
             if __ticket_not_ordered.exists():
                 pnr_detail.is_invoiced = False
                 pnr_detail.save()
             else:
                 pnr_detail.is_invoiced = True
                 pnr_detail.save()
-        elif not __ticket.exists() and __other_fee.exists() and not __ticket_no_adc.exists():
+        elif not __ticket_base.exists() and __other_fee_base.exists() and not __ticket_no_adc_base.exists():
             print('Only other fee')
-            __other_fee_not_ordered = __other_fee.filter(is_invoiced=False)
+            print(__other_fee_base)
+            __other_fee_not_ordered = __other_fee_base.filter(is_invoiced=False)
             if __other_fee_not_ordered.exists():
                 pnr_detail.is_invoiced = False
                 pnr_detail.save()
-            else:
+            elif not __other_fee_not_ordered.exists():
                 pnr_detail.is_invoiced = True
                 pnr_detail.save()
-        elif not __ticket.exists() and not __other_fee.exists() and __ticket_no_adc.exists():
+        elif not __ticket_base.exists() and not __other_fee_base.exists() and __ticket_no_adc_base.exists():
             print('Only ticket no adc')
-            __ticket_no_adc_not_ordered = __ticket_no_adc.filter(is_invoiced=False)
+            __ticket_no_adc_not_ordered = __ticket_no_adc_base.filter(is_invoiced=False)
             if __ticket_no_adc_not_ordered.exists():
                 pnr_detail.is_invoiced = False
                 pnr_detail.save()
@@ -587,9 +592,9 @@ def pnr_details(request, pnr_id):
                 pnr_detail.save()
         else:
             print('All of them')
-            __ticket_not_ordered = __ticket.filter(is_invoiced=False)
-            __other_fee_not_ordered = __other_fee.filter(is_invoiced=False)
-            __ticket_no_adc_not_ordered = __ticket_no_adc.filter(is_invoiced=False)
+            __ticket_not_ordered = __ticket_base.filter(is_invoiced=False)
+            __other_fee_not_ordered = __other_fee_base.filter(is_invoiced=False)
+            __ticket_no_adc_not_ordered = __ticket_no_adc_base.filter(is_invoiced=False)
             if __ticket_not_ordered.exists() or __other_fee_not_ordered.exists() or __ticket_no_adc_not_ordered.exists():
                 pnr_detail.is_invoiced = False
                 pnr_detail.save()
@@ -717,7 +722,8 @@ def pnr_search_by_pnr_number(request):
     return JsonResponse(context)
 
 # @login_required(login_url='index')
-def reduce_fee_request_accepted(request, request_id, amount, choice_type, token):  
+def reduce_fee_request_accepted(request, request_id, amount, choice_type, token):
+    from AmadeusDecoder.utilities.ServiceFeesDecreaseRequest import ServiceFeesDecreaseRequest
     context = {}
 
     request_obj = ReducePnrFeeRequest.objects.get(pk=request_id, token=token)
@@ -759,7 +765,8 @@ def reduce_fee_request_accepted(request, request_id, amount, choice_type, token)
     return render(request,'validate-request.html', context) 
 
 # @login_required(login_url='index')
-def reduce_fee_request_rejected(request, request_id, choice_type, token):  
+def reduce_fee_request_rejected(request, request_id, choice_type, token):
+    from AmadeusDecoder.utilities.ServiceFeesDecreaseRequest import ServiceFeesDecreaseRequest
     context = {}
 
     request_obj = ReducePnrFeeRequest.objects.get(pk=request_id, token=token)
@@ -807,6 +814,7 @@ def reduce_fee_request_modify(request, request_id, choice_type, token):
 
 @login_required(login_url='index')
 def reduce_fee(request) :
+    from AmadeusDecoder.utilities.ServiceFeesDecreaseRequest import ServiceFeesDecreaseRequest
     context = {}
     if request.method == 'POST' and request.POST.get('pnrId') and request.POST.get('feeId'):
         pnrId = request.POST.get('pnrId')
@@ -839,15 +847,8 @@ def reduce_fee(request) :
                     context['message'] = "Demande envoyée avec succès."
                     
                     Sending.send_email_request(
-                        "feerequest.issoufali.pnr@gmail.com",
-                        [
-                            # "superviseur@agences-issoufali.com",
-                            # "pp@phidia.onmicrosoft.com",
-                            "mihaja@phidia.onmicrosoft.com",
-                            # "tahina@phidia.onmicrosoft.com",
-                            # "famenontsoa@outlook.com"
-                            # "alain@phidia.onmicrosoft.com"
-                        ],
+                        FEE_REQUEST_SENDER['address'],
+                        FEE_REQUEST_RECIPIENT,
                         subject,
                         message
                     )
@@ -985,7 +986,7 @@ def save_pnr_detail_modification(request, pnr_id):
                 pnr.customer_id = customer.id
                 pnr.save() 
 
-        if 'otherfeesIdsChecked' and 'customerId' and 'refCde' in request.POST:
+        if 'pnrId' and 'otherfeesIdsChecked' and 'customerId' and 'refCde' in request.POST:
             list_other_fees_id = json.loads(request.POST.get('otherfeesIdsChecked'))
             customer_id = request.POST.get('customerId')
             reference = request.POST.get('refCde')
@@ -1071,8 +1072,8 @@ def get_order(request, pnr_id):
     fee = ''
     ticket = ''
     vendor_user = None
-    user_copy = None
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
+    config = Configuration.objects.filter(name='Saving File Tools', value_name='File protocol', environment=settings.ENVIRONMENT)
 
     
     file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
@@ -1441,12 +1442,23 @@ def get_order(request, pnr_id):
         order_df = pd.concat([order_df, pd.DataFrame(csv_order_lines)])
         customer_df = pd.concat([customer_df, pd.DataFrame(csv_customer_lines)])
 
-        if not order_df.empty and not customer_df.empty:
-            order_df.to_csv(os.path.join(file_dir, 'FormatsSaleOrderExportOdoo{}.csv'.format(today)), index=False, sep=';')
-            customer_df.to_csv(os.path.join(customer_dir, 'CustomerExport{}.csv'.format(today)), index=False, sep=';')
 
-        print("------------------Call Odoo import-----------------------")
-        response = requests.get("https://testodoo.issoufali.phidia.fr/web/syncorders")
+        if not order_df.empty and not customer_df.empty:
+            order_file = os.path.join(file_dir, 'FormatsSaleOrderExportOdoo{}.csv'.format(today))
+            customer_file = os.path.join(customer_dir, 'CustomerExport{}.csv'.format(today))
+            order_df.to_csv(order_file, index=False, sep=';')
+            customer_df.to_csv(customer_file, index=False, sep=';')
+            if config.exists() and config.first().single_value == 'FTP':
+                hostname, port, password, username, order_repository, customer_repository, odoo_link = config.first().dict_value.get('hostname'), int(config.first().dict_value.get('port')), config.first().dict_value.get('password'), config.first().dict_value.get('username'), config.first().dict_value.get('repository') + '/Order/', config.first().dict_value.get('repository') + '/Customer/', config.first().dict_value.get('link')
+                upload_file(order_file, order_repository, 'FormatsSaleOrderExportOdoo{}.csv'.format(today), username, password, hostname, port)
+                upload_file(customer_file, customer_repository, 'CustomerExport{}.csv'.format(today), username, password, hostname, port)
+                print("------------------Call Odoo import-----------------------")
+                response = requests.get(odoo_link)
+            if config.exists() and config.first().single_value == 'Local':
+                odoo_link = config.first().dict_value.get('link')
+                print("------------------Call Odoo import-----------------------")
+                response = requests.get(odoo_link)
+                print(response.content)
 
         ticket_not_order = Ticket.objects.filter(pnr=pnr_id, is_invoiced=False, ticket_status=1).exclude(total=0)
         ticket_no_adc_order = Ticket.objects.filter(pnr=pnr_id, is_invoiced=False, ticket_status=1).filter(Q(total=0) & Q(is_no_adc=True))
@@ -1467,11 +1479,10 @@ def get_quotation(request, pnr_id):
     ticket = ''
     vendor_user = None
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
+    config = Configuration.objects.filter(name='File saving configuration', value_name='Saving protocol', environment=settings.ENVIRONMENT)
 
     file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
     customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
-
-    
 
     customer_row = {}
     fieldnames_order = [
@@ -1774,12 +1785,20 @@ def get_quotation(request, pnr_id):
         customer_df = pd.concat([customer_df, pd.DataFrame(csv_customer_lines)])
 
         if not quotation_df.empty and not customer_df.empty:
-            quotation_df.to_csv(os.path.join(file_dir, 'FormatsSaleOrderExportOdoo{}.csv'.format(today)), index=False, sep=';')
-            customer_df.to_csv(os.path.join(customer_dir, 'CustomerExport{}.csv'.format(today)), index=False, sep=';')
-
-        print("------------------Call Odoo import-----------------------")
-        response = requests.get("https://testodoo.issoufali.phidia.fr/web/syncorders")
-        print(response.content)
+            quotation_file = os.path.join(file_dir, 'FormatsSaleOrderExportOdoo{}.csv'.format(today))
+            customer_file = os.path.join(customer_dir, 'CustomerExport{}.csv'.format(today))
+            quotation_df.to_csv(quotation_file, index=False, sep=';')
+            customer_df.to_csv(customer_file, index=False, sep=';')
+            if config.exists() and config.first().single_value == 'FTP':
+                hostname, port, password, username, order_repository, customer_repository, odoo_link = config.first().dict_value.get('hostname'), int(config.first().dict_value.get('port')), config.first().dict_value.get('password'), config.first().dict_value.get('username'), config.first().dict_value.get('repository') + '/Order/', config.first().dict_value.get('repository') + '/Customer/', config.first().dict_value.get('link')
+                upload_file(quotation_file, order_repository, 'FormatsSaleOrderExportOdoo{}.csv'.format(today), username, password, hostname, port)
+                upload_file(customer_file, customer_repository, 'CustomerExport{}.csv'.format(today), username, password, hostname, port)
+                print("------------------Call Odoo import-----------------------")
+                response = requests.get(odoo_link)
+            if config.exists() and config.first().single_value == 'Local':
+                odoo_link = config.first().dict_value.get('link')
+                print("------------------Call Odoo import-----------------------")
+                response = requests.get(odoo_link)
         
 
     return JsonResponse(context)

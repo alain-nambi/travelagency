@@ -568,55 +568,107 @@ $(function() {
   $('#dateRangeBegin, #dateRangeEnd').text(localeDateString);
 
   // Définit une fonction de rappel pour le choix de date
-  function cb(start, end) {
+  function cbStart(start) {
     // Récupère la date de début et de fin depuis localStorage s'ils existent
     const startDateFromLocalStorage = JSON.parse(localStorage.getItem("startDate"));
-    const endDateFromLocalStorage = JSON.parse(localStorage.getItem("endDate"));
 
     // Affiche la plage de dates sélectionnée dans l'élément avec l'ID "reportrange"
     // Si aucune date n'a été récupérée depuis localStorage, affiche la plage de dates courante
     const displayStartDate = startDateFromLocalStorage || start;
-    const displayEndDate = endDateFromLocalStorage || end;
-    $('#reportrange span').html(displayStartDate + ' - ' + displayEndDate);
+    $('#reportrangebegin span').html(displayStartDate);
+  }
+
+  function cbEnd(start) {
+    // Récupère la date de début et de fin depuis localStorage s'ils existent
+    const EndDateFromLocalStorage = JSON.parse(localStorage.getItem("endDate"));
+
+    // Affiche la plage de dates sélectionnée dans l'élément avec l'ID "reportrange"
+    // Si aucune date n'a été récupérée depuis localStorage, affiche la plage de dates courante
+    const displayStartDate = EndDateFromLocalStorage || start;
+    $('#reportrangeend span').html(displayStartDate);
   }
 
   // Initialise le plugin DateRangePicker sur l'élément avec l'ID "reportrange"
-  $('#reportrange').daterangepicker({
-    opens: 'right'
+  $('#reportrangebegin').daterangepicker({
+    opens: 'right',
+    singleDatePicker: true,
+    showDropdowns: true,
+    minDate: "01/01/2023",
   }, function(start, end, label) {
     // Formate les dates de début et de fin pour l'affichage et le stockage
-    const displayFormat = 'DD/MM/YYYY';
+    const storageFormat = 'YYYY-MM-DD';
+
+    const startDateDisplay = start._d.toLocaleDateString('fr-FR', options);
+
+    const startDateStorage = start.format(storageFormat);
+
+    // Stocke la plage de dates sélectionnée dans un cookie
+    document.cookie = `dateRangeBegin=${startDateStorage}; SameSite=Lax`;
+
+    // Stocke la date de début et de fin sélectionnée dans localStorage
+    localStorage.setItem("startDate", JSON.stringify(startDateDisplay));
+
+    // Met à jour la plage de dates affichée en appelant la fonction de rappel
+    cbStart(startDateDisplay);
+  });
+
+  $('#reportrangeend').daterangepicker({
+    opens: 'right',
+    singleDatePicker: true,
+    showDropdowns: true,
+    minDate: "01/01/2023",
+  }, function(start, end, label) {
+    // Formate les dates de début et de fin pour l'affichage et le stockage
     const storageFormat = 'YYYY-MM-DD';
 
     const startDateDisplay = start._d.toLocaleDateString('fr-FR', options);
     const endDateDisplay = end._d.toLocaleDateString('fr-FR', options);
 
     const startDateStorage = start.format(storageFormat);
-    const endDateStorage = end.format(storageFormat);
-
-    // Met à jour les éléments HTML avec les dates sélectionnées
-    $('#dateRangeBegin').text(startDateDisplay);
-    $('#dateRangeEnd').text(endDateDisplay);
 
     // Stocke la plage de dates sélectionnée dans un cookie
-    document.cookie = `dateRangeFilter=${startDateStorage} * ${endDateStorage}; SameSite=Lax`;
+    document.cookie = `dateRangeEnd=${startDateStorage}; SameSite=Lax`;
 
     // Stocke la date de début et de fin sélectionnée dans localStorage
-    localStorage.setItem("startDate", JSON.stringify(startDateDisplay));
-    localStorage.setItem("endDate", JSON.stringify(endDateDisplay));
+    localStorage.setItem("endDate", JSON.stringify(startDateDisplay));
 
     // Met à jour la plage de dates affichée en appelant la fonction de rappel
-    cb(startDateDisplay, endDateDisplay);
+    cbEnd(startDateDisplay);
   });
 
   // Initialise la plage de dates affichée en appelant la fonction de rappel avec la date courante
-  cb(localeDateString, localeDateString);
+  cbStart(localeDateString);
+  cbEnd(localeDateString);
 
   // Ajoute un gestionnaire d'événements pour le bouton de filtre pour forcer le rechargement de la page
   $("#buttonMenuFilterByCreationDateRange").on("click", () => {
-    setTimeout(() => {
-      window.location.reload()
-    }, 600)
+    const startDateStorage = Cookies.get('dateRangeBegin')
+    const endDateStorage = Cookies.get('dateRangeEnd')
+
+    console.log('====================================');
+    console.log(startDateStorage > endDateStorage);
+    console.log('====================================');
+
+    $('#reportrangebegin').removeClass('border border-danger')
+    $(".alert-report-range-begin").html('')
+
+    if (startDateStorage > endDateStorage) {
+      $('#reportrangebegin').addClass('border border-danger')
+      if ($("#alertDateRangeBegin").length < 1) {
+        $(".alert-report-range-begin").append(`
+          <span id="alertDateRangeBegin" class="text-sm text-danger mt-1 d-flex align-items-center" style="gap: 5px">
+            <i class="fa fa-circle-exclamation"></i>
+            La date de début doit être inférieure à la date de fin
+          </span>
+        `
+        ) 
+      }
+    } else {
+      document.cookie = `dateRangeFilter=${startDateStorage} * ${endDateStorage}; SameSite=Lax`;
+      setTimeout(() => {
+        window.location.reload()
+      }, 600)
+    }
   })
 
   $("#buttonMenuFilterByCreator").on("click", (e) => {

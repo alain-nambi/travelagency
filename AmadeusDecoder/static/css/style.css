@@ -1277,7 +1277,7 @@ ul.pnr-menu {
 	top: 138px;
 }
 
-#reportrange {
+#reportrangebegin, #reportrangeend {
 	cursor: pointer;
 	padding: 5px 0px 5px 10px;
 	width: 100%;

@@ -777,16 +777,17 @@ class ZenithParserReceipt():
                 # new emd to be inserted
                 new_emd = Ticket()
                 new_emd.pnr = pnr
-                # transport_cost = 0
+                transport_cost = 0
                 try:
                     new_emd.transport_cost = decimal.Decimal(part[next_index+1].split(' ')[0].replace(',','.'))
-                    # transport_cost = new_emd.transport_cost
+                    transport_cost = new_emd.transport_cost
                     new_emd.total = decimal.Decimal(part[next_index+1].split(' ')[0].replace(',','.'))
                 except:
                     pass
 
                 is_created_by_us = self.check_part_emitter(part)
                 # make current other_fee as flown
+                
                 '''
                 temp_emd = Ticket.objects.filter(pnr=pnr, passenger=current_passenger, ticket_type='EMD').order_by('-id').first()
                 if temp_emd is not None:
@@ -794,16 +795,16 @@ class ZenithParserReceipt():
                         temp_emd.ticket_status = 3
                         temp_emd.save()'''
                 
-                '''
                 if isinstance(current_segment, list):
                     temp_other_fees = OthersFee.objects.filter(pnr=pnr, related_segments__passenger=current_passenger, fee_type='EMD').all()
                 else:
                     temp_other_fees = OthersFee.objects.filter(pnr=pnr, related_segments__passenger=current_passenger, related_segments__segment=current_segment, fee_type='EMD').all()
                 
                 for other_fee in temp_other_fees:
-                    if self.check_is_invoiced_status(None, other_fee) or other_fee.cost == transport_cost:
+                    if other_fee.cost == transport_cost:
+                        #self.check_is_invoiced_status(None, other_fee) or 
                         other_fee.other_fee_status = 3
-                        other_fee.save() '''
+                        other_fee.save()
                 
                 # get emd
                 # for element in part:

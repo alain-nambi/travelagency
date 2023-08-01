@@ -107,6 +107,8 @@ class Ticket(models.Model, BaseModel):
     original_ticket_status = models.IntegerField(default=1) 
     # issuing agency name (original issuing agency name when ID cannot be found)
     issuing_agency_name = models.CharField(max_length=200, null=True)
+    # issuing emitter name (when not found from database)
+    issuing_agent_name = models.CharField(max_length=200, null=True)
     
     # update ticket status if PNR has been reissued with different tickets
     def update_ticket_status_PNR_reissued(self, pnr, new_ticket_list):

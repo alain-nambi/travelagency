@@ -354,7 +354,7 @@ class Ticket(models.Model, BaseModel):
                 temp_other_fee_obj.total = subcontracting_cost
                 temp_other_fee_obj.pnr = self.pnr
                 temp_other_fee_obj.ticket = self
-                temp_other_fee_obj.fee_type = 'FEE'
+                temp_other_fee_obj.fee_type = 'outsourcing'
                 temp_other_fee_obj.creation_date = self.issuing_date
                 temp_other_fee_obj.is_subjected_to_fee = False
                 temp_other_fee_obj.other_fee_status = self.ticket_status

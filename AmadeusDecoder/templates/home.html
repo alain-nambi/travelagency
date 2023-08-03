@@ -49,6 +49,7 @@
                       <div class="wrapper-menu-filter">
                         <div class="content">
                           <ul class="filter-menu">
+                            <!-- Add pnr filter -->
                             <li class="list list-one mb-1">
                               <div class="filter-menu list">
                                 <i class="fa fa-eye"></i>
@@ -56,6 +57,8 @@
                               </div>
                               <i class="fa-solid fa-angle-right"></i>
                             </li>
+
+                            <!-- Add date range filter -->
                             <li class="list list-two mb-1">
                               <div class="filter-menu list" id="showDateRangePicker">
                                 <i class="fa-sharp fa-solid fa-calendar-days" style="padding-left: 1px !important;"></i>
@@ -63,6 +66,8 @@
                               </div>
                               <i class="fa-solid fa-angle-right"></i>
                             </li>
+
+                            <!-- Add creator filter -->
                             <li class="list list-three mb-1" cy-data="show-creator-filter">
                               <div class="filter-menu list" id="showFilterByCreator">
                                 <i class="fa-regular fa-user" style="padding-left: 1px !important;"></i>
@@ -70,6 +75,8 @@
                               </div>
                               <i class="fa-solid fa-angle-right"></i>
                             </li>
+
+                            <!-- Add status filter -->
                             <li class="list list-four mb-1">
                               <div class="filter-menu list" id="showFilterByPnrStatus">
                                 <i class="fas fa-sliders-h" style="padding-left: 1px !important;"></i>
@@ -77,6 +84,16 @@
                               </div>
                               <i class="fa-solid fa-angle-right"></i>
                             </li>
+
+                            <!-- Add agency filter -->
+                            <li class="list list-six mb-1">
+                              <div class="filter-menu list" id="">
+                                <i class="fas fa-users" style="padding-left: 1px !important;"></i>
+                                <span>Agence</span>
+                              </div>
+                              <i class="fa-solid fa-angle-right"></i>
+                            </li>
+
                             <li class="list list-five bg-danger justify-content-center close-button-filter">
                               <div class="filter-menu list">
                                 <i class="fas fa-close" style="padding-left: 1px !important; font-size: 14px !important"></i>
@@ -160,6 +177,8 @@
                               <i class="fa fa-calendar"></i>&nbsp;
                               <span class="text-sm"></span>
                             </div>
+
+                            <!-- Alert date range -->
                             <div class="alert-report-range-begin"></div>
                             <span class="text-sm font-weight-bold">Date de fin</span>
                             <div id="reportrangeend" class="mt-2">
@@ -200,6 +219,33 @@
                           <button type="submit" class="d-flex align-items-center mt-2 px-2 py-0" id="buttonMenuFilterByCreator" cy-data="button-filter-menu-creator">
                             <span class="text-sm">Afficher</span>
                           </button>
+                        </div>
+                      </div>
+
+                      <!-- Add agency list menu filter -->
+                      <div class="agency-list-menu absolute">
+                        <div class="agency-list content">
+                          <div class="content d-flex flex-column">
+                            <span class="text-md font-weight-bold mb-1">Agence</span>
+                            <select id="agencyListSelection">
+                              <option value="-1">Sélectionner l'agence...</option>
+                              {% with distinct_agency_names|list_agency_name as agency_names %}
+                                {% for agency in agency_names %}
+                                  {% if agency.agency_name is not None and agency.agency_name != ""  %}
+                                    <option value="{{agency.agency_name}}">{{ agency.agency_name }}</option>
+                                  {% endif %}
+                                {% endfor %}
+                              {% endwith %}
+                              <option value="0">Pas d'agence</option>
+                            </select>
+                            <!-- Alert agency filter -->
+                            <div class="alert-agency-filter"></div>
+                          </div>
+                          <div class="d-flex justify-content-end">
+                            <button type="submit" class="d-flex align-items-center mt-2 px-2 py-0" id="buttonMenuAgencyFilter" cy-data="button-filter-menu-agency">
+                              <span class="text-sm">Afficher</span>
+                            </button>
+                          </div>
                         </div>
                       </div>
 

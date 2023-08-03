@@ -258,6 +258,16 @@ def get_all_pnr(request):
 
     # print(sort_creator)
     
+    agency_name_filter = request.COOKIES.get('agency_name_filter')
+    
+    agency_name = Q()
+    if agency_name_filter and agency_name_filter != "0":
+        agency_name = Q(agency_name__icontains=agency_name_filter) if agency_name_filter else Q()
+    elif agency_name_filter == "0":
+        agency_name = Q(agency_name="", agent_code="", agency=None)
+        
+    print(f"AGENCY NAME : {agency_name}")
+    
     if request.user.id in [4, 5]: #==> [Farida et Mouniati peuvent voir chacun l'ensemble de leurs pnr]
         pnr_list = []
         pnr_count = 0
@@ -276,6 +286,7 @@ def get_all_pnr(request):
                             status_value,
                             date_filter,
                             max_system_creation_date,
+                            agency_name
                         ).first()
                     
                 if pnr not in pnr_list and pnr is not None:
@@ -293,6 +304,7 @@ def get_all_pnr(request):
                             date_filter,
                             agent,
                             max_system_creation_date,
+                            agency_name
                         ).order_by(date_order_by + 'system_creation_date')
                     
             for pnr in pnr_obj:
@@ -338,6 +350,7 @@ def get_all_pnr(request):
                             status_value,
                             date_filter,
                             max_system_creation_date,
+                            agency_name
                         ).filter(is_invoiced=is_invoiced).first()
                 
                 if pnr not in pnr_list and pnr is not None:
@@ -355,6 +368,7 @@ def get_all_pnr(request):
                             date_filter,
                             agent,
                             max_system_creation_date,
+                            agency_name
                         ).filter(is_invoiced=is_invoiced).order_by(date_order_by + 'system_creation_date')
             
             for pnr in pnr_obj:
@@ -415,7 +429,8 @@ def get_all_pnr(request):
                         is_invoiced,
                         status_value,
                         date_filter,
-                        max_system_creation_date
+                        max_system_creation_date,
+                        agency_name,
                     ).first()
 
             # If Pnr is not already in the set and is not None, add it to the set and the list
@@ -441,6 +456,7 @@ def get_all_pnr(request):
                         agent,
                         max_system_creation_date,
                         status_value,
+                        agency_name,
                     ).filter(
                         is_invoiced,
                     ).order_by(
@@ -503,6 +519,7 @@ def get_all_pnr(request):
                                 status_value,
                                 max_system_creation_date,
                                 date_filter,
+                                agency_name,
                             )
 
             if is_invoiced is not None:
@@ -553,6 +570,7 @@ def get_all_pnr(request):
                             ).filter(
                                 max_system_creation_date,
                                 date_filter,
+                                agency_name,
                             )
 
             if is_invoiced is not None:
@@ -1983,3 +2001,15 @@ def is_issued_at_airport(ticket, other_fee):
                 return True
         
     return False
+
+@register.filter(name='list_agency_name')
+def get_list_agency_name(_):
+    from AmadeusDecoder.models.pnr.Pnr import Pnr
+    
+    distinct_agency_names = Pnr.objects.values('agency_name').distinct().order_by('agency_name')
+    
+    print(distinct_agency_names)
+    
+    return distinct_agency_names
+    
+    

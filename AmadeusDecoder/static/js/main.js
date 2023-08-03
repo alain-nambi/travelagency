@@ -11,7 +11,35 @@ $(document).ready(function () {
   }, 2000);
 });
 
+// Add agency selected value in document cookies
+const agencyListSelection = document.querySelector("#agencyListSelection")
+
 $(document).ready(function () {
+
+  // LOADING THE CURRENT PAGE IF buttonMenuAgencyFilter IS CLICKED
+  const buttonMenuAgencyFilter = document.querySelector("#buttonMenuAgencyFilter")
+  if (buttonMenuAgencyFilter) {
+    buttonMenuAgencyFilter.addEventListener("click", function(e) {
+      e.preventDefault()
+      if (agencyListSelection.value !== "-1") {
+        setTimeout(() => {
+          window.location.reload()
+        }, 600)
+      } else {
+        if ($("#alertAgencyFilter").length < 1) {
+          $(".alert-agency-filter").append(`
+            <span id="alertAgencyFilter" class="text-sm text-danger mt-1 d-flex align-items-center" style="gap: 5px">
+              <i class="fa fa-circle-exclamation"></i>
+              Veuillez séléctionner une agence
+            </span>
+          `
+          ) 
+        }
+      }
+    })
+  }
+
+
   // Retrieve the sorting information from local storage
   let isSortedByCreator = localStorage.getItem('isSortedByCreator');
 
@@ -69,6 +97,7 @@ $(document).ready(function () {
   const isCreatorSelected   = getCookies("creator_pnr_filter")
   const isDateRangeSelected = getCookies("dateRangeFilter")
   const isStatusSelected    = getCookies("filter_pnr_by_status")
+  const isAgencySelected    = getCookies("agency_name_filter")
 
   // console.log('====================================');
   // console.log(isPnrFilterSelected);
@@ -119,6 +148,51 @@ $(document).ready(function () {
           ${pnr}
         </span>
         ${userRoleId !== 3 ? buttonPnrFilter : replaceButton}
+      </div>
+    `
+  }
+
+  // Add filter badge for agency selected value
+  const isAgencySelectedValue = (agency) => {
+    const agencyName = agency != "0" ? agency : "Pas d'agence";
+
+    const cancelAgencyFilter = `
+      <button 
+        style="
+          border: none; 
+          background: transparent; 
+          color: #fff;
+        " 
+        title="Supprimer le filtre d'Agence"
+        id="buttonCancelAgencyFilter"
+      >
+        <i 
+          id="iconAgencyFilter"
+          class="fas fa-times-circle pr-2 pl-1"
+          style="font-size: 14px;"
+        ></i>
+      </button>
+    `
+
+    return `
+      <div
+        style="
+          color: #fff;
+          background: #17a2b8;
+          border-radius: 6px;
+          cursor: pointer;
+          padding: 2px 1px;
+        "
+        class="d-flex align-items-center ml-2"
+      >
+        <span  
+          cy-data="span-status-filter-name" 
+          style="font-size: 10px"
+          class="pl-2"
+        >
+          Agence : ${agencyName}
+        </span>
+        ${cancelAgencyFilter}
       </div>
     `
   }
@@ -278,20 +352,29 @@ $(document).ready(function () {
     null : "PNR: émis",
   };
 
+  // Add pnr filter selected value
   if (isPnrFilterSelected !== "None") {
     $("#listActiveFilter").append(`${isPnrFilterSelectedValue(pnrFilterSelectedValues[isPnrFilterSelected])}`);
   }
 
+  // Add pnr status selected value
   if (isStatusSelected !== "2") {
     $("#listActiveFilter").append(`${isStatusSelectedValue(statusSelectedValues[isStatusSelected])}`);
   }
 
+  // Add creator selected value
   if (isCreatorSelected !== null) {
     $("#listActiveFilter").append(`${isCreatorSelectedValue(isCreatorSelected)}`)
   }
 
+  // Add date range selected value
   if (isDateRangeSelected !== null) {
     $("#listActiveFilter").append(`${isDateRangeSelectedValue(isDateRangeSelected)}`)
+  }
+
+  // Add agency selected value
+  if (isAgencySelected !== null) {
+    $("#listActiveFilter").append(`${isAgencySelectedValue(isAgencySelected)}`)
   }
 
   const listActiveFilter = document.querySelector("#listActiveFilter")
@@ -320,6 +403,11 @@ $(document).ready(function () {
         window.location.reload()
       }
     })
+    $("#buttonCancelAgencyFilter").on("click", (e) => {
+      Cookies.remove("agency_name_filter", {path: "/home"})
+      localStorage.removeItem("agency_name_filter")
+      window.location.reload()
+    })
   }
 })
 
@@ -347,6 +435,7 @@ $(function() {
   const $pnrStatus           = $(".pnr-status");
   const $dateRangeMenu       = $(".date-range-menu");
   const $creatorMenu         = $(".creator-group-menu");
+  const $agencyMenu          = $(".agency-list-menu");
   const liElements           = $(".filter-menu > .list");
   const $pnrLiElements       = $(".pnr-menu .pnr-list");
   const $pnrStatusLiElements = $(".pnr-status .pnr-list");
@@ -356,6 +445,7 @@ $(function() {
   $pnrStatus.hide();
   $dateRangeMenu.hide();
   $creatorMenu.hide();
+  $agencyMenu.hide();
 
   $closeButtonFilter.on("click", function (e) {
     isMenuOpen = !isMenuOpen;
@@ -366,6 +456,7 @@ $(function() {
     $pnrStatus.hide();
     $dateRangeMenu.hide();
     $creatorMenu.hide();
+    $agencyMenu.hide();
   })
 
   // Initialise des variables booléennes pour suivre l'état des menus ouverts et les filtres sélectionnés.
@@ -381,6 +472,7 @@ $(function() {
     $pnrStatus.hide();
     $dateRangeMenu.hide();
     $creatorMenu.hide();
+    $agencyMenu.hide();
   });
 
   document.addEventListener('click', function(event) {
@@ -389,20 +481,21 @@ $(function() {
     // Vérifie si la variable isMenuOpen est définie et est de type boolean
     if (typeof isMenuOpen === 'boolean') {
       // Vérifie si le menu est ouvert (isMenuOpen est true) et si l'élément cliqué se trouve en dehors du menu
-      if (isMenuOpen && !event.target.closest("#buttonMenuFilter, .wrapper-menu-filter, .pnr-menu, .pnr-status, .date-range-menu, .creator-group-menu, .filter-menu > .list, .pnr-menu .pnr-list, .pnr-status .pnr-list, #reportrange, .daterangepicker, .next, .prev")) {
+      if (isMenuOpen && !event.target.closest("#buttonMenuFilter, .wrapper-menu-filter, .pnr-menu, .pnr-status, .date-range-menu, .creator-group-menu, .filter-menu > .list, .pnr-menu .pnr-list, .pnr-status .pnr-list, #reportrange, .daterangepicker, .next, .prev, .creator-group-menu, .agency-list, .agency-list-menu.absolute")) {
         // Si les conditions sont remplies, cela signifie que vous avez cliqué en dehors du menu, donc le menu doit être fermé
   
         // Inverse la valeur de isMenuOpen (true devient false, et vice versa)
         isMenuOpen = !isMenuOpen;
   
         // Vérifie si les variables sont définies avant de les utiliser
-        if ($wrapperMenuFilter && $pnrMenu && $pnrStatus && $dateRangeMenu && $creatorMenu) {
+        if ($wrapperMenuFilter && $pnrMenu && $pnrStatus && $dateRangeMenu && $creatorMenu && $agencyMenu) {
           // Masque les éléments suivants pour les rendre invisibles sur la page
           $wrapperMenuFilter.hide();
           $pnrMenu.hide();
           $pnrStatus.hide();
           $dateRangeMenu.hide();
           $creatorMenu.hide();
+          $agencyMenu.hide();
         } else {
           console.error('Une ou plusieurs variables ne sont pas définies.');
         }
@@ -423,6 +516,7 @@ $(function() {
       $dateRangeMenu.hide();
       $creatorMenu.hide();
       $pnrStatus.hide();
+      $agencyMenu.hide();
     }
 
     if (this.classList.contains("list-two")) {
@@ -430,6 +524,7 @@ $(function() {
       $pnrMenu.hide();
       $creatorMenu.hide();
       $pnrStatus.hide();
+      $agencyMenu.hide();
     }
 
     if (this.classList.contains("list-three")) {
@@ -437,6 +532,7 @@ $(function() {
       $pnrMenu.hide();
       $creatorMenu.show();
       $pnrStatus.hide();
+      $agencyMenu.hide();
     }
 
     if (this.classList.contains("list-four")) {
@@ -444,6 +540,15 @@ $(function() {
       $pnrMenu.hide();
       $creatorMenu.hide();
       $pnrStatus.show();
+      $agencyMenu.hide();
+    }
+
+    if (this.classList.contains("list-six")) {
+      $dateRangeMenu.hide();
+      $pnrMenu.hide();
+      $creatorMenu.hide();
+      $pnrStatus.hide();
+      $agencyMenu.show();
     }
     
     this.classList.add("active");
@@ -563,6 +668,14 @@ $(function() {
       window.location.reload()
     }, 600)
   })
+
+  $(".alert-agency-filter").html('')
+  if (agencyListSelection) {
+    agencyListSelection.addEventListener("change", (e) => {
+      document.cookie = `agency_name_filter=${e.target.value}; SameSite=Lax`;
+      localStorage.setItem("agency_name_filter", JSON.stringify(e.target.value));
+    })
+  }
 
   // Ajoutez la date locale dans les éléments HTML avec l'ID "dateRangeBegin" et "dateRangeEnd"
   $('#dateRangeBegin, #dateRangeEnd').text(localeDateString);

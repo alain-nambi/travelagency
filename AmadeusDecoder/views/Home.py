@@ -133,6 +133,16 @@ def home(request):
 
     # print(sort_creator)
     
+    agency_name_filter = request.COOKIES.get('agency_name_filter')
+    
+    agency_name = Q()
+    if agency_name_filter and agency_name_filter != "0":
+        agency_name = Q(agency_name__icontains=agency_name_filter) if agency_name_filter else Q()
+    elif agency_name_filter == "0":
+        agency_name = Q(agency_name="", agent_code="", agency=None)
+        
+    print(f"AGENCY NAME : {agency_name}")
+    
     if request.user.id in [4, 5]: #==> [Farida et Mouniati peuvent voir chacun l'ensemble de leurs pnr]
         pnr_list = []
         pnr_count = 0
@@ -151,6 +161,7 @@ def home(request):
                             status_value,
                             date_filter,
                             max_system_creation_date,
+                            agency_name
                         ).first()
                     
                 if pnr not in pnr_list and pnr is not None:
@@ -168,6 +179,7 @@ def home(request):
                             date_filter,
                             agent,
                             max_system_creation_date,
+                            agency_name
                         ).order_by(date_order_by + 'system_creation_date')
                     
             for pnr in pnr_obj:
@@ -213,6 +225,7 @@ def home(request):
                             status_value,
                             date_filter,
                             max_system_creation_date,
+                            agency_name
                         ).filter(is_invoiced=is_invoiced).first()
                 
                 if pnr not in pnr_list and pnr is not None:
@@ -230,6 +243,7 @@ def home(request):
                             date_filter,
                             agent,
                             max_system_creation_date,
+                            agency_name
                         ).filter(is_invoiced=is_invoiced).order_by(date_order_by + 'system_creation_date')
             
             for pnr in pnr_obj:
@@ -307,7 +321,8 @@ def home(request):
                         is_invoiced,
                         status_value,
                         date_filter,
-                        max_system_creation_date
+                        max_system_creation_date,
+                        agency_name,
                     ).first()
 
             # If Pnr is not already in the set and is not None, add it to the set and the list
@@ -333,6 +348,7 @@ def home(request):
                         agent,
                         max_system_creation_date,
                         status_value,
+                        agency_name,
                     ).filter(
                         is_invoiced,
                     ).order_by(
@@ -410,6 +426,7 @@ def home(request):
                                 status_value,
                                 max_system_creation_date,
                                 date_filter,
+                                agency_name,
                             )
 
             if is_invoiced is not None:
@@ -460,6 +477,7 @@ def home(request):
                             ).filter(
                                 max_system_creation_date,
                                 date_filter,
+                                agency_name,
                             )
 
             if is_invoiced is not None:

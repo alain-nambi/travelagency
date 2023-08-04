@@ -229,8 +229,8 @@
                             <span class="text-md font-weight-bold mb-1">Agence</span>
                             <select id="agencyListSelection">
                               <option value="-1">Sélectionner l'agence...</option>
-                              {% with distinct_agency_names|list_agency_name as agency_names %}
-                                {% for agency in agency_names %}
+                              {% with agency_names|list_agency_name as agencies %}
+                                {% for agency in agencies %}
                                   {% if agency.agency_name is not None and agency.agency_name != ""  %}
                                     <option value="{{agency.agency_name}}">{{ agency.agency_name }}</option>
                                   {% endif %}

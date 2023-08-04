@@ -2005,11 +2005,17 @@ def is_issued_at_airport(ticket, other_fee):
 @register.filter(name='list_agency_name')
 def get_list_agency_name(_):
     from AmadeusDecoder.models.pnr.Pnr import Pnr
-    
     distinct_agency_names = Pnr.objects.values('agency_name').distinct().order_by('agency_name')
     
-    print(distinct_agency_names)
+    agency_names = []
     
-    return distinct_agency_names
+    for agency in distinct_agency_names: 
+        agency_name = agency['agency_name'].strip()
+        agency = {'agency_name': agency_name}
+        if agency not in agency_names:
+            agency_names.append(agency)
+            
+    print(agency_names)
+    return agency_names
     
     

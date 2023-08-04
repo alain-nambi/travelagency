@@ -520,7 +520,7 @@ class ZenithParserReceipt():
                         self.ajustment_total.append({'ticket': previous_ticket, 'total': total})
                     else:
                         # if receipt is sent twice
-                        previous_ticket = Ticket.objects.filter(pnr=pnr, passenger=ticket_saved_checker.passenger, ticket_description='modif', issuing_date=date_time.date()).exclude(number=original_ticket_number).last()
+                        previous_ticket = Ticket.objects.filter(pnr=pnr, passenger=ticket_saved_checker.passenger, ticket_description='modif', issuing_date=date_time.date()).exclude(number=original_ticket_number).exclude(ticket_status=0).last()
                         if previous_ticket is None:
                             is_untracked_reajustment = True
                 else:

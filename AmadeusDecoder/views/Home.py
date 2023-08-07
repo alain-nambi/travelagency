@@ -113,7 +113,6 @@ def home(request):
     
     filtered_creator = request.COOKIES.get('creator_pnr_filter')
     print("Creator: " + str(filtered_creator))
-    print(type(filtered_creator))
 
     # Retrieve the value of the "isSortedByCreator" cookie from the request
     is_sorter_by_creator = request.COOKIES.get('isSortedByCreator')

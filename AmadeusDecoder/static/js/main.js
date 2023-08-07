@@ -129,7 +129,12 @@ $(document).ready(function () {
     if (USERS_DATA) {
       const JSON_USERS_DATA = JSON.parse(USERS_DATA.getAttribute("data-users"))
       try {
-        username = JSON_USERS_DATA.find((user) => user.id === parseInt(creator)).username
+        if (creator == 'Empty') {
+          username = 'Non attribué'
+        }
+        else {
+          username = JSON_USERS_DATA.find((user) => user.id === parseInt(creator)).username
+        }
       } catch (error) {
         console.log('====================================');
         console.log("JSON USERS DATA:" + error);

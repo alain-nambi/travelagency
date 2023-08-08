@@ -614,8 +614,12 @@ def pnr_details(request, pnr_id):
                 cancellation.save()
 
         if not __ticket_base.exists() and not __other_fee_base.exists() and not __ticket_no_adc_base.exists():
-            pnr_detail.is_invoiced = False
-            pnr_detail.save()
+            if pnr_detail.tickets.filter(Q(ticket_status=0)|Q(ticket_status=3)).filter(is_invoiced=True) or pnr_detail.others_fees.filter(Q(other_fee_status=0)|Q(other_fee_status=3)).filter(is_invoiced=True):
+                pnr_detail.is_invoiced = True
+                pnr_detail.save()
+            else:
+                pnr_detail.is_invoiced = False
+                pnr_detail.save()
         elif __ticket_base.exists() and not __other_fee_base.exists() and not __ticket_no_adc_base.exists():
             print('Only ticket')
             __ticket_not_ordered = __ticket_base.filter(is_invoiced=False)

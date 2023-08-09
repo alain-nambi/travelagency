@@ -505,8 +505,7 @@ class ZenithParserReceipt():
                         
                         new_payment.save()
                     else:
-                        print('HERE I AM')
-                        # check related
+                        # check splitted PNR
                         self.process_pnr_split(date_time.date(), part, ticket_total, pnr)
             except Exception as e:
                 traceback.print_exc()

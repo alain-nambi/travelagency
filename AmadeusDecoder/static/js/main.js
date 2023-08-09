@@ -1417,13 +1417,20 @@ $(".p-checkbox").each(function () {
     $(".checkto" + data_id).change(function () {
       let feeIndex = $(this).index(".checkto" + data_id);
       let feeCheckboxChecking = $(".checkto" + data_id)[feeIndex + 1];
+
       console.log("Index de la checkbox: " + feeIndex);
+      console.log("Type de la checkbox: " + feeCheckboxChecking.getAttribute("data-type"));
+
       if (this.checked) {
         $(".check" + data_id).prop("checked", true);
-        $(feeCheckboxChecking).prop("checked", true);
+        if (feeCheckboxChecking.getAttribute("data-type") == "fee") {
+          $(feeCheckboxChecking).prop("checked", true);
+        }
       } else {
         $(".check" + data_id).prop("checked", false);
-        $(feeCheckboxChecking).prop("checked", false);
+        if (feeCheckboxChecking.getAttribute("data-type") == "fee") {
+          $(feeCheckboxChecking).prop("checked", false);
+        }
       }
     });
   });

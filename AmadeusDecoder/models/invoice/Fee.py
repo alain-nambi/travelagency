@@ -75,6 +75,13 @@ class OthersFee(models.Model, BaseModel):
         related_name='other_fees',
         null=True
     )
+    
+    emitter = models.ForeignKey(
+        "AmadeusDecoder.User",
+        on_delete=models.CASCADE,
+        related_name='emitted_other_fees',
+        null=True
+    )
 
     designation = models.CharField(max_length=100, null=True)
     quantity = models.IntegerField(default=1)
@@ -92,6 +99,8 @@ class OthersFee(models.Model, BaseModel):
     other_fee_status = models.IntegerField(default=1) # 0: void, 1: open for use, 3: flown
     # issuing agency name (original issuing agency name when ID cannot be found)
     issuing_agency_name = models.CharField(max_length=200, null=True)
+    # issuing emitter name (when not found from database)
+    issuing_agent_name = models.CharField(max_length=200, null=True)
     
     def __str__(self):
         return self.designation

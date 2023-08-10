@@ -17,7 +17,7 @@ class Pnr(models.Model, BaseModel):
     class Meta:
         db_table = 't_pnr'
         constraints = [
-                models.UniqueConstraint(fields=['number'], name='unique_pnr')
+                models.UniqueConstraint(fields=['number', 'pnr_status'], name='unique_pnr')
             ]
         
     agent = models.ForeignKey(
@@ -92,6 +92,8 @@ class Pnr(models.Model, BaseModel):
             size=20
         )
     is_archived = models.BooleanField(default=0)
+    # pnr status
+    pnr_status = models.IntegerField(default=1) # pnr status: 1: active, 0: void
     
     # get the minimum deadline date: can be segment or ssr
     def get_min_opc(self):

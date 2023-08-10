@@ -2,7 +2,7 @@ delete from t_configuration where name = 'Zenith Parser Tools';
 -- Zenith parser tools
 insert into t_configuration(environment, name, to_be_applied_on, value_name, array_value, array_of_array_value, dict_value, created_on, last_update, is_active) values
 ('all', 'Zenith Parser Tools', 'Zenith', 'Passenger type', ARRAY['Adulte(s)', 'Enfant(s)', 'Bébé(s)', 'Mineur(s) non accompagné'], null, null, now(), now(), true),
-('all', 'Zenith Parser Tools', 'Zenith', 'Passenger designations', ARRAY['M.', 'Mme', 'Enfant', 'Bébé', 'Mlle', 'Ms.'], null, null, now(), now(), true),
+('all', 'Zenith Parser Tools', 'Zenith', 'Passenger designations', ARRAY['M.', 'Mme', 'Enfant', 'Bébé', 'Mlle', 'Ms.', 'MSTR'], null, null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'E-ticket possible format', ARRAY['e-ticket', 'e‐ĕcket', 'e‐韜���cket', 'e‐⁛cket', 'e‐�cket', 'e‐଀cket', 'e‐෶���cket', 'e‐➄cket', 'e‐ᬘ���cket', 'e‐痴���cket'], null, null, now(), now(), true),
 ('all', 'Zenith Parser Tools', 'Zenith', 'Itinerary header possible format', null, ARRAY[
 	  ARRAY['Itinéraire', 'Vol', 'Enregistrement', 'De', 'A', 'Départ', 'Arrivée CabineEscales', null, null],

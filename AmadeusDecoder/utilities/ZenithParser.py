@@ -1017,7 +1017,16 @@ class ZenithParser():
                         service_carrier_indexes.append(i)
         
         air_segments = []
+        
+        # check if current PNR has already some segment line then get last segment order to prevent segment order duplication
         seg_order = 1
+        try:
+            current_pnr_segment = pnr.segments.order_by('id').last()
+            if current_pnr_segment is not None:
+                seg_order = int(current_pnr_segment.segmentorder.removeprefix('S')) + 1
+        except:
+            seg_order = 1
+        
         for i in range(len(service_carrier_indexes)):
             temp_content = None
             if i < len(service_carrier_indexes) - 1:

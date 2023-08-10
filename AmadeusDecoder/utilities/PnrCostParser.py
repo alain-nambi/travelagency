@@ -325,10 +325,22 @@ class PnrCostParser():
             temp_pnr_aisegment.codedest = Airport.objects.filter(iata_code=temp_destination).first()
             temp_pnr_aisegment.servicecarrier = Airline.objects.filter(iata=temp_airline_code).first()
             temp_pnr_aisegment.flightno = temp_flight_number
-            air_segments.append(temp_pnr_aisegment)
+            
+            if air_segments:
+                tester = True
+                for tester_segment in air_segments:
+                    if tester_segment.flightno == temp_pnr_aisegment.flightno and \
+                        tester_segment.departuretime == temp_pnr_aisegment.departuretime and \
+                        tester_segment.arrivaltime == temp_pnr_aisegment.arrivaltime:
+                        tester = False
+                        break
+                if tester:
+                    air_segments.append(temp_pnr_aisegment)
+            else:
+                air_segments.append(temp_pnr_aisegment)
+                
             i += 1
         
-        print(air_segments)
         return air_segments, temp_flight_class
     
     # get air segments
@@ -394,7 +406,7 @@ class PnrCostParser():
         single_query = queries[0]
         for i in range(1, len(queries)):
             single_query = single_query.intersection(queries[i])
-        
+            
         return single_query.first()
     
     # save tst to ticket table

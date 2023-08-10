@@ -744,7 +744,7 @@
 											
 											
 											<!-- Ticket-related other fee -->
-											<!--{% with ticket|ticket_other_fee as temp_other_fee %}
+											{% with ticket|ticket_other_fee as temp_other_fee %}
 												{% if temp_other_fee is not None %}
 													<tr class="tr-other-fees {% if other_fees_orders is not None %} text-success {% else %} text-primary {% endif %} " data-other-fee-id = "{{other_fee.id}}">
 														<td><span class="type" style="font-size: 12px;">{{ temp_other_fee.fee_type }}</span></td>
@@ -804,7 +804,7 @@
 														
 													</tr>
 												{% endif %}
-											{% endwith %}-->
+											{% endwith %}
 											
 											{% with ticket.id|fee as fee %}
 											{% if fee is not None %}

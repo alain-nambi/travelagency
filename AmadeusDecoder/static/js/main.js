@@ -1,3 +1,54 @@
+// Cette partie du code vérifie si l'élément avec l'id "listActiveFilter" existe dans le document HTML.
+const listActiveFilter = document.querySelector("#listActiveFilter");
+
+// Si l'élément existe, on exécute le code à l'intérieur de cette condition.
+if (listActiveFilter) {
+  let pressed = false; // Variable pour suivre l'état du bouton de la souris (enfoncé ou non)
+  let startX = 0; // Variable pour stocker la position initiale de la souris
+
+  // Événement déclenché lorsque le bouton de la souris est enfoncé sur l'élément
+  listActiveFilter.addEventListener("mousedown", (e) => {
+  // console.log("MOUSE IS DOWN");
+    pressed = true; // Le bouton de la souris est enfoncé
+    startX = e.clientX; // On enregistre la position initiale de la souris
+    listActiveFilter.style.cursor = 'grabbing'; // On change le curseur de la souris
+  });
+
+  // Événement déclenché lorsque la souris quitte l'élément
+  listActiveFilter.addEventListener("mouseleave", (e) => {
+    // console.log("MOUSE IS LEAVING");
+    pressed = false; // Le bouton de la souris n'est plus enfoncé
+  });
+
+  // Événement déclenché lorsque le bouton de la souris est relâché sur l'élément
+  listActiveFilter.addEventListener("mouseup", (e) => {
+    // console.log("MOUSE IS UP");
+    pressed = false; // Le bouton de la souris n'est plus enfoncé
+    listActiveFilter.style.cursor = 'grab'; // On change le curseur de la souris
+  });
+
+  // let animationFrameId;
+
+  // Événement déclenché lorsque la souris est déplacée sur l'élément
+  listActiveFilter.addEventListener("mousemove", (e) => {
+    // console.log("MOUSE IS MOVING");
+    // Si le bouton de la souris n'est pas enfoncé, on ne fait rien
+    if (!pressed) {
+      return;
+    }
+
+    listActiveFilter.scrollLeft += startX - e.clientX; // Calcule la distance parcourue par la souris et met à jour le défilement horizontal
+
+    // Annule l'animation frame précédente pour éviter d'effectuer plusieurs animations en même temps
+    // cancelAnimationFrame(animationFrameId);
+
+    // Définit une nouvelle animation frame pour effectuer le défilement horizontal
+    // animationFrameId = requestAnimationFrame(() => {
+       
+    // });
+  });
+}
+
 //spinner loading
 $(document).ready(function () {
   "use strict";
@@ -135,10 +186,10 @@ $(document).ready(function () {
           color: #fff;
           background: #17a2b8;
           border-radius: 6px;
-          cursor: pointer;
+          cursor: drag;
           padding: 2px 1px;
         "
-        class="d-flex align-items-center ml-2"
+        class="d-flex align-items-center ml-2 my-2"
       >
         <span  
           cy-data="span-status-filter-name" 
@@ -180,10 +231,10 @@ $(document).ready(function () {
           color: #fff;
           background: #17a2b8;
           border-radius: 6px;
-          cursor: pointer;
+          cursor: drag;
           padding: 2px 1px;
         "
-        class="d-flex align-items-center ml-2"
+        class="d-flex align-items-center ml-2 my-2"
       >
         <span  
           cy-data="span-status-filter-name" 
@@ -217,10 +268,10 @@ $(document).ready(function () {
           color: #fff;
           background: #17a2b8;
           border-radius: 6px;
-          cursor: pointer;
+          cursor: drag;
           padding: 2px 1px;
         "
-        class="d-flex align-items-center ml-2"
+        class="d-flex align-items-center ml-2 my-2"
       >
         <span  
           cy-data="span-creator-name" 
@@ -268,10 +319,10 @@ $(document).ready(function () {
           color: #fff;
           background: #17a2b8;
           border-radius: 6px;
-          cursor: pointer;
+          cursor: drag;
           padding: 2px 1px;
         "
-        class="d-flex align-items-center ml-2"
+        class="d-flex align-items-center ml-2 my-2"
       >
         <span  
           cy-data="span-date-range" 
@@ -306,10 +357,10 @@ $(document).ready(function () {
           color: #fff;
           background: #17a2b8;
           border-radius: 6px;
-          cursor: pointer;
+          cursor: drag;
           padding: 2px 1px;
         "
-        class="d-flex align-items-center ml-2"
+        class="d-flex align-items-center ml-2 my-2"
       >
         <span  
           cy-data="span-status-filter-name" 
@@ -476,7 +527,7 @@ $(function() {
   });
 
   document.addEventListener('click', function(event) {
-    console.log(event.target);
+    // console.log(event.target);
   
     // Vérifie si la variable isMenuOpen est définie et est de type boolean
     if (typeof isMenuOpen === 'boolean') {
@@ -504,7 +555,7 @@ $(function() {
       console.error('La variable isMenuOpen doit être définie et de type boolean.');
     }
   
-    console.log(isMenuOpen);
+    // console.log(isMenuOpen);
   });
 
   // Attache un gestionnaire d'événements pour chaque élément de menu de filtre afin de sélectionner/désélectionner les filtres et d'afficher/cacher les menus correspondants.

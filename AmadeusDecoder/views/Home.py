@@ -137,11 +137,11 @@ def home(request):
     
     agency_name = Q()
     if agency_name_filter and agency_name_filter != "0":
-        agency_name = Q(agency_name__icontains=agency_name_filter) if agency_name_filter else Q()
+        agency_name = Q(agency_name__icontains=agency_name_filter) | Q(agency__name__icontains=agency_name_filter) if agency_name_filter else Q()
     elif agency_name_filter == "0":
         agency_name = Q(agency_name="", agent_code="", agency=None)
         
-    print(f"AGENCY NAME : {agency_name}")
+    # print(f"AGENCY NAME : {agency_name}")
     
     if request.user.id in [4, 5]: #==> [Farida et Mouniati peuvent voir chacun l'ensemble de leurs pnr]
         pnr_list = []

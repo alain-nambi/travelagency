@@ -1396,3 +1396,32 @@ button[cy-data="span-date-range"]:hover {
 	background: #17a2b8 !important;
 	color: #fff;
 }
+
+/* Ce style définit la disposition en ligne des éléments de la liste active */
+#listActiveFilter {
+	display: -webkit-inline-box !important;
+	display: -moz-inline-box !important;
+	overflow-x: auto !important;
+	scroll-snap-type: x;
+	cursor: grab;
+	scroll-behavior: smooth;
+	scrollbar-width: thin;
+	user-select: none;
+	margin-left: 12px;
+}
+
+/* Ce style définit l'apparence de la scrollbar */
+#listActiveFilter::-webkit-scrollbar {
+	height: 10px; /* Définir la hauteur de la scrollbar */
+}
+
+/* Ce style définit l'apparence du curseur de la scrollbar */
+#listActiveFilter::-webkit-scrollbar-thumb {
+	background-color: #888; /* Définir la couleur du curseur de la scrollbar */
+	border-radius: 5px; /* Définir le rayon de la bordure du curseur de la scrollbar */
+}
+
+/* Ce style définit l'apparence de la piste de la scrollbar */
+#listActiveFilter::-webkit-scrollbar-track {
+	background-color: #c7c7c7; /* Définir la couleur de la piste de la scrollbar */
+}

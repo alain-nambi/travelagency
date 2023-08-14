@@ -14,6 +14,7 @@ import traceback
 
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.user.Users import User
+from AmadeusDecoder.models.user.Users import Office
 
 register = template.Library()
 
@@ -262,11 +263,11 @@ def get_all_pnr(request):
     
     agency_name = Q()
     if agency_name_filter and agency_name_filter != "0":
-        agency_name = Q(agency_name__icontains=agency_name_filter) if agency_name_filter else Q()
+        agency_name = Q(agency_name__icontains=agency_name_filter) | Q(agency__name__icontains=agency_name_filter) if agency_name_filter else Q()
     elif agency_name_filter == "0":
         agency_name = Q(agency_name="", agent_code="", agency=None)
         
-    print(f"AGENCY NAME : {agency_name}")
+    # print(f"AGENCY NAME : {agency_name}")
     
     if request.user.id in [4, 5]: #==> [Farida et Mouniati peuvent voir chacun l'ensemble de leurs pnr]
         pnr_list = []
@@ -2134,18 +2135,51 @@ def is_issued_at_airport(ticket, other_fee):
 
 @register.filter(name='list_agency_name')
 def get_list_agency_name(_):
-    from AmadeusDecoder.models.pnr.Pnr import Pnr
-    distinct_agency_names = Pnr.objects.values('agency_name').distinct().order_by('agency_name')
+    """
+    Retourne une liste de dictionnaires contenant les noms d'agence.
+
+    Args:
+        _ (str): Paramêtre non utilisé.
+
+    Returns:
+        list: Liste de dictionnaires.
+    """
     
-    agency_names = []
+    _OFFICE_LIST_SKIP = ['DZAUU01A1', 'DZAUU01A3', 'DZAUU01A4']  # Liste des codes de bureau à ignorer
+    _AGENCY_NAME_SKIP = ['GSA ISSOUFALI Dzaoudzi', 'GSA ISSOUFALI Jumbo Score', 'GSA ISSOUFALI Mamoudzou']  # Liste des noms d'agence à ignorer
     
-    for agency in distinct_agency_names: 
-        agency_name = agency['agency_name'].strip()
-        agency = {'agency_name': agency_name}
-        if agency not in agency_names:
-            agency_names.append(agency)
-            
-    print(agency_names)
-    return agency_names
+    # Récupérer les noms d'agence distincts de la table Pnr
+    distinct_agency_names = set(Pnr.objects.values_list('agency_name', flat=True))
+    
+    # Récupérer les noms de bureau distincts de la table Office
+    office_list = set(Office.objects.filter(company_id=1).values_list('name', flat=True))
+    
+    # Ensemble pour stocker les noms d'agence
+    agency_names = set()
+    
+    # Filtrer et ajouter les noms d'agence à l'ensemble
+    agency_names = {agency.strip() for agency in distinct_agency_names if agency.strip() not in _AGENCY_NAME_SKIP}
+
+    # Filtrer et ajouter les noms de bureau à l'ensemble
+    office_names = {office.strip() for office in office_list if office.strip() not in _OFFICE_LIST_SKIP}
+
+    # Ajouter les noms de bureau à l'ensemble des noms d'agence
+    agency_names.update(office_names)
+    
+    altea_agency = set(['Jumbo Score', 'Dzaoudzi', 'Mamoudzou', 'Office 5'])  # Noms d'agence supplémentaires
+    agency_names = sorted(agency_names.union(altea_agency))  # Fusionner les ensembles et trier les noms d'agence
+    
+    # Afficher les noms d'agence
+    # print(f'''
+    #     Liste de tous les agences \n
+    #     *******************************
+    #     {agency_names}
+    #     *******************************
+    #     {len(agency_names)}
+    #     *******************************
+    # ''')
+    
+    # Créer une liste de dictionnaires contenant les noms d'agence
+    return [{'agency_name': agency} for agency in agency_names]
     
     

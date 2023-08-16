@@ -1832,7 +1832,8 @@ class ZenithParser():
                     cost_details_part = self.get_part(content, COST_DETAIL_IDENTIFIER[0])
                     ticket_segments = self.get_ticket_segment_costs(cost_details_part, passengers, air_segments, pnr)
                     for ticket_segment in ticket_segments:
-                        temp_segment = PnrAirSegments.objects.filter(segmentorder=ticket_segment.segment.segmentorder, pnr=pnr, air_segment_status=1).first()
+                        temp_segment = PnrAirSegments.objects.filter(flightno=ticket_segment.segment.flightno, departuretime=ticket_segment.segment.departuretime, \
+                                                                      arrivaltime=ticket_segment.segment.arrivaltime, pnr=pnr, air_segment_status=1).first()
                         temp_ticket = Ticket.objects.filter(number=ticket_segment.ticket.number).first()
                         if temp_segment is not None:
                             temp_ticket_passenger_segment = TicketPassengerSegment.objects.filter(segment=temp_segment, ticket=temp_ticket).first()
@@ -1906,84 +1907,6 @@ class ZenithParser():
                                 temp_ticket.tax = shared_tax
                                 temp_ticket.save()
                         
-                    
-                    # other ancillaries
-                    # for ancillary in other_ancillaries:
-                    #     ancillary.pnr = pnr
-                    #     ancillary.save()
-                    
-                    '''
-                    # re-save passenger invoice
-                    if initial_is_invoiced_status:
-                        for temp_data in psg_invoice_ticket_fee_other:
-                            passenger_invoice = temp_data['psg_invoice']
-                            ticket = temp_data['psg_invoice_ticket']
-                            fee = temp_data['psg_invoice_fee']
-                            other_fee = temp_data['psg_invoice_other']
-                            ticket_number = temp_data['ticket_number']
-                            
-                            if ticket is not None:
-                                temp_ticket_obj = Ticket.objects.filter(number=ticket_number).first()
-                                if temp_ticket_obj is None:
-                                    ticket_to_be_created = Ticket()
-                                    ticket_to_be_created.number = ticket.number
-                                    ticket_to_be_created.pnr = pnr
-                                    ticket_to_be_created.state = 0
-                                    ticket_to_be_created.ticket_status = 0
-                                    ticket_to_be_created.transport_cost = ticket.transport_cost
-                                    ticket_to_be_created.tax = ticket.tax
-                                    ticket_to_be_created.total = ticket.total
-                                    ticket_to_be_created.emitter = ticket.emitter
-                                    ticket_to_be_created.passenger = ticket.passenger
-                                    ticket_to_be_created.ticket_type = ticket.ticket_type
-                                    # ticket_to_be_created.save()
-                                    temp_ticket_obj = ticket_to_be_created
-                                ticket = temp_ticket_obj
-                            elif fee is not None:
-                                temp_fee_obj = None
-                                if Fee.objects.filter(ticket__number=ticket_number, pnr=pnr).first() is not None:
-                                    temp_fee_obj = Fee.objects.filter(ticket__number=ticket_number, pnr=pnr).first()
-                                elif Fee.objects.filter(other_fee__designation=ticket_number, pnr=pnr).first() is not None:
-                                    temp_fee_obj = Fee.objects.filter(other_fee__designation=ticket_number, pnr=pnr).first()
-                                    
-                                if temp_fee_obj is not None:
-                                    temp_fee_obj.cost = fee.cost
-                                    temp_fee_obj.total = fee.total
-                                    # temp_fee_obj.save()
-                                fee = temp_fee_obj
-                            elif other_fee is not None:
-                                temp_other_fee = OthersFee.objects.filter(designation=other_fee.designation, pnr=pnr).first()
-                                if temp_other_fee is None:
-                                    other_fee_to_be_created = OthersFee()
-                                    other_fee_to_be_created.designation = other_fee.designation
-                                    other_fee_to_be_created.cost = other_fee.cost
-                                    other_fee_to_be_created.tax = other_fee.tax
-                                    other_fee_to_be_created.total = other_fee.total
-                                    other_fee_to_be_created.pnr = pnr
-                                    other_fee_to_be_created.creation_date = other_fee.creation_date
-                                    other_fee_to_be_created.is_subjected_too_fee = other_fee.is_subjected_too_fee
-                                    # other_fee_to_be_created.save()
-                                    temp_other_fee = other_fee_to_be_created
-                                other_fee = temp_other_fee
-                                
-                            temp_passenger_invoice_obj = PassengerInvoice()
-                            temp_passenger_invoice_obj.reference = passenger_invoice.reference
-                            temp_passenger_invoice_obj.is_invoiced = passenger_invoice.is_invoiced
-                            temp_passenger_invoice_obj.is_checked = passenger_invoice.is_checked
-                            temp_passenger_invoice_obj.type = passenger_invoice.type
-                            temp_passenger_invoice_obj.client_id = passenger_invoice.client_id
-                            temp_passenger_invoice_obj.fee = fee
-                            temp_passenger_invoice_obj.pnr = pnr
-                            temp_passenger_invoice_obj.ticket = ticket
-                            temp_passenger_invoice_obj.user_follower = passenger_invoice.user_follower
-                            temp_passenger_invoice_obj.is_quotation = passenger_invoice.is_quotation
-                            temp_passenger_invoice_obj.invoice_id = passenger_invoice.invoice_id
-                            temp_passenger_invoice_obj.status = passenger_invoice.status
-                            temp_passenger_invoice_obj.other_fee = other_fee
-                            temp_passenger_invoice_obj.date_creation = passenger_invoice.date_creation
-                            temp_passenger_invoice_obj.control = passenger_invoice.control
-                            # temp_passenger_invoice_obj.save()
-                    '''
             transaction.savepoint_commit(sid)
         except Exception as e:
             transaction.savepoint_rollback(sid)

@@ -5,25 +5,23 @@ FEE MODIFY REQUEST
 
 Plain_Text
 
-TST00004     DZAUU0006 MS/06JUL F N                  OD RUNDZA                 
+TST00001     DZAUU01A3 KO/29JUL I 0                  OD DZADZA                 
 T-                                                                             
-FXB/SBF/S3X/S4/S5X/S6/R,U013314,UP                                             
-   1.FAREB/AMAR MR                                                             
- 1   RUN UU  975 P 18AUG 2015  OK PHRCOLSF        18AUG18AUG 1PC               
- 2 X CDG UU 9185 N 19AUG 0945  OK PHRCOLSF        19AUG19AUG 1PC               
- 3   QJZ    ARNK                                                               
- 4 O CDG UU  972 L 03SEP 2245  OK LLPRSM          03SEP03SEP 1PC               
- 5 X RUN UU  274 N 04SEP 1345  OK LLPRSM          04SEP04SEP 1PC               
+FXB/SBF                                                                       
+   1.FABRE/DENIS MR                                                           
+ 1   DZA UU  275 N 16FEB 1225  OK LLPRSM          16FEB16FEB 1PC               
+ 2 X RUN UU  975 L 16FEB 2100  OK LLPRSM          16FEB16FEB 1PC               
+ 3 O CDG UU  976 T 09MAR 2115  OK TLPRSM          09MAR09MAR 1PC               
      DZA                                                                       
-FARE  I EUR     656.00                                                         
-TX001 X EUR   415.00-YQAC TX002 X EUR     8.00-YQAD TX003 X EUR    34.61-FRTI 
-TX004 X EUR     9.86-FRSE TX005 X EUR     2.26-IZEB TX006 X EUR     3.00-O4VC 
-TX007 X EUR     9.14-REDP TX008 X EUR    36.22-RJAE TX009 X EUR    13.33-QXAP 
-TOTAL   EUR    1187.42                                                         
-GRAND TOTAL EUR    1187.42                                                     
-RUN UU X/PAR UU NTE M/IT /-PAR UU X/RUN UU DZA M/IT END                       
+FARE  F EUR     352.00                                                         
+TX001 X EUR   430.00-YQAC TX002 X EUR     8.00-YQAD TX003 X EUR     4.50-F9AD 
+TX004 X EUR    35.71-FRTI TX005 X EUR     9.86-FRSE TX006 X EUR     1.13-IZAC 
+TX007 X EUR     3.00-O4VC TX008 X EUR    21.13-YTAP TX009 X EUR     4.57-REDP 
+TX010 X EUR    20.87-RJAE TX011 X EUR     1.13-IZEB TX012 X EUR    13.33-QXAP 
+TOTAL   EUR     905.23                                                         
+GRAND TOTAL EUR     905.23                                                     
+DZA UU X/RUN UU PAR172.42UU DZA204.55NUC376.97END ROE0.933742                 
 
- 44.FE VALID UU ONLY NONREF/NONEND                                             
- 45.FP EC                                                      
- 47.FT *F*U013314/TM0050                          
- 49.FV *F*UU
+ 23.FE VALID UU ONLY NONREF/NONEND                                             
+ 24.FP CA                                                                     
+ 25.FV UU                    

@@ -143,12 +143,13 @@ class Ticket(models.Model, BaseModel):
         for k in range(len(current_ticket_list)):
             if k not in common_ticket_index:
                 if is_multiple_file:
-                    if current_ticket_list[k].is_invoiced:
+                    if not current_ticket_list[k].is_invoiced:
                         current_ticket_list[k].ticket_status = 0
                         current_ticket_list[k].save()
                 else:
-                    current_ticket_list[k].ticket_status = 0
-                    current_ticket_list[k].save()
+                    if not current_ticket_list[k].is_invoiced:
+                        current_ticket_list[k].ticket_status = 0
+                        current_ticket_list[k].save()
             elif k in common_ticket_index:
                 current_ticket_list[k].ticket_status = 1
                 current_ticket_list[k].save()

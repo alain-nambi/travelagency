@@ -184,6 +184,10 @@ class ConfigReader():
             configs.TST_IDENTIFIER = Configuration.objects.filter(name=config_name, value_name='TST identifier').first().array_value
             configs.TICKET_IDENTIFIER = Configuration.objects.filter(name=config_name, value_name='Ticket identifier').first().array_value
             configs.COST_IDENTIFIER = Configuration.objects.filter(name=config_name, value_name='Cost identifier').first().array_value
+            configs.TST_FARE_IDENTIFIER = Configuration.objects.filter(name=config_name, value_name='Fare identifier').first().array_value
+            configs.TST_FARE_EQUIV_IDENTIFIER = Configuration.objects.filter(name=config_name, value_name='Fare equiv identifier').first().array_value
+            configs.TST_TOTAL_IDENTIFIER = Configuration.objects.filter(name=config_name, value_name='Total identifier').first().array_value
+            configs.TST_GRAND_TOTAL_IDENTIFIER = Configuration.objects.filter(name=config_name, value_name='Grand Total identifier').first().array_value
         except:
             print('There was some error when loading TST parser tool data. See error.txt for details.')
             with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:

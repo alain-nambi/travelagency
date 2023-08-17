@@ -541,16 +541,24 @@ class PnrOnlyParser():
                         a = index
                         departure = ''
                         landing = ''
+                        # almost all segment line ends with element like:  *1A/E* ,... 
+                        # notice format: *...*
                         if(flight_info[a].startswith('*') or flight_info[a].endswith('*')):
-                            while True:
+                            while a >= 0:
                                 if(flight_info[a - 1] != ''):
                                     departure = flight_info[a - 2]
                                     landing = flight_info[a - 1]
                                     break
                                 a -= 1
                         else:
-                            departure = flight_info[a - 1]
-                            landing = flight_info[a]
+                            # some segment line does not follow this convention (*...*)
+                            while a >= 0:
+                                if flight_info[a-1] != '':
+                                    if flight_info[a-1].isnumeric() and len(flight_info[a-1]) == 4:
+                                        departure = flight_info[a-2]
+                                        landing = flight_info[a-1]
+                                        break
+                                a -= 1
                         departure_time = datetime.strptime(flight_info[departure_time_index] + str(yearOfOperation) + ' ' + departure[0:2] + ':' + departure[2:] + ':00', '%d%b%Y %H:%M:%S')
                         # sometimes, landing time has a '+' attribute in order to show that some days has to be added from the departure date
                         if(len(landing.split('+')) <= 1):

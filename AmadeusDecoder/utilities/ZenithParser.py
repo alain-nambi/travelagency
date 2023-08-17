@@ -670,7 +670,10 @@ class ZenithParser():
             for psg_type in PASSENGER_TYPES:
                 if passenger_content[i].startswith(psg_type) and passenger_content[i] != psg_type:
                     new_content.append(psg_type)
-                    new_content.append(passenger_content[i].removeprefix(psg_type).strip())
+                    
+                    rest_of_content = passenger_content[i].removeprefix(psg_type).strip()
+                    if rest_of_content not in ['+', '-']:
+                        new_content.append(rest_of_content)
                     skip = True
                 elif len((passenger_content[i].strip()).split(psg_type)) > 1 and passenger_content[i].strip() != psg_type:
                     new_content.append((passenger_content[i].strip()).split(psg_type)[0].strip())

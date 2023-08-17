@@ -30,6 +30,10 @@ PASSENGER_DESIGNATIONS = configs.PASSENGER_DESIGNATIONS
 TST_IDENTIFIER = configs.TST_IDENTIFIER
 TICKET_IDENTIFIER = configs.TICKET_IDENTIFIER
 COST_IDENTIFIER = configs.COST_IDENTIFIER
+TST_FARE_IDENTIFIER = configs.TST_FARE_IDENTIFIER
+TST_FARE_EQUIV_IDENTIFIER = configs.TST_FARE_EQUIV_IDENTIFIER
+TST_TOTAL_IDENTIFIER = configs.TST_TOTAL_IDENTIFIER
+TST_GRAND_TOTAL_IDENTIFIER = configs.TST_GRAND_TOTAL_IDENTIFIER
 
 class PnrCostParser():
     '''
@@ -364,16 +368,19 @@ class PnrCostParser():
         for temp in content:
             space_free_temp = self.remove_space(temp.split(' '))
             if len(space_free_temp) > 0:
-                if space_free_temp[0] == COST_IDENTIFIER[0]:
+                # FARE
+                if space_free_temp[0] == TST_FARE_IDENTIFIER[0]:
                     for element in space_free_temp:
                         if element.split('.')[0].isnumeric():
                             fare = float(element)
+                # FARE EQUIV
                 # when foreign currency has been used
-                if space_free_temp[0] == COST_IDENTIFIER[1]:
+                if space_free_temp[0] == TST_FARE_EQUIV_IDENTIFIER[0]:
                     for element in space_free_temp:
                         if element.split('.')[0].isnumeric():
                             fare = float(element) 
-                elif space_free_temp[0] == COST_IDENTIFIER[2] and space_free_temp[1] == COST_IDENTIFIER[3]:
+                # elif space_free_temp[0] == COST_IDENTIFIER[2] and space_free_temp[1] == COST_IDENTIFIER[3]:
+                elif space_free_temp[0] == TST_TOTAL_IDENTIFIER[0]:
                     for element in space_free_temp:
                         if element.split('.')[0].isnumeric():
                             total = float(element)

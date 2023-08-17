@@ -1126,7 +1126,7 @@ class ZenithParserReceipt():
         self.handle_ticket_payment(pnr, passengers, ticket_payment_parts)
         
         # get ticket adjustment
-        # Marked with: "Reissuance Adjustment"
+        # Marked with: "Reissuance Adjustment" or "Réajustement tarifaire"
         ticket_adjustment_part = self.get_parts_by_type(receipt_parts, ADJUSTMENT_PART)
         self.handle_ticket_adjustment(pnr, passengers, ticket_adjustment_part)
         

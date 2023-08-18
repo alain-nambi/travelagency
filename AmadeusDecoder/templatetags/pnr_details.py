@@ -1906,6 +1906,20 @@ def get_all_pnr_to_switch(request):
     # Create date filter query object or an empty query object if dates are absent
     date_filter = Q(system_creation_date__range=[start_date, end_date]) if start_date and end_date else Q()
     max_system_creation_date = Q(system_creation_date__gt=maximum_timezone)
+    
+    agency_name_filter = request.COOKIES.get('agency_name_filter')
+    
+    print("AGENCY NAME FILTER")
+    print(agency_name_filter)
+    
+    agency_name = Q()
+    if agency_name_filter and agency_name_filter != "0":
+        agency_name = Q(agency_name__icontains=agency_name_filter) | Q(agency__name__icontains=agency_name_filter) if agency_name_filter else Q()
+    elif agency_name_filter == "0":
+        agency_name = Q(agency_name="", agent_code="", agency=None)
+        
+    print("AGENCY NAME")
+    print(agency_name)
 
     if request.user.id in [4, 5]: #==> [Farida et Mouniati peuvent voir chacun l'ensemble de leurs pnr]
         pnr_list = []
@@ -1919,6 +1933,7 @@ def get_all_pnr_to_switch(request):
                             max_system_creation_date, 
                             status_value,
                             date_filter,
+                            agency_name,
                         ).first()
                 if pnr not in pnr_list and pnr is not None:
                     pnr_list.append(pnr)
@@ -1937,6 +1952,7 @@ def get_all_pnr_to_switch(request):
                             max_system_creation_date, 
                             status_value,
                             date_filter,
+                            agency_name,
                         ).all().order_by(date_order_by + 'system_creation_date')
 
             for pnr in pnr_obj:
@@ -1956,6 +1972,7 @@ def get_all_pnr_to_switch(request):
                             max_system_creation_date, 
                             status_value,
                             date_filter,
+                            agency_name,
                         ).filter(is_invoiced=is_invoiced).first()
                 if pnr not in pnr_list and pnr is not None:
                     pnr_list.append(pnr)
@@ -1974,6 +1991,7 @@ def get_all_pnr_to_switch(request):
                             max_system_creation_date, 
                             status_value,
                             date_filter,
+                            agency_name,
                         ).filter(is_invoiced=is_invoiced).all().order_by(date_order_by + 'system_creation_date')
 
             for pnr in pnr_obj:
@@ -1998,6 +2016,7 @@ def get_all_pnr_to_switch(request):
                             max_system_creation_date, 
                             date_filter,
                             status_value,
+                            agency_name,
                         ).filter(is_invoiced=is_invoiced).first()
                 if pnr not in pnr_list and pnr is not None:
                     pnr_list.append(pnr)
@@ -2014,6 +2033,7 @@ def get_all_pnr_to_switch(request):
                             max_system_creation_date,
                             date_filter, 
                             status_value,
+                            agency_name,
                         ).filter(is_invoiced=is_invoiced).all().order_by(date_order_by + 'system_creation_date')
             for pnr in pnr_obj:
                 if pnr not in pnr_list:
@@ -2035,6 +2055,7 @@ def get_all_pnr_to_switch(request):
                                 status_value,
                                 date_filter,
                                 max_system_creation_date,
+                                agency_name,
                             ).all().order_by(date_order_by + 'system_creation_date') # <======= IMPORTANT
             else:
                 pnr_list =  Pnr.objects.filter(
@@ -2042,6 +2063,7 @@ def get_all_pnr_to_switch(request):
                                 status_value,
                                 date_filter,
                                 max_system_creation_date,
+                                agency_name,
                             ).all().order_by(date_order_by + 'system_creation_date').filter(is_invoiced=is_invoiced)
             print('Not all')
         elif filtered_creator == '0' or filtered_creator is None: ##### Si 'Tout' est sélectionner dans le filtre créateur
@@ -2050,12 +2072,14 @@ def get_all_pnr_to_switch(request):
                                 status_value,
                                 date_filter,
                                 max_system_creation_date,
+                                agency_name,
                             ) # <======= IMPORTANT
             else:
                 pnr_list =  Pnr.objects.all().order_by(date_order_by + 'system_creation_date').filter(
                                 status_value,
                                 date_filter,
                                 max_system_creation_date,
+                                agency_name,
                             ).filter(is_invoiced=is_invoiced)
             print('All')
         elif filtered_creator == 'Empty':
@@ -2064,12 +2088,14 @@ def get_all_pnr_to_switch(request):
                                 status_value,
                                 date_filter,
                                 max_system_creation_date,
+                                agency_name,
                             ) # <======= IMPORTANT
             else:
                 pnr_list =  Pnr.objects.filter(agent_id=None).order_by(date_order_by + 'system_creation_date').filter(
                                 status_value,
                                 date_filter,
                                 max_system_creation_date,
+                                agency_name,
                             ).filter(is_invoiced=is_invoiced)
             print('All')
 

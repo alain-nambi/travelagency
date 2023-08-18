@@ -177,18 +177,18 @@
                               {% for user in users %}
                                 <option value="{{user.id}}">{{user.username}}</option>
                               {% endfor %}
-                              <option value="Empty">Non attribué</option>
+                              <option value="Empty">Sans créateur</option>
                             {% elif request.user.id == 4 %}
                               <option value="4" selected="true">Farida</option>
                               <option value="5">Mouniati</option>
-                              <option value="Empty">Non attribué</option>
+                              <option value="Empty">Sans créateur</option>
                             {% elif request.user.id == 5 %}
                               <option value="4" >Farida</option>
                               <option value="5" selected="true">Mouniati</option>
-                              <option value="Empty">Non attribué</option>
+                              <option value="Empty">Sans créateur</option>
                             {% else %}
                               <option value="{{request.user.id}}" selected="true">{{request.user.username}}</option>
-                              <option value="Empty">Non attribué</option>
+                              <option value="Empty">Sans créateur</option>
                             {% endif %}
                           </select>
                         </div>
@@ -198,38 +198,6 @@
                           </button>
                         </div>
                       </div>
-
-
-
-                      <!-- <i class="fas fa-filter text-primary mr-2"></i> -->
-                      <!-- <span class="text-sm text-primary" style="width: 9rem;"> Filtrer par : </span> -->
-                      <!-- <select class="form-control form-control-sm form-select form-select-sm" id="pnrFilteredByOrder" name="pnr_filter">
-                        {% if request.user.role_id == 3 %}
-                          <option value="True">PNR envoyé</option>
-                          <option value="False" selected="true">PNR non envoyé</option>
-                        {% else %}
-                          <option value="None">Tous les PNR</option>
-                          <option value="True">PNR envoyé</option>
-                          <option value="False" selected="true">PNR non envoyé</option>
-                        {% endif %}
-                      </select> -->
-                      <!-- <span class="text-sm text-primary" style="width: 9rem; margin-left:2px;"> Créer par : </span>
-                      <select class="form-control form-control-sm form-select form-select-sm" id="pnrFilteredByCreator" name="pnr_filter">
-                        {% if request.user.role_id != 3 and request.user.id != 4 and request.user.id != 5 %}
-                          <option value="0">Tout</option>
-                          {% for user in users %}
-                          <option value="{{user.id}}">{{user.username}}</option>
-                          {% endfor %}
-                        {% elif request.user.id == 4 %}
-                          <option value="4" selected="true">Farida</option>
-                          <option value="5">Mouniati</option>
-                        {% elif request.user.id == 5 %}
-                          <option value="4" >Farida</option>
-                          <option value="5" selected="true">Mouniati</option>
-                        {% else %}
-                          <option value="{{request.user.id}}" selected="true">{{request.user.username}}</option>
-                        {% endif %}
-                      </select> -->
                     </div>
 
                     <div class="col-md-3 d-flex">

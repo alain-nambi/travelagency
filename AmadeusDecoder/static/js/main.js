@@ -1,3 +1,33 @@
+// Add margin-top for screen with lesser or equal to 1280
+
+const pushedSideBarMenu = document.querySelector("#pushed-sidebar")
+const pnrManagementMenu = document.querySelector("#pnrManagementMenu")
+const layoutHomeMenu = document.querySelector("#layoutHomeMenu")
+const screenWidth = window.innerWidth;
+
+if (pushedSideBarMenu) {
+  pushedSideBarMenu.addEventListener("click", (_e) => {
+    setTimeout(() => {
+      let sideBarTrigger = localStorage.getItem("sidebar")
+      let layoutHomeMenuheight = layoutHomeMenu.offsetHeight
+
+      // console.log(screenWidth);
+
+      if (sideBarTrigger == "opened" && screenWidth <= 1280) {
+        pnrManagementMenu.setAttribute("style", `margin-top: calc(${layoutHomeMenuheight}px - 20px) !important; visibility: visible;`)
+      } else {
+        pnrManagementMenu.setAttribute("style", "visibility: visible;")
+      }
+    }, 100)
+  })
+}
+
+// End of Adding margin-top for screen with lesser or equal to 1280
+
+/**Makes the list of active filters in the homepage scrollable vertically.
+  @param {listActiveFilter} - The list of active filters in the homepage scrollable filter menu.
+*/
+
 // Cette partie du code vérifie si l'élément avec l'id "listActiveFilter" existe dans le document HTML.
 const listActiveFilter = document.querySelector("#listActiveFilter");
 
@@ -48,6 +78,8 @@ if (listActiveFilter) {
     // });
   });
 }
+
+/* END OF LIST ACTIVE FILTER FOR FILTER MENU IN HOMEPAGE */
 
 //spinner loading
 $(document).ready(function () {

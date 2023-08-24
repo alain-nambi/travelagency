@@ -196,11 +196,11 @@
 
                       <div class="creator-group-menu absolute">
                         <div class="creator-group content d-flex flex-column">
+                          <span class="text-sm font-weight-bold">Créateur</span>
+                          <select id="normalize" multiple placeholder="Sélectionner le créateur...">
                           <span class="text-md font-weight-bold mb-1">Créer par</span>
-                          <select id="normalize">
                             <option value="">Sélectionner le créateur...</option>
                             {% if request.user.role_id != 3 and request.user.id != 4 and request.user.id != 5 %}
-                              <option value="0">Tout</option>
                               {% for user in users %}
                                 <option value="{{user.id}}">{{user.username}}</option>
                               {% endfor %}
@@ -215,7 +215,11 @@
                             {% endif %}
                           </select>
                         </div>
-                        <div class="d-flex justify-content-end">
+                        <div class="d-flex justify-content-end" style="gap: 5px;">
+                          <button type="button" id="cancelCreatorFilter" class="d-flex align-items-center mt-2 px-2 py-0 bg-danger">
+                            <span class="text-sm">Annuler</span>
+                          </button>
+
                           <button type="submit" class="d-flex align-items-center mt-2 px-2 py-0" id="buttonMenuFilterByCreator" cy-data="button-filter-menu-creator">
                             <span class="text-sm">Afficher</span>
                           </button>

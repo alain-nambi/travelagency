@@ -282,18 +282,28 @@ $(document).ready(function () {
 
   const isCreatorSelectedValue = (creator) => {
     const USERS_DATA = document.getElementById("getAllUsername")
-    let username = ""
-    if (USERS_DATA) {
-      const JSON_USERS_DATA = JSON.parse(USERS_DATA.getAttribute("data-users"))
-      try {
-        username = JSON_USERS_DATA.find((user) => user.id === parseInt(creator)).username
-      } catch (error) {
-        console.log('====================================');
-        console.log("JSON USERS DATA:" + error);
-        username = "Tout"
-        console.log('====================================');
+    const creators = JSON.parse(creator)
+    let usernames = []
+
+    try {
+      if (USERS_DATA) {
+        const JSON_USERS_DATA = JSON.parse(USERS_DATA.getAttribute("data-users"))
+
+        creators.forEach((creator) => {
+          if (!usernames.includes(creator)) {
+            usernames.push(JSON_USERS_DATA.find((user) => user.id === parseInt(creator)).username)
+          }
+        })
+
+        // Sort the array in alphabetical order using the compare function
+        usernames.sort((a, b) => a.localeCompare(b));
       }
+    } catch (error) {
+      console.log("Error on getting USERS DATA", error)
+      usernames = "Tout"
     }
+
+    
     return `
       <div
         style="
@@ -310,7 +320,7 @@ $(document).ready(function () {
           style="font-size: 10px"
           class="pl-2"
         >
-          Créateur: ${username}
+          ${usernames.length === 0 ? "Créateur : Tout" : `Créateur (${usernames.length}) : ${usernames.join(" | ")}`}
         </span>
         <button 
           style="
@@ -495,16 +505,32 @@ $(document).ready(function () {
 })
 
 $(function() {
-  const selectNormalize = document.querySelector("#normalize");
-  if (selectNormalize) {
-    selectNormalize.value="";
-    selectNormalize.addEventListener("change", (e) => {
-      if (e.target.value !== "") {
-        document.cookie = `creator_pnr_filter=${e.target.value}; SameSite=Lax`;
-        localStorage.setItem("creator_pnr_filter", JSON.stringify(e.target.value));
-      }
-    })
-  }
+  const selectNormalize = $("#normalize").selectize({ 
+    onChange: (value) => {
+      const userIds = new Set(value)
+      const arrayOfUserIds = Array.from(userIds)
+      document.cookie = `creator_pnr_filter=${JSON.stringify(arrayOfUserIds)}; SameSite=Lax`;
+      localStorage.setItem("creator_pnr_filter", JSON.stringify(arrayOfUserIds));
+    }
+  })
+
+  // console.log(selectNormalize);
+
+  const control = selectNormalize[0].selectize;
+
+  $("#cancelCreatorFilter").on("click", function () {
+    control.clear();
+  });
+
+  // if (selectNormalize) {
+  //   selectNormalize.value="";
+  //   selectNormalize.addEventListener("change", (e) => {
+  //     if (e.target.value !== "") {
+  //       document.cookie = `creator_pnr_filter=${e.target.value}; SameSite=Lax`;
+  //       localStorage.setItem("creator_pnr_filter", JSON.stringify(e.target.value));
+  //     }
+  //   })
+  // }
 
   // Convertit l'objet Date actuel en une chaîne de caractères représentant la date actuelle au format spécifié ("day month year") et spécifie la locale française.
   const currentDateToString = new Date(Date.now());
@@ -869,7 +895,7 @@ $(function() {
 
   $("#buttonMenuFilterByCreator").on("click", (e) => {
     e.preventDefault()
-    if (selectNormalize.value !== "") {
+    if (selectNormalize[0].value !== "") {
       setTimeout(() => {
         window.location.reload()
       }, 600)

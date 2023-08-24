@@ -244,7 +244,11 @@ def get_all_pnr(request):
     # Set max timezone
     maximum_timezone = "2023-01-01 01:00:00.000000+03:00"
     
-    filtered_creator = request.COOKIES.get('creator_pnr_filter')
+    try:
+        filtered_creator = request.COOKIES.get('creator_pnr_filter')
+        filtered_creator = [int(user_id) for user_id in json.loads(filtered_creator)]
+    except Exception as e:
+        print(f"Error on filter creator ${e}")
 
     # Retrieve the value of the "isSortedByCreator" cookie from the request
     is_sorter_by_creator = request.COOKIES.get('isSortedByCreator')
@@ -295,7 +299,7 @@ def get_all_pnr(request):
 
             agent = Q()
             if filtered_creator is not None:
-                agent = Q(agent_id=filtered_creator)
+                agent = Q(agent_id__in=filtered_creator)
             else:
                 agent = Q(agent_id=4) | Q(agent_id=5)
 
@@ -359,7 +363,7 @@ def get_all_pnr(request):
 
             agent = Q()
             if filtered_creator is not None:
-                agent = Q(agent_id=filtered_creator)
+                agent = Q(agent_id__in=filtered_creator)
             else:
                 agent = Q(agent_id=4) | Q(agent_id=5)
 
@@ -445,7 +449,7 @@ def get_all_pnr(request):
 
         agent = Q()
         if filtered_creator is not None:
-            agent = Q(agent_id=filtered_creator)
+            agent = Q(agent_id__in=filtered_creator)
         else:
             agent = Q(agent_id=request.user.id) | Q(agent_id=None)
 
@@ -508,14 +512,14 @@ def get_all_pnr(request):
     else:
         status_value = Q(status_value=status_value_from_cookie) if status_value_from_cookie in [0, 1] else Q()
 
-        if filtered_creator != '0' and filtered_creator is not None: 
+        if filtered_creator is not None: 
             max_system_creation_date = Q(system_creation_date__gt=maximum_timezone)
 
             # Create date filter query object or an empty query object if dates are absent
             date_filter = Q(system_creation_date__range=[start_date, end_date]) if start_date and end_date else Q()
 
             pnr_queryset  = Pnr.objects.filter(
-                                agent_id=filtered_creator
+                                agent_id__in=filtered_creator
                             ).filter(
                                 status_value,
                                 max_system_creation_date,
@@ -560,7 +564,7 @@ def get_all_pnr(request):
             pnr_count = pnr_queryset.count()
 
             print('Not all')
-        elif filtered_creator == '0' or filtered_creator is None: ##### Si 'Tout' est sélectionner dans le filtre créateur
+        elif filtered_creator is None: ##### Si 'Tout' est sélectionner dans le filtre créateur
             max_system_creation_date = Q(system_creation_date__gt=maximum_timezone)
 
             # Create date filter query object or an empty query object if dates are absent

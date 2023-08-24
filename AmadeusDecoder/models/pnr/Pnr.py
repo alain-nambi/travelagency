@@ -3,11 +3,17 @@ Created on 25 Aug 2022
 
 @author: Famenontsoa
 '''
+import os
+import datetime
+import traceback
+
 from django.db import models
 from django.db.models import Q, Min, Max
 from AmadeusDecoder.models.BaseModel import BaseModel
 from django.contrib.postgres.fields.array import ArrayField
 from django.contrib.postgres.fields import HStoreField
+from AmadeusDecoder.models.invoice.Fee import OthersFee
+from AmadeusDecoder.models.invoice.Ticket import Ticket
 
 class Pnr(models.Model, BaseModel):
     '''
@@ -119,24 +125,68 @@ class Pnr(models.Model, BaseModel):
             elif issuing_user is None and self.agent is not None:
                 return self.agent
             else:
-                return None
+                issuing_user = User.objects.filter(
+                    (Q(emitted_other_fees__pnr=self) & (Q(emitted_other_fees__other_fee_status=1) | Q(emitted_other_fees__is_invoiced=True)))
+                    | (Q(emitted_tickets__pnr=self) & (Q(emitted_tickets__ticket_status=1) | Q(emitted_tickets__is_invoiced=True)))
+                ).order_by('id').last()
+                if issuing_user is None:
+                    issuing_user_other_fee = OthersFee.objects.filter(Q(pnr=self) & (Q(other_fee_status=1) | Q(is_invoiced=True))).exclude(issuing_agent_name=None).last()
+                    issuing_user_ticket= Ticket.objects.filter(Q(pnr=self) & (Q(ticket_status=1) | Q(is_invoiced=True))).exclude(issuing_agent_name=None).last()
+                    if issuing_user_other_fee is not None:
+                        return issuing_user_other_fee.issuing_agent_name
+                    elif issuing_user_ticket is not None:
+                        return issuing_user_ticket.issuing_agent_name
+                    else:
+                        return None
+                else:
+                    return issuing_user
         except Exception as e:
-            raise e
             print(e)
             
     # get pnr creator agent
     def get_creator_agent(self):
         from AmadeusDecoder.models.user.Users import User
         try:
+            creator = None
             issuing_user = User.objects.filter(copied_documents__document=self.number).order_by('id').first()
             if self.agent is not None:
-                return self.agent
+                creator = self.agent
             elif issuing_user is not None:
-                return issuing_user
+                creator = issuing_user
             else:
-                return self.agent_code
+                creator = self.agent_code
+            
+            if creator is None or creator == "":
+                creator = self.get_emit_agent()
+            return creator
         except Exception as e:
-            raise e
+            with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
+                error_file.write('{}: \n'.format(datetime.datetime.now()))
+                error_file.write('Error with function {}'.format("get_pnr_office"))
+                traceback.print_exc(file=error_file)
+                error_file.write('\n')
+            print(e)
+            
+    # get PNR issuing / creating office
+    def get_pnr_office(self):
+        try:
+            issuing_office_other_fee = OthersFee.objects.filter(Q(pnr=self) & (Q(other_fee_status=1) | Q(is_invoiced=True))).exclude(issuing_agency_name=None).last()
+            issuing_office_ticket= Ticket.objects.filter(Q(pnr=self) & (Q(ticket_status=1) | Q(is_invoiced=True))).exclude(issuing_agency_name=None).last()
+            if issuing_office_ticket is not None:
+                return issuing_office_ticket.issuing_agency_name
+            elif issuing_office_other_fee is not None:
+                return issuing_office_other_fee.issuing_agency_name
+            else:
+                if self.agency is not None:
+                    return self.agency.name
+                else:
+                    return self.agency_name
+        except Exception as e:
+            with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
+                error_file.write('{}: \n'.format(datetime.datetime.now()))
+                error_file.write('Error with function {}'.format("get_pnr_office"))
+                traceback.print_exc(file=error_file)
+                error_file.write('\n')
             print(e)
     
     # update is_read status

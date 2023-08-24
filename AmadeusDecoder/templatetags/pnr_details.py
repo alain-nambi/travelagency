@@ -3,19 +3,20 @@ Created on 29 Sep 2022
 
 @author: Famenontsoa
 '''
-_AIRPORT_AGENCY_CODE_ = ['DZAUU000B', 'Mayotte ATO']
-
 from datetime import datetime, timezone
-import html
 from django import template
 from django.db.models import Q
 import json
 import traceback
 
+import AmadeusDecoder.utilities.configuration_data as configs
+
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.user.Users import User
 
 register = template.Library()
+
+AIRPORT_AGENCY_CODE = configs.AIRPORT_AGENCY_CODE
 
 @register.filter(name='get_all_username')
 def get_all_username(_userId):
@@ -159,6 +160,13 @@ def get_issuing_date(pnr):
 def get_pnr_emitter(pnr):
     try:
         return pnr.get_emit_agent()
+    except:
+        return None
+    
+@register.filter(name='pnr_office')
+def get_pnr_office(pnr):
+    try:
+        return pnr.get_pnr_office()
     except:
         return None
     
@@ -1599,7 +1607,6 @@ def get_order_amout_total(pnr):
     from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
     from AmadeusDecoder.models.invoice.Ticket import Ticket
     from AmadeusDecoder.models.invoice.Fee import OthersFee, Fee
-    from AmadeusDecoder.models.pnr.Pnr import Pnr
     pnr = Pnr.objects.get(pk=pnr.id)
     passenger_invoices = PassengerInvoice.objects.filter(pnr_id=pnr)
     amount_total = 0
@@ -1782,19 +1789,19 @@ def is_issued_at_airport(ticket, other_fee):
         current_ticket = Ticket.objects.filter(id=ticket.id, ticket_type='EMD').first()
         if current_ticket is not None:
             # ticket has agency name: mostly for Zenith
-            if current_ticket.issuing_agency_name in _AIRPORT_AGENCY_CODE_:
+            if current_ticket.issuing_agency_name in AIRPORT_AGENCY_CODE:
                 return True
             # ticket has agency object: mostly for Altea
             if current_ticket.issuing_agency is not None:
-                if current_ticket.issuing_agency.name in _AIRPORT_AGENCY_CODE_ or \
-                    current_ticket.issuing_agency.code in _AIRPORT_AGENCY_CODE_:
+                if current_ticket.issuing_agency.name in AIRPORT_AGENCY_CODE or \
+                    current_ticket.issuing_agency.code in AIRPORT_AGENCY_CODE:
                     return True
     # for other fee: mostly for Zenith
     elif other_fee is not None:
         current_other_fee = OthersFee.objects.filter(id=other_fee.id, fee_type='EMD').first()
         if current_other_fee is not None:
             # other fee agency name
-            if current_other_fee.issuing_agency_name in _AIRPORT_AGENCY_CODE_:
+            if current_other_fee.issuing_agency_name in AIRPORT_AGENCY_CODE:
                 return True
         
     return False

@@ -2,10 +2,8 @@
 Created on 8 Sep 2022
 
 '''
-import csv
 import os
 import json
-import secrets 
 from datetime import datetime, timezone
 import requests
 import random
@@ -17,7 +15,6 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.forms.models import model_to_dict
 
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.pnr.PnrPassenger import PnrPassenger

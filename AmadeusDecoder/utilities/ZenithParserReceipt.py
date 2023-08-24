@@ -16,6 +16,7 @@ from AmadeusDecoder.models.invoice.TicketPassengerSegment import TicketPassenger
     OtherFeeSegment
 from AmadeusDecoder.models.invoice.Fee import OthersFee
 from AmadeusDecoder.models.user.Users import User
+from AmadeusDecoder.models.pnr.PnrPassenger import PnrPassenger
 
 # PAYMENT_OPTIONS = ['Comptant', 'En compte', 'Virement']
 # TICKET_NUMBER_PREFIX = ['Echange billet', 'EMD']
@@ -126,7 +127,29 @@ class ZenithParserReceipt():
                 if part_type in part:
                     matching_part_types.append(part)
         return matching_part_types
-     
+    
+    # get part emitter
+    def get_part_emitter(self, current_part):
+        is_known_emitter = False
+        emitter_displayed_name = ''
+        
+        emitter_part = current_part[1]
+        if len(emitter_part.split('.')) > 1:
+            emitter_displayed_name = emitter_part.split('.')[-1]
+        else:
+            emitter_displayed_name = emitter_part
+        
+        temp_user = User.objects.filter( \
+                Q(username__iexact=emitter_displayed_name.capitalize()) | \
+                Q(username=emitter_displayed_name) | \
+                Q(username=emitter_displayed_name.lower()) | \
+                Q(username=emitter_displayed_name.upper())).first()
+        if temp_user is not None:
+            is_known_emitter = True
+            return is_known_emitter, temp_user
+        else:
+            return is_known_emitter, emitter_displayed_name
+    
     # check if part has been issued by current Travel Agency
     def check_part_emitter(self, current_part):
         is_emitted = False
@@ -159,7 +182,7 @@ class ZenithParserReceipt():
         return 0
     
     # get passenger assigned on part
-    def get_passenger_assigned_on_part(self, passengers, current_part):
+    def get_passenger_assigned_on_part(self, passengers, current_part, is_none_required):
         # possible cases
         # '[Jacky Joseph bernard Maunier]' => OK
         # '[Jacky Joseph','bernard Maunier]' => OK
@@ -198,13 +221,15 @@ class ZenithParserReceipt():
             if passenger_name.strip() == passenger.name:
                 part_passenger = passenger
         
-        if part_passenger is None:
+        if part_passenger is None and not is_none_required:
             for passenger in passengers:
                 if passenger.types in DEFAULT_ASSIGNED_PASSENGER_ON_OBJECT:
                     part_passenger = passenger
                     break
             if part_passenger is None:
                 part_passenger = passengers[0]
+        elif part_passenger is None and is_none_required:
+            part_passenger = None
             
         return part_passenger, next_index
     
@@ -314,7 +339,6 @@ class ZenithParserReceipt():
                 ticket.is_subjected_to_fees = False
             elif other_fee is not None:
                 other_fee.is_subjected_to_fee = False
-        
                     
     # check issuing date
     def check_issuing_date(self, date_time):
@@ -323,13 +347,98 @@ class ZenithParserReceipt():
             is_flown = True
         return is_flown
     
+    # get same issued ticket based on cost, issuing_date and segment
+    def get_ticket(self, cost, issuing_date, segment, current_pnr):
+        if isinstance(segment, list):
+            segment = segment[0]
+        related_tickets = Ticket.objects.filter(total=cost, issuing_date__lte=issuing_date
+                                                , ticket_parts__segment__departuretime=segment.departuretime
+                                                , ticket_parts__segment__arrivaltime=segment.arrivaltime
+                                                , ticket_parts__segment__codedest=segment.codedest
+                                                , ticket_parts__segment__codeorg=segment.codeorg
+                                                , ticket_parts__segment__flightno=segment.flightno) \
+                                                .exclude(pnr=current_pnr).all()
+        
+        return related_tickets
+    
+    # perform data transfer between parent and child pnr
+    def child_parent_data_transfer(self, parent_pnr, child_pnr):
+        # current pnr's segments
+        child_pnr_segment = child_pnr.segments.all()
+        
+        # transfer passenger
+        parent_pnr_passengers = parent_pnr.passengers.all()
+        for pnr_passenger in parent_pnr_passengers:
+            temp_pnr_passenger_obj = PnrPassenger()
+            temp_pnr_passenger_obj.passenger = pnr_passenger.passenger
+            temp_pnr_passenger_obj.pnr = child_pnr
+            temp_pnr_passenger_obj.save()
+        
+        # transfer ticket
+        parent_pnr_tickets = parent_pnr.tickets.all()
+        for ticket in parent_pnr_tickets:
+            for segment in child_pnr_segment:
+                if ticket.ticket_parts.first().segment.codeorg == segment.codeorg and \
+                    ticket.ticket_parts.first().segment.codedest == segment.codedest:
+                    temp_ticket_status = ticket.ticket_status
+                    # required to update parent PNR total
+                    ticket.ticket_status = 0
+                    ticket.save()
+                    
+                    ticket.pnr = child_pnr
+                    ticket.ticket_status = temp_ticket_status
+                    ticket.save()
+        
+        # transfer other fees
+        parent_pnr_otherfees = parent_pnr.others_fees.all()
+        for other_fee in parent_pnr_otherfees:
+            for segment in child_pnr_segment:
+                if other_fee.related_segments.first().segment.codeorg == segment.codeorg and \
+                    other_fee.related_segments.first().segment.codedest == segment.codedest:
+                    temp_other_fee_status = other_fee.other_fee_status
+                    # required to update parent PNR total
+                    other_fee.other_fee_status = 0
+                    other_fee.save()
+                    
+                    other_fee.pnr = child_pnr
+                    other_fee.other_fee_status = temp_other_fee_status
+                    other_fee.save()
+                    
+        # update pnr split values
+        parent_pnr.is_parent = True
+        parent_pnr.is_splitted = True
+        parent_pnr.children_pnr = [child_pnr.number]
+        parent_pnr.save()
+        
+        child_pnr.is_child = True
+        child_pnr.is_splitted = True
+        child_pnr.parent_pnr = [parent_pnr.number]
+        child_pnr.save()
+    
+    # process PNR split
+    def process_pnr_split(self, issuing_date, current_part, element_cost, current_pnr):
+        part_segment = self.get_segments_assigned_on_part(current_part)
+        related_tickets = self.get_ticket(element_cost, issuing_date, part_segment, current_pnr)
+        parent_pnr = None
+        
+        for ticket in related_tickets:
+            temp_passenger = [ticket.passenger]
+            current_passenger_match = self.get_passenger_assigned_on_part(temp_passenger, current_part, True)
+            if current_passenger_match is not None:
+                parent_pnr = ticket.pnr
+                
+        # perform data transfer between parent and child PNR
+        if parent_pnr is not None:
+            self.child_parent_data_transfer(parent_pnr, current_pnr)
+    
     # ticket payment handling
     # When costs and taxes are not found on the original PNR
     def handle_ticket_payment(self, pnr, passengers, payment_part):
         for part in payment_part:
             date_time = self.get_issuing_date_on_part(part)
-            current_passenger, next_index = self.get_passenger_assigned_on_part(passengers, part)
+            current_passenger, next_index = self.get_passenger_assigned_on_part(passengers, part, True)
             is_created_by_us = self.check_part_emitter(part)
+            is_know_emitter, emitter = self.get_part_emitter(part)
             
             ticket_total = 0
             try:
@@ -338,6 +447,7 @@ class ZenithParserReceipt():
                 traceback.print_exc()
             
             ticket = Ticket.objects.filter(pnr=pnr, passenger=current_passenger).filter(Q(total=ticket_total) | Q(total=0)).first()
+            # ticket = Ticket.objects.filter(Q(pnr=pnr) & Q(passenger=current_passenger) & (Q(total=ticket_total) | Q(total=0))).first()
             try:
                 payment_option = part[next_index]
                 if ticket is not None:
@@ -351,6 +461,11 @@ class ZenithParserReceipt():
                         ticket.state = 0
                         ticket.ticket_status = 3
                     ticket.is_subjected_to_fees = True
+                    # emitter
+                    if is_know_emitter:
+                        ticket.emitter = emitter
+                    else:
+                        ticket.issuing_agent_name = emitter
                     ticket.save()
                 # PNR has been modified and old ticket record has been removed by Zenith
                 # So, the ticket payment will be saved as other fees with designation as "Paiement billet - 1"
@@ -381,7 +496,17 @@ class ZenithParserReceipt():
                         
                         new_payment.creation_date = date_time
                         new_payment.fee_type = 'TKT'
+                        
+                        # emitter
+                        if is_know_emitter:
+                            new_payment.emitter = emitter
+                        else:
+                            new_payment.issuing_agent_name = emitter
+                        
                         new_payment.save()
+                    else:
+                        # check splitted PNR
+                        self.process_pnr_split(date_time.date(), part, ticket_total, pnr)
             except Exception as e:
                 traceback.print_exc()
                 print(e)
@@ -408,8 +533,9 @@ class ZenithParserReceipt():
     def handle_ticket_adjustment(self, pnr, passengers, adjustment_part):
         for part in adjustment_part: 
             date_time = self.get_issuing_date_on_part(part)
-            current_passenger, next_index = self.get_passenger_assigned_on_part(passengers, part)
+            current_passenger, next_index = self.get_passenger_assigned_on_part(passengers, part, False)
             is_created_by_us = self.check_part_emitter(part)
+            is_know_emitter, emitter = self.get_part_emitter(part)
             # make current tickets as flown
             # temp_ticket = Ticket.objects.filter(pnr=pnr, passenger=current_passenger, ticket_type='TKT').order_by('-id').first()
             
@@ -473,11 +599,18 @@ class ZenithParserReceipt():
                             previous_ticket.ticket_status = 3
                         
                         previous_ticket.ticket_description = 'modif'
+                        
+                        # emitter
+                        if is_know_emitter:
+                            previous_ticket.emitter = emitter
+                        else:
+                            previous_ticket.issuing_agent_name = emitter
+                        
                         previous_ticket.save()
                         self.ajustment_total.append({'ticket': previous_ticket, 'total': total})
                     else:
                         # if receipt is sent twice
-                        previous_ticket = Ticket.objects.filter(pnr=pnr, passenger=ticket_saved_checker.passenger, ticket_description='modif', issuing_date=date_time.date()).exclude(number=original_ticket_number).last()
+                        previous_ticket = Ticket.objects.filter(pnr=pnr, passenger=ticket_saved_checker.passenger, ticket_description='modif', issuing_date=date_time.date()).exclude(number=original_ticket_number).exclude(ticket_status=0).last()
                         if previous_ticket is None:
                             is_untracked_reajustment = True
                 else:
@@ -517,6 +650,12 @@ class ZenithParserReceipt():
                         if self.check_issuing_date(date_time.date()):
                             new_other_fee.ticket_status = 3
                         
+                        # emitter
+                        if is_know_emitter:
+                            new_other_fee.emitter = emitter
+                        else:
+                            new_other_fee.issuing_agent_name = emitter
+                        
                         new_other_fee.save()
                         self.ajustment_total.append({'other_fee': new_other_fee, 'total': total})
                         
@@ -538,8 +677,9 @@ class ZenithParserReceipt():
     def handle_emd_cancellation(self, pnr, passengers, cancellation_part):
         for part in cancellation_part:
             date_time = self.get_issuing_date_on_part(part)
-            current_passenger, next_index = self.get_passenger_assigned_on_part(passengers, part)
+            current_passenger, next_index = self.get_passenger_assigned_on_part(passengers, part, False)
             current_segment = self.get_segments_assigned_on_part(part)
+            is_know_emitter, emitter = self.get_part_emitter(part)
             # new emd to be inserted
             new_emd = OthersFee()
             new_emd.pnr = pnr
@@ -583,6 +723,13 @@ class ZenithParserReceipt():
                     new_emd.other_fee_status = 3
                 new_emd.fee_type = 'Cancellation'
                 new_emd.creation_date = date_time.date()
+                
+                # emitter
+                if is_know_emitter:
+                    new_emd.emitter = emitter
+                else:
+                    new_emd.issuing_agent_name = emitter
+                
                 new_emd.save()
                 if otherfee_saved_checker is None:
                     if isinstance(current_segment, list):
@@ -603,8 +750,9 @@ class ZenithParserReceipt():
     def handle_ticket_cancellation(self, pnr, passengers, cancellation_part):
         for part in cancellation_part:
             date_time = self.get_issuing_date_on_part(part)
-            current_passenger, next_index = self.get_passenger_assigned_on_part(passengers, part)
+            current_passenger, next_index = self.get_passenger_assigned_on_part(passengers, part, False)
             current_segment = self.get_segments_assigned_on_part(part)
+            is_know_emitter, emitter = self.get_part_emitter(part)
             # new emd to be inserted
             new_emd = OthersFee()
             new_emd.pnr = pnr
@@ -678,6 +826,12 @@ class ZenithParserReceipt():
                     if temp_related_other_fee_fee is not None:
                         temp_related_other_fee_fee.delete()
                 
+                # emitter
+                if is_know_emitter:
+                    new_emd.emitter = emitter
+                else:
+                    new_emd.issuing_agent_name = emitter
+                
                 new_emd.save()
                 if otherfee_saved_checker is None:
                     if isinstance(current_segment, list):
@@ -696,6 +850,7 @@ class ZenithParserReceipt():
                     
     # emd when no ticket number provided
     def handle_emd_no_number(self, pnr, current_passenger, current_segment, is_created_by_us, cost, total, date_time, emd_single_part):
+        is_know_emitter, emitter = self.get_part_emitter(emd_single_part)
         is_balancing_statement = False
         
         designation_index = self.get_target_part_index_extended(emd_single_part, EMD_NO_NUMBER_POSSIBLE_DESIGNATION)
@@ -749,6 +904,12 @@ class ZenithParserReceipt():
             if is_balancing_statement:
                 new_emd.is_subjected_to_fee = False
             
+            # emitter
+            if is_know_emitter:
+                new_emd.emitter = emitter
+            else:
+                new_emd.issuing_agent_name = emitter
+            
             new_emd.save()
             if otherfee_saved_checker is None:
                 if isinstance(current_segment, list):
@@ -769,9 +930,10 @@ class ZenithParserReceipt():
     def handle_emd(self, pnr, passengers, emd_part):
         for part in emd_part:
             date_time = self.get_issuing_date_on_part(part)
-            current_passenger, next_index = self.get_passenger_assigned_on_part(passengers, part)
+            current_passenger, next_index = self.get_passenger_assigned_on_part(passengers, part, False)
             current_segment = self.get_segments_assigned_on_part(part)
             part_name_index = self.get_target_part_index(part, PENALTY_PART)
+            is_know_emitter, emitter = self.get_part_emitter(part)
             
             # skip "Frais d'agence"
             internal_fee = self.get_target_part_index(part, AGENCY_FEE_PART)
@@ -848,6 +1010,13 @@ class ZenithParserReceipt():
                     # set to refund when negative
                     if new_emd.total < 0:
                         new_emd.is_refund = True
+                    
+                    # emitter
+                    if is_know_emitter:
+                        new_emd.emitter = emitter
+                    else:
+                        new_emd.issuing_agent_name = emitter    
+                    
                     new_emd.save()
                     if ticket_saved_checker is None:
                         if isinstance(current_segment, list):
@@ -928,6 +1097,12 @@ class ZenithParserReceipt():
                     
                     new_emd.creation_date = date_time.date()
                     
+                    # emitter
+                    if is_know_emitter:
+                        new_emd.emitter = emitter
+                    else:
+                        new_emd.issuing_agent_name = emitter
+                    
                     new_emd.save()
                     # if not is_already_saved:
                     if otherfee_saved_checker is None:
@@ -956,7 +1131,7 @@ class ZenithParserReceipt():
         self.handle_ticket_payment(pnr, passengers, ticket_payment_parts)
         
         # get ticket adjustment
-        # Marked with: "Reissuance Adjustment"
+        # Marked with: "Reissuance Adjustment" or "Réajustement tarifaire"
         ticket_adjustment_part = self.get_parts_by_type(receipt_parts, ADJUSTMENT_PART)
         self.handle_ticket_adjustment(pnr, passengers, ticket_adjustment_part)
         

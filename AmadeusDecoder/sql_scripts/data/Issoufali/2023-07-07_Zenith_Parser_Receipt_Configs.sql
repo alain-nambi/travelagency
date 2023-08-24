@@ -8,7 +8,7 @@ insert into t_configuration(environment, name, to_be_applied_on, value_name, dat
 ('all', 'Zenith Receipt Parser Tools', 'Zenith', 'Started process date', '2023-01-01'::timestamp, null, null, null, now(), now(), true),
 ('all', 'Zenith Receipt Parser Tools', 'Zenith', 'Current travel agency identifier', null, ARRAY['Issoufali', 'ISSOUFALI', 'Mayotte ATO'], null, null, now(), now(), true),
 ('all', 'Zenith Receipt Parser Tools', 'Zenith', 'Ticket payment part', null, ARRAY['Paiement Billet'], null, null, now(), now(), true),
-('all', 'Zenith Receipt Parser Tools', 'Zenith', 'Adjustment part', null, ARRAY['Reissuance Adjustment'], null, null, now(), now(), true),
+('all', 'Zenith Receipt Parser Tools', 'Zenith', 'Adjustment part', null, ARRAY['Reissuance Adjustment', 'Réajustement tarifaire'], null, null, now(), now(), true),
 ('all', 'Zenith Receipt Parser Tools', 'Zenith', 'EMD cancellation part', null, ARRAY['Annulation ancillaries'], null, null, now(), now(), true),
 ('all', 'Zenith Receipt Parser Tools', 'Zenith', 'Ticket cancellation part', null, ARRAY['Ticket void', 'Remboursement'], null, null, now(), now(), true),
 ('all', 'Zenith Receipt Parser Tools', 'Zenith', 'Penalty part', null, ARRAY['Pénalité'], null, null, now(), now(), true),

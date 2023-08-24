@@ -60,7 +60,7 @@ class PnrAirSegments(models.Model, BaseModel):
     
     # get air segment by air segment
     def get_air_segment_by_air_segment(self, pnr):
-        segment = PnrAirSegments.objects.filter(pnr__id=pnr.id, flightno=self.flightno, segmentorder=self.segmentorder, codedest=self.codedest, codeorg=self.codeorg).first()
+        segment = PnrAirSegments.objects.filter(pnr__id=pnr.id, flightno=self.flightno, codedest=self.codedest, codeorg=self.codeorg).first()
         # segment = PnrAirSegments.objects.filter(pnr__id=pnr.id, segmentorder=self.segmentorder).first()
         return segment
     

@@ -1904,7 +1904,12 @@ def get_all_pnr_to_switch(request):
 
     # Set max timezone
     maximum_timezone = "2023-01-01 01:00:00.000000+03:00"
-    filtered_creator = request.COOKIES.get('creator_pnr_filter')
+    
+    try:
+        filtered_creator = request.COOKIES.get('creator_pnr_filter')
+        filtered_creator = [int(user_id) for user_id in json.loads(filtered_creator)]
+    except Exception as e:
+        print(f"Error on filter creator ${e}")
 
     status_value = Q(status_value=status_value_from_cookie) if status_value_from_cookie in [0, 1] else Q()
     # Create date filter query object or an empty query object if dates are absent
@@ -1944,7 +1949,7 @@ def get_all_pnr_to_switch(request):
             
             agent = Q()
             if filtered_creator is not None and filtered_creator != 'Empty':
-                agent = Q(agent_id=int(filtered_creator))
+                agent = Q(agent_id__in=filtered_creator)
             elif filtered_creator == 'Empty':
                 agent = Q(agent_id=None)
             else:
@@ -1983,7 +1988,7 @@ def get_all_pnr_to_switch(request):
 
             agent = Q()
             if filtered_creator is not None and filtered_creator != 'Empty':
-                agent = Q(agent_id=int(filtered_creator))
+                agent = Q(agent_id__in=filtered_creator)
             elif filtered_creator == 'Empty':
                 agent = Q(agent_id=None)
             else:
@@ -2027,7 +2032,7 @@ def get_all_pnr_to_switch(request):
 
             agent = Q()
             if filtered_creator is not None and filtered_creator != 'Empty':
-                agent = Q(agent_id=int(filtered_creator))
+                agent = Q(agent_id__in=filtered_creator)
             else:
                 agent = Q(agent_id=request.user.id) | Q(agent_id=None)
 
@@ -2052,10 +2057,10 @@ def get_all_pnr_to_switch(request):
         return json.dumps(list_pnr_with_position)
 
     else:
-        if filtered_creator != '0' and filtered_creator is not None and filtered_creator != 'Empty': 
+        if filtered_creator is not None and filtered_creator != 'Empty': 
             if is_invoiced == None:
                 pnr_list =  Pnr.objects.filter(
-                                Q(agent_id=filtered_creator),
+                                Q(agent_id__in=filtered_creator),
                                 status_value,
                                 date_filter,
                                 max_system_creation_date,
@@ -2063,14 +2068,14 @@ def get_all_pnr_to_switch(request):
                             ).all().order_by(date_order_by + 'system_creation_date') # <======= IMPORTANT
             else:
                 pnr_list =  Pnr.objects.filter(
-                                Q(agent_id=filtered_creator), 
+                                Q(agent_id__in=filtered_creator), 
                                 status_value,
                                 date_filter,
                                 max_system_creation_date,
                                 agency_name,
                             ).all().order_by(date_order_by + 'system_creation_date').filter(is_invoiced=is_invoiced)
             print('Not all')
-        elif filtered_creator == '0' or filtered_creator is None: ##### Si 'Tout' est sélectionner dans le filtre créateur
+        elif filtered_creator is None: ##### Si 'Tout' est sélectionner dans le filtre créateur
             if is_invoiced == None:
                 pnr_list =  Pnr.objects.all().order_by(date_order_by + 'system_creation_date').filter(
                                 status_value,

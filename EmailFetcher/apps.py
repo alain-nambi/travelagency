@@ -8,7 +8,6 @@ from django.apps.registry import apps
 
 from datetime import datetime, timedelta, timezone
 
-from time import sleep
 
 class RepeatTimer(Timer):  
     daemon=True 

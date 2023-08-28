@@ -5,23 +5,24 @@ FEE MODIFY REQUEST
 
 Plain_Text
 
-TST00004     DZAUU0006 MS/18AUG F N                  OD RUNDZA                 
-T-                                                                             
-FXB/SBF/S3-4/R,P,U010804                                                       
-   1.CLAUS/ALIX ROMANE MS                                                     
- 1   RUN UU  975 X 10SEP 2015  OK XLWRTSM         10SEP10SEP 1PC               
- 2 O CDG UU  976 L 23SEP 2200  OK LR9LWSP         23SEP23SEP 1PC               
-     DZA                                                                       
-FARE  I EUR     474.00                                                         
-TX001 X EUR   415.00-YQAC TX002 X EUR     8.00-YQAD TX003 X EUR    28.50-FRTI 
-TX004 X EUR     9.86-FRSE TX005 X EUR     2.26-IZEB TX006 X EUR     3.00-O4VC 
-TX007 X EUR     4.57-REDP TX008 X EUR    20.87-RJAE TX009 X EUR    13.33-QXAP 
-TOTAL   EUR     979.39                                                         
-GRAND TOTAL EUR     979.39                                                     
-RUN UU PAR M/IT UU DZA M/IT END                                               
-
- 32.FE VALID UU ONLY NONREF/NONEND                                             
- 33.FP EC                                                                     
- 35.FT *F*WEBUU                                                               
- 37.FV *F*UU        
+EMD-7604030071416     TYPE-A                                 SYS-1A  LOC-RCBUXM
+INT-I          FCI-1  1         POI-DZA        DOI-16AUG23         IOI-66480050
+PAX- ZAHARA/ALLAOUI MRS                                                     ADT
+RFIC-C  BAGGAGE
+REMARKS-
+CPN-1  RFISC-0CC  UU DZARUN  S-F   SAC- 760N01Z7UW5MG
+ DESCRIPTION-FIRST EXCESS BAG
+ PRESENT TO- 
+ PRESENT AT- 
+ ICW-7602404832511E1           (A)
+ EXCESS BAGGAGE-    1 N RATE PER UNIT-EUR           0.00                       
+ SERVICE REMARKS-B1
+FARE   F    EUR          50.00                                                 
+EXCH VAL EUR      50.00      RFND VAL
+TAX-
+TOTAL       EUR          50.00
+/FC DZA UU RUN 50.00EUR50.00END
+FP CASH
+FOID-
+NON-ENDORSABLE
 

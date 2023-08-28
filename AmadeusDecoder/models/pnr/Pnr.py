@@ -110,7 +110,6 @@ class Pnr(models.Model, BaseModel):
     
     # get the maximum issuing date among tickets'
     def get_max_issuing_date(self):
-        from AmadeusDecoder.models.invoice.Ticket import Ticket
         ticket = Ticket.objects.filter(pnr__number=self.number).exclude(ticket_status=0)
         ticket = ticket.aggregate(Max('issuing_date'))
         return ticket['issuing_date__max']
@@ -197,7 +196,6 @@ class Pnr(models.Model, BaseModel):
     
     # update TST missing status
     def update_tst_missing_status(self):
-        from AmadeusDecoder.models.invoice.Ticket import Ticket
         if self.status_value == 1:
             temp_tst = Ticket.objects.filter(pnr__id=self.id, ticket_type='TST').first()
             if temp_tst is not None:

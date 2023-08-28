@@ -217,6 +217,7 @@ class ZenithParserReceipt():
             if current_part[i].strip() in PAYMENT_OPTIONS:
                 next_index = i
         
+        print(passenger_name)
         for passenger in passengers:
             if passenger_name.strip() == passenger.name:
                 part_passenger = passenger
@@ -713,7 +714,7 @@ class ZenithParserReceipt():
                 if self.check_is_invoiced_status(None, other_fee):
                     other_fee.other_fee_status = 3
                     other_fee.save()'''
-                
+            
             # get cancellation
             if new_emd.designation is not None:
                 try:
@@ -788,7 +789,7 @@ class ZenithParserReceipt():
                 if self.check_is_invoiced_status(None, other_fee):
                     other_fee.other_fee_status = 3
                     other_fee.save()'''
-                
+            
             # get cancellation
             if new_emd.designation is not None:
                 try:

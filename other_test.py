@@ -15,6 +15,7 @@ django.setup()
 from AmadeusDecoder.utilities.ServiceFeesDecreaseRequest import ServiceFeesDecreaseRequest
 
 from AmadeusDecoder.models.invoice.Fee import ReducePnrFeeRequest
+from AmadeusDecoder.models.pnr.Pnr import Pnr
 from datetime import datetime
 
 
@@ -40,21 +41,24 @@ if __name__ == '__main__':
     '''
         !!!!! Bellow lines will find and update fee according to fee request !!!!!!!
     '''
-    try:
-        targeted_request_list = ReducePnrFeeRequest.objects.filter(system_creation_date__date__gte=datetime(2023, 7, 26, 0, 0, 0, 0).date(), status=0).all()
-        for request in targeted_request_list:
-            if request.pnr.number not in ['00DB0O', '00DIIH', 'VXX8ZL']:
-                temp_fee = request.fee
-                temp_fee.cost = request.amount
-                temp_fee.total = request.amount
-                temp_fee.newest_cost = request.amount
-                temp_fee.old_cost = request.amount
-                temp_fee.save()
-                
-                request.status = 1
-                request.save()
-                print(request.pnr.number, ' Done')
-    except Exception as e:
-        raise e
+    # try:
+    #     targeted_request_list = ReducePnrFeeRequest.objects.filter(system_creation_date__date__gte=datetime(2023, 7, 26, 0, 0, 0, 0).date(), status=0).all()
+    #     for request in targeted_request_list:
+    #         if request.pnr.number not in ['00DB0O', '00DIIH', 'VXX8ZL']:
+    #             temp_fee = request.fee
+    #             temp_fee.cost = request.amount
+    #             temp_fee.total = request.amount
+    #             temp_fee.newest_cost = request.amount
+    #             temp_fee.old_cost = request.amount
+    #             temp_fee.save()
+    #
+    #             request.status = 1
+    #             request.save()
+    #             print(request.pnr.number, ' Done')
+    # except Exception as e:
+    #     raise e
+    
+    # Pnr.objects.filter(number='N9VRXD').first().delete()
+    # n9vrxd
     
     

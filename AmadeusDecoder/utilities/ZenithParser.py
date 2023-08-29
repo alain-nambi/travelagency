@@ -1890,7 +1890,13 @@ class ZenithParser():
                             ancillary.passenger = ancillary.passenger.get_passenger_by_pnr_passenger(pnr)
                         ancillary.save()
                     for ancillary_segment in ancillaries_segment:
-                        temp_segment = PnrAirSegments.objects.filter(segmentorder=ancillary_segment.segment.segmentorder, pnr=pnr, air_segment_status=1).last()
+                        current_airsegment = ancillary_segment.segment
+                        temp_segment = PnrAirSegments.objects.filter(flightno=current_airsegment.flightno,
+                                                                     departuretime=current_airsegment.departuretime,
+                                                                     arrivaltime=current_airsegment.arrivaltime,
+                                                                     codedest=current_airsegment.codedest,
+                                                                     codeorg=current_airsegment.codeorg, 
+                                                                     pnr=pnr, air_segment_status=1).last()
                         temp_passenger = ancillary_segment.passenger.get_passenger_by_pnr_passenger(pnr)
                         temp_ancillary = OthersFee.objects.filter(designation=ancillary_segment.other_fee.designation, pnr=pnr, passenger=temp_passenger).first()
                         temp_ancillary_seg = OtherFeeSegment.objects.filter(other_fee=temp_ancillary, segment=temp_segment, passenger=temp_passenger).first()

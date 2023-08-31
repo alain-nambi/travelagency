@@ -5,7 +5,7 @@ insert into t_configuration(environment, name, to_be_applied_on, value_name, dat
 ('all', 'PNR Parser Tools', 'PNR', 'PNR type', null, ARRAY['Altea'], null, null, now(), now(), true),
 ('all', 'PNR Parser Tools', 'PNR', 'Duplicate PNR identifier', null, ARRAY['* RR'], null, null, now(), now(), true),
 ('all', 'PNR Parser Tools', 'PNR', 'Split PNR identifier', null, ARRAY['* SP'], null, null, now(), now(), true),
-('all', 'PNR Parser Tools', 'PNR', 'To be excluded line', null, ARRAY['OPERATED BY', 'ETA', 'FOR TAX/FEE'], null, null, now(), now(), true),
+('all', 'PNR Parser Tools', 'PNR', 'To be excluded line', null, ARRAY['OPERATED BY', 'ETA', 'ETD', 'FOR TAX/FEE'], null, null, now(), now(), true),
 ('all', 'PNR Parser Tools', 'PNR', 'Contact types', null, ARRAY['AP', 'APE', 'APN'], null, null, now(), now(), true),
 ('all', 'PNR Parser Tools', 'PNR', 'Contact type names', null, null, null, '"AP"=>"Phone", "APE"=>"Email", "APN"=>"Notification contact"', now(), now(), true),
 ('all', 'PNR Parser Tools', 'PNR', 'Ticket line identifier', null, ARRAY['FA', 'FHE', 'FHD'], null, null, now(), now(), true),

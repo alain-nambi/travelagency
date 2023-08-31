@@ -458,7 +458,7 @@ class PnrOnlyParser():
                     
                     # Not having adult flag
                     # 1.MKOUBOI/FATIMA MRS(INFABDOU/NOLAN/24APR21)
-                    if line.find('ADT') == -1:
+                    if line.find('ADT') == -1 and line.find('YTH') == -1:
                         inf_part = line_split[1]
                     # Has adult flag
                     # 1.CHAQUIR/EMILIE MS(ADT)(INFMAOULIDA/HAYDEN/10MAR22)

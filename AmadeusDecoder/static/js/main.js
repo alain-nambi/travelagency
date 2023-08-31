@@ -289,14 +289,20 @@ $(document).ready(function () {
       if (USERS_DATA) {
         const JSON_USERS_DATA = JSON.parse(USERS_DATA.getAttribute("data-users"))
 
-        creators.forEach((creator) => {
-          if (!usernames.includes(creator)) {
-            usernames.push(JSON_USERS_DATA.find((user) => user.id === parseInt(creator)).username)
-          }
-        })
+        console.log(creators);
 
-        // Sort the array in alphabetical order using the compare function
-        usernames.sort((a, b) => a.localeCompare(b));
+        if (creators.length == 1 && creators[0] == "0") {
+          usernames = "Tout"
+        } else {
+          creators.forEach((creator) => {
+            if (!usernames.includes(creator)) {
+              usernames.push(JSON_USERS_DATA.find((user) => user.id === parseInt(creator)).username)
+            }
+          })
+  
+          // Sort the array in alphabetical order using the compare function
+          usernames.sort((a, b) => a.localeCompare(b));
+        }
       }
     } catch (error) {
       console.log("Error on getting USERS DATA", error)
@@ -320,7 +326,7 @@ $(document).ready(function () {
           style="font-size: 10px"
           class="pl-2"
         >
-          ${usernames.length === 0 ? "Créateur : Tout" : `Créateur (${usernames.length}) : ${usernames.join(" | ")}`}
+          ${usernames.length === 0 || usernames == "Tout" ? "Créateur : Tout" : usernames.length > 1 && `Créateur (${usernames.length}) : ${usernames.join(" | ")}`}
         </span>
         <button 
           style="

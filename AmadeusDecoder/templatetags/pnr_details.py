@@ -246,7 +246,10 @@ def get_all_pnr(request):
     
     try:
         filtered_creator = request.COOKIES.get('creator_pnr_filter')
-        filtered_creator = [int(user_id) for user_id in json.loads(filtered_creator)]
+        if str(json.loads(filtered_creator)[0]) == "0":
+            filtered_creator = None
+        else:
+            filtered_creator = [int(user_id) for user_id in json.loads(filtered_creator)]
     except Exception as e:
         print(f"Error on filter creator ${e}")
 
@@ -1907,7 +1910,10 @@ def get_all_pnr_to_switch(request):
     
     try:
         filtered_creator = request.COOKIES.get('creator_pnr_filter')
-        filtered_creator = [int(user_id) for user_id in json.loads(filtered_creator)]
+        if str(json.loads(filtered_creator)[0]) == "0":
+            filtered_creator = None
+        else:
+            filtered_creator = [int(user_id) for user_id in json.loads(filtered_creator)]
     except Exception as e:
         print(f"Error on filter creator ${e}")
 

@@ -118,12 +118,17 @@ def home(request):
     
     try:
         filtered_creator = request.COOKIES.get('creator_pnr_filter')
-        filtered_creator = [int(user_id) for user_id in json.loads(filtered_creator)]
+        if str(json.loads(filtered_creator)[0]) == "0":
+            filtered_creator = None
+        else:
+            filtered_creator = [int(user_id) for user_id in json.loads(filtered_creator)]
     except Exception as e:
         print(f"Error on filter creator ${e}")
         
     # print("Creator: " + str(filtered_creator))
     # print(type(filtered_creator))
+    
+    # print(filtered_creator)
 
     # Retrieve the value of the "isSortedByCreator" cookie from the request
     is_sorter_by_creator = request.COOKIES.get('isSortedByCreator')
@@ -418,7 +423,6 @@ def home(request):
         return render(request,'home.html', context)
     else:
         status_value = Q(status_value=status_value_from_cookie) if status_value_from_cookie in [0, 1] else Q()
-
         if filtered_creator is not None: 
             max_system_creation_date = Q(system_creation_date__gt=maximum_timezone)
 

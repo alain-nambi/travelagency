@@ -201,6 +201,7 @@
                           <span class="text-md font-weight-bold mb-1">Créer par</span>
                             <option value="">Sélectionner le créateur...</option>
                             {% if request.user.role_id != 3 and request.user.id != 4 and request.user.id != 5 %}
+                              <option value="0">Tout</option>
                               {% for user in users %}
                                 <option value="{{user.id}}">{{user.username}}</option>
                               {% endfor %}

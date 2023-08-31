@@ -2103,6 +2103,7 @@ class PnrOnlyParser():
                                     temp_segment.arrivaltime = segment.arrivaltime if segment.arrivaltime is not None else None
                                     temp_segment.air_segment_status = 1
                                     temp_segment.segment_state = segment.segment_state
+                                    temp_segment.segmentorder = segment.segmentorder
                                     temp_segment.save()
                                 except:
                                     traceback.print_exc()

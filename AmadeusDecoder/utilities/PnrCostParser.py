@@ -68,21 +68,19 @@ class PnrCostParser():
         content = new_content
                
         # fetch all lines containing passengers
-        for i in range(len(content)):
+        for i in range(len(new_content)):
+            temp_content_space_split = new_content[i].split("  ")
+            temp_content_dot_split = new_content[i].split(".")
             # if all passengers are on the same line
-            if((len(content[i].split("   ")) > 1 or len(content[i].split("  ")) > 1) and content[i].split(".")[0].isnumeric() and content[i].split(".")[0] != '0'):
-                if len(content[i].split("   ")) > 1:
-                    passengers_on_the_sameline = content[i].split("   ")
-                elif len(content[i].split("  ")) > 1:
-                    passengers_on_the_sameline = content[i].split("  ")
-                for temp in passengers_on_the_sameline:
+            if(len(temp_content_space_split) > 1 and temp_content_dot_split[0].isnumeric() and temp_content_dot_split[0] != '0'):
+                for temp in temp_content_space_split:
                     passenger_line.append(temp.split(".")[1])
                     order_line.append(temp.split(".")[0])
             # if passengers are on different lines
             else:
-                if(content[i].split(".")[0].isnumeric() and content[i].split(".")[0] != '0'):
-                    passenger_line.append(content[i].split(".")[1])
-                    order_line.append(content[i].split(".")[0])
+                if(temp_content_dot_split[0].isnumeric() and temp_content_dot_split[0] != '0'):
+                    passenger_line.append(temp_content_dot_split[1])
+                    order_line.append(temp_content_dot_split[0])
         
         order = 0
         for line in passenger_line:

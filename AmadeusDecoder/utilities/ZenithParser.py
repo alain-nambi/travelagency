@@ -843,16 +843,18 @@ class ZenithParser():
         
         # remove duplicate service
         duplicate_service_removed = []
+        poped_count = 0
         for i in range(len(filtered_content)):
             duplicate_service_removed.append(filtered_content[i])
             if filtered_content[i] in PASSENGER_TYPES:
                 if not filtered_content[i-2].isnumeric():
                     service = filtered_content[i-2] + ' ' + filtered_content[i-1]
-                    duplicate_service_removed.pop(i)
-                    duplicate_service_removed.pop(i-1)
-                    duplicate_service_removed.pop(i-2)
+                    duplicate_service_removed.pop()
+                    duplicate_service_removed.pop()
+                    duplicate_service_removed.pop()
                     duplicate_service_removed.append(service)
                     duplicate_service_removed.append(filtered_content[i])
+                    poped_count += 1
         
         # fill contact when none
         filtered_content_contact = []

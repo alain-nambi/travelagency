@@ -158,6 +158,8 @@ def home(request):
             agent = Q()
             if filtered_creator is not None:
                 agent = Q(agent_id=filtered_creator)
+            elif filtered_creator == 'Empty':
+                agent = Q(agent_id=None)
             else:
                 agent = Q(agent_id=4) | Q(agent_id=5)
 
@@ -220,6 +222,8 @@ def home(request):
             agent = Q()
             if filtered_creator is not None:
                 agent = Q(agent_id=filtered_creator)
+            elif filtered_creator == 'Empty':
+                agent = Q(agent_id=None)
             else:
                 agent = Q(agent_id=4) | Q(agent_id=5)
 
@@ -319,8 +323,10 @@ def home(request):
         date_filter = Q(system_creation_date__range=[start_date, end_date]) if start_date and end_date else Q()
 
         agent = Q()
-        if filtered_creator is not None:
+        if filtered_creator is not None and filtered_creator != 'Empty':
             agent = Q(agent_id=filtered_creator)
+        elif filtered_creator == 'Empty':
+            agent = Q(agent_id=None)
         else:
             agent = Q(agent_id=request.user.id) | Q(agent_id=None)
 
@@ -397,7 +403,7 @@ def home(request):
     else:
         status_value = Q(status_value=status_value_from_cookie) if status_value_from_cookie in [0, 1] else Q()
 
-        if filtered_creator != '0' and filtered_creator is not None: 
+        if filtered_creator != '0' and filtered_creator is not None and filtered_creator != 'Empty': 
             max_system_creation_date = Q(system_creation_date__gt=maximum_timezone)
 
             # Create date filter query object or an empty query object if dates are absent
@@ -449,17 +455,67 @@ def home(request):
 
             print('Not all')
         elif filtered_creator == '0' or filtered_creator is None: ##### Si 'Tout' est sélectionner dans le filtre créateur
+            if filtered_creator != 'Empty':
+                max_system_creation_date = Q(system_creation_date__gt=maximum_timezone)
+
+                # Create date filter query object or an empty query object if dates are absent
+                date_filter = Q(system_creation_date__range=[start_date, end_date]) if start_date and end_date else Q()
+            
+                pnr_queryset =  Pnr.objects.filter(
+                                    status_value,
+                                ).filter(
+                                    max_system_creation_date,
+                                    date_filter,
+                                )
+
+                if is_invoiced is not None:
+                    pnr_queryset =  pnr_queryset.filter(Q(is_invoiced=is_invoiced))
+
+                # Sort the list based on the agent username or system creation date
+                if sort_creator is not None:
+                    if sort_creator == 'agent__username':
+                        # Sort Pnrs by agent's username and agent_id None in the last part of list
+                        pnr_list = sorted(
+                            pnr_queryset, 
+                            key=lambda pnr: (
+                                pnr.agent is None, 
+                                pnr.agent.username if pnr.agent else ''
+                            ), 
+                            reverse=False
+                        )
+                    elif sort_creator == '-agent__username':
+                        # Sort Pnrs by agent's username in reverse order and agent_id None in the last part of list
+                        pnr_list = sorted(
+                            pnr_queryset, 
+                            key=lambda pnr: (
+                                pnr.agent.username if pnr.agent else ''
+                            ), 
+                            reverse=True
+                        )
+                else:
+                    # If no sorting parameter provided, sort by system creation date
+                    if date_order_by == "-":
+                        # Sort Pnrs by system creation date in reverse order
+                        pnr_list = sorted(pnr_queryset, key=lambda pnr: pnr.system_creation_date, reverse=True)
+                    else:
+                        # Sort Pnrs by system creation date in ascending order
+                        pnr_list = sorted(pnr_queryset, key=lambda pnr: pnr.system_creation_date, reverse=False)
+
+                pnr_list = list(pnr_list)
+                pnr_count = pnr_queryset.count()
+
+                print('All')
+        elif filtered_creator == 'Empty':
             max_system_creation_date = Q(system_creation_date__gt=maximum_timezone)
 
             # Create date filter query object or an empty query object if dates are absent
             date_filter = Q(system_creation_date__range=[start_date, end_date]) if start_date and end_date else Q()
-        
-            pnr_queryset =  Pnr.objects.filter(
+
+            pnr_queryset  = Pnr.objects.filter(
+                                Q(agent_id=None),
                                 status_value,
-                            ).filter(
                                 max_system_creation_date,
-                                date_filter,
-                            )
+                                date_filter)
 
             if is_invoiced is not None:
                 pnr_queryset =  pnr_queryset.filter(Q(is_invoiced=is_invoiced))
@@ -497,7 +553,7 @@ def home(request):
             pnr_list = list(pnr_list)
             pnr_count = pnr_queryset.count()
 
-            print('All')
+            print('no creator')
 
         context['pnr_list'] = pnr_list
         context['pnr_count'] = pnr_count
@@ -1109,8 +1165,8 @@ def get_order(request, pnr_id):
     config = Configuration.objects.filter(name='Saving File Tools', value_name='File protocol', environment=settings.ENVIRONMENT)
 
     
-    file_dir = 'C:\\Users\\NEC04\\Documents\\Gestion PNR\\travelagency\\AmadeusDecoder\\export'
-    customer_dir = 'C:\\Users\\NEC04\\Documents\\Gestion PNR\\travelagency\\AmadeusDecoder\\export'
+    file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
+    customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
     
     fieldnames_order = [
         'LineID',

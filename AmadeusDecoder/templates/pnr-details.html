@@ -637,7 +637,7 @@
 												<th>Date d'émission</th>
 												<th>Date de commande</th>
 												<th>Numéro de commande</th>
-												<!--<th>Status</th>-->
+												<th>Emetteur </th>
 												<th width="10%">Référence</th>
 												<th width="2%"></th>
 												<th width="2%"></th>
@@ -721,6 +721,7 @@
 														{% endif %}
 													{% endif %}
 												</td>
+												<td>{{ticket.emitter.username}}</td>
 												<td>
 													{% if ticket.is_refund and not ticket.is_deposit %}
 														{{ "Remboursement" }}
@@ -744,7 +745,7 @@
 											
 											
 											<!-- Ticket-related other fee -->
-											<!--{% with ticket|ticket_other_fee as temp_other_fee %}
+											{% with ticket|ticket_other_fee as temp_other_fee %}
 												{% if temp_other_fee is not None %}
 													<tr class="tr-other-fees {% if other_fees_orders is not None %} text-success {% else %} text-primary {% endif %} " data-other-fee-id = "{{other_fee.id}}">
 														<td><span class="type" style="font-size: 12px;">{{ temp_other_fee.fee_type }}</span></td>
@@ -804,7 +805,7 @@
 														
 													</tr>
 												{% endif %}
-											{% endwith %}-->
+											{% endwith %}
 											
 											{% with ticket.id|fee as fee %}
 											{% if fee is not None %}
@@ -869,6 +870,7 @@
 														{% endif %}
 													{% endif %}
 												</td>
+												<td>{{ '' }}</td>
 												<td>{{ '' }}</td>
 												<td>{{ '' }}</td>
 												<td class="checkbox">
@@ -1012,6 +1014,7 @@
 													{% endif %}
 												</td>
 												<td>{{other_fee.emitter.username}}</td>
+												<td>{{ '' }}</td>
 												<td>{{ '' }}</td>
 												<td>{{ '' }}</td>
 												{% if other_fees_fees_orders is not None %}

@@ -289,14 +289,21 @@ $(document).ready(function () {
       if (USERS_DATA) {
         const JSON_USERS_DATA = JSON.parse(USERS_DATA.getAttribute("data-users"))
 
+        // console.log('====================================');
+        // console.log(JSON_USERS_DATA);
+        // console.log('====================================');
         console.log(creators);
 
         if (creators.length == 1 && creators[0] == "0") {
           usernames = "Tout"
         } 
-        if (creators.length == 1 && creators[0] == "Empty") {
-          username = 'Non attribué'
-        } else {
+        else if (creators.length == 1 && creators[0] == "Empty") {
+          usernames = 'Non attribué'
+        } 
+        else {
+          // console.log('====================================');
+          // console.log("usernames");
+          // console.log('====================================');
           creators.forEach((creator) => {
             if (!usernames.includes(creator)) {
               usernames.push(JSON_USERS_DATA.find((user) => user.id === parseInt(creator)).username)
@@ -312,6 +319,22 @@ $(document).ready(function () {
       usernames = "Tout"
     }
 
+    // console.log(usernames);
+
+    let username = "";
+    if (usernames.length === 0 || usernames == "Tout") {
+      username = "Créateur: Tout"
+    } else if (usernames == "Non attribué") {
+      username = "Créateur: Non attribué"
+    } else if (usernames.length > 1 && usernames != "Tout" && usernames != "Non attribué") {
+      username = `Créateur (${usernames.length}) : ${usernames.join(" | ")}`
+    } else {
+      username = `Créateur: ${usernames}`
+    }
+
+    // console.log('====================================');
+    // console.log(username);
+    // console.log('====================================');
     
     return `
       <div
@@ -329,7 +352,7 @@ $(document).ready(function () {
           style="font-size: 10px"
           class="pl-2"
         >
-          ${usernames.length === 0 || usernames == "Tout" ? "Créateur : Tout" : usernames.length > 1 && `Créateur (${usernames.length}) : ${usernames.join(" | ")}`}
+          ${username}
         </span>
         <button 
           style="

@@ -205,14 +205,18 @@
                               {% for user in users %}
                                 <option value="{{user.id}}">{{user.username}}</option>
                               {% endfor %}
+                              <option value="Empty">Sans créateur</option>
                             {% elif request.user.id == 4 %}
                               <option value="4" selected="true">Farida</option>
                               <option value="5">Mouniati</option>
+                              <option value="Empty">Sans créateur</option>
                             {% elif request.user.id == 5 %}
                               <option value="4" >Farida</option>
                               <option value="5" selected="true">Mouniati</option>
+                              <option value="Empty">Sans créateur</option>
                             {% else %}
                               <option value="{{request.user.id}}" selected="true">{{request.user.username}}</option>
+                              <option value="Empty">Sans créateur</option>
                             {% endif %}
                           </select>
                         </div>

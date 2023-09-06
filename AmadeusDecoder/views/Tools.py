@@ -9,6 +9,7 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 
 from AmadeusDecoder.utilities.ProductImportParser import ProductParser, CustomerParser
+from AmadeusDecoder.models.configuration.Configuration import Configuration
 
 @login_required(login_url='index')
 def tools(request):  

@@ -252,6 +252,11 @@ def get_all_pnr(request):
             filtered_creator = [int(user_id) for user_id in json.loads(filtered_creator)]
     except Exception as e:
         print(f"Error on filter creator ${e}")
+        
+    print("Creator: " + str(filtered_creator))
+    print(type(filtered_creator))
+    
+    print(filtered_creator)
 
     # Retrieve the value of the "isSortedByCreator" cookie from the request
     is_sorter_by_creator = request.COOKIES.get('isSortedByCreator')
@@ -301,7 +306,9 @@ def get_all_pnr(request):
                     pnr_list.append(pnr)
 
             agent = Q()
-            if filtered_creator is not None:
+            if filtered_creator == 'Empty':
+                agent = Q(agent_id=None)
+            if filtered_creator is not None and filtered_creator != 'Empty':
                 agent = Q(agent_id__in=filtered_creator)
             else:
                 agent = Q(agent_id=4) | Q(agent_id=5)
@@ -365,7 +372,9 @@ def get_all_pnr(request):
                     pnr_list.append(pnr)
 
             agent = Q()
-            if filtered_creator is not None:
+            if filtered_creator == 'Empty':
+                agent = Q(agent_id=None)
+            if filtered_creator is not None and filtered_creator != 'Empty':
                 agent = Q(agent_id__in=filtered_creator)
             else:
                 agent = Q(agent_id=4) | Q(agent_id=5)
@@ -414,7 +423,10 @@ def get_all_pnr(request):
                     pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=False)
 
             pnr_count = len(pnr_list)
-
+            
+            print("PNR COUNT")
+            print(pnr_count)
+        
         return pnr_count
 
     if request.user.role_id == 3:
@@ -451,7 +463,9 @@ def get_all_pnr(request):
         date_filter = Q(system_creation_date__range=[start_date, end_date]) if start_date and end_date else Q()
 
         agent = Q()
-        if filtered_creator is not None:
+        if filtered_creator == 'Empty':
+            agent = Q(agent_id=None)
+        if filtered_creator is not None and filtered_creator != 'Empty':
             agent = Q(agent_id__in=filtered_creator)
         else:
             agent = Q(agent_id=request.user.id) | Q(agent_id=None)
@@ -514,15 +528,14 @@ def get_all_pnr(request):
         return pnr_count
     else:
         status_value = Q(status_value=status_value_from_cookie) if status_value_from_cookie in [0, 1] else Q()
-
-        if filtered_creator is not None: 
+        if filtered_creator is not None and filtered_creator != 'Empty': 
             max_system_creation_date = Q(system_creation_date__gt=maximum_timezone)
 
             # Create date filter query object or an empty query object if dates are absent
             date_filter = Q(system_creation_date__range=[start_date, end_date]) if start_date and end_date else Q()
 
             pnr_queryset  = Pnr.objects.filter(
-                                agent_id__in=filtered_creator
+                                Q(agent_id__in=filtered_creator)
                             ).filter(
                                 status_value,
                                 max_system_creation_date,
@@ -572,10 +585,9 @@ def get_all_pnr(request):
 
             # Create date filter query object or an empty query object if dates are absent
             date_filter = Q(system_creation_date__range=[start_date, end_date]) if start_date and end_date else Q()
-        
-            pnr_queryset =  Pnr.objects.filter(
+
+            pnr_queryset  = Pnr.objects.filter(
                                 status_value,
-                            ).filter(
                                 max_system_creation_date,
                                 date_filter,
                                 agency_name,
@@ -617,7 +629,7 @@ def get_all_pnr(request):
             pnr_list = list(pnr_list)
             pnr_count = pnr_queryset.count()
 
-            print('All')
+            print('no creator')
 
         return pnr_count
 @register.filter(name='first_passenger')
@@ -1893,6 +1905,11 @@ def get_all_pnr_to_switch(request):
     except:
         status_value_from_cookie = 0
 
+    try:
+        status_value_from_cookie = int(request.COOKIES.get('filter_pnr_by_status'))
+    except:
+        status_value_from_cookie = 0
+
     # desc : date order by descending
     # asc : date order by ascending
     try:
@@ -1935,6 +1952,8 @@ def get_all_pnr_to_switch(request):
         
     print("AGENCY NAME")
     print(agency_name)
+
+    status_value = Q(status_value=status_value_from_cookie) if status_value_from_cookie in [0, 1] else Q()
 
     if request.user.id in [4, 5]: #==> [Farida et Mouniati peuvent voir chacun l'ensemble de leurs pnr]
         pnr_list = []
@@ -2125,7 +2144,7 @@ def get_all_pnr_to_switch(request):
 def get_ticket_cancel_void_status(ticket):
     from AmadeusDecoder.models.invoice.Fee import OthersFee
     is_cancelled = False
-    ticket_line_canceller = OthersFee.objects.filter(ticket_id=ticket.id)
+    ticket_line_canceller = OthersFee.objects.filter(ticket_id=ticket.id).exclude(fee_type='outsourcing').all()
 
     if ticket_line_canceller.exists() and not ticket.is_subjected_to_fees and ticket.is_invoiced:
         is_cancelled = True
@@ -2138,7 +2157,7 @@ def get_ticket_cancel_void_status(ticket):
 def get_other_fee_cancel_void_status(other_fee):
     from AmadeusDecoder.models.invoice.Fee import OthersFee
     is_cancelled = False
-    other_fee_line_canceller = OthersFee.objects.filter(other_fee_id=other_fee.id) # type: ignore
+    other_fee_line_canceller = OthersFee.objects.filter(other_fee_id=other_fee.id).exclude(fee_type='outsourcing').all() # type: ignore
 
     if other_fee_line_canceller.exists() and not other_fee.is_subjected_to_fee and other_fee.is_invoiced:
         is_cancelled = True

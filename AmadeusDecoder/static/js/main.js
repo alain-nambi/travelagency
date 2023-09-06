@@ -293,6 +293,9 @@ $(document).ready(function () {
 
         if (creators.length == 1 && creators[0] == "0") {
           usernames = "Tout"
+        } 
+        if (creators.length == 1 && creators[0] == "Empty") {
+          username = 'Non attribué'
         } else {
           creators.forEach((creator) => {
             if (!usernames.includes(creator)) {

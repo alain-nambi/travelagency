@@ -2026,7 +2026,8 @@ def get_all_pnr_to_switch(request):
 def get_ticket_cancel_void_status(ticket):
     from AmadeusDecoder.models.invoice.Fee import OthersFee
     is_cancelled = False
-    ticket_line_canceller = OthersFee.objects.filter(ticket_id=ticket.id).exclude(fee_type='outsourcing').all()
+    ticket_line_canceller = OthersFee.objects.filter(ticket_id=ticket.id).exclude(fee_type='outsourcing')
+    print("ticket_line_canceller: " + str(ticket_line_canceller))
 
     if ticket_line_canceller.exists() and not ticket.is_subjected_to_fees and ticket.is_invoiced:
         is_cancelled = True
@@ -2039,7 +2040,8 @@ def get_ticket_cancel_void_status(ticket):
 def get_other_fee_cancel_void_status(other_fee):
     from AmadeusDecoder.models.invoice.Fee import OthersFee
     is_cancelled = False
-    other_fee_line_canceller = OthersFee.objects.filter(other_fee_id=other_fee.id).exclude(fee_type='outsourcing').all() # type: ignore
+    other_fee_line_canceller = OthersFee.objects.filter(other_fee=other_fee.id).exclude(fee_type='outsourcing') # type: ignore
+    print("other_fee_line_canceller: " + str(other_fee_line_canceller))
 
     if other_fee_line_canceller.exists() and not other_fee.is_subjected_to_fee and other_fee.is_invoiced:
         is_cancelled = True

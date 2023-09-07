@@ -600,9 +600,10 @@ def pnr_details(request, pnr_id):
         __other_fee_base = pnr_detail.others_fees.filter(other_fee_status=1).exclude(~Q(ticket=None), ~Q(other_fee=None), total=0)
         __ticket_no_adc_base = pnr_detail.tickets.filter(ticket_status=1, total=0, is_no_adc=True)
 
-        __cancellation = pnr_detail.others_fees.filter(Q(other_fee__in=__other_fee_base)|Q(ticket__in=__ticket_base) | Q(ticket__in=__ticket_no_adc_base))
+        __cancellation = pnr_detail.others_fees.filter(Q(other_fee__in=__other_fee_base)|Q(ticket__in=__ticket_base) | Q(ticket__in=__ticket_no_adc_base)).exclude(fee_type='outsourcing')
 
         print('__________Cancellation____________')
+        print('Ther is the cancellation: ' + str(__cancellation))
         if __cancellation.exists():
             for cancellation in __cancellation:
                 if cancellation.other_fee is not None:

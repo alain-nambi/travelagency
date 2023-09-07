@@ -734,7 +734,7 @@
 												<td>{{ '' }}</td>
 										
 												<td class="checkbox">
-													{% if ticket_not_ordered or ticket_cancel_void_status%}
+													{% if ticket_not_ordered or ticket_cancel_void_status or ticket.is_invoiced%}
 														<input type="checkbox" class="to-hide-when-cancel passagers-check checkto{{ticket.passenger.id}} ticket-checkbox-passenger checkbox-line-below" id="passagers-check" data-ticket-id = "{{ticket.id}}" data-id="{{ passenger.id }}" data-ticket-status = "1" data-commune-id = "{{ticket.id}}" data-amount-total="{{ ticket.total|floatformat:'2' }}" data-type="ticket" checked hidden>
 													{% else %}
 														<input type="checkbox" class="to-hide-when-cancel passagers-check checkto{{ticket.passenger.id}} ticket-checkbox-passenger checkbox-line-below" id="passagers-check" data-ticket-id = "{{ticket.id}}" data-id="{{ passenger.id }}" data-ticket-status = "0" data-commune-id = "{{ticket.id}}" data-amount-total="{{ ticket.total|floatformat:'2' }}" data-type="ticket" checked disabled>
@@ -747,7 +747,8 @@
 											<!-- Ticket-related other fee -->
 											{% with ticket|ticket_other_fee as temp_other_fee %}
 												{% if temp_other_fee is not None %}
-													<tr class="tr-other-fees {% if other_fees_orders is not None %} text-success {% else %} text-primary {% endif %} " data-other-fee-id = "{{other_fee.id}}">
+													{% with temp_other_fee|other_fees_orders as other_fees_orders %}
+													<tr class="tr-other-fees {% if other_fees_orders.other_fee.is_invoiced %} text-success {% endif %} {% if temp_other_fee.fee_type != 'outsourcing' and not temp_other_fee.is_subjected_to_fee  %} text-primary {% endif %} " data-other-fee-id = "{{other_fee.id}}">
 														<td><span class="type" style="font-size: 12px;">{{ temp_other_fee.fee_type }}</span></td>
 														<td><span class="billet">{{ temp_other_fee.designation }}</span></td>
 														{% if temp_other_fee|ancillary_passenger is not None %}
@@ -797,13 +798,15 @@
 														</td>
 														<td>{{temp_other_fee.emitter.username}}</td>
 														<td></td>
-														{% if other_fees_orders is not None%}
+														<td></td>
+														{% if other_fees_orders or temp_other_fee.is_invoiced.is_invoiced %}
 														<td class="checkbox"><input type="checkbox" class="to-hide-when-cancel other-fees-check p-checkbox other-fees-checkboxes check{{ temp_other_fee.id }} checkbox-line-below" id="passagers-check" data-other-fees-id = "{{temp_other_fee.id}}" data-id="{{ temp_other_fee.id }}" data-commune-id = "{{temp_other_fee.id}}" data-amount-total="{{ temp_other_fee.total|floatformat:'2' }}" data-type="other-fee" checked hidden></td>
 														{% else %}
 														<td class="checkbox"><input type="checkbox" class="to-hide-when-cancel other-fees-check p-checkbox other-fees-checkboxes check{{ temp_other_fee.id }} checkbox-line-below" id="passagers-check" data-other-fees-id = "{{temp_other_fee.id}}" data-id="{{ temp_other_fee.id }}" data-commune-id = "{{temp_other_fee.id}}" data-amount-total="{{ temp_other_fee.total|floatformat:'2' }}" data-type="other-fee" checked disabled></td>
 														{% endif %}
 														
 													</tr>
+													{% endwith %}
 												{% endif %}
 											{% endwith %}
 											
@@ -874,7 +877,7 @@
 												<td>{{ '' }}</td>
 												<td>{{ '' }}</td>
 												<td class="checkbox">
-													{% if fee_not_ordered %}
+													{% if fee_not_ordered or fee.is_invoiced %}
 														<input type="checkbox" class="to-hide-when-cancel passagers-check checkto{{ticket.passenger.id}} checkbox-line-below ticket-fee-checkbox" id="passagers-check" data-amount-total="{{ fee.total|floatformat:'2' }}" data-id="{{ ticket.passenger.id }}" data-commune-id = "{{ticket.id}}" data-type="fee" checked hidden>
 													{% else %}
 														<input type="checkbox" class="to-hide-when-cancel passagers-check checkto{{ticket.passenger.id}} checkbox-line-below ticket-fee-checkbox" id="passagers-check" data-amount-total="{{ fee.total|floatformat:'2' }}" data-id="{{ ticket.passenger.id }}" data-commune-id = "{{ticket.id}}" data-type="fee" checked disabled>
@@ -942,7 +945,7 @@
 												<td>{{other_fee.emitter.username}}</td>
 												<td></td>
 												<td></td>
-												{% if other_fees_orders is not None or other_fee_cancel_void_status or other_fee.ticket is not None or other_fee.other_fee is not None %}
+												{% if other_fees_orders is not None or other_fee_cancel_void_status or other_fee.ticket is not None or other_fee.other_fee is not None or other_fee.is_invoiced%}
 												<td class="checkbox"><input type="checkbox" class="to-hide-when-cancel other-fees-check p-checkbox other-fees-checkboxes check{{ other_fee.id }} checkbox-line-below" id="passagers-check" data-other-fees-id = "{{other_fee.id}}" data-id="{{ other_fee.id }}" data-commune-id = "{{other_fee.id}}" data-amount-total="{{ other_fee.total|floatformat:'2' }}" data-type="other-fee" checked hidden></td>
 												{% else %}
 												<td class="checkbox"><input type="checkbox" class="to-hide-when-cancel other-fees-check p-checkbox other-fees-checkboxes check{{ other_fee.id }} checkbox-line-below" id="passagers-check" data-other-fees-id = "{{other_fee.id}}" data-id="{{ other_fee.id }}" data-commune-id = "{{other_fee.id}}" data-amount-total="{{ other_fee.total|floatformat:'2' }}" data-type="other-fee" checked disabled></td>
@@ -1017,7 +1020,7 @@
 												<td>{{ '' }}</td>
 												<td>{{ '' }}</td>
 												<td>{{ '' }}</td>
-												{% if other_fees_fees_orders is not None %}
+												{% if other_fees_fees_orders is not None or fee.is_invoiced %}
 												<td class="checkbox"><input type="checkbox" class="to-hide-when-cancel p-checkbox checkto{{other_fee.id}} other-fee-fee-checkbox" id="passagers-check checkbox-line-below" data-amount-total= "{{ fee.total|floatformat:'2' }}" data-commune-id = "{{other_fee.id}}" data-type="fee" checked hidden></td>
 												{% else %}
 												<td class="checkbox"><input type="checkbox" class="to-hide-when-cancel p-checkbox checkto{{other_fee.id}} other-fee-fee-checkbox" id="passagers-check checkbox-line-below" data-amount-total= "{{ fee.total|floatformat:'2' }}" data-commune-id = "{{other_fee.id}}" data-type="fee" checked disabled></td>

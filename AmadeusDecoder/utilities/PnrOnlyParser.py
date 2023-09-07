@@ -541,16 +541,24 @@ class PnrOnlyParser():
                         a = index
                         departure = ''
                         landing = ''
+                        # almost all segment line ends with element like:  *1A/E* ,... 
+                        # notice format: *...*
                         if(flight_info[a].startswith('*') or flight_info[a].endswith('*')):
-                            while True:
+                            while a >= 0:
                                 if(flight_info[a - 1] != ''):
                                     departure = flight_info[a - 2]
                                     landing = flight_info[a - 1]
                                     break
                                 a -= 1
                         else:
-                            departure = flight_info[a - 1]
-                            landing = flight_info[a]
+                            # some segment line does not follow this convention (*...*)
+                            while a >= 0:
+                                if flight_info[a-1] != '':
+                                    if flight_info[a-1].isnumeric() and len(flight_info[a-1]) == 4:
+                                        departure = flight_info[a-2]
+                                        landing = flight_info[a-1]
+                                        break
+                                a -= 1
                         departure_time = datetime.strptime(flight_info[departure_time_index] + str(yearOfOperation) + ' ' + departure[0:2] + ':' + departure[2:] + ':00', '%d%b%Y %H:%M:%S')
                         # sometimes, landing time has a '+' attribute in order to show that some days has to be added from the departure date
                         if(len(landing.split('+')) <= 1):
@@ -1271,21 +1279,25 @@ class PnrOnlyParser():
         tickets_segments = []
         tickets_ssrs = []
         ticket_lines = []
+        header_part_indexes = []
         
         for line in normalized_file:
             temp = line.split(" ")
             if len(temp) > 2 and temp[0].isnumeric():
                 if temp[1] in TICKET_LINE_IDENTIFIER and temp[2] in SECOND_DEGREE_TICKET_LINE_IDENTIFIER:
                     ticket_lines.append(line)
-                    header_part_indexes = 3
+                    header_part_indexes.append(3)
                 elif temp[1] in TICKET_LINE_IDENTIFIER and temp[2] not in SECOND_DEGREE_TICKET_LINE_IDENTIFIER:
                     ticket_lines.append(line)
-                    header_part_indexes = 2
+                    header_part_indexes.append(2)
         
-        for ticket in ticket_lines:
+        for ticket_line_index in range(len(ticket_lines)):
             temp_ticket = Ticket()
-            header_part = ticket.split(' ')[0:header_part_indexes]
-            info_part = ticket.split(' ')[header_part_indexes:]
+            
+            ticket = ticket_lines[ticket_line_index]
+            header_part = ticket.split(' ')[0:header_part_indexes[ticket_line_index]]
+            print('Normalized file: ', header_part)
+            info_part = ticket.split(' ')[header_part_indexes[ticket_line_index]:]
             # ticket number can be: 760-9010406291 or 760-2404573845-46
             temp_ticket_number_str = info_part[0].split('/')[0]
             # if like 760-9010406291
@@ -1304,10 +1316,10 @@ class PnrOnlyParser():
                             if passenger.order == part_slice:
                                 # if the passenger is not an INF associated with a parent passenger
                                 
-                                if header_part[2] != 'INF':
+                                if header_part[header_part_indexes[ticket_line_index] - 1] != 'INF':
                                     if passenger.types != 'INF_ASSOC':
                                         temp_ticket.passenger = passenger
-                                elif header_part[2] == 'INF':
+                                elif header_part[header_part_indexes[ticket_line_index] - 1] == 'INF':
                                     if passenger.types == 'INF_ASSOC':
                                         temp_ticket.passenger = passenger
                                         temp_ticket.passenger_type = 'INF'

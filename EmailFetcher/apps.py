@@ -6,8 +6,6 @@ import schedule
 import time
 from django.apps.registry import apps
 
-import AmadeusDecoder.utilities.configuration_data as configs
-
 from datetime import datetime, timedelta, timezone
 
 from time import sleep
@@ -119,6 +117,7 @@ def send_fee_update_list():
 
 def fetch_email():
     try:
+        import AmadeusDecoder.utilities.configuration_data as configs
         from EmailFetcher.utilities.EmailListener import EmailListener
         print('Email listener is starting')
         EMAIL_PNR = configs.EMAIL_PNR
@@ -147,6 +146,7 @@ def fetch_email():
 def load_config():
     print('Loading configurations ...')
     # assign current company to local variable 'session_variable'
+    import AmadeusDecoder.utilities.configuration_data as configs
     import AmadeusDecoder.utilities.session_variables as session_variables
     from AmadeusDecoder.utilities.ConfigReader import ConfigReader
     # session_variables.current_company = ConfigReader.get_company()
@@ -173,15 +173,15 @@ class EmailfetcherConfig(AppConfig):
     name = 'EmailFetcher'
     
     def ready(self):
-        run_once = os.environ.get('CMDLINERUNNER_RUN_ONCE') 
+        run_once = os.environ.get('CMDLINERUNNER_RUN_ONCE_EMAIL')
+        
         if run_once is not None:
             return
-        os.environ['CMDLINERUNNER_RUN_ONCE'] = 'True'
+        os.environ['CMDLINERUNNER_RUN_ONCE_EMAIL'] = 'True'
         
-        load_configs = Thread(target=load_config)
-        load_configs.start()
-        
-        sleep(2)
+        # load_configs = Thread(target=load_config)
+        # load_configs.start()
+        #
         
         email_thread_once = Thread(target=fetch_email)
         email_thread_once.start()
@@ -232,4 +232,4 @@ class EmailfetcherConfig(AppConfig):
         # send daily pnr fee update report
         # daily_thread_once = Thread(target=send_fee_update_list)
         # daily_thread_once.start()
-
+        

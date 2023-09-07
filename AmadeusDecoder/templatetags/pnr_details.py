@@ -432,7 +432,7 @@ def get_all_pnr(request):
         date_filter = Q(system_creation_date__range=[start_date, end_date]) if start_date and end_date else Q()
 
         agent = Q()
-        if filtered_creator is not None:
+        if filtered_creator is not None and filtered_creator != 'Empty':
             agent = Q(agent_id=filtered_creator)
         elif filtered_creator == 'Empty':
             agent = Q(agent_id=None)
@@ -645,8 +645,8 @@ def get_all_pnr(request):
 
             pnr_list = list(pnr_list)
             pnr_count = pnr_queryset.count()
+            
         return pnr_count
-    
 @register.filter(name='first_passenger')
 def get_first_passenger(pnr):
     from AmadeusDecoder.models.pnr.Passenger import Passenger

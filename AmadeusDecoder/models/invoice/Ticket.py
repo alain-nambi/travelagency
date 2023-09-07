@@ -107,6 +107,8 @@ class Ticket(models.Model, BaseModel):
     original_ticket_status = models.IntegerField(default=1) 
     # issuing agency name (original issuing agency name when ID cannot be found)
     issuing_agency_name = models.CharField(max_length=200, null=True)
+    # issuing emitter name (when not found from database)
+    issuing_agent_name = models.CharField(max_length=200, null=True)
     
     # update ticket status if PNR has been reissued with different tickets
     def update_ticket_status_PNR_reissued(self, pnr, new_ticket_list):
@@ -141,12 +143,13 @@ class Ticket(models.Model, BaseModel):
         for k in range(len(current_ticket_list)):
             if k not in common_ticket_index:
                 if is_multiple_file:
-                    if current_ticket_list[k].is_invoiced:
+                    if not current_ticket_list[k].is_invoiced:
                         current_ticket_list[k].ticket_status = 0
                         current_ticket_list[k].save()
                 else:
-                    current_ticket_list[k].ticket_status = 0
-                    current_ticket_list[k].save()
+                    if not current_ticket_list[k].is_invoiced:
+                        current_ticket_list[k].ticket_status = 0
+                        current_ticket_list[k].save()
             elif k in common_ticket_index:
                 current_ticket_list[k].ticket_status = 1
                 current_ticket_list[k].save()
@@ -352,7 +355,7 @@ class Ticket(models.Model, BaseModel):
                 temp_other_fee_obj.total = subcontracting_cost
                 temp_other_fee_obj.pnr = self.pnr
                 temp_other_fee_obj.ticket = self
-                temp_other_fee_obj.fee_type = 'FEE'
+                temp_other_fee_obj.fee_type = 'outsourcing'
                 temp_other_fee_obj.creation_date = self.issuing_date
                 temp_other_fee_obj.is_subjected_to_fee = False
                 temp_other_fee_obj.other_fee_status = self.ticket_status

@@ -11,8 +11,6 @@ import requests
 import random
 import pandas as pd
 
-import AmadeusDecoder.utilities.configuration_data as configs
-
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
@@ -40,8 +38,15 @@ from AmadeusDecoder.models.configuration.Configuration import Configuration
 
 from AmadeusDecoder.utilities.FtpConnection import upload_file
 from AmadeusDecoder.utilities.SendMail import Sending
-from AmadeusDecoder.utilities.ServiceFeesDecreaseRequest import ServiceFeesDecreaseRequest
 import traceback
+
+import AmadeusDecoder.utilities.configuration_data as configs
+
+# FEE_REQUEST_SENDER = {"port":587, "smtp":"smtp.gmail.com", "address":"feerequest.issoufali.pnr@gmail.com", "password":"tnkunwvygtdkxfxg"}
+# FEE_REQUEST_RECIPIENT = ['superviseur@agences-issoufali.com','pp@phidia.onmicrosoft.com','mihaja@phidia.onmicrosoft.com','tahina@phidia.onmicrosoft.com']
+
+FEE_REQUEST_SENDER = configs.FEE_REQUEST_SENDER
+FEE_REQUEST_RECIPIENT = configs.FEE_REQUEST_RECIPIENT
 
 @login_required(login_url='index')
 def home(request): 
@@ -151,8 +156,8 @@ def home(request):
                     pnr_list.append(pnr)
 
             agent = Q()
-            if filtered_creator is not None and filtered_creator != 'Empty':
-                agent = Q(agent_id=int(filtered_creator))
+            if filtered_creator is not None:
+                agent = Q(agent_id=filtered_creator)
             elif filtered_creator == 'Empty':
                 agent = Q(agent_id=None)
             else:
@@ -215,8 +220,8 @@ def home(request):
                     pnr_list.append(pnr)
 
             agent = Q()
-            if filtered_creator is not None and filtered_creator != 'Empty':
-                agent = Q(agent_id=int(filtered_creator))
+            if filtered_creator is not None:
+                agent = Q(agent_id=filtered_creator)
             elif filtered_creator == 'Empty':
                 agent = Q(agent_id=None)
             else:
@@ -319,7 +324,9 @@ def home(request):
 
         agent = Q()
         if filtered_creator is not None and filtered_creator != 'Empty':
-            agent = Q(agent_id=int(filtered_creator))
+            agent = Q(agent_id=filtered_creator)
+        elif filtered_creator == 'Empty':
+            agent = Q(agent_id=None)
         else:
             agent = Q(agent_id=request.user.id) | Q(agent_id=None)
 
@@ -393,22 +400,17 @@ def home(request):
         context = {'page_obj': page_obj, 'row_num': row_num}
         context['users'] = users
         return render(request,'home.html', context)
-    
     else:
         status_value = Q(status_value=status_value_from_cookie) if status_value_from_cookie in [0, 1] else Q()
 
-        pnr_list = []
-        pnr_count = 0
-
-        if filtered_creator != '0' and filtered_creator is not None and filtered_creator != 'Empty':
-            print('Creator selected is not non attribué and not all too')
+        if filtered_creator != '0' and filtered_creator is not None and filtered_creator != 'Empty': 
             max_system_creation_date = Q(system_creation_date__gt=maximum_timezone)
 
             # Create date filter query object or an empty query object if dates are absent
             date_filter = Q(system_creation_date__range=[start_date, end_date]) if start_date and end_date else Q()
 
             pnr_queryset  = Pnr.objects.filter(
-                                agent_id=int(filtered_creator)
+                                agent_id=filtered_creator
                             ).filter(
                                 status_value,
                                 max_system_creation_date,
@@ -452,8 +454,7 @@ def home(request):
             pnr_count = pnr_queryset.count()
 
             print('Not all')
-        elif filtered_creator == '0' or filtered_creator is None : ##### Si 'Tout' est sélectionner dans le filtre créateur
-            print('Creator selected is not non attribué and is all')
+        elif filtered_creator == '0' or filtered_creator is None: ##### Si 'Tout' est sélectionner dans le filtre créateur
             if filtered_creator != 'Empty':
                 max_system_creation_date = Q(system_creation_date__gt=maximum_timezone)
 
@@ -504,7 +505,6 @@ def home(request):
                 pnr_count = pnr_queryset.count()
 
                 print('All')
-
         elif filtered_creator == 'Empty':
             max_system_creation_date = Q(system_creation_date__gt=maximum_timezone)
 
@@ -554,6 +554,7 @@ def home(request):
             pnr_count = pnr_queryset.count()
 
             print('no creator')
+
         context['pnr_list'] = pnr_list
         context['pnr_count'] = pnr_count
         object_list = context['pnr_list']
@@ -780,7 +781,8 @@ def pnr_search_by_pnr_number(request):
     return JsonResponse(context)
 
 # @login_required(login_url='index')
-def reduce_fee_request_accepted(request, request_id, amount, choice_type, token):  
+def reduce_fee_request_accepted(request, request_id, amount, choice_type, token):
+    from AmadeusDecoder.utilities.ServiceFeesDecreaseRequest import ServiceFeesDecreaseRequest
     context = {}
 
     request_obj = ReducePnrFeeRequest.objects.get(pk=request_id, token=token)
@@ -822,7 +824,8 @@ def reduce_fee_request_accepted(request, request_id, amount, choice_type, token)
     return render(request,'validate-request.html', context) 
 
 # @login_required(login_url='index')
-def reduce_fee_request_rejected(request, request_id, choice_type, token):  
+def reduce_fee_request_rejected(request, request_id, choice_type, token):
+    from AmadeusDecoder.utilities.ServiceFeesDecreaseRequest import ServiceFeesDecreaseRequest
     context = {}
 
     request_obj = ReducePnrFeeRequest.objects.get(pk=request_id, token=token)
@@ -870,6 +873,7 @@ def reduce_fee_request_modify(request, request_id, choice_type, token):
 
 @login_required(login_url='index')
 def reduce_fee(request) :
+    from AmadeusDecoder.utilities.ServiceFeesDecreaseRequest import ServiceFeesDecreaseRequest
     context = {}
     if request.method == 'POST' and request.POST.get('pnrId') and request.POST.get('feeId'):
         pnrId = request.POST.get('pnrId')
@@ -902,15 +906,8 @@ def reduce_fee(request) :
                     context['message'] = "Demande envoyée avec succès."
                     
                     Sending.send_email_request(
-                        "feerequest.issoufali.pnr@gmail.com",
-                        [
-                            # "superviseur@agences-issoufali.com",
-                            # "pp@phidia.onmicrosoft.com",
-                            "mihaja@phidia.onmicrosoft.com",
-                            # "tahina@phidia.onmicrosoft.com",
-                            # "famenontsoa@outlook.com"
-                            # "alain@phidia.onmicrosoft.com"
-                        ],
+                        FEE_REQUEST_SENDER['address'],
+                        FEE_REQUEST_RECIPIENT,
                         subject,
                         message
                     )
@@ -1168,8 +1165,8 @@ def get_order(request, pnr_id):
     config = Configuration.objects.filter(name='Saving File Tools', value_name='File protocol', environment=settings.ENVIRONMENT)
 
     
-    file_dir = 'C:\\Users\\NEC04\\Documents\\Gestion PNR\\travelagency\\AmadeusDecoder\\export'
-    customer_dir = 'C:\\Users\\NEC04\\Documents\\Gestion PNR\\travelagency\\AmadeusDecoder\\export'
+    file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
+    customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
     
     fieldnames_order = [
         'LineID',

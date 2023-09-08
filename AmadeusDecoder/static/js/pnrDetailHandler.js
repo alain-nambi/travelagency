@@ -745,8 +745,6 @@ document.getElementById("save").addEventListener("click", (e) => {
     }
   });
 
-  console.log(listTicketCheckboxesAddAfterOrderAlreadyCreated);
-
   const InputFeeCost = document.querySelectorAll(".fee-cost");
   InputFeeCost.forEach((input) => {
     const Id = input.getAttribute("data-fee-id");
@@ -790,7 +788,6 @@ document.getElementById("save").addEventListener("click", (e) => {
     feeCountChecking < 1
   ) {
     if (customerListSelection.value.trim().length == 0) {
-      // toastr.error('Aucune action efféctuée.');
       window.location.reload();
     }
   }
@@ -818,8 +815,13 @@ document.getElementById("save").addEventListener("click", (e) => {
         otherfeesIdsChecked: JSON.stringify(listotherFeesChecked),
       },
       success: (response) => {
-        console.log(response);
-        window.location.reload();
+        console.log(response.ticket_status);
+        if (((response.ticket_status == 'success') && (response.other_fee_status == 'success')) || ((response.ticket_status == '') && (response.other_fee_status == ''))) {
+          window.location.reload();
+        }
+        else if ((response.ticket_status == 'failed') || (response.ticket_status == 'failed')) {
+          $("#ErrorSavingModal").modal('show');
+        }
       },
       error: (response) => {
         console.log(response);
@@ -828,9 +830,14 @@ document.getElementById("save").addEventListener("click", (e) => {
   }
 });
 
+document.getElementById('RefreshErrorSaving').addEventListener('click', ()=> {
+  $("#ErrorSavingModal").hide();
+  window.location.reload();
+})
+
 document.querySelectorAll(".delete-other-fee-row").forEach((button) => {
   button.addEventListener("click", (e) => {
-    $("#confirmDeleteOtherFee").show();
+    $("#confirmDeleteOtherFee").modal('show');
     console.log(
       button.parentElement.parentElement.getAttribute("data-other-fee-id")
     );

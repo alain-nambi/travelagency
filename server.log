@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Email listener is starting
 📢 Mail notification for pnr not updated in pnr management...
 ==================== Mail notification for pnr not sent to Odoo ====================
@@ -9,9 +10,321 @@ Performing system checks...
 
 System check identified no issues (0 silenced).
 June 02, 2023 - 13:52:34
+=======
+Loading configuration ...
+Configuration loaded.
+Email listener is starting
+{'address': 'tjq.issoufali@gmail.com', 'password': 'gvtlqduhdbiijjsd'}
+Performing system checks...
+
+Loading configuration ...
+Configuration loaded.
+System check identified no issues (0 silenced).
+August 28, 2023 - 12:48:00
+>>>>>>> 59ac153c8bba1375b474748b02888a54da728340
 Django version 3.2.15, using settings 'DjangoTravelAgency.settings'
 Starting development server at http://0.0.0.0:8000/
 Quit the server with CONTROL-C.
 Connection is now in IDLE mode.
+<<<<<<< HEAD
 OPC checking...
+=======
+Creator: Empty
+no creator
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Contacts'
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Products'
+Creator: None
+All
+All
+All
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Contacts'
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Products'
+Creator: Empty
+no creator
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Contacts'
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Products'
+Creator: Empty
+no creator
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Contacts'
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Products'
+Connection is now in IDLE mode.
+Creator: Empty
+no creator
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Contacts'[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Products'
+
+Creator: Empty
+no creator
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Contacts'[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Products'
+
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Creator: Empty
+no creator
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Contacts'
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Products'
+Creator: Empty
+no creator
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Contacts'
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Products'
+Connection is now in IDLE mode.
+55555
+25681
+25681
+__________Cancellation____________
+All of them
+All
+385
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Contacts'
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Products'
+Creator: Empty
+no creator
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Contacts'
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Products'
+55555
+28979
+28979
+__________Cancellation____________
+Only ticket
+All
+385
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Contacts'
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Products'
+55555
+28973
+28973
+__________Cancellation____________
+Only ticket
+All
+385
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Contacts'
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Products'
+55555
+28972
+28972
+__________Cancellation____________
+Only ticket
+All
+385
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Contacts'
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Products'
+55555
+28971
+28971
+__________Cancellation____________
+Only ticket
+All
+385
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Contacts'
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Products'
+55555
+28970
+28970
+__________Cancellation____________
+Only ticket
+All
+385
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Contacts'
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Products'
+Creator: Empty
+no creator
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Contacts'
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Products'
+Connection is now in IDLE mode.
+Creator: None
+All
+All
+All
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Contacts'
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Products'
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+55555
+29052
+29052
+__________Cancellation____________
+All
+1902
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Contacts'
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Products'
+Creator: None
+All
+All
+All
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Contacts'
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Products'
+55555
+28723
+28723
+__________Cancellation____________
+All
+1902
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Contacts'
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Products'
+Connection is now in IDLE mode.
+Creator: None
+All
+All
+All
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Contacts'
+[Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Products'
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+Connection is now in IDLE mode.
+>>>>>>> 59ac153c8bba1375b474748b02888a54da728340
 Connection is now in IDLE mode.

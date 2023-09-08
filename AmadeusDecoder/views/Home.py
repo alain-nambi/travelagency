@@ -118,7 +118,6 @@ def home(request):
     
     filtered_creator = request.COOKIES.get('creator_pnr_filter')
     print("Creator: " + str(filtered_creator))
-    print(type(filtered_creator))
 
     # Retrieve the value of the "isSortedByCreator" cookie from the request
     is_sorter_by_creator = request.COOKIES.get('isSortedByCreator')
@@ -159,6 +158,8 @@ def home(request):
             agent = Q()
             if filtered_creator is not None:
                 agent = Q(agent_id=filtered_creator)
+            elif filtered_creator == 'Empty':
+                agent = Q(agent_id=None)
             else:
                 agent = Q(agent_id=4) | Q(agent_id=5)
 
@@ -221,6 +222,8 @@ def home(request):
             agent = Q()
             if filtered_creator is not None:
                 agent = Q(agent_id=filtered_creator)
+            elif filtered_creator == 'Empty':
+                agent = Q(agent_id=None)
             else:
                 agent = Q(agent_id=4) | Q(agent_id=5)
 
@@ -320,8 +323,10 @@ def home(request):
         date_filter = Q(system_creation_date__range=[start_date, end_date]) if start_date and end_date else Q()
 
         agent = Q()
-        if filtered_creator is not None:
+        if filtered_creator is not None and filtered_creator != 'Empty':
             agent = Q(agent_id=filtered_creator)
+        elif filtered_creator == 'Empty':
+            agent = Q(agent_id=None)
         else:
             agent = Q(agent_id=request.user.id) | Q(agent_id=None)
 
@@ -398,7 +403,7 @@ def home(request):
     else:
         status_value = Q(status_value=status_value_from_cookie) if status_value_from_cookie in [0, 1] else Q()
 
-        if filtered_creator != '0' and filtered_creator is not None: 
+        if filtered_creator != '0' and filtered_creator is not None and filtered_creator != 'Empty': 
             max_system_creation_date = Q(system_creation_date__gt=maximum_timezone)
 
             # Create date filter query object or an empty query object if dates are absent
@@ -450,17 +455,67 @@ def home(request):
 
             print('Not all')
         elif filtered_creator == '0' or filtered_creator is None: ##### Si 'Tout' est sélectionner dans le filtre créateur
+            if filtered_creator != 'Empty':
+                max_system_creation_date = Q(system_creation_date__gt=maximum_timezone)
+
+                # Create date filter query object or an empty query object if dates are absent
+                date_filter = Q(system_creation_date__range=[start_date, end_date]) if start_date and end_date else Q()
+            
+                pnr_queryset =  Pnr.objects.filter(
+                                    status_value,
+                                ).filter(
+                                    max_system_creation_date,
+                                    date_filter,
+                                )
+
+                if is_invoiced is not None:
+                    pnr_queryset =  pnr_queryset.filter(Q(is_invoiced=is_invoiced))
+
+                # Sort the list based on the agent username or system creation date
+                if sort_creator is not None:
+                    if sort_creator == 'agent__username':
+                        # Sort Pnrs by agent's username and agent_id None in the last part of list
+                        pnr_list = sorted(
+                            pnr_queryset, 
+                            key=lambda pnr: (
+                                pnr.agent is None, 
+                                pnr.agent.username if pnr.agent else ''
+                            ), 
+                            reverse=False
+                        )
+                    elif sort_creator == '-agent__username':
+                        # Sort Pnrs by agent's username in reverse order and agent_id None in the last part of list
+                        pnr_list = sorted(
+                            pnr_queryset, 
+                            key=lambda pnr: (
+                                pnr.agent.username if pnr.agent else ''
+                            ), 
+                            reverse=True
+                        )
+                else:
+                    # If no sorting parameter provided, sort by system creation date
+                    if date_order_by == "-":
+                        # Sort Pnrs by system creation date in reverse order
+                        pnr_list = sorted(pnr_queryset, key=lambda pnr: pnr.system_creation_date, reverse=True)
+                    else:
+                        # Sort Pnrs by system creation date in ascending order
+                        pnr_list = sorted(pnr_queryset, key=lambda pnr: pnr.system_creation_date, reverse=False)
+
+                pnr_list = list(pnr_list)
+                pnr_count = pnr_queryset.count()
+
+                print('All')
+        elif filtered_creator == 'Empty':
             max_system_creation_date = Q(system_creation_date__gt=maximum_timezone)
 
             # Create date filter query object or an empty query object if dates are absent
             date_filter = Q(system_creation_date__range=[start_date, end_date]) if start_date and end_date else Q()
-        
-            pnr_queryset =  Pnr.objects.filter(
+
+            pnr_queryset  = Pnr.objects.filter(
+                                Q(agent_id=None),
                                 status_value,
-                            ).filter(
                                 max_system_creation_date,
-                                date_filter,
-                            )
+                                date_filter)
 
             if is_invoiced is not None:
                 pnr_queryset =  pnr_queryset.filter(Q(is_invoiced=is_invoiced))
@@ -498,7 +553,7 @@ def home(request):
             pnr_list = list(pnr_list)
             pnr_count = pnr_queryset.count()
 
-            print('All')
+            print('no creator')
 
         context['pnr_list'] = pnr_list
         context['pnr_count'] = pnr_count
@@ -560,8 +615,12 @@ def pnr_details(request, pnr_id):
                 cancellation.save()
 
         if not __ticket_base.exists() and not __other_fee_base.exists() and not __ticket_no_adc_base.exists():
-            pnr_detail.is_invoiced = False
-            pnr_detail.save()
+            if pnr_detail.tickets.filter(Q(ticket_status=0)|Q(ticket_status=3)).filter(is_invoiced=True) or pnr_detail.others_fees.filter(Q(other_fee_status=0)|Q(other_fee_status=3)).filter(is_invoiced=True):
+                pnr_detail.is_invoiced = True
+                pnr_detail.save()
+            else:
+                pnr_detail.is_invoiced = False
+                pnr_detail.save()
         elif __ticket_base.exists() and not __other_fee_base.exists() and not __ticket_no_adc_base.exists():
             print('Only ticket')
             __ticket_not_ordered = __ticket_base.filter(is_invoiced=False)
@@ -869,6 +928,8 @@ def reduce_fee(request) :
 @login_required(login_url='index')
 def save_pnr_detail_modification(request, pnr_id):
     context = {}
+    context['ticket_status'] = ''
+    context['other_fee_status'] = ''
     if request.method == 'POST':
         if 'pnrId' and 'refCde' and 'ticketIdsChecked' and 'customerId' in request.POST:
             ticket_checked = json.loads(request.POST.get('ticketIdsChecked'))
@@ -886,82 +947,95 @@ def save_pnr_detail_modification(request, pnr_id):
                     print('Entry issuing part')
                     if passenger_invoice.filter(status='sale').exists():
                         print('Enty to issuing first part with : ' + str(ticket_checked))
-                        count = 0
                         for ids in ticket_checked:
                             tickets = Ticket.objects.filter(pk=int(ids), pnr=pnr_id, ticket_status=1).exclude(ticket_type='TST')
                             for ticket in tickets:
-                                if not passenger_invoice.filter(ticket=ticket.id).exists():
-                                    invoice_tickets_passenger = PassengerInvoice(
-                                        ticket=ticket, pnr=pnr, type=ticket.ticket_type, client=customer, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, fee=None, status='sale')
-                                    invoice_tickets_passenger.save()
+                                try:
+                                    if not passenger_invoice.filter(ticket=ticket.id).exists():
+                                        invoice_tickets_passenger = PassengerInvoice(
+                                            ticket=ticket, pnr=pnr, type=ticket.ticket_type, client=customer, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, fee=None, status='sale')
+                                        invoice_tickets_passenger.save()
 
 
-                                    fee_objects = Fee.objects.filter(ticket=ticket.id)
-                                    if fee_objects.exists():
-                                        for fee_item in fee_objects:
-                                            invoice_fee_passenger = PassengerInvoice.objects.filter(fee=fee_item.id, pnr=int(pnr_id))
-                                            if not invoice_fee_passenger.exists():
-                                                invoice_fee_passenger = PassengerInvoice(
-                                                    fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, status='sale')
-                                                invoice_fee_passenger.save()
-                                            else:
-                                                invoice_fee_passenger.filter(is_invoiced=False).update(
-                                                    fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, status='sale')
-                                else:
-                                    passenger_invoice.filter(ticket=ticket.id, is_invoiced=False).update(ticket=ticket, pnr=pnr, type=ticket.ticket_type, client=customer, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, fee=None, status='sale')
+                                        fee_objects = Fee.objects.filter(ticket=ticket.id)
+                                        if fee_objects.exists():
+                                            for fee_item in fee_objects:
+                                                invoice_fee_passenger = PassengerInvoice.objects.filter(fee=fee_item.id, pnr=int(pnr_id))
+                                                if not invoice_fee_passenger.exists():
+                                                    invoice_fee_passenger = PassengerInvoice(
+                                                        fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, status='sale')
+                                                    invoice_fee_passenger.save()
+                                                else:
+                                                    invoice_fee_passenger.filter(is_invoiced=False).update(
+                                                        fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, status='sale')
+                                        context['ticket_status'] = 'success'
+                                    else:
+                                        context['ticket_status'] = 'failed'
+                                        break
+                                except:
+                                    context['ticket_status'] = 'failed'
+                                    break
 
                     elif not passenger_invoice.filter(status='sale').exists():
                         print('Enty to issuing second part with : ' + str(ticket_checked))
                         for ids in ticket_checked:
                             tickets = Ticket.objects.filter(pk=int(ids), pnr=int(pnr_id), ticket_status=1).exclude(ticket_type='TST')
                             for ticket in tickets:
-                                if not passenger_invoice.filter(ticket=ticket.id).exists():
-                                    invoice_tickets_passenger = PassengerInvoice(
-                                        ticket=ticket, pnr=pnr, type=ticket.ticket_type, client=customer, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, fee=None, status='sale', other_fee=None)
-                                    invoice_tickets_passenger.save()
+                                try:
+                                    if not passenger_invoice.filter(ticket=ticket.id).exists():
+                                        invoice_tickets_passenger = PassengerInvoice(
+                                            ticket=ticket, pnr=pnr, type=ticket.ticket_type, client=customer, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, fee=None, status='sale', other_fee=None)
+                                        invoice_tickets_passenger.save()
 
-                                    fee_objects = Fee.objects.filter(ticket=ticket.id)
-                                    if fee_objects.exists():
-                                        for fee_item in fee_objects:
-                                            invoice_fee_passenger = PassengerInvoice.objects.filter(fee=fee_item.id, pnr=int(pnr_id))
-                                            if not invoice_fee_passenger.exists():
-                                                invoice_fee_passenger = PassengerInvoice(
-                                                    fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, status='sale', other_fee=None)
-                                                invoice_fee_passenger.save()
-                                            else:
-                                                invoice_fee_passenger.filter(is_invoiced=False).update(fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, status='sale')
-                                else:
-                                    passenger_invoice.filter(ticket=ticket.id, is_invoiced=False).update(ticket=ticket, pnr=pnr, type=ticket.ticket_type, client=customer, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, fee=None, status='sale')
+                                        fee_objects = Fee.objects.filter(ticket=ticket.id)
+                                        if fee_objects.exists():
+                                            for fee_item in fee_objects:
+                                                invoice_fee_passenger = PassengerInvoice.objects.filter(fee=fee_item.id, pnr=int(pnr_id))
+                                                if not invoice_fee_passenger.exists():
+                                                    invoice_fee_passenger = PassengerInvoice(
+                                                        fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, status='sale', other_fee=None)
+                                                    invoice_fee_passenger.save()
+                                                else:
+                                                    invoice_fee_passenger.filter(is_invoiced=False).update(fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, status='sale')
+                                        context['ticket_status'] = 'success'
+                                    else:
+                                        context['ticket_status'] = 'failed'
+                                        break
+                                except:
+                                    context['ticket_status'] = 'failed'
+                                    break
 
                 elif pnr.status_value == 1:
-                    count = 0
                     print('Enty to unissuing first part with : ' + str(ticket_checked))
                     ticket_objects = Ticket.objects.filter(pk__in=ticket_checked, pnr=int(pnr_id), ticket_status=1).exclude(ticket_type__in=['TKT', 'EMD'])
                     print('Unissuing ticket: ' + str(ticket_objects.count()))
                     if ticket_objects.exists():
                         for ticket_object in ticket_objects:
-                            count+=1
-                            print('Count : ' + str(count))
-                            invoice_tickets_passenger = PassengerInvoice.objects.filter(ticket=ticket_object.id, pnr=int(pnr_id))
-                            if invoice_tickets_passenger.exists():
-                                invoice_tickets_passenger.update(ticket=ticket_object, pnr=pnr, type=ticket_object.ticket_type, client=customer, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, fee=None, status='quotation', other_fee=None)
-                                print('ticket unissued updated')
-                            else:
-                                invoice_tickets_passenger = PassengerInvoice(ticket=ticket_object, pnr=pnr, type=ticket_object.ticket_type, client=customer, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, fee=None, status='quotation', other_fee=None)
-                                invoice_tickets_passenger.save()
-                                print('ticket unissued saved')
+                            try:
+                                invoice_tickets_passenger = PassengerInvoice.objects.filter(ticket=ticket_object.id, pnr=int(pnr_id))
+                                if invoice_tickets_passenger.exists():
+                                    invoice_tickets_passenger.update(ticket=ticket_object, pnr=pnr, type=ticket_object.ticket_type, client=customer, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, fee=None, status='quotation', other_fee=None)
+                                    print('ticket unissued updated')
+                                else:
+                                    invoice_tickets_passenger = PassengerInvoice(ticket=ticket_object, pnr=pnr, type=ticket_object.ticket_type, client=customer, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, fee=None, status='quotation', other_fee=None)
+                                    invoice_tickets_passenger.save()
+                                    print('ticket unissued saved')
 
-                            fee_objects = Fee.objects.filter(ticket=int(ticket_object.id))
-                            if fee_objects.exists():
-                                for fee_item in fee_objects:
-                                    invoice_fee_passenger = PassengerInvoice.objects.filter(fee=fee_item.id, pnr=int(pnr_id))
-                                    if invoice_fee_passenger.exists():
-                                        invoice_fee_passenger.update(fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, status='quotation', other_fee=None)
-                                        print('fee unissued updated')
-                                    else:
-                                        invoice_fee_passenger = PassengerInvoice(fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, status='quotation', other_fee=None)
-                                        invoice_fee_passenger.save()
-                                        print('fee unissued saved')
+                                fee_objects = Fee.objects.filter(ticket=int(ticket_object.id))
+                                if fee_objects.exists():
+                                    for fee_item in fee_objects:
+                                        invoice_fee_passenger = PassengerInvoice.objects.filter(fee=fee_item.id, pnr=int(pnr_id))
+                                        if invoice_fee_passenger.exists():
+                                            invoice_fee_passenger.update(fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, status='quotation', other_fee=None)
+                                            print('fee unissued updated')
+                                        else:
+                                            invoice_fee_passenger = PassengerInvoice(fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, status='quotation', other_fee=None)
+                                            invoice_fee_passenger.save()
+                                            print('fee unissued saved')
+                                context['ticket_status'] = 'success'
+                            except:
+                                context['ticket_status'] = 'failed'
+                                break
                 
                 pnr.customer_id = customer.id
                 pnr.save()
@@ -971,17 +1045,21 @@ def save_pnr_detail_modification(request, pnr_id):
                     invoice_ewa = Invoice.objects.filter(pnr=pnr_id)
                     customer = Client.objects.get(pk=int(customer_id))
                     if invoice_ewa.exists():
-                        invoice_ewa_detail = invoice_ewa.first()
-                        passenger_invoice = PassengerInvoice.objects.filter(pnr=int(pnr_id), status='quotation', invoice_id = invoice_ewa_detail)
-                        print('EWA saved')
-                        if not passenger_invoice.exists():
-                            passenger_invoice = PassengerInvoice(ticket=None, pnr=pnr, type='Billet', client=customer, user_follower=user, is_checked=True, fee=None, status='quotation',invoice_id = invoice_ewa_detail, other_fee=None)
-                            passenger_invoice.save()
-                        else:
-                            passenger_invoice.update(ticket=None, pnr=pnr, type='Billet', client=customer, user_follower=user, is_checked=True, fee=None, status='quotation',invoice_id = invoice_ewa_detail, other_fee=None)
+                        try:
+                            invoice_ewa_detail = invoice_ewa.first()
+                            passenger_invoice = PassengerInvoice.objects.filter(pnr=int(pnr_id), status='quotation', invoice_id = invoice_ewa_detail)
+                            print('EWA saved')
+                            if not passenger_invoice.exists():
+                                passenger_invoice = PassengerInvoice(ticket=None, pnr=pnr, type='Billet', client=customer, user_follower=user, is_checked=True, fee=None, status='quotation',invoice_id = invoice_ewa_detail, other_fee=None)
+                                passenger_invoice.save()
+                            else:
+                                passenger_invoice.update(ticket=None, pnr=pnr, type='Billet', client=customer, user_follower=user, is_checked=True, fee=None, status='quotation',invoice_id = invoice_ewa_detail, other_fee=None)
 
-                        pnr.customer_id = customer.id
-                        pnr.save()
+                            pnr.customer_id = customer.id
+                            pnr.save()
+                            context['ticket_status'] = 'success'
+                        except:
+                            context['ticket_status'] = 'failed'
 
                 pnr.customer_id = customer.id
                 pnr.save() 
@@ -1003,43 +1081,54 @@ def save_pnr_detail_modification(request, pnr_id):
                     for other_fees_id in list_other_fees_id:
                         other_fees = OthersFee.objects.filter(pk=int(other_fees_id),pnr=int(pnr_id), other_fee_status=1)
                         for other_fees_item in other_fees:
+                            try:
+                                invoice_fee_passenger = PassengerInvoice.objects.filter(fee=other_fees_item.id, pnr=int(pnr_id))
+                                if not invoice_fee_passenger.exists():
+                                    invoice_fee_passenger = PassengerInvoice(
+                                        fee=None, pnr=pnr, client=customer, type=other_fees_item.fee_type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=other_fees_item, status='sale')
+                                    invoice_fee_passenger.save()
+                                    other_fees_fee = Fee.objects.filter(other_fee=other_fees_item.id, pnr=pnr.id)
+                                    for fee_item in other_fees_fee:
+                                        invoice_fee_passenger = PassengerInvoice.objects.filter(fee=fee_item.id, pnr=int(pnr_id))
+                                        if not invoice_fee_passenger.exists():
+                                            invoice_fee_passenger = PassengerInvoice(
+                                                fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=None, status='sale')
+                                            invoice_fee_passenger.save()
+                                        else:
+                                            invoice_fee_passenger.filter(is_invoiced=False).update(fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=None, status='sale')
+                                    context['ticket_status'] = 'success'
+                                elif invoice_fee_passenger.exists():
+                                    context['ticket_status'] = 'failed'
+                                    break
+                            except:
+                                context['other_fee_status'] = 'failed'
+                                break
+
+                elif pnr.status_value == 1:
+                    print('Unissuing other_fees')
+                    other_fees = OthersFee.objects.filter(pnr=pnr_id, other_fee_status=1)
+                    for other_fees_item in other_fees:
+                        try:
                             invoice_fee_passenger = PassengerInvoice.objects.filter(fee=other_fees_item.id, pnr=int(pnr_id))
                             if not invoice_fee_passenger.exists():
                                 invoice_fee_passenger = PassengerInvoice(
-                                    fee=None, pnr=pnr, client=customer, type=other_fees_item.fee_type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=other_fees_item, status='sale')
+                                    fee=None, pnr=pnr, client=customer, type=other_fees_item.fee_type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=other_fees_item, status='quotation')
                                 invoice_fee_passenger.save()
                                 other_fees_fee = Fee.objects.filter(other_fee=other_fees_item.id, pnr=pnr.id)
                                 for fee_item in other_fees_fee:
                                     invoice_fee_passenger = PassengerInvoice.objects.filter(fee=fee_item.id, pnr=int(pnr_id))
                                     if not invoice_fee_passenger.exists():
                                         invoice_fee_passenger = PassengerInvoice(
-                                            fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=None, status='sale')
+                                            fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=None, status='quotation')
                                         invoice_fee_passenger.save()
                                     else:
-                                        invoice_fee_passenger.filter(is_invoiced=False).update(fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=None, status='sale')
-                            elif invoice_fee_passenger.exists():
-                                invoice_fee_passenger.filter(is_invoiced=False).update(fee=None, pnr=pnr, client=customer, type=other_fees_item.fee_type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=other_fees_item, status='sale')
-
-                elif pnr.status_value == 1:
-                    print('Unissuing other_fees')
-                    other_fees = OthersFee.objects.filter(pnr=pnr_id, other_fee_status=1)
-                    for other_fees_item in other_fees:
-                        invoice_fee_passenger = PassengerInvoice.objects.filter(fee=other_fees_item.id, pnr=int(pnr_id))
-                        if not invoice_fee_passenger.exists():
-                            invoice_fee_passenger = PassengerInvoice(
-                                fee=None, pnr=pnr, client=customer, type=other_fees_item.fee_type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=other_fees_item, status='quotation')
-                            invoice_fee_passenger.save()
-                            other_fees_fee = Fee.objects.filter(other_fee=other_fees_item.id, pnr=pnr.id)
-                            for fee_item in other_fees_fee:
-                                invoice_fee_passenger = PassengerInvoice.objects.filter(fee=fee_item.id, pnr=int(pnr_id))
-                                if not invoice_fee_passenger.exists():
-                                    invoice_fee_passenger = PassengerInvoice(
-                                        fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=None, status='quotation')
-                                    invoice_fee_passenger.save()
-                                else:
-                                    invoice_fee_passenger.filter(is_invoiced=False).update(fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=None, status='quotation')
-                        elif invoice_fee_passenger.exists() and pnr.type == 'EWA':
-                            invoice_fee_passenger.filter(is_invoiced=False).update(fee=None, pnr=pnr, client=customer, type=other_fees_item.fee_type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=other_fees_item, status='quotation')
+                                        invoice_fee_passenger.filter(is_invoiced=False).update(fee=fee_item, pnr=pnr, client=customer, type=fee_item.type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=None, status='quotation')
+                            elif invoice_fee_passenger.exists() and pnr.type == 'EWA':
+                                invoice_fee_passenger.filter(is_invoiced=False).update(fee=None, pnr=pnr, client=customer, type=other_fees_item.fee_type, reference=reference, user_follower=user, is_checked=True, is_invoiced=False, ticket=None, other_fee=other_fees_item, status='quotation')
+                            context['ticket_status'] = 'success'
+                        except:
+                            context['other_fee_status'] = 'failed'
+                            break
 
         if 'feeCost' in request.POST:
             fee_cost = json.loads(request.POST.get('feeCost'))
@@ -1079,9 +1168,6 @@ def get_order(request, pnr_id):
     file_dir = '/opt/odoo/issoufali-addons/import_saleorder/data/source'
     customer_dir = '/opt/odoo/issoufali-addons/contacts_from_incadea/data/source'
     
-
-
-    customer_row = {}
     fieldnames_order = [
         'LineID',
         'Type',
@@ -1192,13 +1278,14 @@ def get_order(request, pnr_id):
                             fee_item.is_invoiced = True
                             fee_item.save()
 
+        print("Customers checked are: " + str(customer_ids))
         for customer_id in customer_ids:
             "update the line of order of the current PNR to state invoiced"
             orders = PassengerInvoice.objects.filter(pnr=pnr_id, client=customer_id, is_invoiced=False)
             order_invoice_number = datetime.now().strftime('%Y%m%d%H%M') + str(random.randint(1,9)) # SET ORDER NUMBER
             for order in orders:
                 segments_parts = []
-                if order.status == 'sale':
+                if order.status == 'sale' and order.is_invoiced == False:
                     segments_parts = []
                     pnr_order = Pnr.objects.get(pk=order.pnr.id)
                     if order.ticket is not None and order.ticket.ticket_status == 1:
@@ -1260,7 +1347,7 @@ def get_order(request, pnr_id):
                             'TicketId': ticket.id if ticket.id is not None else '',
                             'IssueDate': ticket.issuing_date.strftime('%d/%m/%Y') if ticket.issuing_date is not None else '',
                             'OrderNumber': order_invoice_number,
-                            'OtherFeeId': '',
+                            'OtherFeeId': '', 
                             'Designation':'',
                         })
 
@@ -1394,50 +1481,23 @@ def get_order(request, pnr_id):
                                     order.fee.is_invoiced = True
                                     order.fee.save()
                 
-            customers = Client.objects.filter(pk=int(customer_id))
-            for customer in customers:
-                customer_row['id'] = customer.id
-                customer_row['CT_Num'] = customer.ct_num.strip().replace('\n', '') if customer.ct_num is not None else ''
-                customer_row['CT_Intitule'] = customer.intitule.strip().replace('\n', '') if customer.intitule is not None else ''
-                customer_row['CT_Adresse'] = customer.address_1.strip().replace('\n', '') if customer.address_1 is not None else ''
-                customer_row['CT_Type'] = customer.ct_type
-                if customer.city is not None or customer.city != '':
-                    customer_row['CT_Ville'] = customer.city.strip().replace('\n', '') if customer.city is not None else ''
-                else:
-                    customer_row['CT_Ville'] = ''
-                if customer.classment is not None or customer.classment != '':
-                    customer_row['CT_Classement'] = customer.classment.strip().replace('\n', '') if customer.classment is not None else ''
-                else:
-                    customer_row['CT_Classement'] = ''
-                if customer.contact is not None or customer.contact != '':
-                    customer_row['CT_Contact'] = customer.contact.strip().replace('\n', '') if customer.contact is not None else ''
-                else:
-                    customer_row['CT_Contact'] = ''
-                if customer.complement is not None or customer.complement != '':
-                    customer_row['CT_Complement'] = customer.complement.strip().replace('\n', '') if customer.complement is not None else ''
-                else:
-                    customer_row['CT_Complement'] = ''
-                if customer.code_postal is not None or customer.code_postal != '':
-                    customer_row['CT_CodePostal'] = customer.code_postal.strip().replace('\n', '') if customer.code_postal is not None else ''
-                else:
-                    customer_row['CT_CodePostal'] = ''
-                if customer.telephone is not None or customer.telephone != '':
-                    customer_row['CT_Telephone'] = customer.telephone.strip().replace('\n', '') if customer.telephone is not None else ''
-                else:
-                    customer_row['CT_Telephone'] = ''
-                if customer.email is not None or customer.email != '':
-                    customer_row['CT_Email'] = customer.email.strip().replace('\n', '') if customer.email is not None else ''
-                else:
-                    customer_row['CT_Email'] = ''
-                if customer.site is not None or customer.site != '':
-                    customer_row['CT_Site'] = customer.site.strip().replace('\n', '') if customer.site is not None else ''
-                else:
-                    customer_row['CT_Site'] = ''
-                if customer.country is not None or customer.country != None:
-                    customer_row['CT_Pays'] = customer.country.strip().replace('\n', '') if customer.country is not None else ''
-                else:
-                    customer_row['CT_Pays'] = ''
-                csv_customer_lines.append(customer_row)
+            customer = Client.objects.get(pk=int(customer_id))
+            csv_customer_lines.append({
+                'id': customer.id,
+                'CT_Num': customer.ct_num.strip().replace('\n', '') if customer.ct_num is not None else '',
+                'CT_Intitule': customer.intitule.strip().replace('\n', '') if customer.intitule is not None else '',
+                'CT_Adresse': customer.address_1.strip().replace('\n', '') if customer.address_1 is not None else '',
+                'CT_Type': customer.ct_type,
+                'CT_Ville': customer.city.strip().replace('\n', '') if customer.city is not None else '',
+                'CT_Classement': customer.classment.strip().replace('\n', '') if customer.classment is not None else '',
+                'CT_Contact': customer.contact.strip().replace('\n', '') if customer.contact is not None else '',
+                'CT_Complement': customer.complement.strip().replace('\n', '') if customer.complement is not None else '',
+                'CT_CodePostal': customer.code_postal.strip().replace('\n', '') if customer.code_postal is not None else '',
+                'CT_Telephone': customer.telephone.strip().replace('\n', '') if customer.telephone is not None else '',
+                'CT_Email': customer.email.strip().replace('\n', '') if customer.email is not None else '',
+                'CT_Site': customer.site.strip().replace('\n', '') if customer.site is not None else '',
+                'CT_Pays': customer.country.strip().replace('\n', '') if customer.country is not None else ''
+            })
 
         order_df = pd.concat([order_df, pd.DataFrame(csv_order_lines)])
         customer_df = pd.concat([customer_df, pd.DataFrame(csv_customer_lines)])
@@ -1735,51 +1795,23 @@ def get_quotation(request, pnr_id):
                         order.is_quotation = True
                         order.save()
 
-        customers = Client.objects.filter(pk=int(customer_object))
-        if customers.exists():
-            customer = customers.first()
-            customer_row['id'] = customer.id
-            customer_row['CT_Num'] = customer.ct_num
-            customer_row['CT_Intitule'] = customer.intitule
-            customer_row['CT_Adresse'] = customer.address_1
-            customer_row['CT_Type'] = customer.ct_type
-            if customer.city is not None or customer.city != '':
-                customer_row['CT_Ville'] = customer.city
-            else:
-                customer_row['CT_Ville'] = ''
-            if customer.classment is not None or customer.classment != '':
-                customer_row['CT_Classement'] = customer.classment
-            else:
-                customer_row['CT_Classement'] = ''
-            if customer.contact is not None or customer.contact != '':
-                customer_row['CT_Contact'] = customer.contact
-            else:
-                customer_row['CT_Contact'] = ''
-            if customer.complement is not None or customer.complement != '':
-                customer_row['CT_Complement'] = customer.complement
-            else:
-                customer_row['CT_Complement'] = ''
-            if customer.code_postal is not None or customer.code_postal != '':
-                customer_row['CT_CodePostal'] = customer.code_postal
-            else:
-                customer_row['CT_CodePostal'] = ''
-            if customer.telephone is not None or customer.telephone != '':
-                customer_row['CT_Telephone'] = customer.telephone
-            else:
-                customer_row['CT_Telephone'] = ''
-            if customer.email is not None or customer.email != '':
-                customer_row['CT_Email'] = customer.email
-            else:
-                customer_row['CT_Email'] = ''
-            if customer.site is not None or customer.site != '':
-                customer_row['CT_Site'] = customer.site
-            else:
-                customer_row['CT_Site'] = ''
-            if customer.country is not None or customer.country != None:
-                customer_row['CT_Pays'] = customer.country
-            else:
-                customer_row['CT_Pays'] = ''
-            csv_customer_lines.append(customer_row)
+        customer = Client.objects.get(pk=int(customer_id))
+        csv_customer_lines.append({
+            'id': customer.id,
+            'CT_Num': customer.ct_num.strip().replace('\n', '') if customer.ct_num is not None else '',
+            'CT_Intitule': customer.intitule.strip().replace('\n', '') if customer.intitule is not None else '',
+            'CT_Adresse': customer.address_1.strip().replace('\n', '') if customer.address_1 is not None else '',
+            'CT_Type': customer.ct_type,
+            'CT_Ville': customer.city.strip().replace('\n', '') if customer.city is not None else '',
+            'CT_Classement': customer.classment.strip().replace('\n', '') if customer.classment is not None else '',
+            'CT_Contact': customer.contact.strip().replace('\n', '') if customer.contact is not None else '',
+            'CT_Complement': customer.complement.strip().replace('\n', '') if customer.complement is not None else '',
+            'CT_CodePostal': customer.code_postal.strip().replace('\n', '') if customer.code_postal is not None else '',
+            'CT_Telephone': customer.telephone.strip().replace('\n', '') if customer.telephone is not None else '',
+            'CT_Email': customer.email.strip().replace('\n', '') if customer.email is not None else '',
+            'CT_Site': customer.site.strip().replace('\n', '') if customer.site is not None else '',
+            'CT_Pays': customer.country.strip().replace('\n', '') if customer.country is not None else ''
+        })
 
         quotation_df = pd.concat([quotation_df, pd.DataFrame(csv_quotation_lines)])
         customer_df = pd.concat([customer_df, pd.DataFrame(csv_customer_lines)])

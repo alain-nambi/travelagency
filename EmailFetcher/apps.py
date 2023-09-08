@@ -2,7 +2,7 @@ from django.apps import AppConfig
 from threading import Thread, Timer
 import os
 import traceback
-import schedule
+#import schedule
 import time
 from django.apps.registry import apps
 
@@ -101,19 +101,19 @@ def checking_pnr_not_sent_to_odoo():
     # ==================== PNR not sent to Odoo checking ====================
     MailNotification.pnr_not_sent_to_odoo(now)
     
-# send fee modification history
-def send_fee_update_list():
-    from AmadeusDecoder.utilities.ReportUtility import ReportUtility
+# # send fee modification history
+# def send_fee_update_list():
+#     from AmadeusDecoder.utilities.ReportUtility import ReportUtility
     
-    def task():
-        ReportUtility().fee_history_report(datetime.now())
+#     def task():
+#         ReportUtility().fee_history_report(datetime.now())
         
-    # Schedule operation to run every day at 5:00 PM
-    schedule.every().day.at("17:00").do(task)
+#     # Schedule operation to run every day at 5:00 PM
+#     schedule.every().day.at("17:00").do(task)
     
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
+#     while True:
+#         schedule.run_pending()
+#         time.sleep(1)
 
 def fetch_email():
     try:

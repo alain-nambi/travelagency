@@ -816,7 +816,7 @@ document.getElementById("save").addEventListener("click", (e) => {
       },
       success: (response) => {
         console.log("Status   : " , response);
-        if (((response.ticket_status == 'success') && (response.other_fee_status == 'success')) || ((response.ticket_status == '') && (response.other_fee_status == ''))) {
+        if (((response.ticket_status == 'success') && (response.other_fee_status == '')) || ((response.ticket_status == '') && (response.other_fee_status == '')) || ((response.ticket_status == '') && (response.other_fee_status == 'success')) || ((response.ticket_status == 'success') && (response.other_fee_status == 'success'))) {
           window.location.reload();
         }
         else if ((response.ticket_status == 'failed') || (response.other_fee_status == 'failed')) {

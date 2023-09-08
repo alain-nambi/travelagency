@@ -8,7 +8,6 @@ from django.apps.registry import apps
 
 from datetime import datetime, timedelta, timezone
 
-from time import sleep
 
 class RepeatTimer(Timer):  
     daemon=True 
@@ -105,15 +104,21 @@ def checking_pnr_not_sent_to_odoo():
 # def send_fee_update_list():
 #     from AmadeusDecoder.utilities.ReportUtility import ReportUtility
     
-#     def task():
-#         ReportUtility().fee_history_report(datetime.now())
-        
-#     # Schedule operation to run every day at 5:00 PM
-#     schedule.every().day.at("17:00").do(task)
+    current_time = datetime.now()
     
-#     while True:
-#         schedule.run_pending()
-#         time.sleep(1)
+    if current_time.hour == 17:
+        print('Fee history report is being processed.')
+        ReportUtility().fee_history_report(datetime.now())
+    
+    # def task():
+    #     ReportUtility().fee_history_report(datetime.now())
+    #
+    # # Schedule operation to run every day at 5:00 PM
+    # schedule.every().day.at("17:00").do(task)
+    #
+    # while True:
+    #     schedule.run_pending()
+    #     time.sleep(1)
 
 def fetch_email():
     try:
@@ -226,6 +231,6 @@ class EmailfetcherConfig(AppConfig):
         # dest_dir = '/export/products'
         
         # send daily pnr fee update report
-        # daily_thread_once = Thread(target=send_fee_update_list)
-        # daily_thread_once.start()
-
+        daily_thread_once = RepeatTimer(3600, send_fee_update_list)
+        daily_thread_once.start()
+        

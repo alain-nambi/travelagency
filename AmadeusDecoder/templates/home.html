@@ -563,11 +563,8 @@
                         {% endif %}
                       </td>
                       <td>
-                        {% if pnr.agency is not None %}
-                          {{ pnr.agency.name }}
-                        {% endif %}
-                        {% if pnr.type == 'EWA' %}
-                          {{ pnr.agency_name }}
+                        {% if pnr|pnr_office is not None %}
+                          {{ pnr|pnr_office }}
                         {% endif %}
                       </td>
                       <td>

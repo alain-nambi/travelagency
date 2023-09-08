@@ -843,16 +843,18 @@ class ZenithParser():
         
         # remove duplicate service
         duplicate_service_removed = []
+        poped_count = 0
         for i in range(len(filtered_content)):
             duplicate_service_removed.append(filtered_content[i])
             if filtered_content[i] in PASSENGER_TYPES:
                 if not filtered_content[i-2].isnumeric():
                     service = filtered_content[i-2] + ' ' + filtered_content[i-1]
-                    duplicate_service_removed.pop(i)
-                    duplicate_service_removed.pop(i-1)
-                    duplicate_service_removed.pop(i-2)
+                    duplicate_service_removed.pop()
+                    duplicate_service_removed.pop()
+                    duplicate_service_removed.pop()
                     duplicate_service_removed.append(service)
                     duplicate_service_removed.append(filtered_content[i])
+                    poped_count += 1
         
         # fill contact when none
         filtered_content_contact = []
@@ -1890,7 +1892,13 @@ class ZenithParser():
                             ancillary.passenger = ancillary.passenger.get_passenger_by_pnr_passenger(pnr)
                         ancillary.save()
                     for ancillary_segment in ancillaries_segment:
-                        temp_segment = PnrAirSegments.objects.filter(segmentorder=ancillary_segment.segment.segmentorder, pnr=pnr, air_segment_status=1).last()
+                        current_airsegment = ancillary_segment.segment
+                        temp_segment = PnrAirSegments.objects.filter(flightno=current_airsegment.flightno,
+                                                                     departuretime=current_airsegment.departuretime,
+                                                                     arrivaltime=current_airsegment.arrivaltime,
+                                                                     codedest=current_airsegment.codedest,
+                                                                     codeorg=current_airsegment.codeorg, 
+                                                                     pnr=pnr, air_segment_status=1).last()
                         temp_passenger = ancillary_segment.passenger.get_passenger_by_pnr_passenger(pnr)
                         temp_ancillary = OthersFee.objects.filter(designation=ancillary_segment.other_fee.designation, pnr=pnr, passenger=temp_passenger).first()
                         temp_ancillary_seg = OtherFeeSegment.objects.filter(other_fee=temp_ancillary, segment=temp_segment, passenger=temp_passenger).first()

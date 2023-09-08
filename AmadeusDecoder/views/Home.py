@@ -2,10 +2,8 @@
 Created on 8 Sep 2022
 
 '''
-import csv
 import os
 import json
-import secrets 
 from datetime import datetime, timezone
 import requests
 import random

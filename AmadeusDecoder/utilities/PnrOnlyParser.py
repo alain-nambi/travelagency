@@ -357,20 +357,18 @@ class PnrOnlyParser():
         passengers = []
         # fetch all lines containing passengers
         for i in range(len(pnr_content)):
+            temp_content_space_split = pnr_content[i].split("  ")
+            temp_content_dot_split = pnr_content[i].split(".")
             # if all passengers are on the same line
-            if((len(pnr_content[i].split("   ")) > 1 or len(pnr_content[i].split("  ")) > 1) and pnr_content[i].split(".")[0].isnumeric() and pnr_content[i].split(".")[0] != '0'):
-                if len(pnr_content[i].split("   ")) > 1:
-                    passengers_on_the_sameline = pnr_content[i].split("   ")
-                elif len(pnr_content[i].split("  ")) > 1:
-                    passengers_on_the_sameline = pnr_content[i].split("  ")
-                for temp in passengers_on_the_sameline:
+            if(len(temp_content_space_split) > 1 and temp_content_dot_split[0].isnumeric() and temp_content_dot_split[0] != '0'):
+                for temp in temp_content_space_split:
                     passenger_line.append(temp.split(".")[1])
                     order_line.append(temp.split(".")[0])
             # if passengers are on different lines
             else:
-                if(pnr_content[i].split(".")[0].isnumeric() and pnr_content[i].split(".")[0] != '0'):
-                    passenger_line.append(pnr_content[i].split(".")[1])
-                    order_line.append(pnr_content[i].split(".")[0])
+                if(temp_content_dot_split[0].isnumeric() and temp_content_dot_split[0] != '0'):
+                    passenger_line.append(temp_content_dot_split[1])
+                    order_line.append(temp_content_dot_split[0])
         
         order = 0
         for line in passenger_line:
@@ -456,11 +454,11 @@ class PnrOnlyParser():
                         else:
                             temp_passenger.surname = name_part.split('/')[1].strip()
                     
-                    # Not having adult flag
+                    # Not having adult or youth flag
                     # 1.MKOUBOI/FATIMA MRS(INFABDOU/NOLAN/24APR21)
-                    if line.find('ADT') == -1:
+                    if line.find('ADT') == -1 and line.find('YTH') == -1:
                         inf_part = line_split[1]
-                    # Has adult flag
+                    # Has adult or youth flag
                     # 1.CHAQUIR/EMILIE MS(ADT)(INFMAOULIDA/HAYDEN/10MAR22)
                     else:
                         inf_part = line_split[2]
@@ -2103,6 +2101,7 @@ class PnrOnlyParser():
                                     temp_segment.arrivaltime = segment.arrivaltime if segment.arrivaltime is not None else None
                                     temp_segment.air_segment_status = 1
                                     temp_segment.segment_state = segment.segment_state
+                                    temp_segment.segmentorder = segment.segmentorder
                                     temp_segment.save()
                                 except:
                                     traceback.print_exc()

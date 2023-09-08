@@ -1543,7 +1543,7 @@ def get_quotation(request, pnr_id):
 
     file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
     customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
-
+    
     customer_row = {}
     fieldnames_order = [
         'LineID',

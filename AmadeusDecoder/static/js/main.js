@@ -1,3 +1,86 @@
+// Add margin-top for screen with lesser or equal to 1280
+
+const pushedSideBarMenu = document.querySelector("#pushed-sidebar")
+const pnrManagementMenu = document.querySelector("#pnrManagementMenu")
+const layoutHomeMenu = document.querySelector("#layoutHomeMenu")
+const screenWidth = window.innerWidth;
+
+if (pushedSideBarMenu) {
+  pushedSideBarMenu.addEventListener("click", (_e) => {
+    setTimeout(() => {
+      let sideBarTrigger = localStorage.getItem("sidebar")
+      let layoutHomeMenuheight = layoutHomeMenu.offsetHeight
+
+      // console.log(screenWidth);
+
+      if (sideBarTrigger == "opened" && screenWidth <= 1280) {
+        pnrManagementMenu.setAttribute("style", `margin-top: calc(${layoutHomeMenuheight}px - 20px) !important; visibility: visible;`)
+      } else {
+        pnrManagementMenu.setAttribute("style", "visibility: visible;")
+      }
+    }, 100)
+  })
+}
+
+// End of Adding margin-top for screen with lesser or equal to 1280
+
+/**Makes the list of active filters in the homepage scrollable vertically.
+  @param {listActiveFilter} - The list of active filters in the homepage scrollable filter menu.
+*/
+
+// Cette partie du code vérifie si l'élément avec l'id "listActiveFilter" existe dans le document HTML.
+const listActiveFilter = document.querySelector("#listActiveFilter");
+
+// Si l'élément existe, on exécute le code à l'intérieur de cette condition.
+if (listActiveFilter) {
+  let pressed = false; // Variable pour suivre l'état du bouton de la souris (enfoncé ou non)
+  let startX = 0; // Variable pour stocker la position initiale de la souris
+
+  // Événement déclenché lorsque le bouton de la souris est enfoncé sur l'élément
+  listActiveFilter.addEventListener("mousedown", (e) => {
+  // console.log("MOUSE IS DOWN");
+    pressed = true; // Le bouton de la souris est enfoncé
+    startX = e.clientX; // On enregistre la position initiale de la souris
+    listActiveFilter.style.cursor = 'grabbing'; // On change le curseur de la souris
+  });
+
+  // Événement déclenché lorsque la souris quitte l'élément
+  listActiveFilter.addEventListener("mouseleave", (e) => {
+    // console.log("MOUSE IS LEAVING");
+    pressed = false; // Le bouton de la souris n'est plus enfoncé
+  });
+
+  // Événement déclenché lorsque le bouton de la souris est relâché sur l'élément
+  listActiveFilter.addEventListener("mouseup", (e) => {
+    // console.log("MOUSE IS UP");
+    pressed = false; // Le bouton de la souris n'est plus enfoncé
+    listActiveFilter.style.cursor = 'grab'; // On change le curseur de la souris
+  });
+
+  // let animationFrameId;
+
+  // Événement déclenché lorsque la souris est déplacée sur l'élément
+  listActiveFilter.addEventListener("mousemove", (e) => {
+    // console.log("MOUSE IS MOVING");
+    // Si le bouton de la souris n'est pas enfoncé, on ne fait rien
+    if (!pressed) {
+      return;
+    }
+
+    listActiveFilter.scrollLeft += startX - e.clientX; // Calcule la distance parcourue par la souris et met à jour le défilement horizontal
+
+    // Annule l'animation frame précédente pour éviter d'effectuer plusieurs animations en même temps
+    // cancelAnimationFrame(animationFrameId);
+
+    // Définit une nouvelle animation frame pour effectuer le défilement horizontal
+    // animationFrameId = requestAnimationFrame(() => {
+       
+    // });
+  });
+}
+
+/* END OF LIST ACTIVE FILTER FOR FILTER MENU IN HOMEPAGE */
+
 //spinner loading
 $(document).ready(function () {
   "use strict";
@@ -11,7 +94,35 @@ $(document).ready(function () {
   }, 2000);
 });
 
+// Add agency selected value in document cookies
+const agencyListSelection = document.querySelector("#agencyListSelection")
+
 $(document).ready(function () {
+
+  // LOADING THE CURRENT PAGE IF buttonMenuAgencyFilter IS CLICKED
+  const buttonMenuAgencyFilter = document.querySelector("#buttonMenuAgencyFilter")
+  if (buttonMenuAgencyFilter) {
+    buttonMenuAgencyFilter.addEventListener("click", function(e) {
+      e.preventDefault()
+      if (agencyListSelection.value !== "-1") {
+        setTimeout(() => {
+          window.location.reload()
+        }, 600)
+      } else {
+        if ($("#alertAgencyFilter").length < 1) {
+          $(".alert-agency-filter").append(`
+            <span id="alertAgencyFilter" class="text-sm text-danger mt-1 d-flex align-items-center" style="gap: 5px">
+              <i class="fa fa-circle-exclamation"></i>
+              Veuillez séléctionner une agence
+            </span>
+          `
+          ) 
+        }
+      }
+    })
+  }
+
+
   // Retrieve the sorting information from local storage
   let isSortedByCreator = localStorage.getItem('isSortedByCreator');
 
@@ -69,6 +180,7 @@ $(document).ready(function () {
   const isCreatorSelected   = getCookies("creator_pnr_filter")
   const isDateRangeSelected = getCookies("dateRangeFilter")
   const isStatusSelected    = getCookies("filter_pnr_by_status")
+  const isAgencySelected    = getCookies("agency_name_filter")
 
   // console.log('====================================');
   // console.log(isPnrFilterSelected);
@@ -106,10 +218,10 @@ $(document).ready(function () {
           color: #fff;
           background: #17a2b8;
           border-radius: 6px;
-          cursor: pointer;
+          cursor: drag;
           padding: 2px 1px;
         "
-        class="d-flex align-items-center ml-2"
+        class="d-flex align-items-center ml-2 my-2"
       >
         <span  
           cy-data="span-status-filter-name" 
@@ -123,42 +235,124 @@ $(document).ready(function () {
     `
   }
 
-  const isCreatorSelectedValue = (creator) => {
-    const USERS_DATA = document.getElementById("getAllUsername")
-    let username = ""
-    if (USERS_DATA) {
-      const JSON_USERS_DATA = JSON.parse(USERS_DATA.getAttribute("data-users"))
-      try {
-        if (creator == 'Empty') {
-          username = 'Non attribué'
-        }
-        else {
-          username = JSON_USERS_DATA.find((user) => user.id === parseInt(creator)).username
-        }
-      } catch (error) {
-        console.log('====================================');
-        console.log("JSON USERS DATA:" + error);
-        username = "Tout"
-        console.log('====================================');
-      }
-    }
+  // Add filter badge for agency selected value
+  const isAgencySelectedValue = (agency) => {
+    const agencyName = agency != "0" ? agency : "Pas d'agence";
+
+    const cancelAgencyFilter = `
+      <button 
+        style="
+          border: none; 
+          background: transparent; 
+          color: #fff;
+        " 
+        title="Supprimer le filtre d'Agence"
+        id="buttonCancelAgencyFilter"
+      >
+        <i 
+          id="iconAgencyFilter"
+          class="fas fa-times-circle pr-2 pl-1"
+          style="font-size: 14px;"
+        ></i>
+      </button>
+    `
+
     return `
       <div
         style="
           color: #fff;
           background: #17a2b8;
           border-radius: 6px;
-          cursor: pointer;
+          cursor: drag;
           padding: 2px 1px;
         "
-        class="d-flex align-items-center ml-2"
+        class="d-flex align-items-center ml-2 my-2"
+      >
+        <span  
+          cy-data="span-status-filter-name" 
+          style="font-size: 10px"
+          class="pl-2"
+        >
+          Agence : ${agencyName}
+        </span>
+        ${cancelAgencyFilter}
+      </div>
+    `
+  }
+
+  const isCreatorSelectedValue = (creator) => {
+    const USERS_DATA = document.getElementById("getAllUsername")
+    const creators = JSON.parse(creator)
+    let usernames = []
+
+    try {
+      if (USERS_DATA) {
+        const JSON_USERS_DATA = JSON.parse(USERS_DATA.getAttribute("data-users"))
+
+        // console.log('====================================');
+        // console.log(JSON_USERS_DATA);
+        // console.log('====================================');
+        console.log(creators);
+
+        if (creators.length == 1 && creators[0] == "0") {
+          usernames = "Tout"
+        } 
+        else if (creators.length == 1 && creators[0] == "Empty") {
+          usernames = 'Non attribué'
+        } 
+        else {
+          // console.log('====================================');
+          // console.log("usernames");
+          // console.log('====================================');
+          creators.forEach((creator) => {
+            if (!usernames.includes(creator)) {
+              usernames.push(JSON_USERS_DATA.find((user) => user.id === parseInt(creator)).username)
+            }
+          })
+  
+          // Sort the array in alphabetical order using the compare function
+          usernames.sort((a, b) => a.localeCompare(b));
+        }
+      }
+    } catch (error) {
+      console.log("Error on getting USERS DATA", error)
+      usernames = "Tout"
+    }
+
+    // console.log(usernames);
+
+    let username = "";
+    if (usernames.length === 0 || usernames == "Tout") {
+      username = "Créateur: Tout"
+    } else if (usernames == "Non attribué") {
+      username = "Créateur: Non attribué"
+    } else if (usernames.length > 1 && usernames != "Tout" && usernames != "Non attribué") {
+      username = `Créateur (${usernames.length}) : ${usernames.join(" | ")}`
+    } else {
+      username = `Créateur: ${usernames}`
+    }
+
+    // console.log('====================================');
+    // console.log(username);
+    // console.log('====================================');
+    
+    return `
+      <div
+        style="
+          color: #fff;
+          background: #17a2b8;
+          border-radius: 6px;
+          cursor: drag;
+          padding: 2px 1px;
+        "
+        class="d-flex align-items-center ml-2 my-2"
       >
         <span  
           cy-data="span-creator-name" 
           style="font-size: 10px"
           class="pl-2"
         >
-          Créateur: ${username}
+          ${username}
         </span>
         <button 
           style="
@@ -199,10 +393,10 @@ $(document).ready(function () {
           color: #fff;
           background: #17a2b8;
           border-radius: 6px;
-          cursor: pointer;
+          cursor: drag;
           padding: 2px 1px;
         "
-        class="d-flex align-items-center ml-2"
+        class="d-flex align-items-center ml-2 my-2"
       >
         <span  
           cy-data="span-date-range" 
@@ -237,10 +431,10 @@ $(document).ready(function () {
           color: #fff;
           background: #17a2b8;
           border-radius: 6px;
-          cursor: pointer;
+          cursor: drag;
           padding: 2px 1px;
         "
-        class="d-flex align-items-center ml-2"
+        class="d-flex align-items-center ml-2 my-2"
       >
         <span  
           cy-data="span-status-filter-name" 
@@ -283,20 +477,29 @@ $(document).ready(function () {
     null : "PNR: émis",
   };
 
+  // Add pnr filter selected value
   if (isPnrFilterSelected !== "None") {
     $("#listActiveFilter").append(`${isPnrFilterSelectedValue(pnrFilterSelectedValues[isPnrFilterSelected])}`);
   }
 
+  // Add pnr status selected value
   if (isStatusSelected !== "2") {
     $("#listActiveFilter").append(`${isStatusSelectedValue(statusSelectedValues[isStatusSelected])}`);
   }
 
+  // Add creator selected value
   if (isCreatorSelected !== null) {
     $("#listActiveFilter").append(`${isCreatorSelectedValue(isCreatorSelected)}`)
   }
 
+  // Add date range selected value
   if (isDateRangeSelected !== null) {
     $("#listActiveFilter").append(`${isDateRangeSelectedValue(isDateRangeSelected)}`)
+  }
+
+  // Add agency selected value
+  if (isAgencySelected !== null) {
+    $("#listActiveFilter").append(`${isAgencySelectedValue(isAgencySelected)}`)
   }
 
   const listActiveFilter = document.querySelector("#listActiveFilter")
@@ -325,20 +528,41 @@ $(document).ready(function () {
         window.location.reload()
       }
     })
+    $("#buttonCancelAgencyFilter").on("click", (e) => {
+      Cookies.remove("agency_name_filter", {path: "/home"})
+      localStorage.removeItem("agency_name_filter")
+      window.location.reload()
+    })
   }
 })
 
 $(function() {
-  const selectNormalize = document.querySelector("#normalize");
-  if (selectNormalize) {
-    selectNormalize.value="";
-    selectNormalize.addEventListener("change", (e) => {
-      if (e.target.value !== "") {
-        document.cookie = `creator_pnr_filter=${e.target.value}; SameSite=Lax`;
-        localStorage.setItem("creator_pnr_filter", JSON.stringify(e.target.value));
-      }
-    })
-  }
+  const selectNormalize = $("#normalize").selectize({ 
+    onChange: (value) => {
+      const userIds = new Set(value)
+      const arrayOfUserIds = Array.from(userIds)
+      document.cookie = `creator_pnr_filter=${JSON.stringify(arrayOfUserIds)}; SameSite=Lax`;
+      localStorage.setItem("creator_pnr_filter", JSON.stringify(arrayOfUserIds));
+    }
+  })
+
+  // console.log(selectNormalize);
+
+  const control = selectNormalize[0].selectize;
+
+  $("#cancelCreatorFilter").on("click", function () {
+    control.clear();
+  });
+
+  // if (selectNormalize) {
+  //   selectNormalize.value="";
+  //   selectNormalize.addEventListener("change", (e) => {
+  //     if (e.target.value !== "") {
+  //       document.cookie = `creator_pnr_filter=${e.target.value}; SameSite=Lax`;
+  //       localStorage.setItem("creator_pnr_filter", JSON.stringify(e.target.value));
+  //     }
+  //   })
+  // }
 
   // Convertit l'objet Date actuel en une chaîne de caractères représentant la date actuelle au format spécifié ("day month year") et spécifie la locale française.
   const currentDateToString = new Date(Date.now());
@@ -352,6 +576,7 @@ $(function() {
   const $pnrStatus           = $(".pnr-status");
   const $dateRangeMenu       = $(".date-range-menu");
   const $creatorMenu         = $(".creator-group-menu");
+  const $agencyMenu          = $(".agency-list-menu");
   const liElements           = $(".filter-menu > .list");
   const $pnrLiElements       = $(".pnr-menu .pnr-list");
   const $pnrStatusLiElements = $(".pnr-status .pnr-list");
@@ -361,6 +586,7 @@ $(function() {
   $pnrStatus.hide();
   $dateRangeMenu.hide();
   $creatorMenu.hide();
+  $agencyMenu.hide();
 
   $closeButtonFilter.on("click", function (e) {
     isMenuOpen = !isMenuOpen;
@@ -371,6 +597,7 @@ $(function() {
     $pnrStatus.hide();
     $dateRangeMenu.hide();
     $creatorMenu.hide();
+    $agencyMenu.hide();
   })
 
   // Initialise des variables booléennes pour suivre l'état des menus ouverts et les filtres sélectionnés.
@@ -386,28 +613,30 @@ $(function() {
     $pnrStatus.hide();
     $dateRangeMenu.hide();
     $creatorMenu.hide();
+    $agencyMenu.hide();
   });
 
   document.addEventListener('click', function(event) {
-    console.log(event.target);
+    // console.log(event.target);
   
     // Vérifie si la variable isMenuOpen est définie et est de type boolean
     if (typeof isMenuOpen === 'boolean') {
       // Vérifie si le menu est ouvert (isMenuOpen est true) et si l'élément cliqué se trouve en dehors du menu
-      if (isMenuOpen && !event.target.closest("#buttonMenuFilter, .wrapper-menu-filter, .pnr-menu, .pnr-status, .date-range-menu, .creator-group-menu, .filter-menu > .list, .pnr-menu .pnr-list, .pnr-status .pnr-list, #reportrange, .daterangepicker, .next, .prev")) {
+      if (isMenuOpen && !event.target.closest("#buttonMenuFilter, .wrapper-menu-filter, .pnr-menu, .pnr-status, .date-range-menu, .creator-group-menu, .filter-menu > .list, .pnr-menu .pnr-list, .pnr-status .pnr-list, #reportrange, .daterangepicker, .next, .prev, .creator-group-menu, .agency-list, .agency-list-menu.absolute")) {
         // Si les conditions sont remplies, cela signifie que vous avez cliqué en dehors du menu, donc le menu doit être fermé
   
         // Inverse la valeur de isMenuOpen (true devient false, et vice versa)
         isMenuOpen = !isMenuOpen;
   
         // Vérifie si les variables sont définies avant de les utiliser
-        if ($wrapperMenuFilter && $pnrMenu && $pnrStatus && $dateRangeMenu && $creatorMenu) {
+        if ($wrapperMenuFilter && $pnrMenu && $pnrStatus && $dateRangeMenu && $creatorMenu && $agencyMenu) {
           // Masque les éléments suivants pour les rendre invisibles sur la page
           $wrapperMenuFilter.hide();
           $pnrMenu.hide();
           $pnrStatus.hide();
           $dateRangeMenu.hide();
           $creatorMenu.hide();
+          $agencyMenu.hide();
         } else {
           console.error('Une ou plusieurs variables ne sont pas définies.');
         }
@@ -416,7 +645,7 @@ $(function() {
       console.error('La variable isMenuOpen doit être définie et de type boolean.');
     }
   
-    console.log(isMenuOpen);
+    // console.log(isMenuOpen);
   });
 
   // Attache un gestionnaire d'événements pour chaque élément de menu de filtre afin de sélectionner/désélectionner les filtres et d'afficher/cacher les menus correspondants.
@@ -428,6 +657,7 @@ $(function() {
       $dateRangeMenu.hide();
       $creatorMenu.hide();
       $pnrStatus.hide();
+      $agencyMenu.hide();
     }
 
     if (this.classList.contains("list-two")) {
@@ -435,6 +665,7 @@ $(function() {
       $pnrMenu.hide();
       $creatorMenu.hide();
       $pnrStatus.hide();
+      $agencyMenu.hide();
     }
 
     if (this.classList.contains("list-three")) {
@@ -442,6 +673,7 @@ $(function() {
       $pnrMenu.hide();
       $creatorMenu.show();
       $pnrStatus.hide();
+      $agencyMenu.hide();
     }
 
     if (this.classList.contains("list-four")) {
@@ -449,6 +681,15 @@ $(function() {
       $pnrMenu.hide();
       $creatorMenu.hide();
       $pnrStatus.show();
+      $agencyMenu.hide();
+    }
+
+    if (this.classList.contains("list-six")) {
+      $dateRangeMenu.hide();
+      $pnrMenu.hide();
+      $creatorMenu.hide();
+      $pnrStatus.hide();
+      $agencyMenu.show();
     }
     
     this.classList.add("active");
@@ -569,64 +810,124 @@ $(function() {
     }, 600)
   })
 
+  $(".alert-agency-filter").html('')
+  if (agencyListSelection) {
+    agencyListSelection.addEventListener("change", (e) => {
+      document.cookie = `agency_name_filter=${e.target.value}; SameSite=Lax`;
+      localStorage.setItem("agency_name_filter", JSON.stringify(e.target.value));
+    })
+  }
+
   // Ajoutez la date locale dans les éléments HTML avec l'ID "dateRangeBegin" et "dateRangeEnd"
   $('#dateRangeBegin, #dateRangeEnd').text(localeDateString);
 
   // Définit une fonction de rappel pour le choix de date
-  function cb(start, end) {
+  function cbStart(start) {
     // Récupère la date de début et de fin depuis localStorage s'ils existent
     const startDateFromLocalStorage = JSON.parse(localStorage.getItem("startDate"));
-    const endDateFromLocalStorage = JSON.parse(localStorage.getItem("endDate"));
 
     // Affiche la plage de dates sélectionnée dans l'élément avec l'ID "reportrange"
     // Si aucune date n'a été récupérée depuis localStorage, affiche la plage de dates courante
     const displayStartDate = startDateFromLocalStorage || start;
-    const displayEndDate = endDateFromLocalStorage || end;
-    $('#reportrange span').html(displayStartDate + ' - ' + displayEndDate);
+    $('#reportrangebegin span').html(displayStartDate);
+  }
+
+  function cbEnd(start) {
+    // Récupère la date de début et de fin depuis localStorage s'ils existent
+    const EndDateFromLocalStorage = JSON.parse(localStorage.getItem("endDate"));
+
+    // Affiche la plage de dates sélectionnée dans l'élément avec l'ID "reportrange"
+    // Si aucune date n'a été récupérée depuis localStorage, affiche la plage de dates courante
+    const displayStartDate = EndDateFromLocalStorage || start;
+    $('#reportrangeend span').html(displayStartDate);
   }
 
   // Initialise le plugin DateRangePicker sur l'élément avec l'ID "reportrange"
-  $('#reportrange').daterangepicker({
-    opens: 'right'
+  $('#reportrangebegin').daterangepicker({
+    opens: 'right',
+    singleDatePicker: true,
+    showDropdowns: true,
+    minDate: "01/01/2023",
   }, function(start, end, label) {
     // Formate les dates de début et de fin pour l'affichage et le stockage
-    const displayFormat = 'DD/MM/YYYY';
+    const storageFormat = 'YYYY-MM-DD';
+
+    const startDateDisplay = start._d.toLocaleDateString('fr-FR', options);
+
+    const startDateStorage = start.format(storageFormat);
+
+    // Stocke la plage de dates sélectionnée dans un cookie
+    document.cookie = `dateRangeBegin=${startDateStorage}; SameSite=Lax`;
+
+    // Stocke la date de début et de fin sélectionnée dans localStorage
+    localStorage.setItem("startDate", JSON.stringify(startDateDisplay));
+
+    // Met à jour la plage de dates affichée en appelant la fonction de rappel
+    cbStart(startDateDisplay);
+  });
+
+  $('#reportrangeend').daterangepicker({
+    opens: 'right',
+    singleDatePicker: true,
+    showDropdowns: true,
+    minDate: "01/01/2023",
+  }, function(start, end, label) {
+    // Formate les dates de début et de fin pour l'affichage et le stockage
     const storageFormat = 'YYYY-MM-DD';
 
     const startDateDisplay = start._d.toLocaleDateString('fr-FR', options);
     const endDateDisplay = end._d.toLocaleDateString('fr-FR', options);
 
     const startDateStorage = start.format(storageFormat);
-    const endDateStorage = end.format(storageFormat);
-
-    // Met à jour les éléments HTML avec les dates sélectionnées
-    $('#dateRangeBegin').text(startDateDisplay);
-    $('#dateRangeEnd').text(endDateDisplay);
 
     // Stocke la plage de dates sélectionnée dans un cookie
-    document.cookie = `dateRangeFilter=${startDateStorage} * ${endDateStorage}; SameSite=Lax`;
+    document.cookie = `dateRangeEnd=${startDateStorage}; SameSite=Lax`;
 
     // Stocke la date de début et de fin sélectionnée dans localStorage
-    localStorage.setItem("startDate", JSON.stringify(startDateDisplay));
-    localStorage.setItem("endDate", JSON.stringify(endDateDisplay));
+    localStorage.setItem("endDate", JSON.stringify(startDateDisplay));
 
     // Met à jour la plage de dates affichée en appelant la fonction de rappel
-    cb(startDateDisplay, endDateDisplay);
+    cbEnd(startDateDisplay);
   });
 
   // Initialise la plage de dates affichée en appelant la fonction de rappel avec la date courante
-  cb(localeDateString, localeDateString);
+  cbStart(localeDateString);
+  cbEnd(localeDateString);
 
   // Ajoute un gestionnaire d'événements pour le bouton de filtre pour forcer le rechargement de la page
   $("#buttonMenuFilterByCreationDateRange").on("click", () => {
-    setTimeout(() => {
-      window.location.reload()
-    }, 600)
+    const startDateStorage = Cookies.get('dateRangeBegin')
+    const endDateStorage = Cookies.get('dateRangeEnd')
+
+    console.log('====================================');
+    console.log(startDateStorage > endDateStorage);
+    console.log('====================================');
+
+    $('#reportrangebegin').removeClass('border border-danger')
+    $(".alert-report-range-begin").html('')
+
+    if (startDateStorage > endDateStorage) {
+      $('#reportrangebegin').addClass('border border-danger')
+      if ($("#alertDateRangeBegin").length < 1) {
+        $(".alert-report-range-begin").append(`
+          <span id="alertDateRangeBegin" class="text-sm text-danger mt-1 d-flex align-items-center" style="gap: 5px">
+            <i class="fa fa-circle-exclamation"></i>
+            La date de début doit être inférieure à la date de fin
+          </span>
+        `
+        ) 
+      }
+    } else {
+      document.cookie = `dateRangeFilter=${startDateStorage} * ${endDateStorage}; SameSite=Lax`;
+      setTimeout(() => {
+        window.location.reload()
+      }, 600)
+    }
   })
 
   $("#buttonMenuFilterByCreator").on("click", (e) => {
     e.preventDefault()
-    if (selectNormalize.value !== "") {
+    if (selectNormalize[0].value !== "") {
       setTimeout(() => {
         window.location.reload()
       }, 600)
@@ -1257,13 +1558,20 @@ $(".p-checkbox").each(function () {
     $(".checkto" + data_id).change(function () {
       let feeIndex = $(this).index(".checkto" + data_id);
       let feeCheckboxChecking = $(".checkto" + data_id)[feeIndex + 1];
+
       console.log("Index de la checkbox: " + feeIndex);
+      console.log("Type de la checkbox: " + feeCheckboxChecking.getAttribute("data-type"));
+
       if (this.checked) {
         $(".check" + data_id).prop("checked", true);
-        $(feeCheckboxChecking).prop("checked", true);
+        if (feeCheckboxChecking.getAttribute("data-type") == "fee") {
+          $(feeCheckboxChecking).prop("checked", true);
+        }
       } else {
         $(".check" + data_id).prop("checked", false);
-        $(feeCheckboxChecking).prop("checked", false);
+        if (feeCheckboxChecking.getAttribute("data-type") == "fee") {
+          $(feeCheckboxChecking).prop("checked", false);
+        }
       }
     });
   });

@@ -1165,8 +1165,8 @@ def get_order(request, pnr_id):
     config = Configuration.objects.filter(name='Saving File Tools', value_name='File protocol', environment=settings.ENVIRONMENT)
 
     
-    file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
-    customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
+    file_dir = '/opt/odoo/issoufali-addons/import_saleorder/data/source'
+    customer_dir = '/opt/odoo/issoufali-addons/contacts_from_incadea/data/source'
     
     fieldnames_order = [
         'LineID',
@@ -1541,8 +1541,8 @@ def get_quotation(request, pnr_id):
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
     config = Configuration.objects.filter(name='File saving configuration', value_name='Saving protocol', environment=settings.ENVIRONMENT)
 
-    file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
-    customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
+    file_dir = '/opt/odoo/issoufali-addons/import_saleorder/data/source'
+    customer_dir = '/opt/odoo/issoufali-addons/contacts_from_incadea/data/source'
 
     customer_row = {}
     fieldnames_order = [

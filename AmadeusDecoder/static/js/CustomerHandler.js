@@ -142,9 +142,9 @@ CustomerSaveButton.addEventListener('click', (e) => {
                 `
 
                 // Add the created customer to select2 list container
-                customerModificationSelectionList.innerHTML += `
-                    <option value=${response.customer_id} selected="true"> ${response.intitule} </option> 
-                `;
+                // customerModificationSelectionList.innerHTML += `
+                //     <option value=${response.customer_id} selected="true"> ${response.intitule} </option> 
+                // `;
 
                 toastr.info('Client créé avec succès!');
 

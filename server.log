@@ -1,3 +1,16 @@
+<<<<<<< HEAD
+Email listener is starting
+📢 Mail notification for pnr not updated in pnr management...
+==================== Mail notification for pnr not sent to Odoo ====================
+Mail notification is starting....
+Daily Pnr created starting
+Pnr unissued OPC checking is running...
+Email listener is started
+Performing system checks...
+
+System check identified no issues (0 silenced).
+June 02, 2023 - 13:52:34
+=======
 Loading configuration ...
 Configuration loaded.
 Email listener is starting
@@ -8,10 +21,14 @@ Loading configuration ...
 Configuration loaded.
 System check identified no issues (0 silenced).
 August 28, 2023 - 12:48:00
+>>>>>>> 59ac153c8bba1375b474748b02888a54da728340
 Django version 3.2.15, using settings 'DjangoTravelAgency.settings'
 Starting development server at http://0.0.0.0:8000/
 Quit the server with CONTROL-C.
 Connection is now in IDLE mode.
+<<<<<<< HEAD
+OPC checking...
+=======
 Creator: Empty
 no creator
 [Errno 2] No such file or directory: 'D:\\Projects\\Django\\csv\\Contacts'
@@ -309,4 +326,5 @@ Connection is now in IDLE mode.
 Connection is now in IDLE mode.
 Connection is now in IDLE mode.
 Connection is now in IDLE mode.
+>>>>>>> 59ac153c8bba1375b474748b02888a54da728340
 Connection is now in IDLE mode.

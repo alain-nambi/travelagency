@@ -17,9 +17,10 @@ def tools(request):
 
 
 def call_product_import(request):
+    
     status = ''
     try:
-        directory = 'D:\Projects\Django\csv\Products'
+        directory = '/opt/odoo/issoufali-addons/export_contacts/data/exported/'
         for file in os.listdir(directory):
             if os.path.isfile(os.path.join(directory, file)):
                 ProductParser.import_product(os.path.join(directory, file), directory)
@@ -32,9 +33,10 @@ def call_product_import(request):
 
 
 def call_customer_import(request):
+    
     status = ''
     try:
-        directory = 'D:\Projects\Django\csv\Contacts'
+        directory = '/opt/odoo/issoufali-addons/export_contacts/data/exported/'
         for file in os.listdir(directory):
             if os.path.isfile(os.path.join(directory, file)):
                 CustomerParser.import_customer(os.path.join(directory, file), directory)

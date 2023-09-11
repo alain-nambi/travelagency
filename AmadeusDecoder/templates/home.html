@@ -13,7 +13,7 @@
     <div class="container-fluid">
       <div class="row ">
         <div class="col-12">
-          <div class="card card-primary card-outline content-all-pnr mt-4">
+          <div class="card card-primary card-outline content-all-pnr mt-4" id="pnrManagementMenu">
             <!-- /.card-header -->
             <div class="card-header justify-content-between py-0">
               <div class="row align-items-center">
@@ -21,7 +21,7 @@
                 <h4 class="text-primary title-all-pnr mt-1 mb-0">Gestion PNR</h4>
                 </div>
                 <div class="col-md-10 float-right">
-                  <div class="row d-flex">
+                  <div class="row d-flex align-items-center">
                     <div class="col-md-7 mr-4 px-0 d-flex align-items-center">
 
                       <button type="submit" class="d-flex align-items-center mt-1 mb-1 px-2 py-0" id="buttonMenuFilter" cy-data="button-menu-filter">
@@ -49,6 +49,7 @@
                       <div class="wrapper-menu-filter">
                         <div class="content">
                           <ul class="filter-menu">
+                            <!-- Add pnr filter -->
                             <li class="list list-one mb-1">
                               <div class="filter-menu list">
                                 <i class="fa fa-eye"></i>
@@ -56,6 +57,8 @@
                               </div>
                               <i class="fa-solid fa-angle-right"></i>
                             </li>
+
+                            <!-- Add date range filter -->
                             <li class="list list-two mb-1">
                               <div class="filter-menu list" id="showDateRangePicker">
                                 <i class="fa-sharp fa-solid fa-calendar-days" style="padding-left: 1px !important;"></i>
@@ -63,6 +66,8 @@
                               </div>
                               <i class="fa-solid fa-angle-right"></i>
                             </li>
+
+                            <!-- Add creator filter -->
                             <li class="list list-three mb-1" cy-data="show-creator-filter">
                               <div class="filter-menu list" id="showFilterByCreator">
                                 <i class="fa-regular fa-user" style="padding-left: 1px !important;"></i>
@@ -70,13 +75,25 @@
                               </div>
                               <i class="fa-solid fa-angle-right"></i>
                             </li>
+
+                            <!-- Add status filter -->
                             <li class="list list-four mb-1">
                               <div class="filter-menu list" id="showFilterByPnrStatus">
                                 <i class="fas fa-sliders-h" style="padding-left: 1px !important;"></i>
-                                <span>Status</span>
+                                <span>Statut</span>
                               </div>
                               <i class="fa-solid fa-angle-right"></i>
                             </li>
+
+                            <!-- Add agency filter -->
+                            <li class="list list-six mb-1">
+                              <div class="filter-menu list" id="">
+                                <i class="fas fa-users" style="padding-left: 1px !important;"></i>
+                                <span>Agence</span>
+                              </div>
+                              <i class="fa-solid fa-angle-right"></i>
+                            </li>
+
                             <li class="list list-five bg-danger justify-content-center close-button-filter">
                               <div class="filter-menu list">
                                 <i class="fas fa-close" style="padding-left: 1px !important; font-size: 14px !important"></i>
@@ -154,10 +171,20 @@
 
                       <div class="date-range-menu absolute">
                         <div class="date-range content">
-                          <span class="text-md font-weight-bold">Plage de date</span>
-                          <div id="reportrange" class="mt-2 mb-2">
-                            <i class="fa fa-calendar class="text-sm""></i>&nbsp;
-                            <span class="text-sm"></span> <i class="fa fa-caret-down class="text-sm""></i>
+                          <div>
+                            <span class="text-sm font-weight-bold">Date de début</span>
+                            <div id="reportrangebegin" class="my-2">
+                              <i class="fa fa-calendar"></i>&nbsp;
+                              <span class="text-sm"></span>
+                            </div>
+
+                            <!-- Alert date range -->
+                            <div class="alert-report-range-begin"></div>
+                            <span class="text-sm font-weight-bold">Date de fin</span>
+                            <div id="reportrangeend" class="mt-2">
+                              <i class="fa fa-calendar"></i>&nbsp;
+                              <span class="text-sm"></span>
+                            </div>
                           </div>
                         </div>
                         <div class="d-flex justify-content-end">
@@ -169,8 +196,9 @@
 
                       <div class="creator-group-menu absolute">
                         <div class="creator-group content d-flex flex-column">
+                          <span class="text-sm font-weight-bold">Créateur</span>
+                          <select id="normalize" multiple placeholder="Sélectionner le créateur...">
                           <span class="text-md font-weight-bold mb-1">Créer par</span>
-                          <select id="normalize">
                             <option value="">Sélectionner le créateur...</option>
                             {% if request.user.role_id != 3 and request.user.id != 4 and request.user.id != 5 %}
                               <option value="0">Tout</option>
@@ -192,12 +220,75 @@
                             {% endif %}
                           </select>
                         </div>
-                        <div class="d-flex justify-content-end">
+                        <div class="d-flex justify-content-end" style="gap: 5px;">
+                          <button type="button" id="cancelCreatorFilter" class="d-flex align-items-center mt-2 px-2 py-0 bg-danger">
+                            <span class="text-sm">Annuler</span>
+                          </button>
+
                           <button type="submit" class="d-flex align-items-center mt-2 px-2 py-0" id="buttonMenuFilterByCreator" cy-data="button-filter-menu-creator">
                             <span class="text-sm">Afficher</span>
                           </button>
                         </div>
                       </div>
+
+                      <!-- Add agency list menu filter -->
+                      <div class="agency-list-menu absolute">
+                        <div class="agency-list content">
+                          <div class="content d-flex flex-column">
+                            <span class="text-md font-weight-bold mb-1">Agence</span>
+                            <select id="agencyListSelection">
+                              <option value="-1">Sélectionner l'agence...</option>
+                              {% with agency_names|list_agency_name as agencies %}
+                                {% for agency in agencies %}
+                                  {% if agency.agency_name is not None and agency.agency_name != ""  %}
+                                    <option value="{{agency.agency_name}}">{{ agency.agency_name }}</option>
+                                  {% endif %}
+                                {% endfor %}
+                              {% endwith %}
+                              <option value="0">Pas d'agence</option>
+                            </select>
+                            <!-- Alert agency filter -->
+                            <div class="alert-agency-filter"></div>
+                          </div>
+                          <div class="d-flex justify-content-end">
+                            <button type="submit" class="d-flex align-items-center mt-2 px-2 py-0" id="buttonMenuAgencyFilter" cy-data="button-filter-menu-agency">
+                              <span class="text-sm">Afficher</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+
+
+                      <!-- <i class="fas fa-filter text-primary mr-2"></i> -->
+                      <!-- <span class="text-sm text-primary" style="width: 9rem;"> Filtrer par : </span> -->
+                      <!-- <select class="form-control form-control-sm form-select form-select-sm" id="pnrFilteredByOrder" name="pnr_filter">
+                        {% if request.user.role_id == 3 %}
+                          <option value="True">PNR envoyé</option>
+                          <option value="False" selected="true">PNR non envoyé</option>
+                        {% else %}
+                          <option value="None">Tous les PNR</option>
+                          <option value="True">PNR envoyé</option>
+                          <option value="False" selected="true">PNR non envoyé</option>
+                        {% endif %}
+                      </select> -->
+                      <!-- <span class="text-sm text-primary" style="width: 9rem; margin-left:2px;"> Créer par : </span>
+                      <select class="form-control form-control-sm form-select form-select-sm" id="pnrFilteredByCreator" name="pnr_filter">
+                        {% if request.user.role_id != 3 and request.user.id != 4 and request.user.id != 5 %}
+                          <option value="0">Tout</option>
+                          {% for user in users %}
+                          <option value="{{user.id}}">{{user.username}}</option>
+                          {% endfor %}
+                        {% elif request.user.id == 4 %}
+                          <option value="4" selected="true">Farida</option>
+                          <option value="5">Mouniati</option>
+                        {% elif request.user.id == 5 %}
+                          <option value="4" >Farida</option>
+                          <option value="5" selected="true">Mouniati</option>
+                        {% else %}
+                          <option value="{{request.user.id}}" selected="true">{{request.user.username}}</option>
+                        {% endif %}
+                      </select> -->
                     </div>
 
                     <div class="col-md-3 d-flex">
@@ -251,7 +342,7 @@
                     <th width="8%"><span class="float-left sort">Date de création</span><span class="float-right filter" hidden><i class="fa-solid fa-chevron-down i-filter"></i></span></th>
                     <th width="8%"><span class="float-left sort">Date d'émission</span><span class="float-right filter" hidden><i class="fa-solid fa-chevron-down i-filter"></i></span></th>
                     <th width="6%"><span class="float-left sort">Montant</span><span class="float-right filter" hidden><i class="fa-solid fa-chevron-down i-filter"></i></span></th>
-                    <th width="4%"><span class="float-left sort">Status</span><span class="float-right filter" hidden><i class="fa-solid fa-chevron-down i-filter"></i></span></th>
+                    <th width="4%"><span class="float-left sort">Statut</span><span class="float-right filter" hidden><i class="fa-solid fa-chevron-down i-filter"></i></span></th>
                     <th width="8%"><span class="float-left sort">OPC</span><span class="float-right filter" hidden><i class="fa-solid fa-chevron-down i-filter"></i></span></th>
                     <th width="5%"><span class="float-left sort">Type</span><span class="float-right filter" hidden><i class="fa-solid fa-chevron-down i-filter"></i></span></th>
                     <th width="10%"><span class="float-left sort">Créateur</span><span class="float-right filter" hidden><i class="fa-solid fa-chevron-down i-filter"></i></span></th>
@@ -265,7 +356,7 @@
                     <th width="8%">Date de création</th>
                     <th width="8%">Date d'émission</th>
                     <th width="8%">Montant</th>
-                    <th width="5%">Status</th>
+                    <th width="5%">Statut</th>
                     <th width="8%">OPC</th>
                     <th width="5%">Type</th>
                     <th width="10%">Créateur</th>
@@ -284,7 +375,7 @@
                     </th>
                     <th class="pnr-issuing-date">Date d'émission</th>
                     <th>Montant</th>
-                    <th>Status</th>
+                    <th>Statut</th>
                     <th>OPC</th>
                     <th>Type</th>
                     <th class="pnr-creator-list">
@@ -529,7 +620,7 @@
                     </th>
                     <th class="pnr-issuing-date" style="cursor: pointer;">Date d'émission</th>
                     <th style="cursor: pointer;">Montant</th>
-                    <th style="cursor: pointer;">Status</th>
+                    <th style="cursor: pointer;">Statut</th>
                     <th style="cursor: pointer;">OPC</th>
                     <th style="cursor: pointer;">Type</th>
                     <th class="pnr-creator-list-after-search">

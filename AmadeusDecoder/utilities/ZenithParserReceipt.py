@@ -211,15 +211,14 @@ class ZenithParserReceipt():
                                 passenger_name += temp_part + ' ' + current_part[i + 1].split(']')[0].removesuffix(']')
                         break
                     # '[Ali Hamza HAMZA] (EMD', ':7328200069142)'
-                    elif temp_part.split(']')[0].strip() == passenger.name:
+                    elif temp_part.split(']')[0].strip() == passenger.name or temp_part.split(']')[0].strip() == ' '.join(passenger.name.split()[::-1]):
                         passenger_name += temp_part.split(']')[0]
                         break
             if current_part[i].strip() in PAYMENT_OPTIONS:
                 next_index = i
         
-        print(passenger_name)
         for passenger in passengers:
-            if passenger_name.strip() == passenger.name:
+            if passenger_name.strip() == passenger.name or ' '.join(passenger_name.strip().split()[::-1]) == passenger.name:
                 part_passenger = passenger
         
         if part_passenger is None and not is_none_required:
@@ -799,7 +798,7 @@ class ZenithParserReceipt():
                     pass
                 
                 # check is it has been already saved
-                otherfee_saved_checker = OthersFee.objects.filter(designation=new_emd.designation, pnr=pnr, related_segments__passenger=current_passenger).first()
+                otherfee_saved_checker = OthersFee.objects.filter(designation=new_emd.designation, pnr=pnr, related_segments__passenger=current_passenger, total=new_emd.total).first()
                 if otherfee_saved_checker != None:
                     new_emd = otherfee_saved_checker
                     if is_created_by_us:
@@ -1145,17 +1144,17 @@ class ZenithParserReceipt():
         # get ticket payment
         # Marked with: "Paiement Billet"
         ticket_payment_parts = self.get_parts_by_type(receipt_parts, TICKET_PAYMENT_PART)
-        self.handle_ticket_payment(pnr, passengers, ticket_payment_parts)
+        # self.handle_ticket_payment(pnr, passengers, ticket_payment_parts)
         
         # get ticket adjustment
         # Marked with: "Reissuance Adjustment" or "Réajustement tarifaire"
         ticket_adjustment_part = self.get_parts_by_type(receipt_parts, ADJUSTMENT_PART)
-        self.handle_ticket_adjustment(pnr, passengers, ticket_adjustment_part)
+        # self.handle_ticket_adjustment(pnr, passengers, ticket_adjustment_part)
         
         # emd cancellation
         # Marked with: "Annulation ancillaries"
         emd_cancellation_part = self.get_parts_by_type(receipt_parts, EMD_CANCELLATION_PART)
-        self.handle_emd_cancellation(pnr, passengers, emd_cancellation_part)
+        # self.handle_emd_cancellation(pnr, passengers, emd_cancellation_part)
         
         # ticket cancellation
         # ticket void
@@ -1176,7 +1175,7 @@ class ZenithParserReceipt():
             
         for ticket_cancelled_part in ticket_cancellation_part:
             receipt_parts.remove(ticket_cancelled_part)
-        self.handle_emd(pnr, passengers, receipt_parts)
+        # self.handle_emd(pnr, passengers, receipt_parts)
         
         # re-check if re-adjustment has been saved
         # self.recheck_saved_adjustment(pnr)

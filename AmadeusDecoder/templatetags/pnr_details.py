@@ -692,6 +692,51 @@ def get_all_pnr(request):
 
             print('no creator')
 
+            # Create date filter query object or an empty query object if dates are absent
+            date_filter = Q(system_creation_date__range=[start_date, end_date]) if start_date and end_date else Q()
+
+            pnr_queryset  = Pnr.objects.filter(
+                                Q(agent_id=None),
+                                status_value,
+                                max_system_creation_date,
+                                date_filter)
+
+            if is_invoiced is not None:
+                pnr_queryset =  pnr_queryset.filter(Q(is_invoiced=is_invoiced))
+
+            # Sort the list based on the agent username or system creation date
+            if sort_creator is not None:
+                if sort_creator == 'agent__username':
+                    # Sort Pnrs by agent's username and agent_id None in the last part of list
+                    pnr_list = sorted(
+                        pnr_queryset, 
+                        key=lambda pnr: (
+                            pnr.agent is None, 
+                            pnr.agent.username if pnr.agent else ''
+                        ), 
+                        reverse=False
+                    )
+                elif sort_creator == '-agent__username':
+                    # Sort Pnrs by agent's username in reverse order and agent_id None in the last part of list
+                    pnr_list = sorted(
+                        pnr_queryset, 
+                        key=lambda pnr: (
+                            pnr.agent.username if pnr.agent else ''
+                        ), 
+                        reverse=True
+                    )
+            else:
+                # If no sorting parameter provided, sort by system creation date
+                if date_order_by == "-":
+                    # Sort Pnrs by system creation date in reverse order
+                    pnr_list = sorted(pnr_queryset, key=lambda pnr: pnr.system_creation_date, reverse=True)
+                else:
+                    # Sort Pnrs by system creation date in ascending order
+                    pnr_list = sorted(pnr_queryset, key=lambda pnr: pnr.system_creation_date, reverse=False)
+
+            pnr_list = list(pnr_list)
+            pnr_count = pnr_queryset.count()
+            
         return pnr_count
 @register.filter(name='first_passenger')
 def get_first_passenger(pnr):
@@ -2215,7 +2260,8 @@ def get_all_pnr_to_switch(request):
 def get_ticket_cancel_void_status(ticket):
     from AmadeusDecoder.models.invoice.Fee import OthersFee
     is_cancelled = False
-    ticket_line_canceller = OthersFee.objects.filter(ticket_id=ticket.id).exclude(fee_type='outsourcing').all()
+    ticket_line_canceller = OthersFee.objects.filter(ticket_id=ticket.id).exclude(fee_type='outsourcing')
+    print("ticket_line_canceller: " + str(ticket_line_canceller))
 
     if ticket_line_canceller.exists() and not ticket.is_subjected_to_fees and ticket.is_invoiced:
         is_cancelled = True
@@ -2228,7 +2274,8 @@ def get_ticket_cancel_void_status(ticket):
 def get_other_fee_cancel_void_status(other_fee):
     from AmadeusDecoder.models.invoice.Fee import OthersFee
     is_cancelled = False
-    other_fee_line_canceller = OthersFee.objects.filter(other_fee_id=other_fee.id).exclude(fee_type='outsourcing').all() # type: ignore
+    other_fee_line_canceller = OthersFee.objects.filter(other_fee=other_fee.id).exclude(fee_type='outsourcing') # type: ignore
+    print("other_fee_line_canceller: " + str(other_fee_line_canceller))
 
     if other_fee_line_canceller.exists() and not other_fee.is_subjected_to_fee and other_fee.is_invoiced:
         is_cancelled = True

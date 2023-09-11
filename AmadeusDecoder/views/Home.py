@@ -185,8 +185,14 @@ def home(request):
                 if pnr not in pnr_list and pnr is not None:
                     pnr_list.append(pnr)
 
-            print(agent)
-            
+            agent = Q()
+            if filtered_creator is not None:
+                agent = Q(agent_id=filtered_creator)
+            elif filtered_creator == 'Empty':
+                agent = Q(agent_id=None)
+            else:
+                agent = Q(agent_id=4) | Q(agent_id=5)
+
             pnr_obj =   Pnr.objects.filter(
                             status_value,
                         ).filter(
@@ -245,8 +251,14 @@ def home(request):
                 
                 if pnr not in pnr_list and pnr is not None:
                     pnr_list.append(pnr)
-                
-            print(agent)
+
+            agent = Q()
+            if filtered_creator is not None:
+                agent = Q(agent_id=filtered_creator)
+            elif filtered_creator == 'Empty':
+                agent = Q(agent_id=None)
+            else:
+                agent = Q(agent_id=4) | Q(agent_id=5)
 
             pnr_obj   = Pnr.objects.filter(
                             status_value,
@@ -353,6 +365,14 @@ def home(request):
 
         # Create date filter query object or an empty query object if dates are absent
         date_filter = Q(system_creation_date__range=[start_date, end_date]) if start_date and end_date else Q()
+
+        agent = Q()
+        if filtered_creator is not None and filtered_creator != 'Empty':
+            agent = Q(agent_id=filtered_creator)
+        elif filtered_creator == 'Empty':
+            agent = Q(agent_id=None)
+        else:
+            agent = Q(agent_id=request.user.id) | Q(agent_id=None)
 
         max_system_creation_date = Q(system_creation_date__gt=maximum_timezone)
         
@@ -633,9 +653,10 @@ def pnr_details(request, pnr_id):
         __other_fee_base = pnr_detail.others_fees.filter(other_fee_status=1).exclude(~Q(ticket=None), ~Q(other_fee=None), total=0)
         __ticket_no_adc_base = pnr_detail.tickets.filter(ticket_status=1, total=0, is_no_adc=True)
 
-        __cancellation = pnr_detail.others_fees.filter(Q(other_fee__in=__other_fee_base)|Q(ticket__in=__ticket_base) | Q(ticket__in=__ticket_no_adc_base))
+        __cancellation = pnr_detail.others_fees.filter(Q(other_fee__in=__other_fee_base)|Q(ticket__in=__ticket_base) | Q(ticket__in=__ticket_no_adc_base)).exclude(fee_type='outsourcing')
 
         print('__________Cancellation____________')
+        print('Ther is the cancellation: ' + str(__cancellation))
         if __cancellation.exists():
             for cancellation in __cancellation:
                 if cancellation.other_fee is not None:

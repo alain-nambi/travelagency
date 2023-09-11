@@ -816,7 +816,7 @@ document.getElementById("save").addEventListener("click", (e) => {
       },
       success: (response) => {
         console.log(response.ticket_status);
-        if ((response.ticket_status == 'success') && (response.ticket_status == 'success')) {
+        if (((response.ticket_status == 'success') && (response.other_fee_status == 'success')) || ((response.ticket_status == '') && (response.other_fee_status == ''))) {
           window.location.reload();
         }
         else if ((response.ticket_status == 'failed') || (response.ticket_status == 'failed')) {

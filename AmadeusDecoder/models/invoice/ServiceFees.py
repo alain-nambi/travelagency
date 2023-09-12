@@ -43,7 +43,7 @@ class ServiceFeesClassBased(models.Model, BaseModel):
         "AmadeusDecoder.FlightClass",
         on_delete = models.CASCADE
     )
-    price = models.DecimalField(max_digits=11, decimal_places=4, default=0)
+    price = models.DecimalField(max_digits=13, decimal_places=4, default=0)
 
 class ServiceFeesAmountBased(models.Model, BaseModel):
     
@@ -53,9 +53,9 @@ class ServiceFeesAmountBased(models.Model, BaseModel):
             models.UniqueConstraint(fields=['min_interval', 'max_interval'], name="unique_service_fees")
         ]
         
-    min_interval = models.DecimalField(max_digits=11, decimal_places=2, default=0)
-    max_interval = models.DecimalField(max_digits=11, decimal_places=2, default=0)
-    fee = models.DecimalField(max_digits=11, decimal_places=2, default=0)
+    min_interval = models.DecimalField(max_digits=13, decimal_places=2, default=0)
+    max_interval = models.DecimalField(max_digits=13, decimal_places=2, default=0)
+    fee = models.DecimalField(max_digits=13, decimal_places=2, default=0)
     last_update = models.DateTimeField(null=True)
     last_update_user = models.ForeignKey(
         'AmadeusDecoder.User',
@@ -97,7 +97,7 @@ class ServiceFeesPrime(models.Model, BaseModel):
     )
     
     type = models.IntegerField(default=0) # 0: regional, 1: international/metropole
-    fee_value = models.DecimalField(max_digits=11, decimal_places=4, default=0)
+    fee_value = models.DecimalField(max_digits=13, decimal_places=4, default=0)
 
 class RegionalFlight(models.Model, BaseModel):
     
@@ -131,5 +131,5 @@ class ServiceFeesEMD(models.Model, BaseModel):
         null=True
     )
     
-    fee_value = models.DecimalField(max_digits=11, decimal_places=4, default=0)
+    fee_value = models.DecimalField(max_digits=13, decimal_places=4, default=0)
     

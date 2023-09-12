@@ -33,12 +33,12 @@ class Fee(models.Model, BaseModel):
     )
     type = models.CharField(max_length=200, null=True)
     designation = models.CharField(max_length=200, null=True)
-    value = models.DecimalField(max_digits=11, decimal_places=4, null=True)
-    cost = models.DecimalField(max_digits=11, decimal_places=4, default=0.0)
-    tax = models.DecimalField(max_digits=11, decimal_places=4, default=0.0)
-    total = models.DecimalField(max_digits=11, decimal_places=4, default=0.0)
-    newest_cost = models.DecimalField(max_digits=11, decimal_places=4, default=0.0)
-    old_cost = models.DecimalField(max_digits=11, decimal_places=4, default=0.0)
+    value = models.DecimalField(max_digits=13, decimal_places=4, null=True)
+    cost = models.DecimalField(max_digits=13, decimal_places=4, default=0.0)
+    tax = models.DecimalField(max_digits=13, decimal_places=4, default=0.0)
+    total = models.DecimalField(max_digits=13, decimal_places=4, default=0.0)
+    newest_cost = models.DecimalField(max_digits=13, decimal_places=4, default=0.0)
+    old_cost = models.DecimalField(max_digits=13, decimal_places=4, default=0.0)
     is_invoiced = models.BooleanField(default=0)
 
 class OthersFee(models.Model, BaseModel):
@@ -85,10 +85,10 @@ class OthersFee(models.Model, BaseModel):
 
     designation = models.CharField(max_length=100, null=True)
     quantity = models.IntegerField(default=1)
-    value = models.DecimalField(max_digits=11, decimal_places=4, null=True)
-    cost = models.DecimalField(max_digits=11, decimal_places=4, default=0.0)
-    tax = models.DecimalField(max_digits=11, decimal_places=4, default=0.0)
-    total = models.DecimalField(max_digits=11, decimal_places=4, default=0.0)
+    value = models.DecimalField(max_digits=13, decimal_places=4, null=True)
+    cost = models.DecimalField(max_digits=13, decimal_places=4, default=0.0)
+    tax = models.DecimalField(max_digits=13, decimal_places=4, default=0.0)
+    total = models.DecimalField(max_digits=13, decimal_places=4, default=0.0)
     fee_type = models.CharField(max_length=100, default='Other_fee')
     reference = models.CharField(max_length=100, default=None, null=True)
     passenger_segment = models.CharField(max_length=100, default=None, null=True)
@@ -119,9 +119,9 @@ class Product(models.Model, BaseModel):
 
     designation = models.CharField(max_length=100, null=True)
     code = models.CharField(max_length=100, null=True)
-    cost = models.DecimalField(max_digits=11, decimal_places=4, default=0.0)
-    tax = models.DecimalField(max_digits=11, decimal_places=4, default=0.0)
-    total = models.DecimalField(max_digits=11, decimal_places=4, default=0.0)
+    cost = models.DecimalField(max_digits=13, decimal_places=4, default=0.0)
+    tax = models.DecimalField(max_digits=13, decimal_places=4, default=0.0)
+    total = models.DecimalField(max_digits=13, decimal_places=4, default=0.0)
     type = models.CharField(max_length=100, default=None, null=True)
     product_id = models.IntegerField(null=False)
 
@@ -159,8 +159,8 @@ class ReducePnrFeeRequest(models.Model, BaseModel):
         null=True
     )
 
-    origin_amount = models.DecimalField(max_digits=11, decimal_places=4, default=0.0)
-    amount = models.DecimalField(max_digits=11, decimal_places=4, default=0.0)
+    origin_amount = models.DecimalField(max_digits=13, decimal_places=4, default=0.0)
+    amount = models.DecimalField(max_digits=13, decimal_places=4, default=0.0)
     system_creation_date = models.DateTimeField()
     status = models.IntegerField(default=0) # 0: non traité, 1: accepté, 2: réfusé, 3: montant modifié
     token = models.CharField(max_length=100)

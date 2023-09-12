@@ -231,6 +231,6 @@ class EmailfetcherConfig(AppConfig):
         # dest_dir = '/export/products'
         
         # send daily pnr fee update report
-        daily_thread_once = Thread(target=send_fee_update_list)
+        daily_thread_once = RepeatTimer(3600, send_fee_update_list)
         daily_thread_once.start()
         

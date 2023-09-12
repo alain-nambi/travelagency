@@ -94,6 +94,7 @@ end;
 $body$
 language plpgsql;
 
+drop trigger if exists t_auto_create_sf on t_ticket;
 create trigger t_auto_create_sf
 	after insert or update of transport_cost on t_ticket
 	for each row
@@ -157,6 +158,7 @@ end;
 $body$
 language plpgsql;
 
+drop trigger if exists t_auto_create_sf_on_other_fees on t_other_fee;
 create trigger t_auto_create_sf_on_other_fees
 	after insert or update of cost on t_other_fee
 	for each row

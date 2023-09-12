@@ -21,6 +21,6 @@ class Payment(models.Model, BaseModel):
         related_name='ticket'
     )
     type = models.CharField(max_length=200, null=False)
-    amount = models.DecimalField(max_digits=11, decimal_places=4, default=0)
+    amount = models.DecimalField(max_digits=13, decimal_places=4, default=0)
     date = models.DateField(default=timezone.now)
     state = models.CharField(max_length=200, null=True)

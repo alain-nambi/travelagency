@@ -101,8 +101,8 @@ def checking_pnr_not_sent_to_odoo():
     MailNotification.pnr_not_sent_to_odoo(now)
     
 # # send fee modification history
-# def send_fee_update_list():
-#     from AmadeusDecoder.utilities.ReportUtility import ReportUtility
+def send_fee_update_list():
+    from AmadeusDecoder.utilities.ReportUtility import ReportUtility
     
     current_time = datetime.now()
     
@@ -221,7 +221,7 @@ class EmailfetcherConfig(AppConfig):
 
         # print('Pnr unissued OPC checking is running...')
         # timer = RepeatTimer(60, pnr_unissued_opc_checking)  
-        timer.start()
+        # timer.start()
         
         # print('Product synchronisation is starting')
         # timer_synchro = RepeatTimer(5, running_product_synhcro)

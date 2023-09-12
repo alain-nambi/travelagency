@@ -19,11 +19,11 @@ class InvoiceDetails(models.Model, BaseModel):
         on_delete=models.CASCADE,
         related_name='detail'
     )
-    totalht = models.DecimalField(max_digits=11, decimal_places=4, default=0)
-    tva_sce = models.DecimalField(max_digits=11, decimal_places=4, default=0)
-    total_tax = models.DecimalField(max_digits=11, decimal_places=4, default=0)
-    total = models.DecimalField(max_digits=11, decimal_places=4, default=0)
-    total_fees = models.DecimalField(max_digits=11, decimal_places=4, default=0)
+    totalht = models.DecimalField(max_digits=13, decimal_places=4, default=0)
+    tva_sce = models.DecimalField(max_digits=13, decimal_places=4, default=0)
+    total_tax = models.DecimalField(max_digits=13, decimal_places=4, default=0)
+    total = models.DecimalField(max_digits=13, decimal_places=4, default=0)
+    total_fees = models.DecimalField(max_digits=13, decimal_places=4, default=0)
     duedate = models.DateField(null=True)
     
     # get invoice detail by pnr

@@ -140,6 +140,7 @@ class Pnr(models.Model, BaseModel):
                 else:
                     return issuing_user
         except Exception as e:
+            traceback.print_exc()
             print(e)
             
     # get pnr creator agent

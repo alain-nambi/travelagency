@@ -371,12 +371,14 @@ class PnrCostParser():
                     for element in space_free_temp:
                         if element.split('.')[0].isnumeric():
                             fare = float(element)
+                            break
                 # FARE EQUIV
                 # when foreign currency has been used
                 if space_free_temp[0] == TST_FARE_EQUIV_IDENTIFIER[0]:
                     for element in space_free_temp:
                         if element.split('.')[0].isnumeric():
-                            fare = float(element) 
+                            fare = float(element)
+                            break
                 # elif space_free_temp[0] == COST_IDENTIFIER[2] and space_free_temp[1] == COST_IDENTIFIER[3]:
                 elif space_free_temp[0] == TST_TOTAL_IDENTIFIER[0]:
                     for element in space_free_temp:
@@ -548,5 +550,4 @@ class PnrCostParser():
                 error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
                 traceback.print_exc(file=error_file)
                 error_file.write('\n')
-        
         

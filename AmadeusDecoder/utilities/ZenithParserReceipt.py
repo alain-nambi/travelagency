@@ -443,6 +443,7 @@ class ZenithParserReceipt():
             current_passenger, next_index = self.get_passenger_assigned_on_part(passengers, part, True)
             is_created_by_us = self.check_part_emitter(part)
             is_know_emitter, emitter = self.get_part_emitter(part)
+            issuing_agency_name = self.getIssuingAgencyName(part)
             
             ticket_total = 0
             try:
@@ -470,6 +471,7 @@ class ZenithParserReceipt():
                         ticket.emitter = emitter
                     else:
                         ticket.issuing_agent_name = emitter
+                    ticket.issuing_agency_name = issuing_agency_name
                     ticket.save()
                 # PNR has been modified and old ticket record has been removed by Zenith
                 # So, the ticket payment will be saved as other fees with designation as "Paiement billet - 1"
@@ -541,6 +543,7 @@ class ZenithParserReceipt():
             current_passenger, next_index = self.get_passenger_assigned_on_part(passengers, part, False)
             is_created_by_us = self.check_part_emitter(part)
             is_know_emitter, emitter = self.get_part_emitter(part)
+            issuing_agency_name = self.getIssuingAgencyName(part)
             # make current tickets as flown
             # temp_ticket = Ticket.objects.filter(pnr=pnr, passenger=current_passenger, ticket_type='TKT').order_by('-id').first()
             
@@ -611,6 +614,7 @@ class ZenithParserReceipt():
                         else:
                             previous_ticket.issuing_agent_name = emitter
                         
+                        previous_ticket.issuing_agency_name = issuing_agency_name
                         previous_ticket.save()
                         self.ajustment_total.append({'ticket': previous_ticket, 'total': total})
                     else:
@@ -686,6 +690,7 @@ class ZenithParserReceipt():
             current_passenger, next_index = self.get_passenger_assigned_on_part(passengers, part, False)
             current_segment = self.get_segments_assigned_on_part(part)
             is_know_emitter, emitter = self.get_part_emitter(part)
+            issuing_agency_name = self.getIssuingAgencyName(part)
             # new emd to be inserted
             new_emd = OthersFee()
             new_emd.pnr = pnr
@@ -708,7 +713,7 @@ class ZenithParserReceipt():
                 if self.check_is_invoiced_status(None, other_fee):
                     other_fee.other_fee_status = 3
                     other_fee.save()'''
-                
+            
             # get cancellation
             if new_emd.designation is not None:
                 try:
@@ -736,6 +741,7 @@ class ZenithParserReceipt():
                 else:
                     new_emd.issuing_agent_name = emitter
                 
+                new_emd.issuing_agency_name = issuing_agency_name
                 new_emd.save()
                 if otherfee_saved_checker is None:
                     if isinstance(current_segment, list):
@@ -759,6 +765,7 @@ class ZenithParserReceipt():
             current_passenger, next_index = self.get_passenger_assigned_on_part(passengers, part, False)
             current_segment = self.get_segments_assigned_on_part(part)
             is_know_emitter, emitter = self.get_part_emitter(part)
+            issuing_agency_name = self.getIssuingAgencyName(part)
             # new emd to be inserted
             new_emd = OthersFee()
             new_emd.pnr = pnr
@@ -781,7 +788,7 @@ class ZenithParserReceipt():
                 if self.check_is_invoiced_status(None, other_fee):
                     other_fee.other_fee_status = 3
                     other_fee.save()'''
-                
+            
             # get cancellation
             if new_emd.designation is not None:
                 try:
@@ -808,13 +815,8 @@ class ZenithParserReceipt():
                 # both ticket or other fee must not be invoiced
                 # ticket or other fee's abs total cost must be the same as abs of current cancellation 
                 # after all above conditions checked, related ticket or other fee's fee must be removed from database
-                
                 temp_related_ticket = Ticket.objects.filter(issuing_date=date_time.date(), is_invoiced=False, total=abs(new_emd.total)).last()
                 temp_related_other_fee = OthersFee.objects.filter(creation_date=date_time.date(), is_invoiced=False, total=abs(new_emd.total)).last()
-                print('\n\n------FEE DELETED--------------------\n\n')
-                print(temp_related_ticket)
-                print(temp_related_other_fee)
-                print('\n\n------FEE DELETED--------------------\n\n')
                 if temp_related_ticket is not None:
                     new_emd.ticket = temp_related_ticket
                     temp_related_ticket.is_subjected_to_fee = False
@@ -838,6 +840,8 @@ class ZenithParserReceipt():
                 else:
                     new_emd.issuing_agent_name = emitter
                 
+                new_emd.issuing_agency_name = issuing_agency_name
+                
                 new_emd.save()
                 if otherfee_saved_checker is None:
                     if isinstance(current_segment, list):
@@ -855,7 +859,7 @@ class ZenithParserReceipt():
                         other_fee_passenger_segment.save()
                     
     # emd when no ticket number provided
-    def handle_emd_no_number(self, pnr, current_passenger, current_segment, is_created_by_us, cost, total, date_time, emd_single_part):
+    def handle_emd_no_number(self, pnr, current_passenger, current_segment, is_created_by_us, cost, total, date_time, issuing_agency_name, emd_single_part):
         is_know_emitter, emitter = self.get_part_emitter(emd_single_part)
         is_balancing_statement = False
         
@@ -916,6 +920,8 @@ class ZenithParserReceipt():
             else:
                 new_emd.issuing_agent_name = emitter
             
+            new_emd.issuing_agency_name = issuing_agency_name
+            
             new_emd.save()
             if otherfee_saved_checker is None:
                 if isinstance(current_segment, list):
@@ -940,7 +946,7 @@ class ZenithParserReceipt():
             current_segment = self.get_segments_assigned_on_part(part)
             part_name_index = self.get_target_part_index(part, PENALTY_PART)
             is_know_emitter, emitter = self.get_part_emitter(part)
-            
+            issuing_agency_name = self.getIssuingAgencyName(part)
             # skip "Frais d'agence"
             internal_fee = self.get_target_part_index(part, AGENCY_FEE_PART)
             if internal_fee != 0:
@@ -1022,6 +1028,8 @@ class ZenithParserReceipt():
                         new_emd.emitter = emitter
                     else:
                         new_emd.issuing_agent_name = emitter    
+                    
+                    new_emd.issuing_agency_name = issuing_agency_name
                     
                     new_emd.save()
                     if ticket_saved_checker is None:
@@ -1108,6 +1116,8 @@ class ZenithParserReceipt():
                         new_emd.emitter = emitter
                     else:
                         new_emd.issuing_agent_name = emitter
+                    
+                    new_emd.issuing_agency_name = issuing_agency_name
                     
                     new_emd.save()
                     # if not is_already_saved:

@@ -73,8 +73,8 @@ class PnrAirSegments(models.Model, BaseModel):
             for segment in old_segments:
                 temp_data = {}
                 temp_data['segment_obj'] = segment
+                # (segment.segmentorder if segment.segmentorder is not None else '') + \
                 temp_data['data'] = (segment.flightno if segment.flightno is not None else '') + \
-                                          (segment.segmentorder if segment.segmentorder is not None else '') + \
                                           (str(segment.departuretime) if segment.departuretime is not None else '') + \
                                           (str(segment.arrivaltime) if segment.arrivaltime is not None else '') + \
                                           (segment.flightclass if segment.flightclass is not None else '')
@@ -82,8 +82,8 @@ class PnrAirSegments(models.Model, BaseModel):
             
             new_segments_data = []
             for new_segment in new_segments:
+                # (new_segment.segmentorder if new_segment.segmentorder is not None else '') + \
                 new_segments_data.append((new_segment.flightno if new_segment.flightno is not None else '') + \
-                                          (new_segment.segmentorder if new_segment.segmentorder is not None else '') + \
                                           (str(new_segment.departuretime) if new_segment.departuretime is not None else '') + \
                                           (str(new_segment.arrivaltime) if new_segment.arrivaltime is not None else '') + \
                                           (new_segment.flightclass if new_segment.flightclass is not None else ''))

@@ -4026,6 +4026,10 @@ function receiptProcess(
     buttonModalCheckReceipt.removeAttribute("disabled");
   }
 
+  // console.log('====================================');
+  // console.log(dataTotalAmountOrder);
+  // console.log('====================================');
+
   const customerData = dataAboutCustomers.filter(
     (customer) => customer.id == customerId
   )[0];
@@ -4057,13 +4061,53 @@ function receiptProcess(
   let feeCounter = 0;
   let otherFeeCounter = 0;
 
+  const convertToFrenchDate = (dateString) => {
+    try {
+      // Convert the date string to a JavaScript Date object.
+      const date = new Date(dateString);
+  
+      // Get the day of the month.
+      const day = date.getDate();
+  
+      // Get the month name in French.
+      const monthNameInFrench = [
+        "janvier", 
+        "février", 
+        "mars", 
+        "avril", 
+        "mai", 
+        "juin", 
+        "juillet", 
+        "août", 
+        "septembre", 
+        "octobre", 
+        "novembre", 
+        "décembre"
+      ];
+      
+      const monthName = monthNameInFrench[date.getMonth()];
+  
+      // Get the year.
+      const year = date.getFullYear();
+  
+      // Format the date in French.
+      const frenchDate = `${day} ${monthName} ${year}`;
+  
+      return frenchDate;
+    } catch (error) {
+      console.log("Erreur dans la conversion de la date " + error);
+      return "";
+    }
+  };
+
   let ticketDivData = () => {
     if (ticketCounter < ticket.length) {
       itemsContainer.innerHTML += `
         <div class="row item">
           <div class="col-sm-1">${ticket.type[ticketCounter]}</div>
           <div class="col-sm-3">#${ticket.number[ticketCounter]}</div>
-          <div class="col-sm-5">${ticket.passenger[ticketCounter]}</div>
+          <div class="col-sm-3">${ticket.passenger[ticketCounter]}</div>
+          <div class="col-sm-2">${convertToFrenchDate(ticket.issuing_date[ticketCounter])}</div>
           <div class="col-sm-1 text-right">${ticket.transport_cost[
             ticketCounter
           ].toFixed(2)}</div>
@@ -4085,7 +4129,8 @@ function receiptProcess(
         <div class="row item">
           <div class="col-sm-1">FEE</div>
           <div class="col-sm-3">${fee.type[feeCounter]}</div>
-          <div class="col-sm-5"></div>
+          <div class="col-sm-3"></div>
+          <div class="col-sm-2">${convertToFrenchDate(fee.issuing_date[feeCounter])}</div>
           <div class="col-sm-1 text-right">${fee.cost[feeCounter].toFixed(
             2
           )}</div>
@@ -4107,7 +4152,8 @@ function receiptProcess(
         <div class="row item">
           <div class="col-sm-1">${otherFee.type[otherFeeCounter]}</div>
           <div class="col-sm-3">${otherFee.designation[otherFeeCounter]}</div>
-          <div class="col-sm-5">${otherFee.passenger[otherFeeCounter]}</div>
+          <div class="col-sm-3">${otherFee.passenger[otherFeeCounter]}</div>
+          <div class="col-sm-2">${convertToFrenchDate(otherFee.issuing_date[otherFeeCounter])}</div>
           <div class="col-sm-1 text-right">${otherFee.cost[
             otherFeeCounter
           ].toFixed(2)}</div>

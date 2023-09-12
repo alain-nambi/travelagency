@@ -19,7 +19,7 @@ class Tax(models.Model, BaseModel):
         on_delete=models.CASCADE,
         related_name='taxes'
     )
-    amount = models.DecimalField(max_digits=11, decimal_places=4, default=0)
+    amount = models.DecimalField(max_digits=13, decimal_places=4, default=0)
     taxcode = models.CharField(max_length=200, null=True)
     naturecode = models.CharField(max_length=200, null=True)
         

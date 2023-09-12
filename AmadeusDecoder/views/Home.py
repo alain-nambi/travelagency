@@ -2,10 +2,8 @@
 Created on 8 Sep 2022
 
 '''
-import csv
 import os
 import json
-import secrets 
 from datetime import datetime, timezone
 import requests
 import random
@@ -129,7 +127,8 @@ def home(request):
         # print(filtered_creator_cookie)
         # print(type(filtered_creator_cookie))
     except Exception as e:
-        print(f"Error on filter creator ${e}")
+        filtered_creator_cookie = None
+        # print(f"Error on filter creator ${e}")
 
     # Retrieve the value of the "isSortedByCreator" cookie from the request
     is_sorter_by_creator = request.COOKIES.get('isSortedByCreator')
@@ -1201,8 +1200,8 @@ def get_order(request, pnr_id):
     config = Configuration.objects.filter(name='Saving File Tools', value_name='File protocol', environment=settings.ENVIRONMENT)
 
     
-    file_dir = '/opt/odoo/issoufali-addons/import_saleorder/data/source'
-    customer_dir = '/opt/odoo/issoufali-addons/contacts_from_incadea/data/source'
+    file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
+    customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
     
     fieldnames_order = [
         'LineID',
@@ -1577,9 +1576,9 @@ def get_quotation(request, pnr_id):
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
     config = Configuration.objects.filter(name='File saving configuration', value_name='Saving protocol', environment=settings.ENVIRONMENT)
 
-    file_dir = '/opt/odoo/issoufali-addons/import_saleorder/data/source'
-    customer_dir = '/opt/odoo/issoufali-addons/contacts_from_incadea/data/source'
-
+    file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
+    customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
+    
     customer_row = {}
     fieldnames_order = [
         'LineID',

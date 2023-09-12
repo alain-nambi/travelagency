@@ -57,11 +57,11 @@ class Ticket(models.Model, BaseModel):
     issuing_date = models.DateField(null=True)
     number = models.CharField(max_length=200, null=False)
     path = models.CharField(max_length=200, null=True)
-    transport_cost = models.DecimalField(max_digits=11, decimal_places=4, default=0)
-    tax = models.DecimalField(max_digits=11, decimal_places=4, default=0)
-    total = models.DecimalField(max_digits=11, decimal_places=4, default=0)
-    exch_val = models.DecimalField(max_digits=11, decimal_places=4, default=0) # Exchange value of the EMD
-    rfnd_val = models.DecimalField(max_digits=11, decimal_places=4, default=0) # Refundable value of the EMD
+    transport_cost = models.DecimalField(max_digits=13, decimal_places=4, default=0)
+    tax = models.DecimalField(max_digits=13, decimal_places=4, default=0)
+    total = models.DecimalField(max_digits=13, decimal_places=4, default=0)
+    exch_val = models.DecimalField(max_digits=13, decimal_places=4, default=0) # Exchange value of the EMD
+    rfnd_val = models.DecimalField(max_digits=13, decimal_places=4, default=0) # Refundable value of the EMD
     passengerpath = models.CharField(max_length=200, null=True)
     flightclass = models.CharField(max_length=200, null=True)
     referenceticket = models.CharField(max_length=200, null=True)
@@ -69,10 +69,10 @@ class Ticket(models.Model, BaseModel):
     status = models.CharField(max_length=200, null=True)
     doccurrency = models.CharField(max_length=200, null=True)
     farecurrency = models.CharField(max_length=200, null=True)
-    fare = models.DecimalField(max_digits=11, decimal_places=4, default=0)
+    fare = models.DecimalField(max_digits=13, decimal_places=4, default=0)
     fare_type = models.CharField(max_length=4, default='F') # Fare type: IT, Y, F, ....
-    fareequiv = models.DecimalField(max_digits=11, decimal_places=4, default=0)
-    farerate = models.DecimalField(max_digits=11, decimal_places=4, default=0)
+    fareequiv = models.DecimalField(max_digits=13, decimal_places=4, default=0)
+    farerate = models.DecimalField(max_digits=13, decimal_places=4, default=0)
     commission = models.CharField(max_length=200, null=True)
     origcity = models.CharField(max_length=200, null=True)
     destcity = models.CharField(max_length=200, null=True)

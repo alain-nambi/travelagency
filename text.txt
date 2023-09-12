@@ -2,3 +2,9 @@ LolaNoelleRoihaminaSamirJosianneAnissaGoulaRizikiSittiFouadiAnaissaEric  MAHAMOU
 
 Admin password: 1$&0F@lIaDm1NpWd
 Master password: m^$t3r_p@&&w0rD
+
+current log gestion pnr:
+journalctl -f -u "service"
+
+service start:
+systemctl enable "service" : start service on system powering on

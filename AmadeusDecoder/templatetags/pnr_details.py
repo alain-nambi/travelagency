@@ -3,20 +3,21 @@ Created on 29 Sep 2022
 
 @author: Famenontsoa
 '''
-_AIRPORT_AGENCY_CODE_ = ['DZAUU000B', 'Mayotte ATO']
-
 from datetime import datetime, timezone
-import html
 from django import template
 from django.db.models import Q
 import json
 import traceback
+
+import AmadeusDecoder.utilities.configuration_data as configs
 
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.user.Users import User
 from AmadeusDecoder.models.user.Users import Office
 
 register = template.Library()
+
+AIRPORT_AGENCY_CODE = configs.AIRPORT_AGENCY_CODE
 
 @register.filter(name='get_all_username')
 def get_all_username(_userId):
@@ -163,6 +164,13 @@ def get_pnr_emitter(pnr):
     except:
         return None
     
+@register.filter(name='pnr_office')
+def get_pnr_office(pnr):
+    try:
+        return pnr.get_pnr_office()
+    except:
+        return None
+    
 @register.filter(name='pnr_creator')
 def get_pnr_creator(pnr):
     try:
@@ -257,7 +265,8 @@ def get_all_pnr(request):
         # print(filtered_creator_cookie)
         # print(type(filtered_creator_cookie))
     except Exception as e:
-        print(f"Error on filter creator ${e}")
+        filtered_creator_cookie = None
+        # print(f"Error on filter creator ${e}")
 
     # Retrieve the value of the "isSortedByCreator" cookie from the request
     is_sorter_by_creator = request.COOKIES.get('isSortedByCreator')
@@ -1388,17 +1397,20 @@ def get_total_amount_order_for_receipt_print(pnr_id):
                     list_passenger_from_ticket = []
                     list_ticket_type = []
                     list_ticket_numbers = []
+                    list_ticket_issuing_date = []
                     list_ticket_tax = []
                     list_ticket_transport_cost = []
                     list_ticket_total = []
                     
                     list_fee_type = []
                     list_fee_cost = []
+                    list_fee_issuing_date = []
                     list_fee_tax = []
                     list_fee_total = []
                     
                     list_other_fee_type = []
                     list_other_fee_cost = []
+                    list_other_fee_issuing_date = []
                     list_other_fee_tax = []
                     list_other_fee_passenger = []
                     list_other_fee_designation = []
@@ -1420,9 +1432,15 @@ def get_total_amount_order_for_receipt_print(pnr_id):
                                         list_fee_tax.append(float(f.tax))
                                         list_fee_total.append(float(f.total))
                                         
+                                        if f.ticket is not None:
+                                            list_fee_issuing_date.append(str(f.ticket.issuing_date))
+                                        elif f.other_fee is not None:
+                                            list_fee_issuing_date.append(str(f.other_fee.creation_date))
+                                        
                                     fee = {
                                         "type": list_fee_type,
                                         "cost": list_fee_cost,
+                                        "issuing_date": list_fee_issuing_date,
                                         "tax": list_fee_tax,
                                         "total": list_fee_total,
                                         "length": len(list_fee_type),
@@ -1437,6 +1455,7 @@ def get_total_amount_order_for_receipt_print(pnr_id):
                                         list_ticket_tax.append(float(t.tax))
                                         list_ticket_transport_cost.append(float(t.transport_cost))
                                         list_ticket_total.append(float(t.total))
+                                        list_ticket_issuing_date.append(str(t.issuing_date))
                                         
                                         displayed_name = ''
                                         if t.passenger is not None:
@@ -1452,6 +1471,7 @@ def get_total_amount_order_for_receipt_print(pnr_id):
                                         "passenger": list_passenger_from_ticket,
                                         "type": list_ticket_type,
                                         "number": list_ticket_numbers,
+                                        "issuing_date": list_ticket_issuing_date,
                                         "tax": list_ticket_tax,
                                         "transport_cost": list_ticket_transport_cost,
                                         "total": list_ticket_total,
@@ -1479,6 +1499,7 @@ def get_total_amount_order_for_receipt_print(pnr_id):
                                             
                                         list_other_fee_passenger.append(displayed_name_other_fee)
                                         list_other_fee_designation.append(o.designation)
+                                        list_other_fee_issuing_date.append(str(o.creation_date))
                                     
                                     list_other_fee_type.append("EMD")  
                                     
@@ -1487,6 +1508,7 @@ def get_total_amount_order_for_receipt_print(pnr_id):
                                         "passenger": list_other_fee_passenger,
                                         "cost": list_other_fee_cost,
                                         "type": list_other_fee_type,
+                                        "issuing_date": list_other_fee_issuing_date,
                                         "tax": list_other_fee_tax,
                                         "total": list_other_fee_total,
                                         "length": len(list_other_fee_type)
@@ -1517,17 +1539,20 @@ def get_total_amount_order_for_receipt_print(pnr_id):
                     list_passenger_from_ticket = []
                     list_ticket_type = []
                     list_ticket_numbers = []
+                    list_ticket_issuing_date = []
                     list_ticket_tax = []
                     list_ticket_transport_cost = []
                     list_ticket_total = []
                     
                     list_fee_type = []
                     list_fee_cost = []
+                    list_fee_issuing_date = []
                     list_fee_tax = []
                     list_fee_total = []
                     
                     list_other_fee_type = []
                     list_other_fee_cost = []
+                    list_other_fee_issuing_date = []
                     list_other_fee_tax = []
                     list_other_fee_passenger = []
                     list_other_fee_designation = []
@@ -1549,9 +1574,15 @@ def get_total_amount_order_for_receipt_print(pnr_id):
                                         list_fee_tax.append(float(f.tax))
                                         list_fee_total.append(float(f.total))
                                         
+                                        if f.ticket is not None:
+                                            list_fee_issuing_date.append(str(f.ticket.issuing_date))
+                                        elif f.other_fee is not None:
+                                            list_fee_issuing_date.append(str(f.other_fee.creation_date))
+                                        
                                     fee = {
                                         "type": list_fee_type,
                                         "cost": list_fee_cost,
+                                        "issuing_date": list_fee_issuing_date,
                                         "tax": list_fee_tax,
                                         "total": list_fee_total,
                                         "length": len(list_fee_type),
@@ -1566,6 +1597,7 @@ def get_total_amount_order_for_receipt_print(pnr_id):
                                         list_ticket_tax.append(float(t.tax))
                                         list_ticket_transport_cost.append(float(t.transport_cost))
                                         list_ticket_total.append(float(t.total))
+                                        list_ticket_issuing_date.append(str(t.issuing_date))
                                         
                                         displayed_name = ''
                                         if t.passenger is not None:
@@ -1581,6 +1613,7 @@ def get_total_amount_order_for_receipt_print(pnr_id):
                                         "passenger": list_passenger_from_ticket,
                                         "type": list_ticket_type,
                                         "number": list_ticket_numbers,
+                                        "issuing_date": list_ticket_issuing_date,
                                         "tax": list_ticket_tax,
                                         "transport_cost": list_ticket_transport_cost,
                                         "total": list_ticket_total,
@@ -1608,6 +1641,7 @@ def get_total_amount_order_for_receipt_print(pnr_id):
                                             
                                         list_other_fee_passenger.append(displayed_name_other_fee)
                                         list_other_fee_designation.append(o.designation)
+                                        list_other_fee_issuing_date.append(str(o.creation_date))
                                     
                                     list_other_fee_type.append("EMD")  
                                     
@@ -1616,6 +1650,7 @@ def get_total_amount_order_for_receipt_print(pnr_id):
                                         "passenger": list_other_fee_passenger,
                                         "cost": list_other_fee_cost,
                                         "type": list_other_fee_type,
+                                        "issuing_date": list_other_fee_issuing_date,
                                         "tax": list_other_fee_tax,
                                         "total": list_other_fee_total,
                                         "length": len(list_other_fee_type)
@@ -1735,7 +1770,6 @@ def get_order_amout_total(pnr):
     from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
     from AmadeusDecoder.models.invoice.Ticket import Ticket
     from AmadeusDecoder.models.invoice.Fee import OthersFee, Fee
-    from AmadeusDecoder.models.pnr.Pnr import Pnr
     pnr = Pnr.objects.get(pk=pnr.id)
     passenger_invoices = PassengerInvoice.objects.filter(pnr_id=pnr)
     amount_total = 0
@@ -1923,19 +1957,19 @@ def is_issued_at_airport(ticket, other_fee):
         current_ticket = Ticket.objects.filter(id=ticket.id, ticket_type='EMD').first()
         if current_ticket is not None:
             # ticket has agency name: mostly for Zenith
-            if current_ticket.issuing_agency_name in _AIRPORT_AGENCY_CODE_:
+            if current_ticket.issuing_agency_name in AIRPORT_AGENCY_CODE:
                 return True
             # ticket has agency object: mostly for Altea
             if current_ticket.issuing_agency is not None:
-                if current_ticket.issuing_agency.name in _AIRPORT_AGENCY_CODE_ or \
-                    current_ticket.issuing_agency.code in _AIRPORT_AGENCY_CODE_:
+                if current_ticket.issuing_agency.name in AIRPORT_AGENCY_CODE or \
+                    current_ticket.issuing_agency.code in AIRPORT_AGENCY_CODE:
                     return True
     # for other fee: mostly for Zenith
     elif other_fee is not None:
         current_other_fee = OthersFee.objects.filter(id=other_fee.id, fee_type='EMD').first()
         if current_other_fee is not None:
             # other fee agency name
-            if current_other_fee.issuing_agency_name in _AIRPORT_AGENCY_CODE_:
+            if current_other_fee.issuing_agency_name in AIRPORT_AGENCY_CODE:
                 return True
         
     return False
@@ -2033,7 +2067,8 @@ def get_all_pnr_to_switch(request):
         # print(filtered_creator_cookie)
         # print(type(filtered_creator_cookie))
     except Exception as e:
-        print(f"Error on filter creator ${e}")
+        filtered_creator_cookie = None
+        # print(f"Error on filter creator ${e}")
 
     # Retrieve the value of the "isSortedByCreator" cookie from the request
     is_sorter_by_creator = request.COOKIES.get('isSortedByCreator')
@@ -2246,8 +2281,6 @@ def get_all_pnr_to_switch(request):
         print(len(list_pnr_with_position))
         return json.dumps(list_pnr_with_position)
 
-
-
 ###### Use to block checkbox when ticket or service is cancel or void immedialty after being issued so it can't be ordered ######
 @register.filter(name='ticket_cancel_void_status')
 def get_ticket_cancel_void_status(ticket):
@@ -2276,33 +2309,6 @@ def get_other_fee_cancel_void_status(other_fee):
         is_cancelled= False
 
     return is_cancelled
-# check if current ticket has been issued at airport #
-@register.simple_tag
-def is_issued_at_airport(ticket, other_fee):
-    from AmadeusDecoder.models.invoice.Ticket import Ticket
-    from AmadeusDecoder.models.invoice.Fee import OthersFee
-    
-    # for ticket
-    if ticket is not None:
-        current_ticket = Ticket.objects.filter(id=ticket.id, ticket_type='EMD').first()
-        if current_ticket is not None:
-            # ticket has agency name: mostly for Zenith
-            if current_ticket.issuing_agency_name in _AIRPORT_AGENCY_CODE_:
-                return True
-            # ticket has agency object: mostly for Altea
-            if current_ticket.issuing_agency is not None:
-                if current_ticket.issuing_agency.name in _AIRPORT_AGENCY_CODE_ or \
-                    current_ticket.issuing_agency.code in _AIRPORT_AGENCY_CODE_:
-                    return True
-    # for other fee: mostly for Zenith
-    elif other_fee is not None:
-        current_other_fee = OthersFee.objects.filter(id=other_fee.id, fee_type='EMD').first()
-        if current_other_fee is not None:
-            # other fee agency name
-            if current_other_fee.issuing_agency_name in _AIRPORT_AGENCY_CODE_:
-                return True
-        
-    return False
 
 @register.filter(name='list_agency_name')
 def get_list_agency_name(_):

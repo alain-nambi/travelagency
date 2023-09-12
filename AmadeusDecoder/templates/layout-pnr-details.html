@@ -411,7 +411,7 @@ old -->
                     data-total-amount-order="{{ total_amount_order_for_receipt_print }}"
                   >
                     {% if customer_has_not_had_order.length < 2 %}
-                      <option selected="true" disabled>Sélectionner le client</option>
+                      <option selected="true">Sélectionner le client</option>
                       {% for client in customer_has_not_had_order.list %}
                         <option value="{{ client.id }}" data-customer-id="{{ client.id }}">{{ client.intitule }}</option>
                       {% endfor %}
@@ -535,7 +535,8 @@ old -->
                         <div class="row">
                           <div class="col-sm-1">Type</div>
                           <div class="col-sm-3">Article</div>
-                          <div class="col-sm-5">Passager(s)</div>
+                          <div class="col-sm-3">Passager(s)</div>
+                          <div class="col-sm-2">Date d'émission</div>
                           <div class="col-sm-1 text-right">Transport</div>
                           <div class="col-sm-1 text-right">Tax</div>
                           <div class="col-sm-1 text-right">Total</div>

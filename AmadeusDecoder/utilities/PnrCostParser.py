@@ -68,21 +68,19 @@ class PnrCostParser():
         content = new_content
                
         # fetch all lines containing passengers
-        for i in range(len(content)):
+        for i in range(len(new_content)):
+            temp_content_space_split = new_content[i].split("  ")
+            temp_content_dot_split = new_content[i].split(".")
             # if all passengers are on the same line
-            if((len(content[i].split("   ")) > 1 or len(content[i].split("  ")) > 1) and content[i].split(".")[0].isnumeric() and content[i].split(".")[0] != '0'):
-                if len(content[i].split("   ")) > 1:
-                    passengers_on_the_sameline = content[i].split("   ")
-                elif len(content[i].split("  ")) > 1:
-                    passengers_on_the_sameline = content[i].split("  ")
-                for temp in passengers_on_the_sameline:
+            if(len(temp_content_space_split) > 1 and temp_content_dot_split[0].isnumeric() and temp_content_dot_split[0] != '0'):
+                for temp in temp_content_space_split:
                     passenger_line.append(temp.split(".")[1])
                     order_line.append(temp.split(".")[0])
             # if passengers are on different lines
             else:
-                if(content[i].split(".")[0].isnumeric() and content[i].split(".")[0] != '0'):
-                    passenger_line.append(content[i].split(".")[1])
-                    order_line.append(content[i].split(".")[0])
+                if(temp_content_dot_split[0].isnumeric() and temp_content_dot_split[0] != '0'):
+                    passenger_line.append(temp_content_dot_split[1])
+                    order_line.append(temp_content_dot_split[0])
         
         order = 0
         for line in passenger_line:
@@ -183,11 +181,11 @@ class PnrCostParser():
                         else:
                             temp_passenger.surname = name_part.split('/')[1].strip()
                     
-                    # Not having adult flag
+                    # Not having adult or youth flag
                     # 1.MKOUBOI/FATIMA MRS(INFABDOU/NOLAN/24APR21)
-                    if line.find('ADT') == -1:
+                    if line.find('ADT') == -1 and line.find('YTH') == -1:
                         inf_part = line_split[1]
-                    # Has adult flag
+                    # Has adult or youth flag
                     # 1.CHAQUIR/EMILIE MS(ADT)(INFMAOULIDA/HAYDEN/10MAR22)
                     else:
                         inf_part = line_split[2]
@@ -373,22 +371,26 @@ class PnrCostParser():
                     for element in space_free_temp:
                         if element.split('.')[0].isnumeric():
                             fare = float(element)
+                            break
                 # FARE EQUIV
                 # when foreign currency has been used
                 if space_free_temp[0] == TST_FARE_EQUIV_IDENTIFIER[0]:
                     for element in space_free_temp:
                         if element.split('.')[0].isnumeric():
-                            fare = float(element) 
+                            fare = float(element)
+                            break
                 # elif space_free_temp[0] == COST_IDENTIFIER[2] and space_free_temp[1] == COST_IDENTIFIER[3]:
                 elif space_free_temp[0] == TST_TOTAL_IDENTIFIER[0]:
                     for element in space_free_temp:
                         if element.split('.')[0].isnumeric():
                             total = float(element)
+                            break
         
         tax = total - fare
         if total < fare:
             tax = 0
             fare = total
+            
         return fare, tax, total
     
     # get related pnr
@@ -548,5 +550,4 @@ class PnrCostParser():
                 error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
                 traceback.print_exc(file=error_file)
                 error_file.write('\n')
-        
         

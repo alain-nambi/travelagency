@@ -1019,7 +1019,6 @@
 												<td>{{other_fee.emitter.username}}</td>
 												<td>{{ '' }}</td>
 												<td>{{ '' }}</td>
-												<td>{{ '' }}</td>
 												{% if other_fees_fees_orders is not None or fee.is_invoiced %}
 												<td class="checkbox"><input type="checkbox" class="to-hide-when-cancel p-checkbox checkto{{other_fee.id}} other-fee-fee-checkbox" id="passagers-check checkbox-line-below" data-amount-total= "{{ fee.total|floatformat:'2' }}" data-commune-id = "{{other_fee.id}}" data-type="fee" checked hidden></td>
 												{% else %}

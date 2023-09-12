@@ -2253,8 +2253,6 @@ def get_all_pnr_to_switch(request):
         print(len(list_pnr_with_position))
         return json.dumps(list_pnr_with_position)
 
-
-
 ###### Use to block checkbox when ticket or service is cancel or void immedialty after being issued so it can't be ordered ######
 @register.filter(name='ticket_cancel_void_status')
 def get_ticket_cancel_void_status(ticket):
@@ -2283,33 +2281,6 @@ def get_other_fee_cancel_void_status(other_fee):
         is_cancelled= False
 
     return is_cancelled
-# check if current ticket has been issued at airport #
-@register.simple_tag
-def is_issued_at_airport(ticket, other_fee):
-    from AmadeusDecoder.models.invoice.Ticket import Ticket
-    from AmadeusDecoder.models.invoice.Fee import OthersFee
-    
-    # for ticket
-    if ticket is not None:
-        current_ticket = Ticket.objects.filter(id=ticket.id, ticket_type='EMD').first()
-        if current_ticket is not None:
-            # ticket has agency name: mostly for Zenith
-            if current_ticket.issuing_agency_name in _AIRPORT_AGENCY_CODE_:
-                return True
-            # ticket has agency object: mostly for Altea
-            if current_ticket.issuing_agency is not None:
-                if current_ticket.issuing_agency.name in _AIRPORT_AGENCY_CODE_ or \
-                    current_ticket.issuing_agency.code in _AIRPORT_AGENCY_CODE_:
-                    return True
-    # for other fee: mostly for Zenith
-    elif other_fee is not None:
-        current_other_fee = OthersFee.objects.filter(id=other_fee.id, fee_type='EMD').first()
-        if current_other_fee is not None:
-            # other fee agency name
-            if current_other_fee.issuing_agency_name in _AIRPORT_AGENCY_CODE_:
-                return True
-        
-    return False
 
 @register.filter(name='list_agency_name')
 def get_list_agency_name(_):

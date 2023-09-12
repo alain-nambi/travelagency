@@ -127,7 +127,8 @@ def home(request):
         # print(filtered_creator_cookie)
         # print(type(filtered_creator_cookie))
     except Exception as e:
-        print(f"Error on filter creator ${e}")
+        filtered_creator_cookie = None
+        # print(f"Error on filter creator ${e}")
 
     # Retrieve the value of the "isSortedByCreator" cookie from the request
     is_sorter_by_creator = request.COOKIES.get('isSortedByCreator')

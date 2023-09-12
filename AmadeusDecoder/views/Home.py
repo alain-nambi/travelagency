@@ -1830,7 +1830,7 @@ def get_quotation(request, pnr_id):
                         order.is_quotation = True
                         order.save()
 
-        customer = Client.objects.get(pk=int(customer_id))
+        customer = Client.objects.get(pk=int(customer_object))
         csv_customer_lines.append({
             'id': customer.id,
             'CT_Num': customer.ct_num.strip().replace('\n', '') if customer.ct_num is not None else '',

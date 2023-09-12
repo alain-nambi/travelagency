@@ -1155,25 +1155,23 @@ const span__confirmationCustomerDefault = document.querySelectorAll(
 //     })
 // }
 
-let count__ticketHaveNoPassenger = document.querySelectorAll(
-  ".tooltips.empty-passenger"
-);
-let error__noPassengerForTicket = document.getElementById(
-  "error__noPassengerForTicket"
-);
+let count__ticketHaveNoPassenger = document.querySelectorAll(".tooltips.empty-passenger");
+let error__noPassengerForTicket = document.getElementById("error__noPassengerForTicket");
+
 $("#error__noPassengerForTicket").hide();
-error__noPassengerForTicket.innerHTML = `
-    Mail PNR manquant pour le(s) billet(s) : 
-`;
+
+error__noPassengerForTicket.innerHTML = `Mail PNR manquant pour le(s) billet(s) : `;
 if (count__ticketHaveNoPassenger.length > 0) {
   $("#error__noPassengerForTicket").show();
   count__ticketHaveNoPassenger.forEach((ticket) => {
     error__noPassengerForTicket.innerHTML += `
-            <span class="text-sm"> ${ticket.getAttribute(
-              "data-ticket-number"
-            )} </span>
-        `;
+      <span class="text-sm"> ${ticket.getAttribute("data-ticket-number")} </span>
+    `;
   });
+
+  // Bloquer la création de la commande quand il manque le mail du PNR pour le billet
+  CreateOrder.setAttribute("disabled", true)
 } else {
+  CreateOrder.removeAttribute("disabled", true)
   $("#error__noPassengerForTicket").hide();
 }

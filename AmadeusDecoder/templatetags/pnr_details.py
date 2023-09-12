@@ -1397,17 +1397,20 @@ def get_total_amount_order_for_receipt_print(pnr_id):
                     list_passenger_from_ticket = []
                     list_ticket_type = []
                     list_ticket_numbers = []
+                    list_ticket_issuing_date = []
                     list_ticket_tax = []
                     list_ticket_transport_cost = []
                     list_ticket_total = []
                     
                     list_fee_type = []
                     list_fee_cost = []
+                    list_fee_issuing_date = []
                     list_fee_tax = []
                     list_fee_total = []
                     
                     list_other_fee_type = []
                     list_other_fee_cost = []
+                    list_other_fee_issuing_date = []
                     list_other_fee_tax = []
                     list_other_fee_passenger = []
                     list_other_fee_designation = []
@@ -1429,9 +1432,15 @@ def get_total_amount_order_for_receipt_print(pnr_id):
                                         list_fee_tax.append(float(f.tax))
                                         list_fee_total.append(float(f.total))
                                         
+                                        if f.ticket is not None:
+                                            list_fee_issuing_date.append(str(f.ticket.issuing_date))
+                                        elif f.other_fee is not None:
+                                            list_fee_issuing_date.append(str(f.other_fee.creation_date))
+                                        
                                     fee = {
                                         "type": list_fee_type,
                                         "cost": list_fee_cost,
+                                        "issuing_date": list_fee_issuing_date,
                                         "tax": list_fee_tax,
                                         "total": list_fee_total,
                                         "length": len(list_fee_type),
@@ -1446,6 +1455,7 @@ def get_total_amount_order_for_receipt_print(pnr_id):
                                         list_ticket_tax.append(float(t.tax))
                                         list_ticket_transport_cost.append(float(t.transport_cost))
                                         list_ticket_total.append(float(t.total))
+                                        list_ticket_issuing_date.append(str(t.issuing_date))
                                         
                                         displayed_name = ''
                                         if t.passenger is not None:
@@ -1461,6 +1471,7 @@ def get_total_amount_order_for_receipt_print(pnr_id):
                                         "passenger": list_passenger_from_ticket,
                                         "type": list_ticket_type,
                                         "number": list_ticket_numbers,
+                                        "issuing_date": list_ticket_issuing_date,
                                         "tax": list_ticket_tax,
                                         "transport_cost": list_ticket_transport_cost,
                                         "total": list_ticket_total,
@@ -1488,6 +1499,7 @@ def get_total_amount_order_for_receipt_print(pnr_id):
                                             
                                         list_other_fee_passenger.append(displayed_name_other_fee)
                                         list_other_fee_designation.append(o.designation)
+                                        list_other_fee_issuing_date.append(str(o.creation_date))
                                     
                                     list_other_fee_type.append("EMD")  
                                     
@@ -1496,6 +1508,7 @@ def get_total_amount_order_for_receipt_print(pnr_id):
                                         "passenger": list_other_fee_passenger,
                                         "cost": list_other_fee_cost,
                                         "type": list_other_fee_type,
+                                        "issuing_date": list_other_fee_issuing_date,
                                         "tax": list_other_fee_tax,
                                         "total": list_other_fee_total,
                                         "length": len(list_other_fee_type)
@@ -1526,17 +1539,20 @@ def get_total_amount_order_for_receipt_print(pnr_id):
                     list_passenger_from_ticket = []
                     list_ticket_type = []
                     list_ticket_numbers = []
+                    list_ticket_issuing_date = []
                     list_ticket_tax = []
                     list_ticket_transport_cost = []
                     list_ticket_total = []
                     
                     list_fee_type = []
                     list_fee_cost = []
+                    list_fee_issuing_date = []
                     list_fee_tax = []
                     list_fee_total = []
                     
                     list_other_fee_type = []
                     list_other_fee_cost = []
+                    list_other_fee_issuing_date = []
                     list_other_fee_tax = []
                     list_other_fee_passenger = []
                     list_other_fee_designation = []
@@ -1558,9 +1574,15 @@ def get_total_amount_order_for_receipt_print(pnr_id):
                                         list_fee_tax.append(float(f.tax))
                                         list_fee_total.append(float(f.total))
                                         
+                                        if f.ticket is not None:
+                                            list_fee_issuing_date.append(str(f.ticket.issuing_date))
+                                        elif f.other_fee is not None:
+                                            list_fee_issuing_date.append(str(f.other_fee.creation_date))
+                                        
                                     fee = {
                                         "type": list_fee_type,
                                         "cost": list_fee_cost,
+                                        "issuing_date": list_fee_issuing_date,
                                         "tax": list_fee_tax,
                                         "total": list_fee_total,
                                         "length": len(list_fee_type),
@@ -1575,6 +1597,7 @@ def get_total_amount_order_for_receipt_print(pnr_id):
                                         list_ticket_tax.append(float(t.tax))
                                         list_ticket_transport_cost.append(float(t.transport_cost))
                                         list_ticket_total.append(float(t.total))
+                                        list_ticket_issuing_date.append(str(t.issuing_date))
                                         
                                         displayed_name = ''
                                         if t.passenger is not None:
@@ -1590,6 +1613,7 @@ def get_total_amount_order_for_receipt_print(pnr_id):
                                         "passenger": list_passenger_from_ticket,
                                         "type": list_ticket_type,
                                         "number": list_ticket_numbers,
+                                        "issuing_date": list_ticket_issuing_date,
                                         "tax": list_ticket_tax,
                                         "transport_cost": list_ticket_transport_cost,
                                         "total": list_ticket_total,
@@ -1617,6 +1641,7 @@ def get_total_amount_order_for_receipt_print(pnr_id):
                                             
                                         list_other_fee_passenger.append(displayed_name_other_fee)
                                         list_other_fee_designation.append(o.designation)
+                                        list_other_fee_issuing_date.append(str(o.creation_date))
                                     
                                     list_other_fee_type.append("EMD")  
                                     
@@ -1625,6 +1650,7 @@ def get_total_amount_order_for_receipt_print(pnr_id):
                                         "passenger": list_other_fee_passenger,
                                         "cost": list_other_fee_cost,
                                         "type": list_other_fee_type,
+                                        "issuing_date": list_other_fee_issuing_date,
                                         "tax": list_other_fee_tax,
                                         "total": list_other_fee_total,
                                         "length": len(list_other_fee_type)

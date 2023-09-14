@@ -14,6 +14,8 @@ import AmadeusDecoder.utilities.configuration_data as configs
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.user.Users import User
 from AmadeusDecoder.models.user.Users import Office
+from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
+from AmadeusDecoder.models.invoice.Ticket import Ticket
 
 register = template.Library()
 
@@ -2362,5 +2364,21 @@ def get_list_agency_name(_):
     
     # Créer une liste de dictionnaires contenant les noms d'agence
     return [{'agency_name': agency} for agency in agency_names]
+
+@register.filter(name='check_passenger_missing')
+def get_check_passenger_missing(pnr_id, client_id):   
+    passenger_invoices = PassengerInvoice.objects.filter(pnr=pnr_id, client=client_id)
     
-    
+    tickets = []
+    for passenger_invoice in passenger_invoices:
+        if passenger_invoice.ticket is not None:
+            tickets.append(passenger_invoice.ticket)
+                
+    count_passenger_missing = 0    
+    for ticket in tickets:
+        if ticket.passenger is None:
+            count_passenger_missing += 1
+        else:
+            count_passenger_missing += 0
+
+    return count_passenger_missing

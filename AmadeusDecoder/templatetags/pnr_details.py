@@ -166,7 +166,11 @@ def get_pnr_emitter(pnr):
     
 @register.filter(name='pnr_office')
 def get_pnr_office(pnr):
-    try:
+    try:   
+        # Make agency name uniformised     
+        agence_name_uniformised = ['GSA ISSOUFALI Dzaoudzi', 'GSA ISSOUFALI Jumbo Score', 'GSA ISSOUFALI Mamoudzou']
+        if str(pnr.get_pnr_office()).strip() in agence_name_uniformised:
+            return str(pnr.get_pnr_office()).strip().removeprefix("GSA ISSOUFALI")
         return pnr.get_pnr_office()
     except:
         return None

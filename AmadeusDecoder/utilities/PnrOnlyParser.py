@@ -363,12 +363,12 @@ class PnrOnlyParser():
             if(len(temp_content_space_split) > 1 and temp_content_dot_split[0].isnumeric() and temp_content_dot_split[0] != '0'):
                 for temp in temp_content_space_split:
                     passenger_line.append(temp.split(".")[1])
-                    order_line.append(temp.split(".")[0])
+                    order_line.append(temp.split(".")[0].strip())
             # if passengers are on different lines
             else:
                 if(temp_content_dot_split[0].isnumeric() and temp_content_dot_split[0] != '0'):
                     passenger_line.append(temp_content_dot_split[1])
-                    order_line.append(temp_content_dot_split[0])
+                    order_line.append(temp_content_dot_split[0].strip())
         
         order = 0
         for line in passenger_line:

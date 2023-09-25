@@ -265,10 +265,11 @@ class ZenithParserReceipt():
             temp_part_split = current_part[i].split(' ')
             for temp_segment in air_segments:
                 for temp_part in temp_part_split:
-                    if temp_part.split('>')[0].removeprefix('[').removesuffix(']').find(temp_segment.codeorg.iata_code) > -1 \
-                        and temp_part.split('>')[1].removeprefix('[').removesuffix(']').find(temp_segment.codedest.iata_code) > -1 \
-                        and temp_part != '':
-                            return temp_segment
+                    if len(temp_part.split('>')) > 1:
+                        if temp_part.split('>')[0].removeprefix('[').removesuffix(']').find(temp_segment.codeorg.iata_code) > -1 \
+                            and temp_part.split('>')[1].removeprefix('[').removesuffix(']').find(temp_segment.codedest.iata_code) > -1 \
+                            and temp_part != '':
+                                return temp_segment
         
         if segment is None:
             segment = []

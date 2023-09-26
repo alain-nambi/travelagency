@@ -265,10 +265,11 @@ class ZenithParserReceipt():
             temp_part_split = current_part[i].split(' ')
             for temp_segment in air_segments:
                 for temp_part in temp_part_split:
-                    if temp_part.split('>')[0].removeprefix('[').removesuffix(']').find(temp_segment.codeorg.iata_code) > -1 \
-                        and temp_part.split('>')[1].removeprefix('[').removesuffix(']').find(temp_segment.codedest.iata_code) > -1 \
-                        and temp_part != '':
-                            return temp_segment
+                    if len(temp_part.split('>')) > 1:
+                        if temp_part.split('>')[0].removeprefix('[').removesuffix(']').find(temp_segment.codeorg.iata_code) > -1 \
+                            and temp_part.split('>')[1].removeprefix('[').removesuffix(']').find(temp_segment.codedest.iata_code) > -1 \
+                            and temp_part != '':
+                                return temp_segment
         
         if segment is None:
             segment = []
@@ -1144,17 +1145,17 @@ class ZenithParserReceipt():
         # get ticket payment
         # Marked with: "Paiement Billet"
         ticket_payment_parts = self.get_parts_by_type(receipt_parts, TICKET_PAYMENT_PART)
-        # self.handle_ticket_payment(pnr, passengers, ticket_payment_parts)
+        self.handle_ticket_payment(pnr, passengers, ticket_payment_parts)
         
         # get ticket adjustment
         # Marked with: "Reissuance Adjustment" or "Réajustement tarifaire"
         ticket_adjustment_part = self.get_parts_by_type(receipt_parts, ADJUSTMENT_PART)
-        # self.handle_ticket_adjustment(pnr, passengers, ticket_adjustment_part)
+        self.handle_ticket_adjustment(pnr, passengers, ticket_adjustment_part)
         
         # emd cancellation
         # Marked with: "Annulation ancillaries"
         emd_cancellation_part = self.get_parts_by_type(receipt_parts, EMD_CANCELLATION_PART)
-        # self.handle_emd_cancellation(pnr, passengers, emd_cancellation_part)
+        self.handle_emd_cancellation(pnr, passengers, emd_cancellation_part)
         
         # ticket cancellation
         # ticket void
@@ -1175,10 +1176,10 @@ class ZenithParserReceipt():
             
         for ticket_cancelled_part in ticket_cancellation_part:
             receipt_parts.remove(ticket_cancelled_part)
-        # self.handle_emd(pnr, passengers, receipt_parts)
+        self.handle_emd(pnr, passengers, receipt_parts)
         
         # re-check if re-adjustment has been saved
-        # self.recheck_saved_adjustment(pnr)
+        self.recheck_saved_adjustment(pnr)
     
     # re-check if re-adjustment has been saved
     def recheck_saved_adjustment(self, pnr):

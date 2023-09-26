@@ -829,7 +829,7 @@ $(function() {
     // Affiche la plage de dates sélectionnée dans l'élément avec l'ID "reportrange"
     // Si aucune date n'a été récupérée depuis localStorage, affiche la plage de dates courante
     const displayStartDate = startDateFromLocalStorage || start;
-    $('#reportrangebegin span').html(displayStartDate);
+    $('#spanReportDateRangeBegin').html(displayStartDate);
   }
 
   function cbEnd(start) {
@@ -839,7 +839,7 @@ $(function() {
     // Affiche la plage de dates sélectionnée dans l'élément avec l'ID "reportrange"
     // Si aucune date n'a été récupérée depuis localStorage, affiche la plage de dates courante
     const displayStartDate = EndDateFromLocalStorage || start;
-    $('#reportrangeend span').html(displayStartDate);
+    $('#spanReportDateRangeEnd').html(displayStartDate);
   }
 
   // Initialise le plugin DateRangePicker sur l'élément avec l'ID "reportrange"
@@ -848,6 +848,7 @@ $(function() {
     singleDatePicker: true,
     showDropdowns: true,
     minDate: "01/01/2023",
+    autoApply: true,
   }, function(start, end, label) {
     // Formate les dates de début et de fin pour l'affichage et le stockage
     const storageFormat = 'YYYY-MM-DD';
@@ -871,6 +872,7 @@ $(function() {
     singleDatePicker: true,
     showDropdowns: true,
     minDate: "01/01/2023",
+    autoApply: true,
   }, function(start, end, label) {
     // Formate les dates de début et de fin pour l'affichage et le stockage
     const storageFormat = 'YYYY-MM-DD';
@@ -899,29 +901,114 @@ $(function() {
     const startDateStorage = Cookies.get('dateRangeBegin')
     const endDateStorage = Cookies.get('dateRangeEnd')
 
-    console.log('====================================');
-    console.log(startDateStorage > endDateStorage);
-    console.log('====================================');
-
     $('#reportrangebegin').removeClass('border border-danger')
     $(".alert-report-range-begin").html('')
 
-    if (startDateStorage > endDateStorage) {
-      $('#reportrangebegin').addClass('border border-danger')
-      if ($("#alertDateRangeBegin").length < 1) {
-        $(".alert-report-range-begin").append(`
-          <span id="alertDateRangeBegin" class="text-sm text-danger mt-1 d-flex align-items-center" style="gap: 5px">
-            <i class="fa fa-circle-exclamation"></i>
-            La date de début doit être inférieure à la date de fin
-          </span>
-        `
-        ) 
+    // Function to get the date range from a string date.
+    function getDateRange(stringDate) {
+      // Split the string date into an array of strings, separated by spaces.
+      const dateParts = stringDate.split(" ");
+
+      // Return the first element of the array, which is the date range.
+      return dateParts[0];
+    }
+
+    // Function to filter the months array by key.
+    function getMonth(months, key) {
+      // Find the index of the month object in the array that has the specified key.
+      const foundMonth = months.findIndex(m => Object.keys(m).includes(key.split(" ")[1]));
+
+      // If the month object is found, return the month number, otherwise return null.
+      return foundMonth < 10 ? "0" + (foundMonth + 1) : foundMonth + 1;
+    }
+
+    // Function to get the full year from a string date.
+    function getFullYear(stringDate) {
+      // Split the string date into an array of strings, separated by spaces.
+      const dateParts = stringDate.split(" ");
+
+      // Return the third element of the array, which is the full year.
+      return dateParts[2];
+    }
+
+    if (startDateStorage && endDateStorage) {
+      if (startDateStorage > endDateStorage) {
+        $('#reportrangebegin').addClass('border border-danger')
+        if ($("#alertDateRangeBegin").length < 1) {
+          $(".alert-report-range-begin").append(`
+            <span id="alertDateRangeBegin" class="text-sm text-danger mt-1 d-flex align-items-center" style="gap: 5px">
+              <i class="fa fa-circle-exclamation"></i>
+              La date de début doit être inférieure à la date de fin
+            </span>
+          `
+          ) 
+        }
+      } else {
+        document.cookie = `dateRangeFilter=${startDateStorage} * ${endDateStorage}; SameSite=Lax`;
+        setTimeout(() => {
+          window.location.reload()
+        }, 600)
       }
     } else {
-      document.cookie = `dateRangeFilter=${startDateStorage} * ${endDateStorage}; SameSite=Lax`;
-      setTimeout(() => {
-        window.location.reload()
-      }, 600)
+      // Get the start and end dates from the DOM.
+      const startDate = $("#spanReportDateRangeBegin").text().trim();
+      const endDate = $("#spanReportDateRangeEnd").text().trim();
+
+      // Create an array of months.
+      const months = [
+        { janvier: "January" },
+        { février: "February" },
+        { mars: "March" },
+        { avril: "April" },
+        { mai: "May" },
+        { juin: "June" },
+        { juillet: "July" },
+        { août: "August" },
+        { septembre: "September" },
+        { octobre: "October" },
+        { novembre: "November" },
+        { décembre: "December" },
+      ];
+
+      // Get the start and end days.
+      const startDay = getDateRange(startDate);
+      const endDay = getDateRange(endDate);
+
+      // Get the start and end months.
+      const startMonth = getMonth(months, startDate);
+      const endMonth = getMonth(months, endDate);
+
+      // Get the start and end years.
+      const startYear = getFullYear(startDate);
+      const endYear = getFullYear(endDate);
+
+      // Create the start and end date cookies.
+      const startDateCookie = `${startYear}-${startMonth}-${startDay}`;
+      const endDateCookie = `${endYear}-${endMonth}-${endDay}`;
+
+      if (startDateCookie > endDateCookie) {
+        $('#reportrangebegin').addClass('border border-danger')
+        if ($("#alertDateRangeBegin").length < 1) {
+          $(".alert-report-range-begin").append(`
+            <span id="alertDateRangeBegin" class="text-sm text-danger mt-1 d-flex align-items-center" style="gap: 5px">
+              <i class="fa fa-circle-exclamation"></i>
+              La date de début doit être inférieure à la date de fin
+            </span>
+          `
+          ) 
+        }
+      } else {
+        // Set the date range filter cookie.
+        document.cookie = `dateRangeBegin=${startDateCookie}; SameSite=Lax`;
+        document.cookie = `dateRangeEnd=${endDateCookie}; SameSite=Lax`;
+        document.cookie = `dateRangeFilter=${startDateCookie} * ${endDateCookie}; SameSite=Lax`;
+  
+        // Reload the page after 600 milliseconds.
+        setTimeout(() => {
+          window.location.reload();
+        }, 600);
+      }
+
     }
   })
 

@@ -7,7 +7,8 @@ from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.utilities.Comments import Comment, Response, NotFetched
 from AmadeusDecoder.models.user.Users import User
 from AmadeusDecoder.utilities.SendMail import Sending
-from datetime import date
+from datetime import date, timedelta
+from django.utils import timezone
 
 from django.db.models import Q
 
@@ -64,9 +65,10 @@ def comment(request):
 @login_required(login_url='index')
 def comment_list(request):
     maximum_timezone = "2023-01-01 01:00:00.000000+03:00"
+    date_before_30_days = str(date.today() - timedelta(days=60)) + " " + "01:00:00.000000+03:00"
     
     context = {}
-    comments = Comment.objects.filter(Q(creation_date__gt=maximum_timezone)).order_by("-creation_date")
+    comments = Comment.objects.filter(Q(creation_date__gt=maximum_timezone) & Q(creation_date__gt=date_before_30_days))
     context['comments'] = comments
 
     return render(request, 'comment-list.html', context)

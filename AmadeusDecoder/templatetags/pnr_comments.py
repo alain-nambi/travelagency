@@ -1,7 +1,7 @@
-from datetime import timedelta
+from datetime import date, timedelta
 from django import template
 from django.db.models.fields import BooleanField
-from django.db.models import Value
+from django.db.models import Value, Q
 from django.http import JsonResponse
 
 register = template.Library()
@@ -24,9 +24,12 @@ def get_response(pnr_id):
     
 @register.filter(name="comment_state")
 def get_comment_state(comment_id):
+    maximum_timezone = "2023-01-01 01:00:00.000000+03:00"
+    date_before_30_days = str(date.today() - timedelta(days=60)) + " " + "01:00:00.000000+03:00"
+    
     from AmadeusDecoder.models.utilities.Comments import Comment
-    count_comment_state_true = Comment.objects.filter(state=True).count()
-    count_comment_state_false = Comment.objects.filter(state=False).count()
+    count_comment_state_true = Comment.objects.filter(Q(creation_date__gt=maximum_timezone) & Q(creation_date__gt=date_before_30_days)).filter(state=True).count()
+    count_comment_state_false = Comment.objects.filter(Q(creation_date__gt=maximum_timezone) & Q(creation_date__gt=date_before_30_days)).filter(state=False).count()
     
     context = {}
     context["false"] = count_comment_state_false

@@ -1441,6 +1441,33 @@ $(document).ready(function () {
 });
 
 //copy pnr
+function copyarchivedpnr () {
+  var content = document.getElementById("pnrArchived");
+  var selection = window.getSelection();
+  var range = document.createRange();
+  range.selectNodeContents(content);
+  selection.removeAllRanges();
+  selection.addRange(range);
+
+  const pnr_number = $("#npArchived")
+    .val()
+    .replace(/[^A-Z0-9]/gi, "");
+  if (pnr_number.length == 6) {
+    document.execCommand("copy");
+    toastr.info(
+      "WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/RT a été copié dans presse papier"
+    );
+  } else {
+    // navigator.clipboard.writeText('');
+    toastr.error("Veuillez saisir un numero de PNR valide!");
+  }
+
+  setTimeout(function () {
+    $("#pnrArchived").text("WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/RPP/RLC-");
+    $("#npArchived").val("");
+  }, 1000);
+}
+
 function copypnr() {
   var content = document.getElementById("pnr");
   var selection = window.getSelection();
@@ -1466,6 +1493,7 @@ function copypnr() {
     $("#np").val("");
   }, 1000);
 }
+
 function copybne() {
   var content = document.getElementById("bne");
   var selection = window.getSelection();
@@ -1537,9 +1565,18 @@ function copymailuser() {
 $('input[type="text"]#np').on("change", function np() {
   var texInputValue = $("#np").val();
   if (texInputValue != "") {
-    $("#pnr").append(texInputValue);
+    $("#pnr").append(texInputValue.toUpperCase());
   } else if (texInputValue == "") {
     $("#pnr").text("WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/RT");
+  }
+});
+
+$('input[type="text"]#npArchived').on("change", function np() {
+  var texInputValue = $("#npArchived").val();
+  if (texInputValue != "") {
+    $("#pnrArchived").append(texInputValue.toUpperCase());
+  } else if (texInputValue == "") {
+    $("#pnrArchived").text("WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/RT");
   }
 });
 

@@ -68,7 +68,7 @@ def comment_list(request):
     date_before_30_days = str(date.today() - timedelta(days=60)) + " " + "01:00:00.000000+03:00"
     
     context = {}
-    comments = Comment.objects.filter(Q(creation_date__gt=maximum_timezone) & Q(creation_date__gt=date_before_30_days))
+    comments = Comment.objects.filter(Q(creation_date__gt=maximum_timezone) & Q(creation_date__gt=date_before_30_days)).order_by('-creation_date')
     context['comments'] = comments
 
     return render(request, 'comment-list.html', context)

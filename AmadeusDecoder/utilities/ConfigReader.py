@@ -369,6 +369,15 @@ class ConfigReader():
                 traceback.print_exc(file=error_file)
                 error_file.write('\n')
                 
+    @staticmethod
+    def load_absolute_path_for_service_runner():
+        PATH_DIR = {
+            'dev': '/opt/issoufali/travelagencygit/travelagency/',
+            'prod': '/opt/travelagency/'
+        } 
+        
+        configs.ABSOLUTE_PATH_SERVICE_RUNNER = PATH_DIR
+                
     # load a chain of configs
     def load_congig(self):
         print('Loading configuration ...')
@@ -382,5 +391,6 @@ class ConfigReader():
         self.load_fee_request_tool_data()
         self.load_report_email_data()
         self.load_pnr_parser_tool_data()
+        self.load_absolute_path_for_service_runner()
         print('Configuration loaded.')
     

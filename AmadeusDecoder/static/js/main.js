@@ -1455,7 +1455,7 @@ function copyarchivedpnr () {
   if (pnr_number.length == 6) {
     document.execCommand("copy");
     toastr.info(
-      "WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/RT a été copié dans presse papier"
+      "WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/RPP/RLC a été copié dans presse papier"
     );
   } else {
     // navigator.clipboard.writeText('');
@@ -1576,7 +1576,7 @@ $('input[type="text"]#npArchived').on("change", function np() {
   if (texInputValue != "") {
     $("#pnrArchived").append(texInputValue.toUpperCase());
   } else if (texInputValue == "") {
-    $("#pnrArchived").text("WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/RT");
+    $("#pnrArchived").text("WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/RPP/RLC-");
   }
 });
 

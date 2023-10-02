@@ -48,7 +48,7 @@ def write_txt_file(msg_dict, folder):
         email_date = None
         if 'email_date' in msg_dict[key]:
             email_date = msg_dict[key]['email_date']
-        file_path = os.path.join(folder[key], "{}.txt".format(key))
+        file_path = "/opt/issoufali/travelagencygit/travelagency/" + os.path.join(folder[key], "{}.txt".format(key))
         temp_content['email_date'] = email_date
         temp_content['file_path'] = file_path
         

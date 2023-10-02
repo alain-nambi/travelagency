@@ -307,8 +307,12 @@ class EmailListener:
                 
                 # Create directory for this email
                 path = os.path.join(self.attachment_dir, key)
+
+                print(path)
+                print(os.path)
+
                 if not os.path.exists(path):
-                    os.mkdir(path)
+                    os.mkdir("/opt/issoufali/travelagencygit/travelagency/" + path)
                 
                 # Generate the value dictionary to be filled later
                 val_dict = {}

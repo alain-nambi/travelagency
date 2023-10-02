@@ -190,7 +190,7 @@ def alert_tjq() :
                     </p>
                     <p>
                         <strong>Ceci est un email automatique, merci de ne pas répondre.</strong></br>
-                        Services supports : mihaja@phidia.onmicrosoft.com et  tahina@phidia.onmicrosoft.com
+                        Services supports : tahina@phidia.onmicrosoft.com
                     </p> 
                 </body>
                 </html>
@@ -204,7 +204,6 @@ def alert_tjq() :
         "asmakalfane@agences-issoufali.com",
         "david.domitin@agences-issoufali.com",
         "pp@phidia.onmicrosoft.com",
-        "mihaja@phidia.onmicrosoft.com",
         "tahina@phidia.onmicrosoft.com"
     ]	
     							

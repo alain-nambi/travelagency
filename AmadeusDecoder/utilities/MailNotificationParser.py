@@ -61,7 +61,7 @@ class MailNotification():
                         """.format(pnr=pnr.number, segment=tickets_passenger_segment, date=pnr.system_creation_date.strftime('%d-%m-%Y %H-%M-%S'))
 
                 if pnr.agent is not None:
-                    recipients = [pnr.agent.email, "nasolo@phidia.onmicrosoft.com", "mihaja@phidia.onmicrosoft.com"]
+                    recipients = [pnr.agent.email, "nasolo@phidia.onmicrosoft.com"]
 
                 Sending.send_email(
                         "issoufali.pnr@outlook.com",
@@ -97,7 +97,7 @@ class MailNotification():
                         """.format(pnr=pnr.number, date=pnr.system_creation_date.strftime('%d-%m-%Y %H-%M-%S'))
 
                 if pnr.agent_id is not None:
-                    recipient = [pnr.agent_id.email, "nasolo@phidia.onmicrosoft.com", "mihaja@phidia.onmicrosoft.com", "tahina@phidia.onmicrosoft.com", "nasolo@phidia.onmicrosoft.com"]
+                    recipient = [pnr.agent_id.email, "nasolo@phidia.onmicrosoft.com", "tahina@phidia.onmicrosoft.com", "nasolo@phidia.onmicrosoft.com"]
                 Sending.send_email(
                         "issoufali.pnr@outlook.com",
                         recipient,
@@ -158,10 +158,8 @@ class MailNotification():
                             [
                                 "pp@phidia.onmicrosoft.com",
                                 "tahina@phidia.onmicrosoft.com",
-                                "mihaja@phidia.onmicrosoft.com",
                                 "alain@phidia.onmicrosoft.com",
                                 "nasolo@phidia.onmicrosoft.com",
-                                "remi@phidia.onmicrosoft.com",
                                 "famenontsoa@outlook.com",
                             ],
                             subject,
@@ -465,9 +463,7 @@ class MailNotification():
             "phpr974@gmail.com",
             "pp@phidia.onmicrosoft.com",
             "nasolo@phidia.onmicrosoft.com",
-            "mihaja@phidia.onmicrosoft.com",
             "tahina@phidia.onmicrosoft.com",
-            "remi@phidia.onmicrosoft.com",
             "famenontsoa@outlook.com",
             "alain@phidia.onmicrosoft.com",
         ]

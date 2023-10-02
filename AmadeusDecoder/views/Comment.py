@@ -50,8 +50,6 @@ def comment(request):
     Sending.send_email(
          "anomalie.issoufali.pnr@gmail.com",
          ["nasolo@phidia.onmicrosoft.com",
-         "mihaja@phidia.onmicrosoft.com",
-         "remi@phidia.onmicrosoft.com",
          "famenontsoa@outlook.com",
          "pp@phidia.onmicrosoft.com",
          "tahina@phidia.onmicrosoft.com",
@@ -68,7 +66,7 @@ def comment_list(request):
     date_before_30_days = str(date.today() - timedelta(days=60)) + " " + "01:00:00.000000+03:00"
     
     context = {}
-    comments = Comment.objects.filter(Q(creation_date__gt=maximum_timezone) & Q(creation_date__gt=date_before_30_days))
+    comments = Comment.objects.filter(Q(creation_date__gt=maximum_timezone) & Q(creation_date__gt=date_before_30_days)).order_by('-creation_date')
     context['comments'] = comments
 
     return render(request, 'comment-list.html', context)
@@ -116,9 +114,7 @@ def comment_detail(request, comment_id):
                 "anomalie.issoufali.pnr@gmail.com",
                 [comments.user_id.email,
                     "nasolo@phidia.onmicrosoft.com",
-                    "mihaja@phidia.onmicrosoft.com",
                     "alain@phidia.onmicrosoft.com",
-                    "remi@phidia.onmicrosoft.com",
                     "famenontsoa@outlook.com",
                     "pp@phidia.onmicrosoft.com",
                     "tahina@phidia.onmicrosoft.com"
@@ -181,10 +177,8 @@ def get_pnr_not_fetched(request):
             Sending.send_email_pnr_not_fetched(
                 "anomalie.issoufali.pnr@gmail.com",
                 ["nasolo@phidia.onmicrosoft.com",
-                "mihaja@phidia.onmicrosoft.com",
                 "alain@phidia.onmicrosoft.com",
                 "famenontsoa@outlook.com",
-                "remi@phidia.onmicrosoft.com",
                 "pp@phidia.onmicrosoft.com",
                 "tahina@phidia.onmicrosoft.com"],
                 subject,

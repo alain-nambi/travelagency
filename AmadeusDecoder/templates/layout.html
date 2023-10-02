@@ -68,6 +68,12 @@ old -->
             <i id="button-np" class="fa fa-copy float-right ml-4" title="copier" style="font-size:12px; cursor: pointer;" onclick="copypnr()"></i>
           </h6>  
           <h6 class="text-info c-pnr ml-4 mb-0">
+            <u style="font-size:12px;">PNR archivé :</u> 
+            <span id="pnrArchived">WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/RPP/RLC-</span>
+            <input type="text" id="npArchived" title="Numéro PNR" maxlength="6" placeholder="N° PNR" style="width:70px; padding: 0;"/>
+            <i id="button-np-archived" class="fa fa-copy float-right ml-4" title="copier" style="font-size:12px; cursor: pointer;" onclick="copyarchivedpnr()"></i>
+          </h6> 
+          <h6 class="text-info c-pnr ml-4 mb-0">
             <u style="font-size:12px; margin-bottom:1px">Billets non émis :</u> <span id="bne">WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/TQT/T</span><span>[Numéro de la tarification]</span>
             {% comment %} <input type="text" id="nt" title="Numéro de la tarification" maxlength="6" placeholder="N° Tarif." style="width:70px; margin-bottom:1px"/> {% endcomment %}
             <i id="button-nt" class="fa fa-copy float-right ml-4" title="copier" style="font-size:12px; cursor: pointer;" onclick="copybne()"></i>

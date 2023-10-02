@@ -37,6 +37,9 @@ from .helpers import (
 )
 from .email_processing import write_txt_file
 import imaplib
+import AmadeusDecoder.utilities.configuration_data as configs
+
+ABSOLUTE_PATH_SERVICE_RUNNER = configs.ABSOLUTE_PATH_SERVICE_RUNNER
 
 class EmailListener:
     """EmailListener object for listening to an email folder and processing emails.
@@ -306,13 +309,9 @@ class EmailListener:
                 key = "{}_{}".format(uid, from_email)
                 
                 # Create directory for this email
-                path = os.path.join(self.attachment_dir, key)
-
-                print(path)
-                print(os.path)
-
+                path = ABSOLUTE_PATH_SERVICE_RUNNER['prod'] + os.path.join(self.attachment_dir, key)
                 if not os.path.exists(path):
-                    os.mkdir("/opt/issoufali/travelagencygit/travelagency/" + path)
+                    os.mkdir(ABSOLUTE_PATH_SERVICE_RUNNER['prod'] + path)
                 
                 # Generate the value dictionary to be filled later
                 val_dict = {}

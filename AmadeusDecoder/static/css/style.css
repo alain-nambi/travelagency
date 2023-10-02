@@ -1450,3 +1450,7 @@ button[cy-data="span-date-range"]:hover {
 .passenger-missing {
 	background: #dc3545 !important;
 }
+
+#pnrManagementMenu {
+	margin-top: 3rem !important;
+}

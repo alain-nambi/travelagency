@@ -24,8 +24,6 @@ import datetime
 from email_listener.email_responder import EmailResponder
 import AmadeusDecoder.utilities.configuration_data as configs
 
-ABSOLUTE_PATH_SERVICE_RUNNER = configs.ABSOLUTE_PATH_SERVICE_RUNNER
-
 def write_txt_file(msg_dict, folder):
     """Write the email message data returned from scrape to text files.
 
@@ -34,7 +32,6 @@ def write_txt_file(msg_dict, folder):
             is used with.
         msg_dict (dict): The dictionary of email message data returned by the
             scraping function.
-        ABSOLUTE_PATH_SERVICE_RUNNER (dict): The dictionary of absolute path to the service runner
 
     Returns:
         A list of file paths of files that were created and written to.

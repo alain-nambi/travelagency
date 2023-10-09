@@ -76,6 +76,9 @@ begin
 				-- when (ticket_fare > 0 or ticket_is_prime_status_ or ticket_type_ = 'EMD')  and not is_saved and ticket_gp_status_ not like 'SA' then
 				when (ticket_fare > 0 or ticket_is_prime_status_ or ticket_is_adc) and not is_saved and not ticket_gp_status_ then
 					insert into t_fee(pnr_id, ticket_id, type, designation, cost, tax, total, newest_cost, old_cost, is_invoiced) values (pnr_id_, new.id, 'FRAIS DE SERVICE', ' ', fee_value, 0, fee_value, fee_value, fee_value, false);
+				-- gp
+				when (ticket_fare > 0 or ticket_is_prime_status_ or ticket_is_adc) and not is_saved and ticket_gp_status_ then
+					insert into t_fee(pnr_id, ticket_id, type, designation, cost, tax, total, newest_cost, old_cost, is_invoiced) values (pnr_id_, new.id, 'FRAIS DE SERVICE', ' ', 0, 0, 0, 0, 0, false);
 				-- when is_saved and (ticket_gp_status_ like 'SA' or ticket_status_ = 0) then
 				-- when is_saved and (ticket_gp_status_ like 'SA' or ticket_status_ = 0 or ticket_status_ = 3) then
 					-- delete from t_passenger_invoice where fee_id = (select id from t_fee where pnr_id=pnr_id_ and ticket_id=new.id and type='FRAIS DE SERVICE');
@@ -83,6 +86,13 @@ begin
 				when is_saved and fee_value is not null and not is_updated then
 				-- when is_saved and fee_value is not null then
 					update t_fee set cost=fee_value, total=fee_value, tax=0, newest_cost=fee_value, old_cost=fee_value where pnr_id=pnr_id_ and ticket_id=new.id and type='FRAIS DE SERVICE';
+				else
+					return new;
+			end case;
+		when (ticket_type_  = 'TKT' or ticket_type_ = 'TST' or ticket_type_ = 'EMD') and not ticket_is_subjected_to_fees then 
+			case 
+				when (ticket_fare > 0 or ticket_is_prime_status_ or ticket_is_adc) and not is_saved and not ticket_gp_status_ then
+					insert into t_fee(pnr_id, ticket_id, type, designation, cost, tax, total, newest_cost, old_cost, is_invoiced) values (pnr_id_, new.id, 'FRAIS DE SERVICE', ' ', 0, 0, 0, 0, 0, false);
 				else
 					return new;
 			end case;
@@ -145,8 +155,13 @@ begin
 	end case;
 	-- create or update fee
 	case
+		-- subjected to fee
 		when not is_fee_saved and (other_fee_type = 'EMD' or other_fee_type = 'TKT' or other_fee_type = 'Supplement') and is_subjected_to_fees then
 			insert into t_fee(pnr_id, other_fee_id, type, designation, cost, tax, total, newest_cost, old_cost, is_invoiced) values (pnr_id_, new.id, 'FRAIS DE SERVICE', ' ', fee_value, 0, fee_value, fee_value, fee_value, false);
+		-- not subjected to fee
+		when not is_fee_saved and (other_fee_type = 'EMD' or other_fee_type = 'TKT' or other_fee_type = 'Supplement') and not is_subjected_to_fees then
+			insert into t_fee(pnr_id, other_fee_id, type, designation, cost, tax, total, newest_cost, old_cost, is_invoiced) values (pnr_id_, new.id, 'FRAIS DE SERVICE', ' ', 0, 0, 0, 0, 0, false);
+		-- update
 		when is_fee_saved and (other_fee_type = 'EMD' or other_fee_type = 'TKT' or other_fee_type = 'Supplement') and not is_updated then
 		-- when is_fee_saved and (other_fee_type = 'EMD' or other_fee_type = 'TKT' or other_fee_type = 'Supplement') then
 			update t_fee set cost=fee_value, total=fee_value, tax=0, newest_cost=fee_value, old_cost=fee_value where pnr_id=pnr_id_ and other_fee_id=new.id and type='FRAIS DE SERVICE';

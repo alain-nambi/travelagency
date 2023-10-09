@@ -1877,7 +1877,9 @@ def import_product(request, pnr_id):
             product = json.loads(request.POST.get('listNewProduct'))
             pnr = Pnr.objects.get(pk=int(pnr_id))
             other_fees = OthersFee.objects.filter(pnr=pnr_id, product_id=product[0])
-            other_fees = OthersFee(designation=product[2], cost=product[3], tax=product[4], total=product[5], pnr=pnr, fee_type=product[1], passenger_segment=product[6], reference=product[7], quantity=1)
+            other_fees = OthersFee(designation=product[2], cost=product[3], tax=product[4], total=product[5],
+                                    pnr=pnr, fee_type=product[1], passenger_segment=product[6], reference=product[7], 
+                                    quantity=1, is_subjected_to_fee=False, creation_date=datetime.now())
             other_fees.save()
             
             # save creator user to user copying

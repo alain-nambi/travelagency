@@ -52,5 +52,7 @@ urlpatterns = [
     path('home/customer/import_customer/', call_customer_import, name='import_customer'),
     path('home/product/import_product_odoo/', call_product_import, name='import_product_odoo'),
     path('home/search-customer/', search_client_by_intitule, name= 'search_client_by_intitule'),
-    path('home/get-all-coutries/', get_all_countries, name= 'get_all_countries')
+    path('home/get-all-coutries/', get_all_countries, name= 'get_all_countries'),
+    path('home/get-all-departments/', get_all_departments, name= 'get_all_departments'),
+    path('home/get-all-municipalities/', get_all_municipalities, name= 'get_all_municipalities'),
 ]

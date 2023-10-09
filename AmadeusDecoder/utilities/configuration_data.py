@@ -152,7 +152,7 @@ ABSOLUTE_PATH_SERVICE_RUNNER = {}
 COUTRIES_DATA = []
 
 # Get department, city from France
-DEPARTMENT_FRANCE = []
-CITY_FRANCE = []
+DEPARTMENTS_FRANCE = []
+MUNICIPALITIES_FRANCE = []
 
 ConfigReader().load_congig()

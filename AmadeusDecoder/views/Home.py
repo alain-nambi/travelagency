@@ -1976,3 +1976,11 @@ def search_client_by_intitule(request):
     client_list = list(clients)
     # Return the filtered list as a JSON response with the 'safe' argument set to False to allow serializing lists
     return JsonResponse(client_list, safe=False)
+
+@login_required(login_url='index')
+def get_all_countries(request):
+    if request.method == 'GET':
+        countries = configs.COUTRIES_DATA
+        country_list = list(countries)
+        
+        return JsonResponse(country_list, safe=False)

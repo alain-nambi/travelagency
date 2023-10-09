@@ -1,5 +1,21 @@
-// Add margin-top for screen with lesser or equal to 1280
+const getCookies = (name) => {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      // Does this cookie string begin with the name we want?
+      if (cookie.substring(0, name.length + 1) === name + "=") {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+};
 
+
+// Add margin-top for screen with lesser or equal to 1280
 const pushedSideBarMenu = document.querySelector("#pushed-sidebar")
 const pnrManagementMenu = document.querySelector("#pnrManagementMenu")
 const layoutHomeMenu = document.querySelector("#layoutHomeMenu")
@@ -548,11 +564,12 @@ $(function() {
 
   // console.log(selectNormalize);
 
-  const control = selectNormalize[0].selectize;
-
-  $("#cancelCreatorFilter").on("click", function () {
-    control.clear();
-  });
+  if (selectNormalize[0]) {
+    const control = selectNormalize[0].selectize;
+    $("#cancelCreatorFilter").on("click", function () {
+      control.clear();
+    });
+  }
 
   // if (selectNormalize) {
   //   selectNormalize.value="";
@@ -3013,18 +3030,29 @@ const countries = [
 //=============== END OF LISTS OF ALL COUNTRIES =================//
 
 //=================== MODAL CUSTOMER CREATION =================//
+
+
+
 //====> We loads all country <=====//
 if (customerCountry != null) {
-  countries.map((country) => {
-    const countryName = country.country;
-
-    // We set France country by default
-    // And loads all other country
-    customerCountry.innerHTML += `
-      <option value="${countryName}" ${
-      countryName == "France" ? 'selected="true"' : ""
-    }> ${countryName} </option>
-    `;
+  $.ajax({
+    type: "GET",
+    dataType: "json",
+    url: "/home/get-all-coutries/",
+    success: (response) => {
+      response.map((country) => {
+        // We set France country by default
+        // And loads all other country
+        customerCountry.innerHTML += `
+          <option value="${country.name}" ${
+            country.name == "France" ? 'selected="true"' : ""
+        }> ${country.name} </option>
+        `;
+      });
+    },
+    error: (response) => {
+      console.log(response);
+    },
   });
 }
 //====> End of loads all country <=====//
@@ -3694,21 +3722,6 @@ removeDuplicatedContactEmail.forEach((email, index) => {
 
 //========= ADD FILTER TO PNR ============>
 const pnrFilteredByOrder = document.getElementById("pnrFilteredByOrder");
-const getCookies = (name) => {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== "") {
-    const cookies = document.cookie.split(";");
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      // Does this cookie string begin with the name we want?
-      if (cookie.substring(0, name.length + 1) === name + "=") {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-};
 
 if (pnrFilteredByOrder != null) {
   for (let i = 0; i < pnrFilteredByOrder.options.length; i++) {

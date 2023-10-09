@@ -156,24 +156,28 @@ input#fee-cost::placeholder {
 
 .sticky-tr-table {
 	position: sticky;
-	top: 7rem;
+	top: 9rem;
+	z-index: 190;
 }
 
 .fixed-header {
 	position: fixed;
-	top: 66px;
+	top: 6rem;
 	left: 0;
 	width: 100%;
 	background: white;
 	z-index: 99;
-  }
+}
+
 .tablesorter-sticky-visible{
 	top: 35px !important;
 }
+
 .fixed-header .title-all-pnr{
 	position: relative;
 	margin-left: 18rem;
-	} 
+} 
+
 .filter{
 	 list-style: none;
 	}

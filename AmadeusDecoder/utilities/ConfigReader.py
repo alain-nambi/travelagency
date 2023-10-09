@@ -19,6 +19,7 @@ import AmadeusDecoder.utilities.configuration_data as configs
 
 from AmadeusDecoder.models.configuration.Configuration import Configuration
 from AmadeusDecoder.models.company_info.CompanyInfo import CompanyInfo
+from AmadeusDecoder.models.pnrelements.Country import Country
 
 class ConfigReader():
     '''
@@ -378,6 +379,19 @@ class ConfigReader():
         } 
         
         configs.ABSOLUTE_PATH_SERVICE_RUNNER = PATH_DIR
+        
+    @staticmethod
+    def load_all_coutries():
+        try:
+            countries = Country.objects.values("name")
+            configs.COUTRIES_DATA = countries
+        except:
+            print('There was some error when loading countries data. See error.txt for details.')
+            with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
+                error_file.write('{}: \n'.format(datetime.datetime.now()))
+                error_file.write('Getting all coutries data failed. \n')
+                traceback.print_exc(file=error_file)
+                error_file.write('\n')
                 
     # load a chain of configs
     def load_congig(self):
@@ -393,5 +407,6 @@ class ConfigReader():
         self.load_report_email_data()
         self.load_pnr_parser_tool_data()
         self.load_absolute_path_for_service_runner()
+        self.load_all_coutries()
         print('Configuration loaded.')
     

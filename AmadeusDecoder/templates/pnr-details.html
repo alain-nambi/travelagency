@@ -1178,9 +1178,11 @@
 											{% endwith %}
 											{% for other_fee in other_fees %}
 												{% with other_fee|other_fees_orders as other_fees_orders %}
+												<!-- fix EMD can't be ordered 00DO9X : erreur commande ne peux pas se créer -->
+												{% with pnr|other_fees_orders_is_invoiced as other_fees_orders_is_invoiced %}
 												{% if other_fees_orders is not None %}
 												<div class="d-flex align-items-center pr-2" id="ConfirmationPassagersCustomer">
-													{% if not other_fees_orders.is_invoiced and other_fees_orders.status == 'sale' %}
+													{% if not other_fees_orders_is_invoiced and other_fees_orders.status == 'sale' %}
 														<input 
 															type="checkbox" 
 															id="ConfirmationCustomerOrderCheckbox" 
@@ -1202,7 +1204,7 @@
 														>
 															{{ other_fees_orders.client.intitule }} ({{ other_fees_orders.client.id }})
 														</span>
-													{% elif other_fees_orders.is_invoiced and other_fees_orders.status == 'sale' %}
+													{% elif other_fees_orders_is_invoiced and other_fees_orders.status == 'sale' %}
 														<input 
 															type="checkbox" 
 															id="ConfirmationCustomerOrderCheckbox" 
@@ -1226,9 +1228,9 @@
 															{{ other_fees_orders.client.intitule }} ({{ other_fees_orders.client.id }})
 														</span>
 													{% endif %}
-													
 												</div>
 												{% endif %}
+												{% endwith %}
 												{% endwith %}
 											{% endfor %}
 

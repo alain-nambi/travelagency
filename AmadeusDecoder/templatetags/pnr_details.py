@@ -817,18 +817,22 @@ def get_passenger_order_status_invoiced(pnr, customer_id):
     other_fee_is_invoiced = []
 
     if passenger_invoices.exists():
+        print("Hllo")
         for passenger in passenger_invoices:
             if passenger.other_fee is not None:
+                print(passenger.other_fee)
                 other_fee_is_invoiced.append(passenger.is_invoiced)
             if passenger.ticket is not None:
                 ticket_is_invoiced.append(passenger.is_invoiced)
+        print("Hllo")
+        print(ticket_is_invoiced, other_fee_is_invoiced)
         if False in ticket_is_invoiced or False in other_fee_is_invoiced:
             return False
         else:
             return True
     else:
         return None
-
+    
 
 """
     Uses: Filter record(s) on PassengerInvoice of the current PNR that are quotation, and test if all of the lines are in status is_quotation, return True if it is otherwise return False
@@ -987,6 +991,24 @@ def get_other_fees_orders(other_fee):
     else:
         return None
 
+# fix EMD can't be ordered 00DO9X : erreur commande ne peux pas se créer
+@register.filter(name='other_fees_orders_is_invoiced')
+def get_other_fees_orders_is_invoiced(pnr):
+    from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
+    other_fees_orders = PassengerInvoice.objects.filter(pnr_id=pnr.id, fee_id=None, ticket_id=None)
+    print(other_fees_orders)
+    other_fees_is_invoiced = []
+    if other_fees_orders.exists():
+        for other_fee in other_fees_orders:
+            print(other_fee.is_invoiced)
+            other_fees_is_invoiced.append(other_fee.is_invoiced)
+        print(other_fees_is_invoiced)
+        if False in other_fees_is_invoiced:
+            return False
+        else:
+            return True
+    else:
+        return None
 
 @register.filter(name='other_fees_fees_orders')
 def get_other_fees_fees_orders(fee):
@@ -2337,5 +2359,8 @@ def get_check_passenger_missing(pnr_id, client_id):
             count_passenger_missing += 1
         else:
             count_passenger_missing += 0
+            
+    print("COUNT PASSENGER MISSING")
+    print(count_passenger_missing)
 
     return count_passenger_missing

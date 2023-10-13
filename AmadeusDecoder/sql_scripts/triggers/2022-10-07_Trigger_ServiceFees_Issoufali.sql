@@ -89,13 +89,13 @@ begin
 				else
 					return new;
 			end case;
-		when (ticket_type_  = 'TKT' or ticket_type_ = 'TST' or ticket_type_ = 'EMD') and not ticket_is_subjected_to_fees then 
-			case 
-				when (ticket_fare > 0 or ticket_is_prime_status_ or ticket_is_adc) and not is_saved and not ticket_gp_status_ then
-					insert into t_fee(pnr_id, ticket_id, type, designation, cost, tax, total, newest_cost, old_cost, is_invoiced) values (pnr_id_, new.id, 'FRAIS DE SERVICE', ' ', 0, 0, 0, 0, 0, false);
-				else
-					return new;
-			end case;
+		-- when (ticket_type_  = 'TKT' or ticket_type_ = 'TST' or ticket_type_ = 'EMD') and not ticket_is_subjected_to_fees then 
+		-- 	case 
+		-- 		when (ticket_fare > 0 or ticket_is_prime_status_ or ticket_is_adc) and not is_saved and not ticket_gp_status_ then
+		-- 			insert into t_fee(pnr_id, ticket_id, type, designation, cost, tax, total, newest_cost, old_cost, is_invoiced) values (pnr_id_, new.id, 'FRAIS DE SERVICE', ' ', 0, 0, 0, 0, 0, false);
+		-- 		else
+		-- 			return new;
+		-- 	end case;
 		else 
 			return new;
 	end case;

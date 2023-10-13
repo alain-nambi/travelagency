@@ -889,9 +889,9 @@ class ZenithParserReceipt():
             
             # check is it has been already saved
             if isinstance(current_segment, list):
-                otherfee_saved_checker = OthersFee.objects.filter(designation=new_emd.designation, pnr=pnr, related_segments__passenger=current_passenger).first()
+                otherfee_saved_checker = OthersFee.objects.filter(designation=new_emd.designation, pnr=pnr, related_segments__passenger=current_passenger, total=new_emd.total).first()
             else:
-                otherfee_saved_checker = OthersFee.objects.filter(designation=new_emd.designation, pnr=pnr, related_segments__passenger=current_passenger, related_segments__segment=current_segment).first()
+                otherfee_saved_checker = OthersFee.objects.filter(designation=new_emd.designation, pnr=pnr, related_segments__passenger=current_passenger, related_segments__segment=current_segment, total=new_emd.total).first()
                 
             if otherfee_saved_checker is not None:
                 new_emd = otherfee_saved_checker

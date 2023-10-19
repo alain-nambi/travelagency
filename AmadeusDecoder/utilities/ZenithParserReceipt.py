@@ -436,6 +436,10 @@ class ZenithParserReceipt():
         if parent_pnr is not None:
             self.child_parent_data_transfer(parent_pnr, current_pnr)
     
+    # get line description
+    def get_part_description(self, current_part):
+        1
+    
     # ticket payment handling
     # When costs and taxes are not found on the original PNR
     def handle_ticket_payment(self, pnr, passengers, payment_part):
@@ -643,7 +647,7 @@ class ZenithParserReceipt():
                         pass
                     
                     adjustment_tester = OthersFee.objects.filter(designation=designation, pnr=pnr, total=total).first()
-                    
+                                    
                     if adjustment_tester is None:
                         new_other_fee = OthersFee()
                         new_other_fee.designation = designation
@@ -1179,7 +1183,8 @@ class ZenithParserReceipt():
         self.handle_emd(pnr, passengers, receipt_parts)
         
         # re-check if re-adjustment has been saved
-        self.recheck_saved_adjustment(pnr)
+        ''' Currently not used as Ticket adjustment from PNR are ignored.'''
+        # self.recheck_saved_adjustment(pnr)
     
     # re-check if re-adjustment has been saved
     def recheck_saved_adjustment(self, pnr):

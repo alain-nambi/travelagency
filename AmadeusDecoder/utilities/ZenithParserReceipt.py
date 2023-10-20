@@ -17,6 +17,8 @@ from AmadeusDecoder.models.invoice.TicketPassengerSegment import TicketPassenger
 from AmadeusDecoder.models.invoice.Fee import OthersFee
 from AmadeusDecoder.models.user.Users import User
 from AmadeusDecoder.models.pnr.PnrPassenger import PnrPassenger
+from rdflib.util import date_time
+from AmadeusDecoder.utilities.Utility import Utility
 
 # PAYMENT_OPTIONS = ['Comptant', 'En compte', 'Virement']
 # TICKET_NUMBER_PREFIX = ['Echange billet', 'EMD']
@@ -42,6 +44,9 @@ AGENCY_FEE_PART = configs.AGENCY_FEE_PART
 EMD_NO_NUMBER_POSSIBLE_DESIGNATION = configs.EMD_NO_NUMBER_POSSIBLE_DESIGNATION
 DEFAULT_ASSIGNED_PASSENGER_ON_OBJECT = configs.DEFAULT_ASSIGNED_PASSENGER_ON_OBJECT
 EMD_BALANCING_STATEMENT_PART = configs.EMD_BALANCING_STATEMENT_PART
+
+# excluded part special identifier
+CREDIT_NOTE_IDENTIFIER = ['EMD']
 
 class ZenithParserReceipt():
     '''
@@ -119,6 +124,22 @@ class ZenithParserReceipt():
             
         return parts
     
+    # get excluded parts
+    def get_all_excluded_part(self):
+        date_time_indexes = self.get_full_date_indexes()
+        parts = []
+        for i in range(len(date_time_indexes)):
+            temp_content = None
+            if i == len(date_time_indexes) - 1:
+                temp_content = self.content[date_time_indexes[i]:]
+            else:
+                temp_content = self.content[date_time_indexes[i]: date_time_indexes[i+1]]
+            
+            if self.is_excluded(temp_content):
+                parts.append(temp_content)
+        
+        return parts
+    
     # get each part by type
     def get_parts_by_type(self, receipt_parts, part_types):
         matching_part_types = []
@@ -126,6 +147,18 @@ class ZenithParserReceipt():
             for part_type in part_types:
                 if part_type in part:
                     matching_part_types.append(part)
+        return matching_part_types
+    
+    # get parts by type [advanced search]
+    def get_parts_by_type_advanced_search(self, receipt_parts, part_types):
+        matching_part_types = []
+        for part in receipt_parts:
+            for sub_part in part:
+                sub_part_space_split = sub_part.split(' ')
+                for part_type in part_types:
+                    if part_type in sub_part_space_split:
+                        matching_part_types.append(part)
+                        continue
         return matching_part_types
     
     # get part emitter
@@ -251,6 +284,15 @@ class ZenithParserReceipt():
             if not ticket_number.strip().isnumeric():
                 return None
         return ticket_number
+    
+    def get_ticket_number_on_part_advanced(self, current_part):
+        # we must exclude the cost part so for i in range(len(current_part)-1) notice the -1
+        for i in range(len(current_part)-1):
+            temp_value_separated = Utility.separate_number(current_part[i], 13)
+            if len(temp_value_separated) > 0:
+                for value in temp_value_separated:
+                    if value.isnumeric():
+                        return value
     
     # get segment assigned on part
     def get_segments_assigned_on_part(self, current_part):
@@ -435,10 +477,6 @@ class ZenithParserReceipt():
         # perform data transfer between parent and child PNR
         if parent_pnr is not None:
             self.child_parent_data_transfer(parent_pnr, current_pnr)
-    
-    # get line description
-    def get_part_description(self, current_part):
-        1
     
     # ticket payment handling
     # When costs and taxes are not found on the original PNR
@@ -1140,6 +1178,88 @@ class ZenithParserReceipt():
                             other_fee_passenger_segment.passenger = current_passenger
                             other_fee_passenger_segment.segment = current_segment
                             other_fee_passenger_segment.save()
+                            
+    # get Credit note from excluded part
+    def get_credit_from_excluded_part(self, pnr, passengers, credit_note_part):
+        for part in credit_note_part:
+            date_time = self.get_issuing_date_on_part(part)
+            current_passenger, next_index = self.get_passenger_assigned_on_part(passengers, part, False)
+            current_segment = self.get_segments_assigned_on_part(part)
+            is_know_emitter, emitter = self.get_part_emitter(part)
+            issuing_agency_name = self.getIssuingAgencyName(part)
+            
+            new_emd = Ticket()
+            new_emd.pnr = pnr
+            transport_cost = 0
+            
+            # as payment method is here an EMD, the cost will be the last element of the part
+            next_index = -2
+            try:
+                new_emd.transport_cost = -1 * decimal.Decimal(part[next_index+1].split(' ')[0].replace(',','.'))
+                transport_cost = -1 * new_emd.transport_cost
+                new_emd.total = -1 * decimal.Decimal(part[next_index+1].split(' ')[0].replace(',','.'))
+            except:
+                pass
+
+            is_created_by_us = self.check_part_emitter(part)
+            
+            if isinstance(current_segment, list):
+                temp_other_fees = OthersFee.objects.filter(pnr=pnr, related_segments__passenger=current_passenger, fee_type='EMD').all()
+            else:
+                temp_other_fees = OthersFee.objects.filter(pnr=pnr, related_segments__passenger=current_passenger, related_segments__segment=current_segment, fee_type='EMD').all()
+            
+            for other_fee in temp_other_fees:
+                if other_fee.cost == transport_cost:
+                    other_fee.other_fee_status = 3
+                    other_fee.save()
+            
+            new_emd.number = self.get_ticket_number_on_part_advanced(part)
+            
+            if new_emd.number is not None:
+                # check is it has been already saved
+                ticket_saved_checker = Ticket.objects.filter(number=new_emd.number, pnr=pnr).first()
+                if ticket_saved_checker != None:
+                    new_emd = ticket_saved_checker
+                    if is_created_by_us:
+                        new_emd.ticket_status = 1
+                if not is_created_by_us or self.check_issuing_date(date_time.date()):
+                    # or (pnr.system_creation_date.date() > date_time.date()):
+                    new_emd.ticket_status = 3
+                if new_emd.transport_cost == 0:
+                    new_emd.is_no_adc = True
+                new_emd.passenger = current_passenger
+                new_emd.ticket_type = 'EMD'
+                new_emd.issuing_date = date_time
+                # check fee subjection
+                try:
+                    self.check_fee_subjection_status(date_time, current_segment, pnr, new_emd, None, part)
+                except:
+                    traceback.print_exc()
+                # set to refund when negative
+                if new_emd.total < 0:
+                    new_emd.is_refund = True
+                
+                # emitter
+                if is_know_emitter:
+                    new_emd.emitter = emitter
+                else:
+                    new_emd.issuing_agent_name = emitter    
+                
+                new_emd.issuing_agency_name = issuing_agency_name
+                
+                new_emd.save()
+                if ticket_saved_checker is None:
+                    if isinstance(current_segment, list):
+                        for segment in current_segment:
+                            ticket_segment = TicketPassengerSegment()
+                            ticket_segment.ticket = new_emd
+                            ticket_segment.segment = segment
+                            ticket_segment.save()
+                    else:
+                        ticket_segment = TicketPassengerSegment()
+                        ticket_segment.ticket = new_emd
+                        ticket_segment.segment = current_segment
+                        ticket_segment.save()
         
     # get each value by type and value
     def get_each_value(self):
@@ -1182,6 +1302,14 @@ class ZenithParserReceipt():
             receipt_parts.remove(ticket_cancelled_part)
         self.handle_emd(pnr, passengers, receipt_parts)
         
+        # excluded parts
+        excluded_parts = self.get_all_excluded_part()
+        
+        # credit note
+        credit_note_in_excluded_parts = self.get_parts_by_type_advanced_search(excluded_parts, CREDIT_NOTE_IDENTIFIER)
+        self.get_credit_from_excluded_part(pnr, passengers, credit_note_in_excluded_parts)
+        
+        
         # re-check if re-adjustment has been saved
         ''' Currently not used as Ticket adjustment from PNR are ignored.'''
         # self.recheck_saved_adjustment(pnr)
@@ -1214,7 +1342,13 @@ class ZenithParserReceipt():
     # get all passengers's ticket fares
     def parseReceipt(self):
         parts = self.get_all_receipt_part()
+        print('Parts')
         for temp in parts:
+            print(temp)
+        
+        excluded_parts = self.get_all_excluded_part()
+        print('Excluded parts')
+        for temp in excluded_parts:
             print(temp)
         
         self.get_each_value()

@@ -287,7 +287,7 @@ class ZenithParserReceipt():
     
     def get_ticket_number_on_part_advanced(self, current_part):
         # we must exclude the cost part so for i in range(len(current_part)-1) notice the -1
-        for i in range(len(current_part)-1):
+        for i in reversed(range(len(current_part)-1)):
             temp_value_separated = Utility.separate_number(current_part[i], 13)
             if len(temp_value_separated) > 0:
                 for value in temp_value_separated:
@@ -347,7 +347,7 @@ class ZenithParserReceipt():
         tester = False
         segment_departuretime = None
                 
-        if emitter is not None:
+        if emitter is not None and not isinstance(emitter, str):
             if isinstance(current_segment, list):
                 for segment in current_segment:
                     segment_departuretime = segment.departuretime
@@ -1191,6 +1191,7 @@ class ZenithParserReceipt():
             new_emd = Ticket()
             new_emd.pnr = pnr
             transport_cost = 0
+            new_emd.is_subjected_to_fees = False
             
             # as payment method is here an EMD, the cost will be the last element of the part
             next_index = -2
@@ -1231,10 +1232,10 @@ class ZenithParserReceipt():
                 new_emd.ticket_type = 'EMD'
                 new_emd.issuing_date = date_time
                 # check fee subjection
-                try:
-                    self.check_fee_subjection_status(date_time, current_segment, pnr, new_emd, None, part)
-                except:
-                    traceback.print_exc()
+                # try:
+                #     self.check_fee_subjection_status(date_time, current_segment, pnr, new_emd, None, part)
+                # except:
+                #     traceback.print_exc()
                 # set to refund when negative
                 if new_emd.total < 0:
                     new_emd.is_refund = True

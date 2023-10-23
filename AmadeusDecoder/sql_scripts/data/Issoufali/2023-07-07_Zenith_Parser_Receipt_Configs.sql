@@ -3,7 +3,7 @@ delete from t_configuration where name = 'Zenith Receipt Parser Tools';
 insert into t_configuration(environment, name, to_be_applied_on, value_name, date_value, array_value, array_of_array_value, dict_value, created_on, last_update, is_active) values
 ('all', 'Zenith Receipt Parser Tools', 'Zenith', 'Payment option', null, ARRAY['Comptant', 'En compte', 'Virement'], null, null, now(), now(), true),
 ('all', 'Zenith Receipt Parser Tools', 'Zenith', 'Ticket number prefix', null, ARRAY['Echange billet', 'EMD'], null, null, now(), now(), true),
-('all', 'Zenith Receipt Parser Tools', 'Zenith', 'To be excluded keywords', null, ARRAY['Encaissement transaction', 'Encaissement Modification', 'Encaissement des suppléments'], null, null, now(), now(), true),
+('all', 'Zenith Receipt Parser Tools', 'Zenith', 'To be excluded keywords', null, ARRAY['Encaissement transaction', 'Encaissement Modification', 'Encaissement des suppléments', 'Décaissement transaction'], null, null, now(), now(), true),
 ('all', 'Zenith Receipt Parser Tools', 'Zenith', 'Aiport agency code', null, ARRAY['DZAUU000B', 'Mayotte ATO'], null, null, now(), now(), true),
 ('all', 'Zenith Receipt Parser Tools', 'Zenith', 'Started process date', '2023-01-01'::timestamp, null, null, null, now(), now(), true),
 ('all', 'Zenith Receipt Parser Tools', 'Zenith', 'Current travel agency identifier', null, ARRAY['Issoufali', 'ISSOUFALI', 'Mayotte ATO'], null, null, now(), now(), true),

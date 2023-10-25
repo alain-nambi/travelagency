@@ -416,9 +416,9 @@ reduceFeeRequest.addEventListener("click", (e) => {
         // hide loader
         $(".spinner-wrappers").hide();
         $(".spinner-wrappers").css("position", "relative");
-        setInterval(() => {
+        // setInterval(() => {
           window.location.reload();
-        }, 1000)
+        // }, 1000)
       } else if (response.status == 3) {
         // toastr.info(response.message);
         submitFeeRequest.setAttribute("disabled", true)

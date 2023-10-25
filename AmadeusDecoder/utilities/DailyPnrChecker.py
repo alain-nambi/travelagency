@@ -90,7 +90,6 @@ def notify_direction(pnrs):
             'missoufali@agences-issoufali.com',
             'pp@phidia.onmicrosoft.com'
             'tahina@phidia.onmicrosoft.com',
-            'mihaja@phidia.onmicrosoft.com',
             'nasolo@phidia.onmicrosoft.com',
             ]
 
@@ -208,7 +207,7 @@ def notify_direction(pnrs):
                     </p>
                     <p>
                         <strong>Ceci est un email automatique, merci de ne pas répondre.</strong></br>
-                        Services supports : mihaja@phidia.onmicrosoft.com et  tahina@phidia.onmicrosoft.com
+                        Services supports : tahina@phidia.onmicrosoft.com
                     </p> 
                 </body>
                 </html>

@@ -107,11 +107,22 @@ let countDeDuplicatedCustomer = [];
 
 let listCustomerIds = [];
 
+const checkPassengerMissing = document.querySelector("#checkPassengerMissing")
+const confirmationClientOrderCheckBox = document.querySelectorAll("#ConfirmationCustomerOrderCheckbox")
 // We reset all values
 const resetAmountValues = () => {
+  let countPassengerMissing = 0
+  confirmationClientOrderCheckBox.forEach((checkBox) => {
+    if (parseInt(checkBox.getAttribute("data-count-passenger-missing")) > 0 && !checkBox.disabled) {
+      countPassengerMissing += 1
+    } 
+  })
+
+  // console.log(countPassengerMissing);
+  
   // We block CreateOrder button if confirmationCustomerCheckboxChecked equals to 0
   // And remove totalAmountPerCheckboxChecked
-  if (confirmationCustomerCheckboxChecked == 0) {
+  if (confirmationCustomerCheckboxChecked == 0 || countPassengerMissing > 0) {
     CreateOrder.setAttribute("disabled", true);
     totalAmountPerCheckboxChecked.setAttribute("hidden", true);
   } else {
@@ -1170,8 +1181,6 @@ if (count__ticketHaveNoPassenger.length > 0) {
   });
 
   // Bloquer la création de la commande quand il manque le mail du PNR pour le billet
-  CreateOrder.setAttribute("disabled", true)
 } else {
-  CreateOrder.removeAttribute("disabled", true)
   $("#error__noPassengerForTicket").hide();
 }

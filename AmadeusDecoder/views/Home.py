@@ -1199,8 +1199,8 @@ def get_order(request, pnr_id):
     config = Configuration.objects.filter(name='Saving File Tools', value_name='File protocol', environment=settings.ENVIRONMENT)
 
     
-    file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
-    customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
+    file_dir = '/opt/odoo/issoufali-addons/import_saleorder/data/source'
+    customer_dir = '/opt/odoo/issoufali-addons/contacts_from_incadea/data/source'
     
     fieldnames_order = [
         'LineID',
@@ -1575,8 +1575,8 @@ def get_quotation(request, pnr_id):
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
     config = Configuration.objects.filter(name='File saving configuration', value_name='Saving protocol', environment=settings.ENVIRONMENT)
 
-    file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
-    customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
+    file_dir = '/opt/odoo/issoufali-addons/import_saleorder/data/source'
+    customer_dir = '/opt/odoo/issoufali-addons/contacts_from_incadea/data/source'
     
     customer_row = {}
     fieldnames_order = [
@@ -1977,3 +1977,48 @@ def search_client_by_intitule(request):
     client_list = list(clients)
     # Return the filtered list as a JSON response with the 'safe' argument set to False to allow serializing lists
     return JsonResponse(client_list, safe=False)
+
+@login_required(login_url='index')
+def get_all_countries(request):
+    if request.method == 'GET':
+        countries = configs.COUTRIES_DATA
+        country_list = list(countries)
+        
+        return JsonResponse(country_list, safe=False)
+    
+@login_required(login_url='index')
+def get_all_departments(request):
+    if request.method == 'GET':
+        departments = configs.DEPARTMENTS_FRANCE
+        department_list = list(departments)
+        
+        return JsonResponse(department_list, safe=False)
+    # if request.method == 'POST':
+    #     nom_departement = request.POST.get('nom_departement')
+    #     if nom_departement:
+    #         departments = configs.DEPARTMENTS_FRANCE.filter(nom=nom_departement)
+    #         print(departments)
+    #         department_list = list(departments)
+            
+    #         return JsonResponse(department_list, safe=False)
+
+@login_required(login_url='index')
+def get_all_municipalities(request):
+    if request.method == 'POST':
+        code_departement = request.POST.get('code_departement')
+        nom_departement = request.POST.get('nom_departement')
+        if code_departement:
+            municipalities  =   configs.MUNICIPALITIES_FRANCE.filter(
+                                    code_departement=code_departement
+                                )
+            municipality_list = list(municipalities)
+            
+            return JsonResponse(municipality_list, safe=False)
+        if nom_departement:
+            municipalities  =   configs.MUNICIPALITIES_FRANCE.filter(
+                                    nom=nom_departement
+                                )
+            municipality_list = list(municipalities)
+            
+            return JsonResponse(municipality_list, safe=False)
+        return JsonResponse([], safe=False)

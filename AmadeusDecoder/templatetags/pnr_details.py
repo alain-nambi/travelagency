@@ -14,6 +14,8 @@ import AmadeusDecoder.utilities.configuration_data as configs
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.user.Users import User
 from AmadeusDecoder.models.user.Users import Office
+from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
+from AmadeusDecoder.models.invoice.Ticket import Ticket
 
 register = template.Library()
 
@@ -166,7 +168,11 @@ def get_pnr_emitter(pnr):
     
 @register.filter(name='pnr_office')
 def get_pnr_office(pnr):
-    try:
+    try:   
+        # Make agency name uniformised     
+        agence_name_uniformised = ['GSA ISSOUFALI Dzaoudzi', 'GSA ISSOUFALI Jumbo Score', 'GSA ISSOUFALI Mamoudzou']
+        if str(pnr.get_pnr_office()).strip() in agence_name_uniformised:
+            return str(pnr.get_pnr_office()).strip().removeprefix("GSA ISSOUFALI")
         return pnr.get_pnr_office()
     except:
         return None
@@ -330,7 +336,8 @@ def get_all_pnr(request):
                             date_filter,
                             agent,
                             max_system_creation_date,
-                            agency_name
+                            agency_name,
+                            agent,
                         ).order_by(date_order_by + 'system_creation_date')
                     
             for pnr in pnr_obj:
@@ -376,13 +383,12 @@ def get_all_pnr(request):
                             status_value,
                             date_filter,
                             max_system_creation_date,
-                            agency_name,
-                            agent
+                            agency_name
                         ).filter(is_invoiced=is_invoiced).first()
                 
                 if pnr not in pnr_list and pnr is not None:
                     pnr_list.append(pnr)
-
+                
             pnr_obj   = Pnr.objects.filter(
                             status_value,
                         ).filter( 
@@ -441,6 +447,14 @@ def get_all_pnr(request):
         status_value = Q(status_value=status_value_from_cookie) if status_value_from_cookie in [0, 1] else Q()
         is_invoiced = Q(is_invoiced=is_invoiced) if is_invoiced is not None else Q(is_invoiced=False)
 
+        agent = Q()
+        if filtered_creator_cookie == 'Empty':
+            agent = Q(agent_id=None)
+        elif filtered_creator_cookie is not None and filtered_creator_cookie != 'Empty':
+            agent = Q(agent_id__in=filtered_creator_cookie)
+        else:
+            agent = Q(agent_id=request.user.id) | Q(agent_id=None)
+
         for issuing_user in issuing_users:                
             # Create date filter query object or an empty query object if dates are absent
             date_filter = Q(system_creation_date__range=[start_date, end_date]) if start_date and end_date else Q()
@@ -455,6 +469,7 @@ def get_all_pnr(request):
                         date_filter,
                         max_system_creation_date,
                         agency_name,
+                        agent,
                     ).first()
 
             # If Pnr is not already in the set and is not None, add it to the set and the list
@@ -465,14 +480,6 @@ def get_all_pnr(request):
 
         # Create date filter query object or an empty query object if dates are absent
         date_filter = Q(system_creation_date__range=[start_date, end_date]) if start_date and end_date else Q()
-
-        agent = Q()
-        if filtered_creator_cookie == 'Empty':
-            agent = Q(agent_id=None)
-        elif filtered_creator_cookie is not None and filtered_creator_cookie != 'Empty':
-            agent = Q(agent_id__in=filtered_creator_cookie)
-        else:
-            agent = Q(agent_id=request.user.id) | Q(agent_id=None)
 
         max_system_creation_date = Q(system_creation_date__gt=maximum_timezone)
         
@@ -529,12 +536,14 @@ def get_all_pnr(request):
         # Compute count of Pnrs in the list
         pnr_count = len(pnr_list)
 
+
         return pnr_count
     else:
+        status_value = Q(status_value=status_value_from_cookie) if status_value_from_cookie in [0, 1] else Q()
+        
         pnr_list = []
         pnr_count = 0
         
-        status_value = Q(status_value=status_value_from_cookie) if status_value_from_cookie in [0, 1] else Q()
         if filtered_creator_cookie is not None and filtered_creator_cookie != 'Empty': 
             max_system_creation_date = Q(system_creation_date__gt=maximum_timezone)
 
@@ -587,7 +596,6 @@ def get_all_pnr(request):
             pnr_count = pnr_queryset.count()
 
             print('Not all')
-            
         elif filtered_creator_cookie is None : ##### Si 'Tout' est sélectionner dans le filtre créateur
             print('Creator selected is not non attribué and is all')
             if filtered_creator_cookie != 'Empty':
@@ -693,51 +701,6 @@ def get_all_pnr(request):
 
             print('no creator')
 
-            # Create date filter query object or an empty query object if dates are absent
-            date_filter = Q(system_creation_date__range=[start_date, end_date]) if start_date and end_date else Q()
-
-            pnr_queryset  = Pnr.objects.filter(
-                                Q(agent_id=None),
-                                status_value,
-                                max_system_creation_date,
-                                date_filter)
-
-            if is_invoiced is not None:
-                pnr_queryset =  pnr_queryset.filter(Q(is_invoiced=is_invoiced))
-
-            # Sort the list based on the agent username or system creation date
-            if sort_creator is not None:
-                if sort_creator == 'agent__username':
-                    # Sort Pnrs by agent's username and agent_id None in the last part of list
-                    pnr_list = sorted(
-                        pnr_queryset, 
-                        key=lambda pnr: (
-                            pnr.agent is None, 
-                            pnr.agent.username if pnr.agent else ''
-                        ), 
-                        reverse=False
-                    )
-                elif sort_creator == '-agent__username':
-                    # Sort Pnrs by agent's username in reverse order and agent_id None in the last part of list
-                    pnr_list = sorted(
-                        pnr_queryset, 
-                        key=lambda pnr: (
-                            pnr.agent.username if pnr.agent else ''
-                        ), 
-                        reverse=True
-                    )
-            else:
-                # If no sorting parameter provided, sort by system creation date
-                if date_order_by == "-":
-                    # Sort Pnrs by system creation date in reverse order
-                    pnr_list = sorted(pnr_queryset, key=lambda pnr: pnr.system_creation_date, reverse=True)
-                else:
-                    # Sort Pnrs by system creation date in ascending order
-                    pnr_list = sorted(pnr_queryset, key=lambda pnr: pnr.system_creation_date, reverse=False)
-
-            pnr_list = list(pnr_list)
-            pnr_count = pnr_queryset.count()
-            
         return pnr_count
 @register.filter(name='first_passenger')
 def get_first_passenger(pnr):
@@ -854,18 +817,22 @@ def get_passenger_order_status_invoiced(pnr, customer_id):
     other_fee_is_invoiced = []
 
     if passenger_invoices.exists():
+        print("Hllo")
         for passenger in passenger_invoices:
             if passenger.other_fee is not None:
+                print(passenger.other_fee)
                 other_fee_is_invoiced.append(passenger.is_invoiced)
             if passenger.ticket is not None:
                 ticket_is_invoiced.append(passenger.is_invoiced)
+        print("Hllo")
+        print(ticket_is_invoiced, other_fee_is_invoiced)
         if False in ticket_is_invoiced or False in other_fee_is_invoiced:
             return False
         else:
             return True
     else:
         return None
-
+    
 
 """
     Uses: Filter record(s) on PassengerInvoice of the current PNR that are quotation, and test if all of the lines are in status is_quotation, return True if it is otherwise return False
@@ -1024,6 +991,24 @@ def get_other_fees_orders(other_fee):
     else:
         return None
 
+# fix EMD can't be ordered 00DO9X : erreur commande ne peux pas se créer
+@register.filter(name='other_fees_orders_is_invoiced')
+def get_other_fees_orders_is_invoiced(pnr):
+    from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
+    other_fees_orders = PassengerInvoice.objects.filter(pnr_id=pnr.id, fee_id=None, ticket_id=None)
+    print(other_fees_orders)
+    other_fees_is_invoiced = []
+    if other_fees_orders.exists():
+        for other_fee in other_fees_orders:
+            print(other_fee.is_invoiced)
+            other_fees_is_invoiced.append(other_fee.is_invoiced)
+        print(other_fees_is_invoiced)
+        if False in other_fees_is_invoiced:
+            return False
+        else:
+            return True
+    else:
+        return None
 
 @register.filter(name='other_fees_fees_orders')
 def get_other_fees_fees_orders(fee):
@@ -2358,5 +2343,24 @@ def get_list_agency_name(_):
     
     # Créer une liste de dictionnaires contenant les noms d'agence
     return [{'agency_name': agency} for agency in agency_names]
+
+@register.filter(name='check_passenger_missing')
+def get_check_passenger_missing(pnr_id, client_id):   
+    passenger_invoices = PassengerInvoice.objects.filter(pnr=pnr_id, client=client_id)
     
-    
+    tickets = []
+    for passenger_invoice in passenger_invoices:
+        if passenger_invoice.ticket is not None:
+            tickets.append(passenger_invoice.ticket)
+                
+    count_passenger_missing = 0    
+    for ticket in tickets:
+        if ticket.passenger is None:
+            count_passenger_missing += 1
+        else:
+            count_passenger_missing += 0
+            
+    print("COUNT PASSENGER MISSING")
+    print(count_passenger_missing)
+
+    return count_passenger_missing

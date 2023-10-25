@@ -1057,6 +1057,7 @@
 												<td></td>
 												<td></td>
 												<td></td>
+												<td></td>
 												<td>
 													<button 
 														type="button" 
@@ -1104,29 +1105,47 @@
 														{% with pnr|passenger_order_status_invoiced:passengers_customer.client.id as passenger_order_status_invoiced %}		
 															<div class="d-flex align-items-center pr-2" id="ConfirmationPassagersCustomer">
 																{% if not passenger_order_status_invoiced and passengers_customer.status == 'sale' %}
-																	<input 
-																		type="checkbox" 
-																		id="ConfirmationCustomerOrderCheckbox" 
-																		data-customer-id={{ passengers_customer.client.id }} 
-																		class="mr-2 confirmation-customer-checkbox" 
-																		data-customer-is-invoiced="{{ passenger_order_status_invoiced }}" 
-																		checked
-																	>
-																	<span 
-																		id="ConfirmationCustomerDefaultOrderPlace" 
-																		class="mr-2 text-success contact"
-																	>
-																		{{ passengers_customer.ticket.passenger.order }} - 
-																	</span>
-																	<span 
-																		class="confirmation-customer-default mr-2 contact" 
-																		id="ConfirmationCustomerDefault" 
-																		data-customer-default="{{ passengers_customer.client.intitule }}" 
-																		data-customer-id="{{ passengers_customer.client.id }}"
-																	>
-																		{{ passengers_customer.client.intitule }} ({{ passengers_customer.client.id }})
-																	</span>
-																{% elif passenger_order_status_invoiced and passengers_customer.status == 'sale' %}
+																	{% with pnr.id|check_passenger_missing:passengers_customer.client.id as check_passenger_missing %}
+																		<span id="checkPassengerMissing" data-count-passenger-missing="{{ check_passenger_missing }}"></span>
+																		{% if check_passenger_missing > 0 %}
+																			<input 
+																				type="checkbox" 
+																				id="ConfirmationCustomerOrderCheckbox" 
+																				data-customer-id={{ passengers_customer.client.id }} 
+																				class="mr-2 confirmation-customer-checkbox passenger-missing" 
+																				data-customer-is-invoiced="{{ passenger_order_status_invoiced }}" 
+																				checked
+																				data-count-passenger-missing="{{ check_passenger_missing }}"
+																				disabled
+																			>
+																		{% else %}
+																			<input 
+																				type="checkbox" 
+																				id="ConfirmationCustomerOrderCheckbox" 
+																				data-customer-id={{ passengers_customer.client.id }} 
+																				class="mr-2 confirmation-customer-checkbox" 
+																				data-customer-is-invoiced="{{ passenger_order_status_invoiced }}" 
+																				data-count-passenger-missing="{{ check_passenger_missing }}"
+																				checked
+																			>
+																		{% endif %}
+																		<span 
+																			id="ConfirmationCustomerDefaultOrderPlace" 
+																			class="mr-2 text-success contact"
+																			>
+																			{{ passengers_customer.ticket.passenger.order }} - 
+																		</span>
+																		<span 
+																			class="confirmation-customer-default mr-2 contact {% if check_passenger_missing > 0 %} text-danger {% endif %}" 
+																			id="ConfirmationCustomerDefault" 
+																			data-customer-default="{{ passengers_customer.client.intitule }}" 
+																			data-customer-id="{{ passengers_customer.client.id }}"
+																			
+																			>
+																			{{ passengers_customer.client.intitule }} ({{ passengers_customer.client.id }})
+																		</span>
+																	{% endwith %}
+																{% elif passenger_order_status_invoiced and passengers_customer.status == 'sale' %}	
 																	<input 
 																		type="checkbox" 
 																		id="ConfirmationCustomerOrderCheckbox" 
@@ -1159,9 +1178,11 @@
 											{% endwith %}
 											{% for other_fee in other_fees %}
 												{% with other_fee|other_fees_orders as other_fees_orders %}
+												<!-- fix EMD can't be ordered 00DO9X : erreur commande ne peux pas se créer -->
+												{% with pnr|other_fees_orders_is_invoiced as other_fees_orders_is_invoiced %}
 												{% if other_fees_orders is not None %}
 												<div class="d-flex align-items-center pr-2" id="ConfirmationPassagersCustomer">
-													{% if not other_fees_orders.is_invoiced and other_fees_orders.status == 'sale' %}
+													{% if not other_fees_orders_is_invoiced and other_fees_orders.status == 'sale' %}
 														<input 
 															type="checkbox" 
 															id="ConfirmationCustomerOrderCheckbox" 
@@ -1183,7 +1204,7 @@
 														>
 															{{ other_fees_orders.client.intitule }} ({{ other_fees_orders.client.id }})
 														</span>
-													{% elif other_fees_orders.is_invoiced and other_fees_orders.status == 'sale' %}
+													{% elif other_fees_orders_is_invoiced and other_fees_orders.status == 'sale' %}
 														<input 
 															type="checkbox" 
 															id="ConfirmationCustomerOrderCheckbox" 
@@ -1207,9 +1228,9 @@
 															{{ other_fees_orders.client.intitule }} ({{ other_fees_orders.client.id }})
 														</span>
 													{% endif %}
-													
 												</div>
 												{% endif %}
+												{% endwith %}
 												{% endwith %}
 											{% endfor %}
 

@@ -19,6 +19,8 @@ import AmadeusDecoder.utilities.configuration_data as configs
 
 from AmadeusDecoder.models.configuration.Configuration import Configuration
 from AmadeusDecoder.models.company_info.CompanyInfo import CompanyInfo
+from AmadeusDecoder.models.pnrelements.Country import Country
+from AmadeusDecoder.models.api.FrenchCountry import Department, Municipality
 
 class ConfigReader():
     '''
@@ -369,6 +371,58 @@ class ConfigReader():
                 traceback.print_exc(file=error_file)
                 error_file.write('\n')
                 
+    @staticmethod
+    def load_absolute_path_for_service_runner():
+        PATH_DIR = {
+            'test': '/opt/issoufali/travelagencygit/travelagency/',
+            # 'test':'/',
+            'prod': '/opt/travelagency/'
+        } 
+        
+        configs.ABSOLUTE_PATH_SERVICE_RUNNER = PATH_DIR
+        
+    @staticmethod
+    def load_all_coutries():
+        try:
+            countries = Country.objects.values("name").order_by("name")
+            configs.COUTRIES_DATA = countries
+        except:
+            print('There was some error when loading countries data. See error.txt for details.')
+            with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
+                error_file.write('{}: \n'.format(datetime.datetime.now()))
+                error_file.write('Getting all coutries data failed. \n')
+                traceback.print_exc(file=error_file)
+                error_file.write('\n')
+                
+    @staticmethod
+    def load_all_departments():
+        try:
+            departments = Department.objects.values("nom", "code").order_by("nom")
+            configs.DEPARTMENTS_FRANCE = departments
+        except:
+            print('There was some error when loading departments data. See error.txt for details.')
+            with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
+                error_file.write('{}: \n'.format(datetime.datetime.now()))
+                error_file.write('Getting all departments data failed. \n')
+                traceback.print_exc(file=error_file)
+                error_file.write('\n')
+                
+    @staticmethod
+    def load_all_municipalities():
+        try:
+            municipalities  =   Municipality.objects.values(
+                                    "nom", "code_departement", "codes_postaux"
+                                ).order_by("nom")
+            configs.MUNICIPALITIES_FRANCE = municipalities
+        except:
+            print('There was some error when loading municipalities data. See error.txt for details.')
+            with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
+                error_file.write('{}: \n'.format(datetime.datetime.now()))
+                error_file.write('Getting all municipalities data failed. \n')
+                traceback.print_exc(file=error_file)
+                error_file.write('\n')
+                
+                
     # load a chain of configs
     def load_congig(self):
         print('Loading configuration ...')
@@ -382,5 +436,9 @@ class ConfigReader():
         self.load_fee_request_tool_data()
         self.load_report_email_data()
         self.load_pnr_parser_tool_data()
+        self.load_absolute_path_for_service_runner()
+        self.load_all_coutries()
+        self.load_all_departments()
+        self.load_all_municipalities()
         print('Configuration loaded.')
     

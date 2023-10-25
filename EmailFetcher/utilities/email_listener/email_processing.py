@@ -22,7 +22,7 @@ import traceback
 import datetime
 # Imports from this package
 from email_listener.email_responder import EmailResponder
-
+import AmadeusDecoder.utilities.configuration_data as configs
 
 def write_txt_file(msg_dict, folder):
     """Write the email message data returned from scrape to text files.

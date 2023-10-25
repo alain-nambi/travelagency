@@ -67,9 +67,7 @@ def notify_user(opc) :
         [
             user_mail,
             "nasolo@phidia.onmicrosoft.com",
-            "mihaja@phidia.onmicrosoft.com",
             "tahina@phidia.onmicrosoft.com",
-            "remi@phidia.onmicrosoft.com",
             "famenontsoa@outlook.com",
             "pp@phidia.onmicrosoft.com"
         ],

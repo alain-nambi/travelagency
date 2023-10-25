@@ -146,5 +146,13 @@ REMARK_IDENTIFIER = []
 PNR_PASSENGER_DESIGNATIONS = []
 POSSIBLE_COST_CURRENCY = []
 AM_H_LINE_IDENTIFIER = []
+ABSOLUTE_PATH_SERVICE_RUNNER = {}
+
+# Get all coutries
+COUTRIES_DATA = []
+
+# Get department, city from France
+DEPARTMENTS_FRANCE = []
+MUNICIPALITIES_FRANCE = []
 
 ConfigReader().load_congig()

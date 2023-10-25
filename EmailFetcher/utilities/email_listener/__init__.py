@@ -37,6 +37,9 @@ from .helpers import (
 )
 from .email_processing import write_txt_file
 import imaplib
+import AmadeusDecoder.utilities.configuration_data as configs
+
+ABSOLUTE_PATH_SERVICE_RUNNER = configs.ABSOLUTE_PATH_SERVICE_RUNNER
 
 class EmailListener:
     """EmailListener object for listening to an email folder and processing emails.
@@ -306,7 +309,7 @@ class EmailListener:
                 key = "{}_{}".format(uid, from_email)
                 
                 # Create directory for this email
-                path = os.path.join(self.attachment_dir, key)
+                path = ABSOLUTE_PATH_SERVICE_RUNNER['test'] + os.path.join(self.attachment_dir, key)
                 if not os.path.exists(path):
                     os.mkdir(path)
                 
@@ -399,11 +402,15 @@ class EmailListener:
                         msgs, folder = self.scrape(move=move, unread=unread, delete=delete)
                         # Run the process function
                         file_list, attachment_list = process_func(msgs, folder)
+                        
                         if len(attachment_list) == 0:
+                            print("1")
+                            print(file_list)
                             from AmadeusDecoder.utilities.AmadeusParser import AmadeusParser
                             amadeus_parser = AmadeusParser()
                             amadeus_parser.save_data(file_list)
                         else:
+                            print("2")
                             from AmadeusDecoder.utilities.ZenithParser import ZenithParser
                             zenith_parser = ZenithParser()
                             zenith_parser.save_data(attachment_list)

@@ -153,16 +153,14 @@ def control_data_gp_odoo() :
                     </p>
                     <p>
                         <strong>Ceci est un email automatique, merci de ne pas répondre.</strong></br>
-                        Services supports : mihaja@phidia.onmicrosoft.com et  tahina@phidia.onmicrosoft.com
+                        Services supports : tahina@phidia.onmicrosoft.com
                     </p> 
                 </body>
                 </html>
             """.format(message_head_pnr_not_found=message_head_pnr_not_found, message_for_not_found=message_for_not_found, message_head= message_head,message_body=message_body)
     											
     recipients = [
-        "mihaja@phidia.onmicrosoft.com",
         "nasolo@phidia.onmicrosoft.com",
-        "remi@phidia.onmicrosoft.com",
         "famenontsoa@outlook.com",
         "alain@phidia.onmicrosoft.com",
         "tahina@phidia.onmicrosoft.com"
@@ -302,7 +300,7 @@ def get_ticket_from_odoo(ticket) :
                         </html>
                     """.format(date=date_now,error=e, id=ticket.id, doc=ticket.type)
         recipients = [
-        "mihaja@phidia.onmicrosoft.com"
+        # "mihaja@phidia.onmicrosoft.com"
         ]								
 
         # Sending.send_email_error(
@@ -354,7 +352,7 @@ def connect_odoo_db(host, port, database, user, pwd) :
                         </html>
                     """.format(date=date_now,error=e)
         recipients = [
-        "mihaja@phidia.onmicrosoft.com"
+            "nasolo@phidia.onmicrosoft.com"
         ]								
 
         Sending.send_email_error(

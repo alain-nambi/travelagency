@@ -417,7 +417,7 @@ reduceFeeRequest.addEventListener("click", (e) => {
         $(".spinner-wrappers").hide();
         $(".spinner-wrappers").css("position", "relative");
         // setInterval(() => {
-        window.location.reload();
+          window.location.reload();
         // }, 1000)
       } else if (response.status == 3) {
         // toastr.info(response.message);

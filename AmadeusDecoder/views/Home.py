@@ -949,7 +949,6 @@ def reduce_fee(request) :
                 except Exception as e :
                     context['status'] = 0
                     context['message'] = "ERREUR: %s " % str(e)
-                    raise e
         else:
             context['status'] = 0
             context['message'] = "ERREUR: Impossible d'envoyer la demande."

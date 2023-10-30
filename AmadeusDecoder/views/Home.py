@@ -803,10 +803,11 @@ def pnr_research(request):
 @login_required(login_url='index')
 def pnr_search_by_pnr_number(request):
     context = {}
+    maximum_timezone = "2023-01-01 01:00:00.000000+03:00"
     if request.method == 'POST':
         pnr_number = request.POST.get('PnrNumber', None)
         if pnr_number is not None:
-            pnr = Pnr.objects.all().filter(number=pnr_number).first()
+            pnr = Pnr.objects.all().filter(number=pnr_number).filter(Q(system_creation_date__gt=maximum_timezone)).first()
             if pnr is not None:
                 context['pnr_id'] = pnr.id
             else:

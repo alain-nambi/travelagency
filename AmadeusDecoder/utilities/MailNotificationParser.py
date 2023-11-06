@@ -578,8 +578,8 @@ class MailNotification():
                 
                 # Envoyer le mail pour les administrateurs d'Isssoufali 
                 Sending.send_email(
-                    "issoufali.pnr@outlook.com", 
-                    administrator_users_mail + mgbi_users_mail,  
+                    "alain@phidia.onmicrosoft.com", 
+                    # administrator_users_mail + mgbi_users_mail,  
                     subject, 
                     message
                 )
@@ -663,8 +663,8 @@ class MailNotification():
                     
                 # Envoyer le mail pour les administrateurs d'Isssoufali 
                 Sending.send_email(
-                    "issoufali.pnr@outlook.com", 
-                    administrator_users_mail + mgbi_users_mail,  
+                    "alain@phidia.onmicrosoft.com", 
+                    # administrator_users_mail + mgbi_users_mail,  
                     subject, 
                     message
                 )

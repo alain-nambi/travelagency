@@ -506,7 +506,8 @@ class PnrOnlyParser():
             temp_flight = PnrAirSegments()
             print('FLIGHT INFO', flight_info)
             # Segment is a flight
-            if not flight_info[1].endswith('SVC') and not flight_info[1].endswith('OPEN') and not flight_info[2].endswith('OPEN'):
+            if not flight_info[1].endswith('SVC') and not flight_info[1].endswith('OPEN') \
+                and not flight_info[2].endswith('OPEN') and not flight_info[1].endswith('ARNK') and not flight_info[2].endswith('ARNK'):
                 flown_checker = False
                 # if airline code and flight number are separated with space
                 # eg: AF 234, SA 223
@@ -703,6 +704,15 @@ class PnrOnlyParser():
                     temp_flight.codedest = Airport.objects.get(iata_code=org_dest[3:])
                 except:
                     pass
+            # Segment is ARNK
+            elif flight_info[1].endswith('ARNK') or flight_info[2].endswith('ARNK'):
+                temp_flight.segment_type = 'ARNK'
+                temp_airline = Airline.objects.filter(iata='Unknown').first()
+                if temp_airline is None:
+                    temp_airline = Airline()
+                    temp_airline.iata = 'Unknown'
+                    temp_airline.save()
+                temp_flight.servicecarrier = temp_airline
             
             temp_flight.is_open = is_open_status
             temp_flight.pnr = pnr

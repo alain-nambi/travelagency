@@ -556,7 +556,11 @@ class ZenithParserReceipt():
                         new_payment.save()
                     else:
                         # check splitted PNR
-                        self.process_pnr_split(date_time.date(), part, ticket_total, pnr)
+                        '''
+                            Duplicate PNR processing: comment to be removed once PNR/passenger transfer issue solved
+                            Check functions: process_pnr_split, child_parent_data_transfer, get_ticket and get_passenger_assigned_on_part
+                        '''
+                        # self.process_pnr_split(date_time.date(), part, ticket_total, pnr)
             except Exception as e:
                 traceback.print_exc()
                 print(e)

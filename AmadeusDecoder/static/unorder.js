@@ -61,7 +61,7 @@ async function deleteTickerPassengerSegmentBy(client, pnrNumber) {
 }
 
 async function getPnrId(client, pnrNumber) {
-  let number = pnrNumber.trim()
+  let number = String(pnrNumber).trim().toUpperCase()
   const query = "SELECT id from t_pnr tp where tp.number = $1";
   const result = await client.query(query, [number]);
   return result.rows[0].id;

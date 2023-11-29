@@ -10,7 +10,7 @@ import random
 import pandas as pd
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
@@ -2023,3 +2023,35 @@ def get_all_municipalities(request):
             
             return JsonResponse(municipality_list, safe=False)
         return JsonResponse([], safe=False)
+    
+@login_required(login_url="index")
+def get_all_products(request):
+    if request.method == 'GET':
+        product_designation_list = []
+        product_objects = Product.objects.all()
+
+        if product_objects.exists():
+            for product in product_objects:
+                product_designation_list.append(product.designation)
+            return JsonResponse({"product_designation_list": product_designation_list}, safe=False)
+
+        return JsonResponse([], safe=False)
+    
+@login_required(login_url="index")
+def remove_other_fee_service(request):
+    if request.method == 'POST':
+        other_fee_id = request.POST.get('other_fee_id')
+        other_fee = OthersFee.objects.filter(id=other_fee_id).first()
+
+        if other_fee:
+            other_fee.delete()
+            context = {
+                'status': 'deleted',
+                'designation': other_fee.designation,
+                'total': other_fee.total
+            }
+            return JsonResponse(context, safe=False)
+
+        return JsonResponse({'status': 'not_found'})
+    
+    

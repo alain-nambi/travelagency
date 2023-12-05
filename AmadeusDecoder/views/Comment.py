@@ -48,12 +48,14 @@ def comment(request):
                 """.format(comment_value, pnr_element.number, user_element.username)
 
     Sending.send_email(
-         "anomalie.issoufali.pnr@gmail.com",
-         ["nasolo@phidia.onmicrosoft.com",
-         "famenontsoa@outlook.com",
-         "pp@phidia.onmicrosoft.com",
-         "tahina@phidia.onmicrosoft.com",
-         "alain@phidia.onmicrosoft.com"],
+        "anomalie.issoufali.pnr@gmail.com",
+        ["nasolo@phidia.onmicrosoft.com",
+        "pp@phidia.onmicrosoft.com",
+        "tahina@phidia.onmicrosoft.com",
+        "alain@phidia.onmicrosoft.com",
+        "anjaranaivo464@gmail.com",
+        "olyviahasina.razakamanantsoa@outlook.fr",
+        "mathieu@phidia.onmicrosoft.com"],
          subject,
          message
     )
@@ -115,7 +117,9 @@ def comment_detail(request, comment_id):
                 [comments.user_id.email,
                     "nasolo@phidia.onmicrosoft.com",
                     "alain@phidia.onmicrosoft.com",
-                    "famenontsoa@outlook.com",
+                    "anjaranaivo464@gmail.com",
+                    "olyviahasina.razakamanantsoa@outlook.fr",
+                    "mathieu@phidia.onmicrosoft.com",
                     "pp@phidia.onmicrosoft.com",
                     "tahina@phidia.onmicrosoft.com"
                 ],
@@ -178,7 +182,9 @@ def get_pnr_not_fetched(request):
                 "anomalie.issoufali.pnr@gmail.com",
                 ["nasolo@phidia.onmicrosoft.com",
                 "alain@phidia.onmicrosoft.com",
-                "famenontsoa@outlook.com",
+                "anjaranaivo464@gmail.com",
+                "olyviahasina.razakamanantsoa@outlook.fr",
+                "mathieu@phidia.onmicrosoft.com",
                 "pp@phidia.onmicrosoft.com",
                 "tahina@phidia.onmicrosoft.com"],
                 subject,

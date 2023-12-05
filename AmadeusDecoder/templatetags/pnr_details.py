@@ -722,7 +722,7 @@ def get_passenger_segment_missing(pnr):
     for ticket in tickets :
         res = ''
         try:
-            if ticket.passenger.order is not None :
+            if ticket.passenger and ticket.passenger.order is not None :
                 res += ticket.passenger.order
             else :
                 passengers = ''

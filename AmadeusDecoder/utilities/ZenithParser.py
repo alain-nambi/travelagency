@@ -1157,24 +1157,11 @@ class ZenithParser():
                     if content_element == passenger.name:
                         passengers_on_segment.append(passenger)
                         passenger_count += 1
-                    # Check if the passenger's name is longer than normal
-                    if self.get_fullname_for_passenger_with_long_names(passenger_type_part=passenger_type_part) is not None:
-                        # Check if 'passenger' is not already in 'passengers_on_segment'
-                        if passenger not in passengers_on_segment:
-                            # Add the 'passenger' to the 'passengers_on_segment' list
-                            passengers_on_segment.append(passenger)
-                            passenger_count += 1
                     if current_index < len(part) - 1:
                         if content_element + ' ' + part[current_index + 1] == passenger.name or content_element + part[current_index + 1] == passenger.name:
                             passengers_on_segment.append(passenger)
                             passenger_count += 1
                 current_index += 1
-            
-            # Remove duplicate passengers from the 'passengers_on_segment' list
-            passengers_on_segment = set(passengers_on_segment)
-
-            # Recount the number of passengers after removing duplicates
-            passenger_count = len(passengers_on_segment)
             
             # get ticket segment and cost
             for content_element in part:
@@ -1226,38 +1213,6 @@ class ZenithParser():
                     break
         
         return ticket_segments
-    
-    # Define a function to get the full name for passengers with long names
-    def get_fullname_for_passenger_with_long_names(self, passenger_type_part: list):
-        '''
-        Process zenith PNR with long passenger's names, like "PHILIBERTINE VANESSA SOAFARANIAINA EP MADJINDA DJINDANI".
-        * Use case for PNR 00DTJY
-        * Example input: [['Adulte(s)', 'PHILIBERTINE VANESSA', 'SOAFARANIAINA EP MADJINDA', 'DJINDANI', '20 Kg', 'EUR', '191,78', '67,24', '259,02', '1', '259,02'],
-                        ['Enfant(s)', 'GAEL SOAN MADJINDA', '20 Kg', 'EUR', '143,84', '67,24', '211,08', '1', '211,08', 'Tarif TTC', '1 012,65']]
-        * The goal is to extract the full name, e.g., "PHILIBERTINE VANESSA SOAFARANIAINA EP MADJINDA DJINDANI".
-        '''
-        full_names = []
-
-        # Iterate through each sublist in the passenger_type_part list
-        for sublist in passenger_type_part:
-            # Initialize the index for 'Kg', 'kg', 'kG', 'KG' element
-            kg_index = None
-            kg_indications = ['Kg', 'kg', 'kG', 'KG']
-            
-            # Iterate through the elements in the current sublist
-            for i, element in enumerate(sublist):
-                # Check if the element contains any of the kg indications
-                for kg_indication in kg_indications:
-                    if kg_indication in element:
-                        kg_index = i
-                        break
-
-            if kg_index is not None:
-                # Concatenate elements before 'Kg' to form the full name
-                full_name = ' '.join(sublist[1:kg_index])
-                full_names.append(full_name)
-
-        return full_names
     
     # get ticket/segment cost details
     def get_ticket_segment_costs(self, cost_details_part, passengers, air_segments, pnr):

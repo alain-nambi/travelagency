@@ -1317,7 +1317,7 @@ $(document).ready(function () {
         otherFee.push(otherFeeId);
 
         // Update the confirmation message
-        spanOtherFeeDesignation.innerHTML = `<strong>${otherFeeDesignation}</strong> avec un montant total de ${otherFeeTotal} euros`;
+        spanOtherFeeDesignation.innerHTML = `<strong>${otherFeeDesignation}</strong>`;
         textConfirmationDeleteOtherFeeService.textContent = `Oui, supprimer ${otherFeeDesignation}`;
       });
 

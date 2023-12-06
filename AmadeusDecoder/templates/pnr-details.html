@@ -974,7 +974,7 @@
 											{% if fee is not None %}
 											{% with fee|other_fees_fees_orders as other_fees_fees_orders %}
 											{% with other_fee.id|is_other_fee_invoiced as is_other_fee_invoiced %}
-											<tr class="tr-other-fees-fee {% if fee.is_invoiced %} text-success {% endif %}">
+											<tr class="tr-other-fees-fee {% if fee.is_invoiced %} text-success {% endif %}" data-other-fee-id="{{ other_fee.id}}" data-fee-id="{{ fee.id }}">
 												<td>Fee</td>
 												<td>{{ fee.type }}</td>
 												<td>{{ '' }}</td>
@@ -2074,10 +2074,10 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<p>
-					Voulez-vous vraiment supprimer le service ?
-				</p>
-				<span id="otherFeeDesignation"></span> 
+				<span>
+					Voulez-vous vraiment supprimer le service 
+					<span id="otherFeeDesignation"></span> ?
+				</span>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>

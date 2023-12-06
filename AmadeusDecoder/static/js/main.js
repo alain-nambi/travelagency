@@ -1275,12 +1275,19 @@ $(document).ready(function () {
               // Find and remove the corresponding table row
               const trTableOtherFees =
                 document.querySelectorAll(".tr-other-fees");
+              const trTableOtherFeesFee = document.querySelectorAll(".tr-other-fees-fee")
+
               const tableToDelete = Array.from(trTableOtherFees).find(
+                (table) => parseInt(table.dataset.otherFeeId) === otherFee[0]
+              );
+
+              const tableOtherFeesFeeToDelete = Array.from(trTableOtherFeesFee).find(
                 (table) => parseInt(table.dataset.otherFeeId) === otherFee[0]
               );
 
               // Optional chaining to handle the case where the table is already removed
               tableToDelete?.remove();
+              tableOtherFeesFeeToDelete?.remove();
             }
           },
           error: (error) => {
@@ -1310,7 +1317,7 @@ $(document).ready(function () {
         otherFee.push(otherFeeId);
 
         // Update the confirmation message
-        spanOtherFeeDesignation.innerHTML = `<strong>${otherFeeDesignation}</strong> avec un montant total de ${otherFeeTotal} euros`;
+        spanOtherFeeDesignation.innerHTML = `<strong>${otherFeeDesignation}</strong>`;
         textConfirmationDeleteOtherFeeService.textContent = `Oui, supprimer ${otherFeeDesignation}`;
       });
 

@@ -98,6 +98,22 @@ old -->
         <li class="nav-item ml-5">
           <span id="mail-user" data-mail="issoufali.pnr@outlook.com;{{request.user.email}}">issoufali.pnr@outlook.com;{{request.user.email}}</span>
           <a type="button" class="btn btn-outline-primary zenith" onclick="copymailuser()">Zenith</a> 
+          {% if request.user.role_id == 1 %}
+              <div id="uncommand_api">
+              <button 
+                type="button" 
+                class="btn btn-outline-danger zenith" 
+                data-toggle="modal" 
+                data-target="#modalUncommandApi" 
+                title="Uncommand_api"
+                id = "uncommand_api"
+              >
+                <i class="fa-solid fa-xmark"></i>
+                
+              </button>
+            </div>
+            {% endif %}
+
         </li>
         <li class="nav-item ml-3 mt-2">
           <div class="input-group input-group float-sm-right mt-1 mb-1">
@@ -142,11 +158,7 @@ old -->
             <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
           </div>
         </li> {% endcomment %}
-        <li class="nav-item">
-          {% comment %} <a class="nav-link" data-widget="fullscreen" href="#" role="button">
-            <i class="fas fa-expand-arrows-alt"></i>
-          </a> {% endcomment %}
-        </li>
+
         <li class="nav-item dropdown">
           <a class="nav-link" data-toggle="dropdown" href="#">
             <i class="far fa-user"></i> {{request.user.username}}
@@ -163,6 +175,7 @@ old -->
           </div>
         </li>
       </ul>
+
     </nav>
     <!-- /.navbar -->
     <!-- Main Sidebar Container -->
@@ -667,6 +680,8 @@ old -->
   <script src="{% static 'js/gdsCommandHandler.js' %}"></script>
   <script src="{% static 'js/CustomerHandler.js' %}"></script>
   <script src="{% static 'js/pnrDetailHandler.js' %}"></script>
+  <script src="{% static 'js/invoice_unorder.js' %}"></script>
+
 
   <script>
     $('.tooltips.empty-passenger').append("<span></span>");

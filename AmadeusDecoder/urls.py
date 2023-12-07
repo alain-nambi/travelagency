@@ -6,7 +6,7 @@ from .views.Dashboard import dashboard
 from .views.Manage_customers import customers, create_customer, modify_customer_info, modify_customer_in_passenger_invoice, delete_customer
 from .views.Manage_users import users, register
 from .views.Account import account
-from .views.Tools import tools, call_customer_import, call_product_import
+from .views.Tools import *
 from .views.Setting import setting
 from .views.Login import *
 from .views.Home import *
@@ -57,4 +57,7 @@ urlpatterns = [
     path('home/get-all-municipalities/', get_all_municipalities, name= 'get_all_municipalities'),
     path('home/other-fee/remove/', remove_other_fee_service, name='remove_other_fee_service'),
     path('home/get-all-products/', get_all_products, name='get_all_products'),
+    path('home/get-invoice-number-to-uncommand/<str:numeroPnr>', get_invoice_number, name='get_invoice_number'),
+    path('home/server', server, name='server'),
+    
 ]

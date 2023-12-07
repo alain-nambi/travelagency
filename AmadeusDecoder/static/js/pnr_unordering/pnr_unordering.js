@@ -16,7 +16,7 @@ const pool = new Pool({
   port: 5432,
   database: "db_flight_issoufali",
   user: "postgres",
-  password: "postgres",
+  password: "maphie",
 });
 
 app.post('/api/pnr_unorder', async (req, res) => {
@@ -26,20 +26,24 @@ app.post('/api/pnr_unorder', async (req, res) => {
 
     const { invoiceNumber, pnrNumber } = req.body;
 
+    console.log(`Invoice Number: ${invoiceNumber}`);
+    console.log(`PNR Number: ${pnrNumber}`);
+
     if (!invoiceNumber || !pnrNumber) {
       throw new Error("Veuillez fournir au moins deux paramètres : invoiceNumber et pnrNumber.");
     }
 
     const params = { invoice_number: invoiceNumber, pnr_number: pnrNumber };
     await getInvoiceDetails(client, params);
+    // await deletePassengerInvoice(client,pnrNumber, invoiceNumber)
+
 
     res.json({
       message: "ok",
       result: { invoiceNumber, pnrNumber },
     });
 
-    console.log(`Invoice Number: ${invoiceNumber}`);
-    console.log(`PNR Number: ${pnrNumber}`);
+    
 
     client.release();
   } catch (error) {
@@ -96,6 +100,8 @@ async function updateInvoiceDetails(client, invoice) {
     );
   }
 
+    
+
   // if (client_id) {
   //   await client.query("DELETE FROM t_passenger_invoice WHERE id = $1", [id]);
   // }
@@ -143,11 +149,8 @@ async function getInvoiceDetails(client, params) {
       for (const row of passengerInvoiceRows) {
         await updateInvoiceDetails(client, row);
 
-
-        // Reset cost of ticket to make it updatable
-        // await resetTicketCost(client, row.ticket_id).then((result) => console.log(result))
       }
-
+     
       // Remove all segment related to ticket
       // await deleteTickerPassengerSegmentBy(client, pnr_number).then((result) => console.log(result))
     } else {

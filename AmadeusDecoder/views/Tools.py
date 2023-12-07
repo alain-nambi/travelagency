@@ -58,7 +58,7 @@ def call_customer_import(request):
 def get_invoice_number(request,numeroPnr):
     
     pnr = Pnr.objects.get(number=numeroPnr)
-    invoices = PassengerInvoice.objects.filter(pnr_id=pnr.id).distinct()
+    invoices = PassengerInvoice.objects.filter(pnr_id=pnr.id, is_invoiced=True).distinct()
 
     invoices_data = [{'invoice_number': invoice.invoice_number} for invoice in invoices]
     

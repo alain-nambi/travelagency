@@ -69,11 +69,12 @@ def get_invoice_number(request,numeroPnr):
     print(unique_invoice_numbers_list)
     return JsonResponse({'invoices': unique_invoice_numbers_list})
 
-def server(request):
-    chemin_api_js = r"..\travelagency\AmadeusDecoder\static\js\pnr_unordering\pnr_unordering.js"
-    commande = ["node", chemin_api_js]
-    processus_api = subprocess.Popen(commande, shell=True)
-    return JsonResponse({'message': 'Opération réussie'}, safe=False)
+# def server(request):
+#     chemin_api_js = r"..\travelagency\AmadeusDecoder\static\js\pnr_unordering\pnr_unordering.js"
+#     commande = ["node", chemin_api_js]
+#     processus_api = subprocess.Popen(commande, shell=True)
+#     print(processus_api.returncode)
+#     return JsonResponse({'message': 'Le serveur NodeJS a été démarré'}, safe=False)
     
 
     

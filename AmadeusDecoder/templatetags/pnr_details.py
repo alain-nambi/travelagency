@@ -889,6 +889,29 @@ def get_passenger_is_invoiced_in_passenger_invoice(pnr):
             return True
     else:
         return None
+    
+@register.filter(name='is_one_or_more_passenger_is_invoiced')
+def get_is_one_or_more_passenger_is_invoiced(pnr):
+    from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
+    passenger_invoices = PassengerInvoice.objects.filter(pnr=pnr.id).exclude(status="quotation")
+    is_invoice = []
+
+    if passenger_invoices.exists():
+        for passenger in passenger_invoices:
+            if passenger.ticket is not None and passenger.ticket.ticket_status == 1:
+                is_invoice.append(passenger.is_invoiced)
+            if passenger.other_fee is not None and passenger.other_fee.other_fee_status == 1:
+                is_invoice.append(passenger.is_invoiced)
+            if passenger.fee is not None and passenger.fee.ticket is not None and passenger.fee.ticket.ticket_status == 1:
+                is_invoice.append(passenger.is_invoiced)
+            if passenger.fee is not None and passenger.fee.other_fee is not None and passenger.fee.other_fee.other_fee_status == 1:
+                is_invoice.append(passenger.is_invoiced)
+        if True in is_invoice:
+            return True
+        else:
+            return False
+    else:
+        return None
 
 # @register.filter(name='detail_customer')
 # def get_detail_customer(id):

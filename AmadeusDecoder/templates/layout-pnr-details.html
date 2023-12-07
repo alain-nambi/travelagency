@@ -95,24 +95,26 @@ old -->
             <i id="button-nlse" class="fa fa-copy float-right ml-4" title="copier" style="font-size:12px; cursor: pointer;" onclick="copyse()"></i>
           </h6>
         </li>
-        <li class="nav-item ml-5">
+        <li class="nav-item ml-5 d-flex flex-column">
           <span id="mail-user" data-mail="issoufali.pnr@outlook.com;{{request.user.email}}">issoufali.pnr@outlook.com;{{request.user.email}}</span>
           <a type="button" class="btn btn-outline-primary zenith" onclick="copymailuser()">Zenith</a> 
+          
+
           {% if request.user.role_id == 1 %}
               <div id="uncommand_api">
-              <button 
-                type="button" 
-                class="btn btn-outline-danger zenith" 
-                data-toggle="modal" 
-                data-target="#modalUncommandApi" 
-                title="Uncommand_api"
-                id = "uncommand_api"
-              >
-                <i class="fa-solid fa-xmark"></i>
-                
-              </button>
-            </div>
-            {% endif %}
+                <button 
+                  type="button" 
+                  class="btn btn-outline-danger zenith" 
+                  data-toggle="modal" 
+                  data-target="#modalUncommandApi" 
+                  title="Décommander le PNR"
+                  id = "uncommand_api"
+                >
+                  <i class="fa-solid fa-xmark"></i>
+                  <span>Décommander le PNR</span>
+                </button>
+              </div>
+          {% endif %}
 
         </li>
         <li class="nav-item ml-3 mt-2">

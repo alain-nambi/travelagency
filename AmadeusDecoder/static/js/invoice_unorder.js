@@ -20,11 +20,15 @@ function updateSelectOptions(numeroPnr) {
 
                 const invoices = Array.from(response.invoices)
 
+                parent.innerHTML = ''
+                
                 invoices.map((invoice) => {
                     const newOption = document.createElement("option");
                     newOption.id = "child_commande";
                     newOption.value = invoice;
                     newOption.textContent = invoice;
+
+                    // init parent HTML 
                     parent.append(newOption);
                 })
             }
@@ -36,59 +40,47 @@ function updateSelectOptions(numeroPnr) {
 }
 
     $('#modalUncommandApi').on('show.bs.modal', function(){
-        const numeroPnr = document.getElementById('pnr_number').value;
-        updateSelectOptions(numeroPnr);
+        const numeroPnr = document.getElementById('pnr_number');
+        if (numeroPnr) {
+            updateSelectOptions(numeroPnr.value);
+        }
     });
 
 const sendRemovePassengerInvoice = document.getElementById("sendRemovePassengerInvoice")
 if (sendRemovePassengerInvoice) {
     sendRemovePassengerInvoice.addEventListener("click", () => {
+        try {
+            const pnr_number = (document.getElementById('pnr_number')).value;
+            const invoice_number = (document.getElementById('selectNumCommande')).value;
+            // console.log(pnr_number);
+            // console.log(invoice_number);
 
-    try {
-    const pnr_number = (document.getElementById('pnr_number')).value;
-    const invoice_number = (document.getElementById('selectNumCommande')).value;
-    console.log(pnr_number);
-    console.log(invoice_number);
-
-    $.ajax({
-        type: 'GET',
-        url: '/home/server',
-        success: (response) => {
-            console.log(response);
-
-            // Utilisation de setTimeout pour ajouter un délai avant le deuxième appel AJAX
-            setTimeout(() => {
-                const hostname = "http://localhost:1000/api/pnr_unorder";
-                $.ajax({
-                    type: "POST",
-                    url: hostname,
-                    dataType: "json",
-                    contentType: "application/json",
-                    data: JSON.stringify({
-                        pnrNumber: pnr_number,
-                        invoiceNumber: invoice_number
-                    }),
-                    success: (response) => {
-                        console.log(`response`, response);
-                        $('#modalUncommandApi').modal('hide');
+            const hostname = "http://localhost:1000/api/pnr_unorder";
+            $.ajax({
+                type: "POST",
+                url: hostname,
+                dataType: "json",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    pnrNumber: pnr_number,
+                    invoiceNumber: invoice_number
+                }),
+                success: (response) => {
+                    console.log(`response`, response);
+                    $('#modalUncommandApi').modal('hide');
+                    toastr.info(`PNR ${pnr_number} décommandé!`);
+                    
+                    setTimeout(() => {
                         location.reload();
-                        toastr.info(`PNR ${pnr_number} décommandé!`);
-
-                    },
-                    error: (error) => {
-                        console.log(`error`, error);
-                    }
-                });
-            }, 5000); // 5000 milliseconds équivalent à 5 secondes
-        },
-        error: (response) => {
-            console.log(response);
+                    }, 1000)
+                },
+                error: (error) => {
+                    console.log(`error`, error);
+                }
+            });
+        } catch (error) {
+            console.log(`error`, error);
         }
-    });
-} catch (error) {
-    console.log(`error`, error);
-}
-
     })
 }
 

@@ -2,61 +2,59 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const bodyParser = require('body-parser'); 
+const { Pool } = require("pg");
+
 const port = 1000;
 
 app.use(express.json());
-
 app.use(cors());
 app.use(bodyParser.json());
+
+// Create a pool with your database connection details
+const pool = new Pool({
+  host: "localhost",
+  port: 5432,
+  database: "db_flight_issoufali",
+  user: "postgres",
+  password: "postgres",
+});
+
 app.post('/api/pnr_unorder', async (req, res) => {
   try {
+    // Create new client for each request
+    const client = await pool.connect()
 
-    
-    console.log(req.body)
     const { invoiceNumber, pnrNumber } = req.body;
 
     if (!invoiceNumber || !pnrNumber) {
       throw new Error("Veuillez fournir au moins deux paramètres : invoiceNumber et pnrNumber.");
     }
 
-    const params = {invoice_number: invoiceNumber , pnr_number: pnrNumber}
+    const params = { invoice_number: invoiceNumber, pnr_number: pnrNumber };
+    await getInvoiceDetails(client, params);
 
-    await getInvoiceDetails(params)
-      res.json({
-        message: "ok",
-        result: { invoiceNumber, pnrNumber },
-      });
+    res.json({
+      message: "ok",
+      result: { invoiceNumber, pnrNumber },
+    });
 
     console.log(`Invoice Number: ${invoiceNumber}`);
     console.log(`PNR Number: ${pnrNumber}`);
 
-    child.on('close', (code) => {
-    console.log(`Processus enfant terminé avec le code ${code}`);
-});
+    client.release();
   } catch (error) {
     console.error(error.message);
     res.status(400).json({ error: error.message });
-
   }
 });
 
 // Start the server
- app.listen(port, () => {
+app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
 
 
 
-
-const { Client } = require("pg");
-
-const client = new Client({
-  host: "localhost",
-  port: 5432,
-  database: "db_flight_issoufali",
-  user: "postgres",
-  password: "maphie",
-});
 
 async function updateInvoiceDetails(client, invoice) {
   const { id, client_id, ticket_id, fee_id, other_fee_id } = invoice;
@@ -131,13 +129,9 @@ async function resetTicketCost(client, ticketId) {
   return result;
 }
 
-async function getInvoiceDetails(params) {
+async function getInvoiceDetails(client, params) {
   try {
-    await client.connect();
-
     if (client._connected) {
-      // Check if the client is connected
-      console.info("> Client is connected");
       const { invoice_number, pnr_number } = params;
       const pnrId = await getPnrId(client, pnr_number);
       const passengerInvoiceRows = await getPassengerInvoice(
@@ -147,7 +141,6 @@ async function getInvoiceDetails(params) {
       );
 
       for (const row of passengerInvoiceRows) {
-        console.log(`test`, await updateInvoiceDetails(client, row));
         await updateInvoiceDetails(client, row);
 
 
@@ -162,11 +155,6 @@ async function getInvoiceDetails(params) {
     }
   } catch (error) {
     console.error("Erreur de connexion :", error.message);
-  } finally {
-    if (client._connected) {
-      // Close the client connection if it was opened
-      client.end();
-    }
   }
 }
 

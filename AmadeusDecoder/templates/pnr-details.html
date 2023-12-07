@@ -2108,35 +2108,39 @@
 	</div>
 </div>
 
-            <div class="modal fade" id="modalUncommandApi" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-              <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="modalUncommandApiTitle">
-                      <i class="fa-solid fa-xmark"></i>
-                      Décommander un PNR
-                    </h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                  </div>
-                  <div class="modal-body">
-                      <div class="form-group">
-                        <label for="message-text" class="col-form-label">Numero PNR:</label>
-                        <input type='text' name="pnr_number" class="form-control" id="pnr_number" value="{{ pnr.number }}" disabled=true   ></input>
-                        <label for="message-text" class="col-form-label">Numero de commande:</label>
-                        <select class="custom-select" id="selectNumCommande">
-													
-                        </select>
-                      </div>
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
-                      <button type="button" class="btn btn-success" id="sendRemovePassengerInvoice" >Envoyer</button>
-                    </div>
-                </div>
-              </div>
-            </div>
+<div class="modal fade" id="modalUncommandApi" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+	<div class="modal-content">
+		<div class="modal-header">
+		<h5 class="modal-title" id="modalUncommandApiTitle">
+			<i class="fa-solid fa-xmark"></i>
+			Décommander un PNR
+		</h5>
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+		</button>
+		</div>
+		<div class="modal-body">
+			<div class="form-group">
+				{% with pnr|is_one_or_more_passenger_is_invoiced as is_one_or_more_passenger_is_invoiced %}
+					{% if is_one_or_more_passenger_is_invoiced %}
+						<label for="message-text" class="col-form-label">Numero PNR:</label>
+						<input type='text' name="pnr_number" class="form-control" id="pnr_number" value="{{ pnr.number }}" disabled=true   ></input>
+						<label for="message-text" class="col-form-label">Numero de commande:</label>
+						<select class="custom-select" id="selectNumCommande"></select>
+					{% else %}
+						<span>Aucune commande n'a été faite pour ce PNR</span>
+					{% endif %}
+				{% endwith %}
+			</div>
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+			<button type="button" class="btn btn-success" id="sendRemovePassengerInvoice" >Envoyer</button>
+		</div>
+	</div>
+	</div>
+</div>
 
 
 

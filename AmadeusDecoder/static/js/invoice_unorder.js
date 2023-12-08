@@ -52,6 +52,7 @@ if (sendRemovePassengerInvoice) {
         try {
             const pnr_number = (document.getElementById('pnr_number')).value;
             const invoice_number = (document.getElementById('selectNumCommande')).value;
+            const motif = (document.getElementById('motif')).value;
             // console.log(pnr_number);
             // console.log(invoice_number);
 
@@ -63,12 +64,13 @@ if (sendRemovePassengerInvoice) {
                 contentType: "application/json",
                 data: JSON.stringify({
                     pnrNumber: pnr_number,
-                    invoiceNumber: invoice_number
+                    invoiceNumber: invoice_number,
+                    motif: motif,
                 }),
                 success: (response) => {
                     console.log(`response`, response);
                     $('#modalUncommandApi').modal('hide');
-                    toastr.info(`PNR ${pnr_number} décommandé!`);
+                    toastr.info(`PNR ${pnr_number} décommandé avec ${motif}comme motif`);
                     
                     setTimeout(() => {
                         location.reload();

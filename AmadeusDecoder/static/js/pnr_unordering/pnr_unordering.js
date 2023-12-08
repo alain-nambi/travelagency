@@ -24,16 +24,18 @@ app.post('/api/pnr_unorder', async (req, res) => {
     // Create new client for each request
     const client = await pool.connect()
 
-    const { invoiceNumber, pnrNumber } = req.body;
+    const { invoiceNumber, pnrNumber, motif } = req.body;
 
     console.log(`Invoice Number: ${invoiceNumber}`);
     console.log(`PNR Number: ${pnrNumber}`);
+    console.log(`Motif: ${motif}`);
+
 
     if (!invoiceNumber || !pnrNumber) {
       throw new Error("Veuillez fournir au moins deux paramètres : invoiceNumber et pnrNumber.");
     }
 
-    const params = { invoice_number: invoiceNumber, pnr_number: pnrNumber };
+    const params = { invoice_number: invoiceNumber, pnr_number: pnrNumber, motif: motif };
     await getInvoiceDetails(client, params);
     // await deletePassengerInvoice(client,pnrNumber, invoiceNumber)
 
@@ -100,11 +102,27 @@ async function updateInvoiceDetails(client, invoice) {
     );
   }
 
-    
 
   // if (client_id) {
   //   await client.query("DELETE FROM t_passenger_invoice WHERE id = $1", [id]);
   // }
+}
+
+async function get_details_invoice(client,pnr_id){
+  const details = await client.query("SELECT * FROM t_passenger_invoice WHERE pnr_id = $1 ", [pnr_id]);
+  return details.rows;
+}
+
+async function save_invoice_canceled(client,pnr_id,invoice_number,motif){
+  const details = await get_details_invoice(client,pnr_id);
+  for (const detail of details) {
+    if(detail['ticket_id'] !== null || detail['other_fee_id'] !== null ){
+      await client.query("INSERT INTO t_invoices_canceled (pnr_id, invoice_number, motif, date, ticket_id, other_fee_id) VALUES ($1, $2, $3, CURRENT_DATE, $4, $5)", [pnr_id, invoice_number, motif, detail['ticket_id'], detail['other_fee_id']]);
+    }
+    
+}
+  
+
 }
 
 async function deleteTickerPassengerSegmentBy(client, pnrNumber) {
@@ -138,7 +156,7 @@ async function resetTicketCost(client, ticketId) {
 async function getInvoiceDetails(client, params) {
   try {
     if (client._connected) {
-      const { invoice_number, pnr_number } = params;
+      const { invoice_number, pnr_number, motif } = params;
       const pnrId = await getPnrId(client, pnr_number);
       const passengerInvoiceRows = await getPassengerInvoice(
         client,
@@ -148,8 +166,13 @@ async function getInvoiceDetails(client, params) {
 
       for (const row of passengerInvoiceRows) {
         await updateInvoiceDetails(client, row);
-
       }
+      try {
+        await save_invoice_canceled(client,pnrId,invoice_number, motif)
+      } catch (error) {
+        console.log('Errrrorrrr: ', error.message);
+      }
+      
      
       // Remove all segment related to ticket
       // await deleteTickerPassengerSegmentBy(client, pnr_number).then((result) => console.log(result))

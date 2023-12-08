@@ -2128,9 +2128,12 @@
 						<input type='text' name="pnr_number" class="form-control" id="pnr_number" value="{{ pnr.number }}" disabled=true   ></input>
 						<label for="message-text" class="col-form-label">Numero de commande:</label>
 						<select class="custom-select" id="selectNumCommande"></select>
+						<label for="message-text" class="col-form-label">Motif:</label>
+						<input type='text' name="motif" class="form-control" id="motif"></input>
 					{% else %}
 						<span>Aucune commande n'a été faite pour ce PNR</span>
 					{% endif %}
+						
 				{% endwith %}
 			</div>
 		</div>

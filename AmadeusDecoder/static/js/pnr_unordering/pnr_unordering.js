@@ -24,7 +24,7 @@ app.post('/api/pnr_unorder', async (req, res) => {
     // Create new client for each request
     const client = await pool.connect()
 
-    const { invoiceNumber, pnrNumber, motif } = req.body;
+    const { invoiceNumber, pnrNumber, motif, user_id } = req.body;
 
     console.log(`Invoice Number: ${invoiceNumber}`);
     console.log(`PNR Number: ${pnrNumber}`);
@@ -35,7 +35,7 @@ app.post('/api/pnr_unorder', async (req, res) => {
       throw new Error("Veuillez fournir au moins deux paramètres : invoiceNumber et pnrNumber.");
     }
 
-    const params = { invoice_number: invoiceNumber, pnr_number: pnrNumber, motif: motif };
+    const params = { invoice_number: invoiceNumber, pnr_number: pnrNumber, motif: motif, user_id:user_id };
     await getInvoiceDetails(client, params);
     // await deletePassengerInvoice(client,pnrNumber, invoiceNumber)
 
@@ -113,11 +113,11 @@ async function get_details_invoice(client,pnr_id){
   return details.rows;
 }
 
-async function save_invoice_canceled(client,pnr_id,invoice_number,motif){
+async function save_invoice_canceled(client,pnr_id,invoice_number,motif,user_id){
   const details = await get_details_invoice(client,pnr_id);
   for (const detail of details) {
     if(detail['ticket_id'] !== null || detail['other_fee_id'] !== null ){
-      await client.query("INSERT INTO t_invoices_canceled (pnr_id, invoice_number, motif, date, ticket_id, other_fee_id) VALUES ($1, $2, $3, CURRENT_DATE, $4, $5)", [pnr_id, invoice_number, motif, detail['ticket_id'], detail['other_fee_id']]);
+      await client.query("INSERT INTO t_invoices_canceled (pnr_id,user_id, invoice_number, motif, date, ticket_id, other_fee_id) VALUES ($1, $2, $3,$4, CURRENT_DATE, $5, $6)", [pnr_id,user_id, invoice_number, motif, detail['ticket_id'], detail['other_fee_id']]);
     }
     
 }
@@ -156,7 +156,7 @@ async function resetTicketCost(client, ticketId) {
 async function getInvoiceDetails(client, params) {
   try {
     if (client._connected) {
-      const { invoice_number, pnr_number, motif } = params;
+      const { invoice_number, pnr_number, motif,user_id } = params;
       const pnrId = await getPnrId(client, pnr_number);
       const passengerInvoiceRows = await getPassengerInvoice(
         client,
@@ -168,7 +168,7 @@ async function getInvoiceDetails(client, params) {
         await updateInvoiceDetails(client, row);
       }
       try {
-        await save_invoice_canceled(client,pnrId,invoice_number, motif)
+        await save_invoice_canceled(client,pnrId,invoice_number, motif, user_id)
       } catch (error) {
         console.log('Errrrorrrr: ', error.message);
       }

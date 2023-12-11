@@ -53,6 +53,7 @@ if (sendRemovePassengerInvoice) {
             const pnr_number = (document.getElementById('pnr_number')).value;
             const invoice_number = (document.getElementById('selectNumCommande')).value;
             const motif = (document.getElementById('motif')).value;
+            const user_id = (document.getElementById('user_id')).value;
             // console.log(pnr_number);
             // console.log(invoice_number);
 
@@ -66,6 +67,7 @@ if (sendRemovePassengerInvoice) {
                     pnrNumber: pnr_number,
                     invoiceNumber: invoice_number,
                     motif: motif,
+                    user_id: user_id,
                 }),
                 success: (response) => {
                     console.log(`response`, response);

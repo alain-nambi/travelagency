@@ -6,6 +6,7 @@ Created on 27 Aug 2022
 import datetime
 from django.db import models
 from AmadeusDecoder.models.BaseModel import BaseModel
+from django.utils import timezone
 
 class Invoice(models.Model, BaseModel):
     '''
@@ -47,8 +48,13 @@ class InvoicesCanceled(models.Model, BaseModel):
         on_delete = models.CASCADE,
     )
     
+    user = models.ForeignKey(
+        'AmadeusDecoder.User',
+        on_delete=models.CASCADE,
+    )
+    
     invoice_number = models.CharField(max_length=100,null=False )
     motif = models.CharField(max_length=200, null=True)
-    date = models.DateField(default=datetime.date.today, null=False)
+    date = models.DateField(default=timezone.now , null=False)
     ticket = models.OneToOneField('Ticket', on_delete=models.CASCADE, default=False, null=True)
     other_fee = models.OneToOneField('OthersFee', on_delete=models.CASCADE, default=None, null=True)

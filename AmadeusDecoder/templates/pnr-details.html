@@ -2124,8 +2124,9 @@
 			<div class="form-group">
 				{% with pnr|is_one_or_more_passenger_is_invoiced as is_one_or_more_passenger_is_invoiced %}
 					{% if is_one_or_more_passenger_is_invoiced %}
+						<input type='hidden' name="user_id" class="form-control" id="user_id" value="{{ user.id }}" ></input>
 						<label for="message-text" class="col-form-label">Numero PNR:</label>
-						<input type='text' name="pnr_number" class="form-control" id="pnr_number" value="{{ pnr.number }}" disabled=true   ></input>
+						<input type='text' name="pnr_number" class="form-control" id="pnr_number" value="{{ pnr.number }}" disabled=true></input>
 						<label for="message-text" class="col-form-label">Numero de commande:</label>
 						<select class="custom-select" id="selectNumCommande"></select>
 						<label for="message-text" class="col-form-label">Motif:</label>

@@ -57,22 +57,21 @@ if (sendRemovePassengerInvoice) {
             // console.log(pnr_number);
             // console.log(invoice_number);
 
-            const hostname = "http://localhost:1000/api/pnr_unorder";
             $.ajax({
                 type: "POST",
-                url: hostname,
+                url: "/home/unorder-pnr",
                 dataType: "json",
-                contentType: "application/json",
-                data: JSON.stringify({
-                    pnrNumber: pnr_number,
-                    invoiceNumber: invoice_number,
+                data:{
+                    pnr_number: pnr_number,
+                    invoice_number: invoice_number,
                     motif: motif,
                     user_id: user_id,
-                }),
+                    csrfmiddlewaretoken: csrftoken,
+                },
                 success: (response) => {
                     console.log(`response`, response);
                     $('#modalUncommandApi').modal('hide');
-                    toastr.info(`PNR ${pnr_number} décommandé avec ${motif}comme motif`);
+                    toastr.info(`PNR ${pnr_number} décommandé avec ${motif} comme motif`);
                     
                     setTimeout(() => {
                         location.reload();

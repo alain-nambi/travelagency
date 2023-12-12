@@ -55,6 +55,8 @@ class InvoicesCanceled(models.Model, BaseModel):
     
     invoice_number = models.CharField(max_length=100,null=False )
     motif = models.CharField(max_length=200, null=True)
-    date = models.DateField(default=timezone.now , null=False)
+    date = models.DateField(auto_now_add=True , null=False)
     ticket = models.OneToOneField('Ticket', on_delete=models.CASCADE, default=False, null=True)
     other_fee = models.OneToOneField('OthersFee', on_delete=models.CASCADE, default=None, null=True)
+    fee = models.OneToOneField('Fee', on_delete=models.CASCADE, default=None, null=True)
+    

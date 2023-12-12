@@ -58,5 +58,5 @@ urlpatterns = [
     path('home/other-fee/remove/', remove_other_fee_service, name='remove_other_fee_service'),
     path('home/get-all-products/', get_all_products, name='get_all_products'),
     path('home/get-invoice-number-to-uncommand/<str:numeroPnr>', get_invoice_number, name='get_invoice_number'),
-    
+    path('home/unorder-pnr',unorder_pnr, name='unorder_pnr'),
 ]

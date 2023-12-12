@@ -25,7 +25,7 @@ from AmadeusDecoder.models.invoice.Clients import Client
 from AmadeusDecoder.models.utilities.Comments import Comment, Response
 from AmadeusDecoder.models.invoice.Ticket import Ticket
 from AmadeusDecoder.models.invoice.Fee import Fee, ReducePnrFeeRequest, OthersFee
-from AmadeusDecoder.models.invoice.Invoice import Invoice
+from AmadeusDecoder.models.invoice.Invoice import Invoice, InvoicesCanceled
 from AmadeusDecoder.models.invoice.InvoiceDetails import InvoiceDetails
 from AmadeusDecoder.models.pnr.Passenger import Passenger
 from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
@@ -2054,4 +2054,35 @@ def remove_other_fee_service(request):
 
         return JsonResponse({'status': 'not_found'})
     
+@login_required(login_url="index")
+def unorder_pnr(request):
+    if request.method == 'POST':
+        pnr_number = request.POST.get('pnr_number')
+        invoice_number = request.POST.get('invoice_number')
+        motif = request.POST.get('motif')
+        user_id = request.POST.get('user_id')
+        
+        pnr = Pnr.objects.get(number=pnr_number)
+        passenger_invoices = PassengerInvoice.objects.filter(pnr_id=pnr.id, invoice_number=invoice_number).all()
+        
+        if passenger_invoices:
+            for passenger_invoice in passenger_invoices:
+                PassengerInvoice.objects.filter(id=passenger_invoice.id).update(is_invoiced=False)
+                
+                if passenger_invoice.ticket_id:
+                    Ticket.objects.filter(id=passenger_invoice.ticket_id).update(is_invoiced=False)
+                
+                if passenger_invoice.fee_id:
+                    Fee.objects.filter(id=passenger_invoice.fee_id).update(is_invoiced=False)
+                    
+                if passenger_invoice.other_fee_id:
+                    OthersFee.objects.filter(id=passenger_invoice.other_fee_if).update(is_invoiced=False)
+
+                if passenger_invoice.ticket_id or passenger_invoice.other_fee_id or passenger_invoice.fee_id:
+                    invoices_canceled = InvoicesCanceled(pnr_id=pnr.id,invoice_number=invoice_number,motif=motif,ticket_id=passenger_invoice.ticket_id, other_fee_id = passenger_invoice.other_fee_id,user_id=user_id, fee_id=passenger_invoice.fee_id) 
+                    invoices_canceled.save()
+                
+        
+        return JsonResponse({'status':'ok'})
+    return JsonResponse({'status':'error'})
     

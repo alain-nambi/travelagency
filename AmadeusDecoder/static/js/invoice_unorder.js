@@ -54,8 +54,7 @@ if (sendRemovePassengerInvoice) {
             const invoice_number = (document.getElementById('selectNumCommande')).value;
             const motif = (document.getElementById('motif')).value;
             const user_id = (document.getElementById('user_id')).value;
-            // console.log(pnr_number);
-            // console.log(invoice_number);
+            
 
             $.ajax({
                 type: "POST",
@@ -87,3 +86,27 @@ if (sendRemovePassengerInvoice) {
     })
 }
 
+$(document).ready(function() {
+    function VerifMotifValue() {
+      var motif = $('#motif').val();
+      var Boutton = $('#sendRemovePassengerInvoice');
+
+      if (motif.trim() === '') {
+        Boutton.prop('disabled', true);
+      } else {
+        Boutton.prop('disabled', false);
+      }
+    }
+
+    $('#motif').on('input', function() {
+      VerifMotifValue();
+    });
+
+    $('#modalUncommandApi').on('shown.bs.modal', function() {
+      VerifMotifValue();
+    });
+
+    $('#sendRemovePassengerInvoice').on('click', function() {
+      toggleEnvoyerButton();
+    });
+  });

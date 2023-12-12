@@ -2062,6 +2062,10 @@ def unorder_pnr(request):
         motif = request.POST.get('motif')
         user_id = request.POST.get('user_id')
         
+        if motif is None:
+            return JsonResponse({'message': 'Veuillez ajouter un motif'})
+
+        
         pnr = Pnr.objects.get(number=pnr_number)
         passenger_invoices = PassengerInvoice.objects.filter(pnr_id=pnr.id, invoice_number=invoice_number).all()
         

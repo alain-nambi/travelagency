@@ -309,7 +309,7 @@ class EmailListener:
                 key = "{}_{}".format(uid, from_email)
                 
                 # Create directory for this email
-                path = ABSOLUTE_PATH_SERVICE_RUNNER['test'] + os.path.join(self.attachment_dir, key)
+                path = ABSOLUTE_PATH_SERVICE_RUNNER['prod'] + os.path.join(self.attachment_dir, key)
                 if not os.path.exists(path):
                     os.mkdir(path)
                 

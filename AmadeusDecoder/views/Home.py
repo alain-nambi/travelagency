@@ -2095,11 +2095,9 @@ def get_all_pnr_unordered(request):
     context = {}
     invoices_canceled_list = InvoicesCanceled.objects.all().distinct('pnr_id')
     
-    
     pnr_count = invoices_canceled_list.count()
     
     context['pnr_list'] = invoices_canceled_list
-    request.pnr_count = pnr_count
     object_list = context['pnr_list']
     row_num = request.GET.get('paginate_by', 20) or 20
     page_num = request.GET.get('page', 1)
@@ -2172,8 +2170,9 @@ def unordered_pnr_research(request):
             values['date'] = invoice.date
             values['user'] = invoice.user.username
             results.append(values)
+        pnr_count = len(results)
         
-        context = {'results' : results}
+        context = {'results' : results, 'pnr_count' :  pnr_count}
     return JsonResponse(context)
         
         

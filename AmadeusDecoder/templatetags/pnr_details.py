@@ -702,6 +702,7 @@ def get_all_pnr(request):
             print('no creator')
 
         return pnr_count
+
 @register.filter(name='first_passenger')
 def get_first_passenger(pnr):
     from AmadeusDecoder.models.pnr.Passenger import Passenger
@@ -2387,3 +2388,5 @@ def get_check_passenger_missing(pnr_id, client_id):
     print(count_passenger_missing)
 
     return count_passenger_missing
+
+

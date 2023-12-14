@@ -5,11 +5,11 @@ $("#all-unordered-pnr-after-search").hide();
 $(document).ready(function () {
 
   $("#unordered_pnr-research").on("click", function () {
-    searchFunction();
+    searchUnorderedPnrFunction();
   });
 });
 
-function searchFunction() {
+function searchUnorderedPnrFunction() {
   console.log('====================================');
   
   var pnr_research = $("#input-unordered-pnr").val().toLowerCase();
@@ -62,11 +62,7 @@ function searchFunction() {
               "<%= rangeStart %> - <%= rangeEnd %> sur <%= totalNumber %> résultat(s)",
             callback: function (data, pagination) {
               // La fonction de rappel pour mettre à jour les résultats affichés
-              var html = "";
-              $.each(data, function (index,invoice) {
-
-                html += `
-                    <thead id="thead-all-pnr">
+              var html = `<thead id="thead-all-pnr">
                     <tr id="tr-all-pnr">
                       <th>Numéro</th>
                       <th>Numéro de commande</th> 
@@ -77,10 +73,7 @@ function searchFunction() {
                           <i class="fa fa-sm fa-solid" id="icon__pnrDateCreation"></i>
                         </div>
                       </th>
-
-                      <th>Motif</th>
-                      
-                      
+                      <th>Motif</th> 
                       <th class="pnr-creator-list">
                         <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
                           Créateur
@@ -89,9 +82,11 @@ function searchFunction() {
                       </th>
                     </tr>
                   </thead>
-                  <tbody class="tbody-unordered-pnr-after-search">
+                  <tbody class="tbody-unordered-pnr-after-search">`;
+              $.each(data, function (index,invoice) {
+
+                html += `
                     <tr 
-                      
                       onclick="location.href='/home/pnr/${invoice.id}/'" 
                       style="cursor: pointer;" 
                       role="row"
@@ -106,9 +101,10 @@ function searchFunction() {
                       <td> ${invoice.user} </td>
                       
                     </tr>
-                  </tbody>
+                  
                 `;
               });
+              html += `</tbody>`;
               $("all-unordered-pnr-after-search").html(html); // Mise à jour du contenu de la table
               $("#all-unordered-pnr-after-search").html(html).trigger("update");
             },

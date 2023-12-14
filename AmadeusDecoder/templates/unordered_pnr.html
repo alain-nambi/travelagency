@@ -1,4 +1,4 @@
-{% extends "layout-all-pnr.html" %}
+{% extends "layout-unordered-pnr.html" %}
 {% load pnr_details %}
 {% block content %}
 <!-- Main content -->
@@ -42,18 +42,7 @@
                           </div>
                         </div>
                       </div> 
-                      <div class="col-md-3">
-                        <div class="d-flex">  
-                        <form method="GET" class="d-flex align-items-center justify-content-between"> 
-                          <div class="d-flex" style="width: 10rem;">
-                            <input type="text" name="paginate_by" class="form-control form-control-sm mt-1 value_page p-0 pl-2" placeholder="{{ row_num }}" required title="Nombres des lignes"/>
-                            <input type="text" class="form-control form-control-sm mt-1 count_page p-0" disabled value=" / {{ pnr_count }}" id="UnorderedpnrCounterOnSearch"/>
-                          </div>
-  
-                          <button type="submit" class="btn btn-outline-primary mt-1 px-2 py-0" id="buttonShowPnrBySize">Afficher</button>
-                        </form>
 
-                      </div>
                     </div>
                 
                     
@@ -72,7 +61,7 @@
                     <th class="pnr-creation-date" style="cursor: pointer;">
                       <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
                         Date du décommande
-                        <i class="fa fa-sm fa-solid" id="icon__pnrDateCreation"></i>
+                      
                       </div>
                     </th>
 
@@ -82,7 +71,7 @@
                     <th class="pnr-creator-list">
                       <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
                         Créateur
-                        <i class="fa fa-sm fa-solid" id="icon__pnrCreator"></i>
+                        
                       </div>
                     </th>
                   </tr>

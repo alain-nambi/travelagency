@@ -10,7 +10,7 @@ import random
 import pandas as pd
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
@@ -803,10 +803,11 @@ def pnr_research(request):
 @login_required(login_url='index')
 def pnr_search_by_pnr_number(request):
     context = {}
+    maximum_timezone = "2023-01-01 01:00:00.000000+03:00"
     if request.method == 'POST':
         pnr_number = request.POST.get('PnrNumber', None)
         if pnr_number is not None:
-            pnr = Pnr.objects.all().filter(number=pnr_number).first()
+            pnr = Pnr.objects.all().filter(number=pnr_number).filter(Q(system_creation_date__gt=maximum_timezone)).first()
             if pnr is not None:
                 context['pnr_id'] = pnr.id
             else:
@@ -2022,3 +2023,35 @@ def get_all_municipalities(request):
             
             return JsonResponse(municipality_list, safe=False)
         return JsonResponse([], safe=False)
+    
+@login_required(login_url="index")
+def get_all_products(request):
+    if request.method == 'GET':
+        product_designation_list = []
+        product_objects = Product.objects.all()
+
+        if product_objects.exists():
+            for product in product_objects:
+                product_designation_list.append(product.designation)
+            return JsonResponse({"product_designation_list": product_designation_list}, safe=False)
+
+        return JsonResponse([], safe=False)
+    
+@login_required(login_url="index")
+def remove_other_fee_service(request):
+    if request.method == 'POST':
+        other_fee_id = request.POST.get('other_fee_id')
+        other_fee = OthersFee.objects.filter(id=other_fee_id).first()
+
+        if other_fee:
+            other_fee.delete()
+            context = {
+                'status': 'deleted',
+                'designation': other_fee.designation,
+                'total': other_fee.total
+            }
+            return JsonResponse(context, safe=False)
+
+        return JsonResponse({'status': 'not_found'})
+    
+    

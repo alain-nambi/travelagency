@@ -944,7 +944,24 @@
 												</td>
 												<td>{{other_fee.emitter.username}}</td>
 												<td></td>
-												<td></td>
+												<td>
+													<!---- only if other_fee is not already invoiced that yan can remove it ----->
+													{% if not other_fee.is_invoiced %}
+														<button id="deleteOtherFeeService"
+																class="btn btn-danger d-none px-2 py-1" 
+																type="button" 
+																data-toggle="modal"
+																data-target="#modalRemoveOtherFeeService"
+																title="Supprimer {{ other_fee.designation }} à {{ other_fee.cost|floatformat:'2' }} euros"
+																data-other-fee-id="{{ other_fee.id }}"
+																data-other-fee-designation="{{ other_fee.designation }}"
+																data-other-fee-total="{{ other_fee.total }}"
+														>
+															<i class="fa-solid fa-trash"></i>
+														</button>
+													{% endif %}
+													<!---------------------- remove other_fee buttons --------------------------->
+												</td>
 												{% if other_fees_orders is not None or other_fee_cancel_void_status or other_fee.ticket is not None or other_fee.other_fee is not None or other_fee.is_invoiced%}
 												<td class="checkbox"><input type="checkbox" class="to-hide-when-cancel other-fees-check p-checkbox other-fees-checkboxes check{{ other_fee.id }} checkbox-line-below" id="passagers-check" data-other-fees-id = "{{other_fee.id}}" data-id="{{ other_fee.id }}" data-commune-id = "{{other_fee.id}}" data-amount-total="{{ other_fee.total|floatformat:'2' }}" data-type="other-fee" checked hidden></td>
 												{% else %}
@@ -957,7 +974,7 @@
 											{% if fee is not None %}
 											{% with fee|other_fees_fees_orders as other_fees_fees_orders %}
 											{% with other_fee.id|is_other_fee_invoiced as is_other_fee_invoiced %}
-											<tr class="tr-other-fees-fee {% if fee.is_invoiced %} text-success {% endif %}">
+											<tr class="tr-other-fees-fee {% if fee.is_invoiced %} text-success {% endif %}" data-other-fee-id="{{ other_fee.id}}" data-fee-id="{{ fee.id }}">
 												<td>Fee</td>
 												<td>{{ fee.type }}</td>
 												<td>{{ '' }}</td>
@@ -2043,6 +2060,31 @@
 		<button type="button" class="btn btn-success" id="exitRemoveCustomer"><i class="fa-solid fa-trash"></i> Confirmer</button>
 		<button type="button" class="btn btn-danger" data-dismiss="modal"><i></i>Annuler</button>
 		</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade show" id="modalRemoveOtherFeeService" style="display: none;" aria-modal="true" role="dialog">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Suppression du service</h4>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">×</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<span>
+					Voulez-vous vraiment supprimer le service 
+					<span id="otherFeeDesignation"></span> ?
+				</span>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+				<button type="button" class="btn btn-danger" id="deleteOtherFeeServiceModalConfirmation" data-dismiss="modal">
+					<span id="textConfirmationDeleteOtherFeeService"></span>
+				</button>
+			</div>
 		</div>
 	</div>
 </div>

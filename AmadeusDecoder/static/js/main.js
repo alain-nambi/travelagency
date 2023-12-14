@@ -1241,7 +1241,138 @@ $(document).ready(function () {
   $(".select2").attr("style", "display: none !important");
   $(".selection").attr("style", "display: none !important");
   $("#save").prop("hidden", true);
+
+  const buttonDeleteOtherFeeService = document.querySelectorAll("#deleteOtherFeeService")
+  const buttonDeleteOtherFeeServiceModalConfirmation = document.querySelector("#deleteOtherFeeServiceModalConfirmation")
+  const spanOtherFeeDesignation = document.querySelector("#otherFeeDesignation")
+  const textConfirmationDeleteOtherFeeService = document.querySelector("#textConfirmationDeleteOtherFeeService")
+
   $("#edit").click(function () {
+    // Function to handle the click event on the confirmation button
+    const handleConfirmationButtonClick = async (otherFee, csrftoken) => {
+      try {
+        // AJAX request to remove the other fee
+        $.ajax({
+          type: "POST",
+          url: "/home/other-fee/remove/",
+          dataType: "json",
+          data: {
+            other_fee_id: otherFee[0],
+            csrfmiddlewaretoken: csrftoken,
+          },
+          success: (response) => {
+            // If the other fee is successfully deleted
+            if (response.status === "deleted") {
+              const { designation, total } = response;
+              const message = `Le service ${designation} avec un montant total de ${parseFloat(
+                total
+              ).toFixed(2)} a été supprimé...`;
+
+              // Display success message using toastr
+              toastr.clear();
+              toastr.success(message);
+
+              // Find and remove the corresponding table row
+              const trTableOtherFees =
+                document.querySelectorAll(".tr-other-fees");
+              const trTableOtherFeesFee = document.querySelectorAll(".tr-other-fees-fee")
+
+              const tableToDelete = Array.from(trTableOtherFees).find(
+                (table) => parseInt(table.dataset.otherFeeId) === otherFee[0]
+              );
+
+              const tableOtherFeesFeeToDelete = Array.from(trTableOtherFeesFee).find(
+                (table) => parseInt(table.dataset.otherFeeId) === otherFee[0]
+              );
+
+              // Optional chaining to handle the case where the table is already removed
+              tableToDelete?.remove();
+              tableOtherFeesFeeToDelete?.remove();
+            }
+          },
+          error: (error) => {
+            console.log(error);
+          },
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    // Function to handle the click event on the delete button
+    const handleDeleteButtonClick = (deleteButton) => {
+      const otherFee = [];
+
+      // Add click event listener to the delete button
+      deleteButton.addEventListener("click", () => {
+        const otherFeeId = parseInt(deleteButton.dataset.otherFeeId);
+        const otherFeeDesignation = String(
+          deleteButton.dataset.otherFeeDesignation
+        );
+        const otherFeeTotal = parseFloat(
+          deleteButton.dataset.otherFeeTotal
+        ).toFixed(2);
+
+        // Store information about the other fee
+        otherFee.push(otherFeeId);
+
+        // Update the confirmation message
+        spanOtherFeeDesignation.innerHTML = `<strong>${otherFeeDesignation}</strong>`;
+        textConfirmationDeleteOtherFeeService.textContent = `Oui, supprimer ${otherFeeDesignation}`;
+      });
+
+      return otherFee;
+    };
+
+    // Check if buttonDeleteOtherFeeService is available
+    if (buttonDeleteOtherFeeService) {
+      try {
+        // AJAX request to get product information
+        $.ajax({
+          type: "GET",
+          url: "/home/get-all-products/",
+          dataType: "json",
+          data: {
+            csrfmiddlewaretoken: csrftoken,
+          },
+          success: (response) => {
+            // List of product designations
+            const productDesignationList = response.product_designation_list;
+
+            // Loop through delete buttons
+            buttonDeleteOtherFeeService.forEach((deleteButton) => {
+              // Check if the product designation matches and update visibility
+              if (
+                productDesignationList.includes(
+                  deleteButton.dataset.otherFeeDesignation
+                )
+              ) {
+                deleteButton.classList.replace("d-none", "d-block");
+              } else {
+                deleteButton.classList.replace("d-block", "d-none");
+              }
+
+              // Attach click event handlers
+              const otherFee = handleDeleteButtonClick(deleteButton);
+
+              // Attach click event handler for confirmation button
+              buttonDeleteOtherFeeServiceModalConfirmation.addEventListener(
+                "click",
+                () => {
+                  handleConfirmationButtonClick(otherFee, csrftoken);
+                }
+              );
+            });
+          },
+          error: (error) => {
+            console.log(error);
+          },
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
     const select2CustomerList = document.getElementById(
       "select2-customer-list-container"
     );
@@ -1337,6 +1468,12 @@ $(document).ready(function () {
   });
 
   $("#cancel").click(function () {
+    if (buttonDeleteOtherFeeService) {
+      buttonDeleteOtherFeeService.forEach((deleteButton) => {
+        deleteButton.classList.replace("d-block", "d-none");
+      })
+    }
+
     const SpanAmoutTotalMain = document.getElementById("pnr-amount-total");
     const SpanFeesTotalMain = document.getElementById("total-services-fees");
     SpanAmoutTotalMain.textContent = parseFloat(

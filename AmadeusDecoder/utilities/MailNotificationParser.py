@@ -159,8 +159,10 @@ class MailNotification():
                                 "pp@phidia.onmicrosoft.com",
                                 "tahina@phidia.onmicrosoft.com",
                                 "alain@phidia.onmicrosoft.com",
+                                "anjaranaivo464@gmail.com",
+                                "olyviahasina.razakamanantsoa@outlook.fr",
+                                "mathieu@phidia.onmicrosoft.com",
                                 "nasolo@phidia.onmicrosoft.com",
-                                "famenontsoa@outlook.com",
                             ],
                             subject,
                             message
@@ -464,8 +466,10 @@ class MailNotification():
             "pp@phidia.onmicrosoft.com",
             "nasolo@phidia.onmicrosoft.com",
             "tahina@phidia.onmicrosoft.com",
-            "famenontsoa@outlook.com",
             "alain@phidia.onmicrosoft.com",
+            "anjaranaivo464@gmail.com",
+            "olyviahasina.razakamanantsoa@outlook.fr",
+            "mathieu@phidia.onmicrosoft.com",
         ]
         
         other_users_mail = [
@@ -580,8 +584,8 @@ class MailNotification():
                 Sending.send_email(
                     "alain@phidia.onmicrosoft.com", 
                     # administrator_users_mail + mgbi_users_mail,  
-                    # subject, 
-                    # message
+                    subject, 
+                    message
                 )
                                 
             if len(no_anomaly_pnrs_before_afternoon_for_administrator) < 1 and len(no_anomaly_pnrs_before_afternoon_after_processing) < 1:
@@ -665,8 +669,8 @@ class MailNotification():
                 Sending.send_email(
                     "alain@phidia.onmicrosoft.com", 
                     # administrator_users_mail + mgbi_users_mail,  
-                    # subject, 
-                    # message
+                    subject, 
+                    message
                 )
 
             if len(no_anomaly_pnrs_after_afternoon_for_administrator) < 1 and len(no_anomaly_pnrs_after_afternoon_after_processing) < 1:

@@ -161,8 +161,10 @@ def control_data_gp_odoo() :
     											
     recipients = [
         "nasolo@phidia.onmicrosoft.com",
-        "famenontsoa@outlook.com",
         "alain@phidia.onmicrosoft.com",
+        "anjaranaivo464@gmail.com",
+        "olyviahasina.razakamanantsoa@outlook.fr",
+        "mathieu@phidia.onmicrosoft.com",
         "tahina@phidia.onmicrosoft.com"
     ]		
     subject = "Contrôle des données Gestion PNR - Odoo"						

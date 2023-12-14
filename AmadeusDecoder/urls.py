@@ -55,4 +55,6 @@ urlpatterns = [
     path('home/get-all-coutries/', get_all_countries, name= 'get_all_countries'),
     path('home/get-all-departments/', get_all_departments, name= 'get_all_departments'),
     path('home/get-all-municipalities/', get_all_municipalities, name= 'get_all_municipalities'),
+    path('home/other-fee/remove/', remove_other_fee_service, name='remove_other_fee_service'),
+    path('home/get-all-products/', get_all_products, name='get_all_products'),
 ]

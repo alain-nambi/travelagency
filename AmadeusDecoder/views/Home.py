@@ -2090,3 +2090,91 @@ def unorder_pnr(request):
         return JsonResponse({'status':'ok'})
     return JsonResponse({'status':'error'})
     
+@login_required(login_url="index")
+def get_all_pnr_unordered(request):
+    context = {}
+    invoices_canceled_list = InvoicesCanceled.objects.all().distinct('pnr_id')
+    
+    
+    pnr_count = invoices_canceled_list.count()
+    
+    context['pnr_list'] = invoices_canceled_list
+    request.pnr_count = pnr_count
+    object_list = context['pnr_list']
+    row_num = request.GET.get('paginate_by', 20) or 20
+    page_num = request.GET.get('page', 1)
+    paginator = Paginator(object_list, row_num)
+    try:
+        page_obj = paginator.page(page_num)
+    except PageNotAnInteger: 
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+    context = {'page_obj': page_obj, 'row_num': row_num, 'pnr_count' : pnr_count}
+    
+    return render(request,'unordered_pnr.html', context)
+
+@login_required(login_url="index")
+def unordered_pnr_research(request):
+    context = {}
+    
+    if request.method == 'POST' and request.POST.get('pnr_research'):
+        search_results = []
+        
+        pnr_research = request.POST.get('pnr_research')
+        pnr_results = InvoicesCanceled.objects.all().filter(Q(invoice_number__icontains=pnr_research) | Q(pnr__id__icontains=pnr_research)| Q(motif__icontains=pnr_research) | Q(pnr__number__icontains=pnr_research)).distinct('pnr_id')
+        
+        if pnr_results.exists():
+            for p1 in pnr_results :
+                search_results.append(p1)
+        print(search_results)
+        
+        _passengers = Passenger.objects.all().filter(Q(name__icontains=pnr_research) | Q(surname__icontains=pnr_research) )
+        
+        for p in _passengers :
+            
+            pnr_passenger = PnrPassenger.objects.all().filter(passenger=p).first()
+            if pnr_passenger is not None :
+                pnr_object = InvoicesCanceled.objects.all().filter(pnr_id=pnr_passenger.pnr.pk).distinct()
+                
+                if pnr_object.exists() and pnr_object not in search_results and pnr_object is not None :
+                    search_results.extend(pnr_object)
+        print(search_results)
+        
+        # Search with customer
+        _customers = Client.objects.all().filter(Q(intitule__icontains=pnr_research) )
+        
+        for c in _customers :
+            pnr_passenger_invoice = PassengerInvoice.objects.all().filter(client=c).first()
+            if pnr_passenger_invoice is not None :
+                pnr_cobject = InvoicesCanceled.objects.all().filter(pnr_id=pnr_passenger_invoice.pnr.pk).distinct()
+                
+                if pnr_cobject.exists() and pnr_cobject not in search_results and pnr_cobject is not None :
+                    search_results.extend(pnr_cobject)
+                
+        _users = User.objects.all().filter(Q(username__icontains=pnr_research))        
+        for user in _users:
+            pnr_invoices = InvoicesCanceled.objects.all().filter(user_id=user.pk).distinct()
+            
+            if pnr_invoices.exists() and pnr_invoices not in search_results and pnr_invoices is not None :
+                search_results.extend(pnr_invoices)
+                    
+        print(search_results)
+        
+        results = []
+        for invoice in search_results:
+            
+            values = {}
+            values['pnr_id'] = invoice.pnr.id
+            values['pnr_number'] = invoice.pnr.number
+            values['invoice_number'] = invoice.invoice_number
+            values['motif'] = invoice.motif
+            values['date'] = invoice.date
+            values['user'] = invoice.user.username
+            results.append(values)
+        
+        context = {'results' : results}
+    return JsonResponse(context)
+        
+        
+        

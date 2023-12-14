@@ -46,17 +46,37 @@ class InvoicesCanceled(models.Model, BaseModel):
     pnr = models.ForeignKey(
         "AmadeusDecoder.Pnr",
         on_delete = models.CASCADE,
+        related_name = 'pnr_unordered',
     )
     
     user = models.ForeignKey(
         'AmadeusDecoder.User',
         on_delete=models.CASCADE,
+        related_name = 'user',
     )
     
     invoice_number = models.CharField(max_length=100,null=False )
     motif = models.CharField(max_length=200, null=False)
-    date = models.DateField(auto_now_add=True , null=False)
-    ticket = models.OneToOneField('Ticket', on_delete=models.CASCADE, default=False, null=True)
-    other_fee = models.OneToOneField('OthersFee', on_delete=models.CASCADE, default=None, null=True)
-    fee = models.OneToOneField('Fee', on_delete=models.CASCADE, default=None, null=True)
+    date = models.DateTimeField(auto_now_add=True , null=False)
+    ticket = models.OneToOneField(
+        'Ticket', 
+        on_delete=models.CASCADE, 
+        default=False, 
+        null=True, 
+        related_name= 'pnr_unordered_ticket',
+    )
+    other_fee = models.OneToOneField(
+        'OthersFee',
+        on_delete=models.CASCADE, 
+        default=None, 
+        null=True, 
+        related_name='pnr_unordered_other_fee',
+    )
+    fee = models.OneToOneField(
+        'Fee', 
+        on_delete=models.CASCADE, 
+        default=None, 
+        null=True, 
+        related_name='pnr_unordered_fee',
+    )
     

@@ -207,6 +207,12 @@ old -->
                 <p>Anomalies PNR</p>
               </a>
             </li>
+            <li class="nav-item">
+              <a href="{% url 'get_all_pnr_unordered' %}" class="nav-link">
+                <i class="fas fa-trash-can nav-icon"></i>
+                <p>PNR Décomandés</p>
+              </a>
+            </li>
             {% endif %}
             <!--menu direction role_id=2-->
             {% if request.user.role_id == 2 %}

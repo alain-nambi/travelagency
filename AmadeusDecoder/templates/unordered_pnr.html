@@ -1,0 +1,149 @@
+{% extends "layout-all-pnr.html" %}
+{% load pnr_details %}
+{% block content %}
+<!-- Main content -->
+<div class="content-wrapper">
+  <section class="content-header p-0">
+    <div class="container-fluid">
+
+    </div><!-- /.container-fluid -->
+  </section>
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row ">
+        <div class="col-12">
+          <div class="card card-primary card-outline content-all-pnr" id="pnrManagementMenu">
+            <!-- /.card-header -->
+            <div class="card-header justify-content-between py-0">
+              <div class="row align-items-center">
+                <div class="col-md-2 float-left">
+                <h4 class="text-primary title-all-pnr mt-1 mb-0">Gestion PNR</h4>
+                </div>
+                <div class="col-md-10 float-right">
+                  <div class="row d-flex align-items-center">
+                    <div class="col-md-3 d-flex">
+                      <div class="col-md-8 mr-4 px-0 d-flex align-items-center justify-content-center">
+                        <div class="input-group input-group float-sm-right mt-1 mb-1" style="position: relative;">
+                          <input type="text" name="table_search" id="input-unordered-pnr" class="form-control form-control-sm"
+                            placeholder="Recherche">
+                          <div 
+                            id="spinnerLoadingSearch" 
+                            class="spinner-border" 
+                            role="status" 
+                            style="width: 14px; height: 14px; position: absolute; right: 48px; bottom: 6px; z-index: 9999"
+                            title="Recherche en cours"
+                          >
+                            <span class="sr-only">Loading...</span>
+                          </div>
+                          <div class="input-group-append">
+                            <button type="submit" id="unordered_pnr-research" class="btn btn-default py-0" title="Bouton de recherche">
+                              <i class="fas fa-search text-primary"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </div> 
+                      <div class="col-md-3">
+                        <div class="d-flex">  
+                        <form method="GET" class="d-flex align-items-center justify-content-between"> 
+                          <div class="d-flex" style="width: 10rem;">
+                            <input type="text" name="paginate_by" class="form-control form-control-sm mt-1 value_page p-0 pl-2" placeholder="{{ row_num }}" required title="Nombres des lignes"/>
+                            <input type="text" class="form-control form-control-sm mt-1 count_page p-0" disabled value=" / {{ pnr_count }}" id="UnorderedpnrCounterOnSearch"/>
+                          </div>
+  
+                          <button type="submit" class="btn btn-outline-primary mt-1 px-2 py-0" id="buttonShowPnrBySize">Afficher</button>
+                        </form>
+
+                      </div>
+                    </div>
+                
+                    
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-body p-0" id="showTableForAllPnr">
+              <table class="table table-bordered table-head-fixed table-hover text-nowrap" id="all-unordered-pnr">
+                <thead id="thead-all-pnr">
+
+                  <tr id="tr-all-pnr">
+                    <th>Numéro</th>
+                    <th>Numéro de commande</th> 
+
+                    <th class="pnr-creation-date" style="cursor: pointer;">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
+                        Date du décommande
+                        <i class="fa fa-sm fa-solid" id="icon__pnrDateCreation"></i>
+                      </div>
+                    </th>
+
+                    <th>Motif</th>
+                    
+                    
+                    <th class="pnr-creator-list">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
+                        Créateur
+                        <i class="fa fa-sm fa-solid" id="icon__pnrCreator"></i>
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody class="tbody-unordered-pnr">
+                  {% for invoices in page_obj %}
+                  
+                  
+                  <tr onclick="location.href='{% url 'pnr_details' invoices.pnr.id %}'"
+                      style="cursor: pointer;" >
+                      <td class="d-flex align-items-center justify-content-between" style="gap:5px">
+                        <span class="pnr-num-class">{{ invoices.pnr.number }}</span>
+                          <span 
+                            class="tooltips state_2 float-right" 
+                            tooltip="" 
+                            tooltip-position="top"
+                            tooltip-type="warning" 
+                            <i class="fa fa-exclamation-triangle warning"></i>
+                          </span>
+
+
+                      </td>
+                      <td> {{invoices.invoice_number}} </td>
+
+                      <td>{{ invoices.date|date:"d/m/y H:i" }}</td>
+                      <td>{{ invoices.motif }}</td>
+                      
+                      <td>
+                          {{ invoices.user.username}}
+                      </td>
+                      
+                    </tr>
+                  
+                  {% endfor %}
+                </tbody>
+
+              </table>
+
+              <table class="table table-bordered table-head-fixed table-hover text-nowrap" id="all-unordered-pnr-after-search">
+              
+              </table>
+            </div>
+            
+
+            <!-- /.card-body -->
+          </div>
+          <!-- /.card -->
+        </div>
+
+        <a class="" onclick="eraseCache()" role="button" title="Actualiser"><i class="fa fa-refresh fa-2x reload"
+            aria-hidden="true"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="loading">
+  <div class="spinner-wrapper">
+    <span class="spinner-text">Chargement...</span>
+    <span class="spinner"></span>
+  </div>
+</div>
+{% endblock content %}

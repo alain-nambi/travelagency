@@ -107,6 +107,6 @@ $(document).ready(function() {
     });
 
     $('#sendRemovePassengerInvoice').on('click', function() {
-      toggleEnvoyerButton();
+      VerifMotifValue();
     });
   });

@@ -61,5 +61,8 @@ urlpatterns = [
     path('home/unorder-pnr',unorder_pnr, name='unorder_pnr'),
     path('home/get-all-pnr-unordered',get_all_pnr_unordered, name='get_all_pnr_unordered'),
     path('home/unordered-pnr-research', unordered_pnr_research, name= 'unordered_pnr_research'),
-    
+    path('home/verif/ticket', verif_ticket, name= 'verif_ticket'),
+    path('home/save-ticket-anomalie', save_ticket_anomalie, name= 'save_ticket_anomalie'),
+    path('home/get-all-anomalies', get_all_anomalies, name='get_all_anomalies'),
+    path('home/update-ticket', update_ticket, name='update_ticket'),
 ]

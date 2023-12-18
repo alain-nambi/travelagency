@@ -1292,14 +1292,40 @@
 				</button>
 			</div>
 				<div class="modal-body">
-					<form action="" method="post" id="comment-form">
-						{% csrf_token %}
-						<div class="form-group">
-							<textarea class="form-control comment-detected-anomaly" rows="3"
-								placeholder="Anomalie détectée..." id="comment"></textarea>
+					<div style="margin-bottom:5px;">
+						<button class="btn btn-danger" id="comment-ticket" enabled>Billet non remonté</button>
+					</div>
+					<div>
+						<div id="comment-ticket-form">
+							{% csrf_token %}
+							<div id='ticket-input'>
+								<label for="ticket_number" class="col-form-label">Numero du Billet:</label>
+								<input type='text' name="ticket_number" class="form-control" id="ticket_number">
+							</div>
+							<div id='other_info'>
+								<label for="montant_hors_taxe" class="col-form-label">Montant Hors Taxe</label>
+								<input type='number' name="montant_hors_taxe" class="form-control" id="montant_hors_taxe">
+								<label for="taxe" class="col-form-label">Taxe</label>
+								<input type='number' name="taxe" class="form-control" id="taxe">
+								<input type='hidden' name="user_id" value="{{user.id}}" class="form-control" id="user_id" >
+
+							</div>
+
+
+							<button class="btn btn-success" id="comment-ticket-next-button" style="margin-top:5px;" disabled>Suivant</button>
+							    
 						</div>
+
+						<form action="" method="post" id="comment-form">
+							{% csrf_token %}
+							<div class="form-group">
+								<textarea class="form-control comment-detected-anomaly" rows="3"
+									placeholder="Anomalie détectée..." id="comment"></textarea>
+							</div>
 						<button class="btn btn-success" id="send-comment" disabled>Envoyer</button>
 					</form>
+					</div>
+					
 					{% with pnr|anomaly_comments as anomaly_comments %}
 						{% if anomaly_comments is not None %}
 							<div style="padding:5px; margin-top:10px; border-radius:3px;">
@@ -2107,7 +2133,7 @@
 		</div>
 	</div>
 </div>
-
+{% comment %} modal unorder pnr {% endcomment %}
 <div class="modal fade" id="modalUncommandApi" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 	<div class="modal-dialog" role="document">
 	<div class="modal-content">
@@ -2145,7 +2171,6 @@
 	</div>
 	</div>
 </div>
-
 
 
 

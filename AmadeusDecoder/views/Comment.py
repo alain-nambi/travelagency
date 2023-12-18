@@ -1,12 +1,16 @@
+from datetime import datetime
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 
 from django.contrib.auth.decorators import login_required
+from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
 
 from AmadeusDecoder.models.pnr.Pnr import Pnr 
-from AmadeusDecoder.models.utilities.Comments import Comment, Response, NotFetched
+from AmadeusDecoder.models.utilities.Comments import Anomalie, Comment, Response, NotFetched
 from AmadeusDecoder.models.user.Users import User
 from AmadeusDecoder.utilities.SendMail import Sending
+from AmadeusDecoder.models.invoice.Ticket import Ticket
+
 from datetime import date, timedelta
 from django.utils import timezone
 
@@ -70,7 +74,6 @@ def comment_list(request):
     context['comments'] = comments
 
     return render(request, 'comment-list.html', context)
-
 
 
 @login_required(login_url='index')
@@ -185,3 +188,61 @@ def get_pnr_not_fetched(request):
                 message
             )
     return JsonResponse({})
+
+# ----------------- anomalie: réponse automatique -----------------
+@login_required(login_url='index')
+def verif_ticket(request):
+    if request.method == 'POST':
+        ticket_number = request.POST.get('ticket_number')
+        ticket = Ticket.objects.filter(number=ticket_number)
+        if ticket.exists() :
+            return JsonResponse({'verif': True})
+    return JsonResponse({'verif': False})  
+    
+@login_required(login_url='index')
+def save_ticket_anomalie(request):
+    if request.method == 'POST':
+        ticket_number = request.POST.get('ticket_number')
+        montant_hors_taxe = request.POST.get('montant_hors_taxe')
+        taxe = request.POST.get('taxe')
+        ticket = Ticket.objects.filter(number=ticket_number).first()
+        user_id = request.POST.get('user_id')
+        user = User.objects.filter(id= user_id).first()
+        passenger_invoice = PassengerInvoice.objects.filter(ticket_id=ticket.pk).first()
+        pnr_id = passenger_invoice.pnr_id
+        pnr = Pnr.objects.filter(id=pnr_id).first()
+        info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe}
+        anomalie = Anomalie(pnr=pnr, categorie='Billet non remonté', infos=info, issuing_user = user)
+        anomalie.save()
+        return JsonResponse('ok',safe=False)
+    
+
+@login_required(login_url='index')
+def get_all_anomalies(request):
+    anomalies = Anomalie.objects.all()
+    context = {'anomalies': anomalies}
+    return render(request,'anomalies-list.html',context)
+    
+@login_required(login_url='index')
+def update_ticket(request):
+    if request.method == 'POST':
+        ticket_number = request.POST.get('ticket_number')
+        montant = request.POST.get('montant')
+        taxe = request.POST.get('taxe')
+        anomalie_id = request.POST.get('anomalie_id')
+        
+        
+        ticket = Ticket.objects.filter(number=ticket_number).first()
+        if ticket is not None:
+            ticket.transport_cost = montant
+            ticket.tax = taxe
+            ticket.total = float(montant) + float(taxe)
+            ticket.ticket_status = 1
+            ticket.save()
+            
+            anomalie = Anomalie.objects.filter(id=anomalie_id).first()
+            anomalie.status = 1
+            anomalie.save()
+            return JsonResponse('ok', safe=False)
+        return JsonResponse('not ok', safe=False)
+            

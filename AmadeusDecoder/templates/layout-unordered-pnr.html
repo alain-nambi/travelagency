@@ -240,7 +240,13 @@ old -->
             <li class="nav-item">
               <a href="{% url 'get_all_pnr_unordered' %}" class="nav-link">
                 <i class="fas fa-trash-can nav-icon"></i>
-                <p>PNR Décomandés</p>
+                <p>PNR Décommandés</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'get_all_anomalies' %}" class="nav-link">
+                <i class="fas fa-clock nav-icon"></i>
+                <p>Anomalie en attente</p>
               </a>
             </li>
             {% endif %}

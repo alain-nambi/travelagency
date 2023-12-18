@@ -1,8 +1,10 @@
+from AmadeusDecoder.models.utilities.Comments import Anomalie, Comment
 from datetime import date, timedelta
 from django import template
 from django.db.models.fields import BooleanField
 from django.db.models import Value, Q
 from django.http import JsonResponse
+from AmadeusDecoder.models.invoice.Ticket import Ticket
 
 register = template.Library()
 
@@ -27,7 +29,7 @@ def get_comment_state(comment_id):
     maximum_timezone = "2023-01-01 01:00:00.000000+03:00"
     date_before_30_days = str(date.today() - timedelta(days=60)) + " " + "01:00:00.000000+03:00"
     
-    from AmadeusDecoder.models.utilities.Comments import Comment
+
     count_comment_state_true = Comment.objects.filter(Q(creation_date__gt=maximum_timezone) & Q(creation_date__gt=date_before_30_days)).filter(state=True).count()
     count_comment_state_false = Comment.objects.filter(Q(creation_date__gt=maximum_timezone) & Q(creation_date__gt=date_before_30_days)).filter(state=False).count()
     
@@ -77,3 +79,17 @@ def get_username_by_user(user_id):
 @register.filter(name='strip')
 def strip(word):
     return word.strip()
+
+@register.simple_tag(name='anomaly_state')
+def get_anomaly_state():
+    count_anomaly_state_true = Anomalie.objects.filter(status=0).count()
+    count_anomaly_state_false = Anomalie.objects.filter(status=1).count()
+    
+    context = {
+        "false": count_anomaly_state_false,
+        "true": count_anomaly_state_true,
+    }
+        
+    return context
+        
+        

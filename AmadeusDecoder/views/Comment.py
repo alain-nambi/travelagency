@@ -4,6 +4,7 @@ from django.http import JsonResponse
 
 from django.contrib.auth.decorators import login_required
 from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
+from AmadeusDecoder.models.pnr.Passenger import Passenger
 
 from AmadeusDecoder.models.pnr.Pnr import Pnr 
 from AmadeusDecoder.models.utilities.Comments import Anomalie, Comment, Response, NotFetched
@@ -15,7 +16,8 @@ from datetime import date, timedelta
 from django.utils import timezone
 
 from django.db.models import Q
-
+from django.core.serializers import serialize
+import json
 
 @login_required(login_url='index')
 def comment(request):
@@ -195,25 +197,73 @@ def verif_ticket(request):
     if request.method == 'POST':
         ticket_number = request.POST.get('ticket_number')
         ticket = Ticket.objects.filter(number=ticket_number)
-        if ticket.exists() :
+        
+        if ticket.exists():
             return JsonResponse({'verif': True})
-    return JsonResponse({'verif': False})  
-    
+    return JsonResponse({'verif': False})
+
+@login_required(login_url='index')
+def get_passengers_by_pnr(request):
+    context = {}
+
+    if request.method == 'POST':
+        pnr_id = request.POST.get('pnr_id')
+        pnr = Pnr.objects.get(pk=pnr_id)
+        
+        passengers = pnr.passengers.filter(passenger__passenger_status=1).order_by('id')
+        passengers_data = []
+
+        for passenger in passengers:
+            passenger_data = {
+                'passenger_id': passenger.passenger.id,
+                'passenger_name': passenger.passenger.name,
+                'passenger_surname': passenger.passenger.surname,
+            }
+            passengers_data.append(passenger_data)
+
+        context['passengers'] = passengers_data
+
+    return JsonResponse({'context': context})
+
+@login_required(login_url='index')
+def getPassengerById(request):
+    if request.method == 'POST':
+        passenger_id = request.POST.get('passenger_id')
+        try:
+            passenger = Passenger.objects.get(pk=passenger_id)
+            passenger_dict = {
+                'id': passenger.id,
+                'name': passenger.name,
+                'surname': passenger.surname,
+            }
+
+            return JsonResponse({'passenger': passenger_dict})
+        except Passenger.DoesNotExist:
+            return JsonResponse({'error': 'Passenger not found'}, status=404)
+
 @login_required(login_url='index')
 def save_ticket_anomalie(request):
     if request.method == 'POST':
         ticket_number = request.POST.get('ticket_number')
         montant_hors_taxe = request.POST.get('montant_hors_taxe')
         taxe = request.POST.get('taxe')
-        ticket = Ticket.objects.filter(number=ticket_number).first()
+        pnr_id = request.POST.get('pnr_id')
+        passenger_id = request.POST.get('passenger_id')
+        segment = request.POST.get('segment')
+        
+        pnr = Pnr.objects.filter(id=pnr_id).first()
+            
         user_id = request.POST.get('user_id')
         user = User.objects.filter(id= user_id).first()
-        passenger_invoice = PassengerInvoice.objects.filter(ticket_id=ticket.pk).first()
-        pnr_id = passenger_invoice.pnr_id
-        pnr = Pnr.objects.filter(id=pnr_id).first()
-        info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe}
+        
+        if passenger_id is None and segment is None:
+            info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "ticket_status":0} # ticket_status : 0 ticket existant , 1 ticket non existant
+            
+        else:
+            info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "passenger_id":passenger_id, "segment": segment, "ticket_status":1} # ticket_status : 0 ticket existant , 1 ticket non existant
+            
         anomalie = Anomalie(pnr=pnr, categorie='Billet non remonté', infos=info, issuing_user = user)
-        anomalie.save()
+        anomalie.save()   
         return JsonResponse('ok',safe=False)
     
 
@@ -230,7 +280,7 @@ def update_ticket(request):
         montant = request.POST.get('montant')
         taxe = request.POST.get('taxe')
         anomalie_id = request.POST.get('anomalie_id')
-        
+        pnr_id = request.POST.get('pnr_id')
         
         ticket = Ticket.objects.filter(number=ticket_number).first()
         if ticket is not None:
@@ -244,5 +294,11 @@ def update_ticket(request):
             anomalie.status = 1
             anomalie.save()
             return JsonResponse('ok', safe=False)
+        else:
+            passenger_id = request.POST.get('passenger_id')
+            segment = request.POST.get('segment')
+            ticket = Ticket(number=ticket_number, transport_cost=montant, tax=taxe, total = float(montant) + float(taxe), ticket_status=1, pnr_id=pnr_id, passenger_id=passenger_id, segment= segment)
         return JsonResponse('not ok', safe=False)
             
+            
+            # ,ticket_gp_status=,exch_val=,rfnd_val=,passenger_type=,fare_type=,is_prime=, is_regional=,is_no_adc=,is_subjected_to_fees=,is_invoiced=,is_refund=,is_deposit=,is_issued_outside=,

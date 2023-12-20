@@ -92,4 +92,7 @@ def get_anomaly_state():
         
     return context
         
-        
+@register.filter(name='correct_datetime')
+def get_correct_datetime(hours):
+    correct_date = hours + timedelta(hours=3)
+    return correct_date.strftime("%b. %d, %Y, %H:%M")

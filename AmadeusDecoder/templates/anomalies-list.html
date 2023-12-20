@@ -48,13 +48,12 @@
                             </tr>
                           </thead>
                           <tbody>
-                            
                             {% for anomalie in anomalies %}
-                                <tr id="table-element" class="constat-class"  data-toggle="modal" data-target="#show-details" data-id="{{anomalie.id}}" data-categorie="{{anomalie.categorie}}" data-pnr-number="{{anomalie.pnr.number}}" data-ticket-number="{{anomalie.infos.ticket_number}}" data-montant="{{anomalie.infos.montant}}" data-taxe="{{anomalie.infos.taxe}}"  data-creation-date="{{anomalie.creation_date}}" data-issuing-user="{{anomalie.issuing_user.username}}" data-status="{{anomalie.status}}" style="cursor: pointer;">
+                                <tr id="table-element" class="constat-class"  data-toggle="modal" data-target="#show-details" data-id="{{anomalie.id}}" data-categorie="{{anomalie.categorie}}" data-pnr-number="{{anomalie.pnr.number}}" data-ticket-number="{{anomalie.infos.ticket_number}}" data-montant="{{anomalie.infos.montant}}" data-taxe="{{anomalie.infos.taxe}}"  data-creation-date="{{anomalie.creation_date}}" data-issuing-user="{{anomalie.issuing_user.username}}" data-status="{{anomalie.status}}" data-ticket-status="{{anomalie.infos.ticket_status}}" data-passenger-id="{{anomalie.infos.passenger_id}}" data-segment="{{anomalie.infos.segment}}" style="cursor: pointer;">
 
                                     <td>{{ anomalie.pnr.id }}</td>
                                     <td>{{anomalie.categorie}}</td>
-                                    <td>{{anomalie.creation_date}}</td>
+                                    <td>{{anomalie.creation_date| correct_datetime}}</td>
                                     <td>{{anomalie.issuing_user.username}}</td>
                                     
                                     {% if anomalie.status == 0 %}
@@ -62,7 +61,7 @@
                                     {% else %}
                                         <td><button class="btn btn-success py-0" name="anomaly_state" id="anomaly-state" onclick="" >Traitée</button></td>
                                     {% endif %}
-
+                                    
                                 </tr>
                             {% endfor %}
                                 
@@ -76,7 +75,7 @@
         </div>
     </section>
 
-    <div class="modal fade" id="show-details" style="display: none;" aria-hidden="true">
+<div class="modal fade" id="show-details" style="display: none;" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -86,33 +85,57 @@
 				</button>
 			</div>
 			<div class="modal-body">
-                <div class="mb-2">
-                    <input type="hidden" id="modal-anomalie_id" />
+        <div class="mb-2">
+          <input type="hidden" id="modal-anomalie_id" />
+          <input type="hidden" id="modal-passenger_id" />
+          <input type="hidden" id="modal-pnr_id" value="{{pnr.id}}" />
+
 					<label class="form-label mb-0">Categorie: </label>
 					<p id="modal-categorie"></p>
+				</div>
+        <div class="mb-2">
+					<label class="form-label mb-0">Signalée par: </label>
+					<p id="modal-user"></p>
 				</div>
 				<div class="mb-2">
 					<label class="form-label mb-0">Numéro PNR: </label>
 					<p id="modal-pnr_number"></p>
 				</div>
-                <div class="mb-2">
+        <div class="mb-2">
 					<label class="form-label mb-0">Numéro du Billet : </label>
 					<p id="modal-ticket_number"></p>
 				</div>
 
-                <div class="mb-2">
+        <div class="mb-2">
 					<label class="form-label mb-0">Montant Hors Taxe: </label>
 					<p id="modal-montant"></p>
 				</div>
 
-                <div class="mb-2">
+        <div class="mb-2">
 					<label class="form-label mb-0">Taxe: </label>
 					<p id="modal-taxe"></p>
 				</div>
 
+        <div class="mb-2">
+					<label class="form-label mb-0">Passenger Name: </label>
+					<p id="modal-passenger-name"></p>
+				</div>
+
+        <div class="mb-2">
+					<label class="form-label mb-0">Passenger Surname: </label>
+					<p id="modal-passenger-surname"></p>
+				</div>
+
+        <div class="mb-2">
+					<label class="form-label mb-0">Segment: </label>
+					<p id="modal-segment"></p>
+				</div>
+
+
+
 			</div>
 			<div class="modal-footer">        
-                <button type="button" class="btn btn-success" id="accept-anomaly">Accepter</button>
+        <button type="button" class="btn btn-success" id="accept-anomaly">Accepter</button>
 				<button type="button" class="btn btn-danger" data-dismiss="modal">Fermer</button>
 
 			</div>

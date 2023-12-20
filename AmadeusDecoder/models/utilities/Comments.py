@@ -42,6 +42,7 @@ class Anomalie(models.Model):
     
     class Meta:
         db_table = 't_anomalie'
+        ordering = ['-creation_date']
         
     pnr = models.ForeignKey(Pnr, on_delete=models.CASCADE)
     categorie = models.CharField(max_length=100,null=True)

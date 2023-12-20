@@ -1301,14 +1301,30 @@
 							<div id='ticket-input'>
 								<label for="ticket_number" class="col-form-label">Numero du Billet:</label>
 								<input type='text' name="ticket_number" class="form-control" id="ticket_number">
+								<input type='hidden' name="pnr_id" value="{{pnr.id}}" class="form-control" id="pnr-id" >
+								
 							</div>
-							<div id='other_info'>
+							<div id='info'>
 								<label for="montant_hors_taxe" class="col-form-label">Montant Hors Taxe</label>
 								<input type='number' name="montant_hors_taxe" class="form-control" id="montant_hors_taxe">
 								<label for="taxe" class="col-form-label">Taxe</label>
 								<input type='number' name="taxe" class="form-control" id="taxe">
 								<input type='hidden' name="user_id" value="{{user.id}}" class="form-control" id="user_id" >
+								
+							</div>
 
+							<div id='other_info'>
+								<div>
+									<label for="taxe" class="col-form-label">Passenger</label>
+									<select id="selectPassenger" class="form-control form-control select-type">
+										<option>Passenger</option>
+									</select>
+								</div>
+								<div>
+									<label for="taxe" class="col-form-label">Segment</label>
+									<input type='text' name="segment" class="form-control" id="segment" placeholder="S1">
+								</div>
+								
 							</div>
 
 

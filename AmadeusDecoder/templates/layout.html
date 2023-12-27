@@ -318,11 +318,21 @@ old -->
       {% block footer %}
       <!-- Main Footer -->
       <footer class="main-footer p-1">
-        <div class="d-none d-sm-block">
+        <div class="d-none d-sm-block float-right ">
           <strong class="text-center">&copy; 2023 <a href="https://phidia.fr">Phidia</a>.</strong> Tous droits réservés.
           <b>Version</b> 1.6.12 
         </div>
-        
+        <div class="info-footer-pnr">
+          <div class="row d-flex align-items-center">
+            
+            <div class="col-md-10">
+
+              <div id="pagination"></div>
+              {% include "pagination.html" %}
+
+            </div>
+          </div>
+        </div>
       </footer>
       {% endblock footer%}
     </div>

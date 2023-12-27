@@ -74,11 +74,23 @@ def comment(request):
 @login_required(login_url='index')
 def comment_list(request):
     maximum_timezone = "2023-01-01 01:00:00.000000+03:00"
-    date_before_30_days = str(date.today() - timedelta(days=60)) + " " + "01:00:00.000000+03:00"
     
     context = {}
-    comments = Comment.objects.filter(Q(creation_date__gt=maximum_timezone) & Q(creation_date__gt=date_before_30_days)).order_by('-creation_date')
+    comments = Comment.objects.filter(Q(creation_date__gt=maximum_timezone)).order_by('-creation_date')
     context['comments'] = comments
+    comments_count = comments.count()
+    
+    object_list = context['comments']
+    row_num = request.GET.get('paginate_by', 50) or 50
+    page_num = request.GET.get('page', 1)
+    paginator = Paginator(object_list, row_num)
+    try:
+        page_obj = paginator.page(page_num)
+    except PageNotAnInteger: 
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+    context = {'page_obj': page_obj, 'row_num': row_num, 'pnr_count' : comments_count}
 
     return render(request, 'comment-list.html', context)
 

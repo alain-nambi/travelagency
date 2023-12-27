@@ -29,11 +29,10 @@ def get_response(pnr_id):
 @register.filter(name="comment_state")
 def get_comment_state(comment_id):
     maximum_timezone = "2023-01-01 01:00:00.000000+03:00"
-    date_before_30_days = str(date.today() - timedelta(days=60)) + " " + "01:00:00.000000+03:00"
     
 
-    count_comment_state_true = Comment.objects.filter(Q(creation_date__gt=maximum_timezone) & Q(creation_date__gt=date_before_30_days)).filter(state=True).count()
-    count_comment_state_false = Comment.objects.filter(Q(creation_date__gt=maximum_timezone) & Q(creation_date__gt=date_before_30_days)).filter(state=False).count()
+    count_comment_state_true = Comment.objects.filter(Q(creation_date__gt=maximum_timezone)).filter(state=True).count()
+    count_comment_state_false = Comment.objects.filter(Q(creation_date__gt=maximum_timezone) ).filter(state=False).count()
     
     context = {}
     context["false"] = count_comment_state_false

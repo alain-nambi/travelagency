@@ -21,3 +21,6 @@ yarn.lock
 /temp_requirements.txt
 /runserver.bat
 /env
+env/*
+travelagency_env/
+

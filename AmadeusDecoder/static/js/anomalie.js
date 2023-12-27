@@ -4,6 +4,7 @@ $('#comment-ticket-form').hide();
 $('#other_info').hide();
 $('#info').hide();
 $('#Erreur').hide();
+$('#fee').hide();
 
 $('#comment-ticket').on('click', function (e) {
     $('#comment-form').hide();
@@ -11,12 +12,12 @@ $('#comment-ticket').on('click', function (e) {
 
 })
 
-// ---------------------- verif ticket
+// ---------------------- verif ticket Value
 $(document).ready(function () {
     function VerifTicketValue() {
         var ticket_number = $('#ticket_number').val();
         var Boutton = $('#comment-ticket-next-button');
-
+   
         if (ticket_number.trim() === '') {
             Boutton.prop('disabled', true);
         } else {
@@ -24,8 +25,10 @@ $(document).ready(function () {
         }
     }
 
+
     $('#ticket_number').on('input', function () {
-        VerifTicketValue();
+        ticket = $('#ticket_number').val();
+        VerifTicketLength();
     });
 
     $('#modal-constat').on('shown.bs.modal', function () {
@@ -37,13 +40,57 @@ $(document).ready(function () {
     });
 });
 
+// ---------------------- verif ticket length
+
+    function VerifTicketLength() {
+        ticket = $('#ticket_number').val();
+        var regex = /^[0-9-]+$/;
+        var Boutton = $('#comment-ticket-next-button');
+        if (!regex.test(ticket)) {
+            toastr.error("Veuillez saisir uniquement des chiffres");
+            Boutton.prop('disabled', true);
+        }
+        if(ticket.length > 16){
+            Boutton.prop('disabled', true);
+        }
+        if (ticket.length <= 16) {
+            Boutton.prop('disabled', false);
+        }
+        if (ticket.length == 14) {
+            var firstPart = ticket.substring(0, 13);
+            var modifiedTicket = firstPart + '-' + ticket[13];
+            $('#ticket_number').val(modifiedTicket);
+
+            $('#ticket_number').attr('maxlength', 16);
+        }
+    }
+
+// ------------------ verif ticket type
+$(document).ready(function () {
+    type = document.getElementById('selectType');
+    type.addEventListener("change", function (){
+        if (type.value == 'TKT') {
+            $('#fee').hide();
+        } else {
+            $('#fee').show();
+        }
+    });
+});
+
+
+
 // --------------------- entrée détails anomalie
 const parent = document.getElementById("selectPassenger");
+const parent_segment = document.getElementById('selectSegment');
 
 const child = document.getElementById("child_passeger");
+const child_segment = document.getElementById('child_segment');
+
 if (child) {
     parent.removeChild(child);
 }
+
+//---------------- Ticket verification and saving anomalie
 $(document).ready(function () {
     $("#comment-ticket-next-button").on("click", function () {
         var pnr_id = $("#pnr-id").val();
@@ -61,14 +108,16 @@ $(document).ready(function () {
                 },
                 success: function (data) {
                     let result = data.verif;
-                    console.log(result);
 
-                    if (result === true) {
+                    if (result === 'True') { // if ticket exists
                         showInfoSection();
-                    } else {
+                    } if (result === 'is_no_adc'){
+                        toastr.error('Ticket Is no adc')
+                    } 
+                    if (result === 'False') { // if ticket does not exist
                         $.ajax({
                             type: "POST",
-                            url: "/home/get-passengers-by-pnr",
+                            url: "/home/get-passengers-and-segments",
                             dataType: "json",
                             data: {
                                 pnr_id: pnr_id,
@@ -77,8 +126,6 @@ $(document).ready(function () {
                             success: function (data) {
                                 console.log(data);
                                 let passengers = data.context.passengers;
-                                console.log(passengers);
-                                console.log(passengers.length);
                                 if (passengers.length > 0) {
                                     parent.innerHTML = ''
 
@@ -86,9 +133,30 @@ $(document).ready(function () {
                                         const newOption = document.createElement("option");
                                         newOption.id = "child_passenger";
                                         newOption.value = passenger['passenger_id'];
-                                        newOption.textContent = passenger['passenger_surname'] + ' ' + passenger['passenger_name'];
-
+                                        if (passenger['passenger_name'] !== null  && passenger['passenger_surname'] != null ){
+                                            newOption.textContent = passenger['passenger_surname'] + ' ' + passenger['passenger_name'];
+                                        }
+                                        if (passenger['passenger_name'] !== null  && passenger['passenger_surname'] == null ) {
+                                            newOption.textContent = passenger['passenger_name'] ;
+                                        }
+                                        if (passenger['passenger_name'] == null  && passenger['passenger_surname'] !== null ) {
+                                            newOption.textContent = passenger['passenger_surname'];
+                                        }
                                         parent.append(newOption);
+                                    });
+                                } else {
+                                    console.log('Error......');
+                                }
+                                let segments = data.context.segments;
+                                if (segments.length > 0) {
+
+                                    segments.map((segment) => {
+                                        const newOption = document.createElement("option");
+                                        newOption.id = "child_segment";
+                                        newOption.value = segment['segment_id'];
+                                        newOption.textContent = segment['segment'] + ' ' + segment['vol'] + ' ' + segment['vol_number'];
+
+                                        parent_segment.append(newOption);
                                     });
                                 } else {
                                     console.log('Error......');
@@ -103,7 +171,8 @@ $(document).ready(function () {
         }
             //Saving Anomalie
         else {
-            if ($("#other_info").is(':hidden')) {
+
+            if ($("#other_info").is(':hidden')) { // if ticket exists
                 var ticketNumber = $("#ticket_number").val();
                 var mnt_hors_taxe = $('#montant_hors_taxe').val();
                 var taxe = $('#taxe').val();
@@ -129,15 +198,27 @@ $(document).ready(function () {
                                 location.reload();
                             }, 1000)
                         }
+                        if(data == 'error'){
+                            toastr.error(data.error);
+                        }
                     },
                 });   
-            } else {
+            } else { // if ticket does not exist
                 var ticketNumber = $("#ticket_number").val();
                 var mnt_hors_taxe = $('#montant_hors_taxe').val();
                 var taxe = $('#taxe').val();
                 var user_id = $('#user_id').val();
                 var passenger_id = $('#selectPassenger').val();
-                var segment = $('#segment').val();
+                var segment = $('#selectSegment').val();
+                var type = $('#selectType').val();
+                var fee;
+
+                feeCheckbox = document.getElementById('feecheckbox')
+                if ($('#fee').is(':hidden')) {
+                    fee = true;
+                } else {
+                    fee = feeCheckbox.checked;
+                }
 
                 $.ajax({
                     type: "POST",
@@ -151,6 +232,8 @@ $(document).ready(function () {
                         pnr_id: pnr_id,
                         passenger_id: passenger_id,
                         segment: segment,
+                        ticket_type: type,
+                        fee: fee,
                         csrfmiddlewaretoken: csrftoken,
                     },
                     success: function (data) {
@@ -179,158 +262,35 @@ $(document).ready(function () {
     });
 });
 
-
-//-------------------- details anomalie (modal)
-$(document).ready(function () {
-    $(document).on("click", '#table-element', function (e) {
-        try {
-            var ticket_status = $(this).data('ticket-status');
-
-            var categorie = $(this).data('categorie');
-            var anomalie_id = $(this).data('id');
-            var pnr_number = $(this).data('pnr-number');
-            var ticket_number = $(this).data('ticket-number');
-            var montant = $(this).data('montant');
-            var taxe = $(this).data('taxe');
-            var status = $(this).data('status');
-            var user = $(this).data('issuing-user');
-            var passenger_id = $(this).data('passenger-id');
-            var segment = $(this).data('segment');
-
-            // si ticket existe
-
-            $('#modal-categorie').text(categorie);
-            $('#modal-anomalie_id').val(anomalie_id);
-            $('#modal-pnr_number').text(pnr_number);
-            $('#modal-ticket_number').text(ticket_number);
-            $('#modal-montant').text(montant);
-            $('#modal-taxe').text(taxe);
-            $('#modal-user').text(user);
-
-            if (ticket_status ===1) { // si ticket n'existe pas
-                
-                $.ajax({
-                    type: "POST",
-                    url: "/home/getPassengerById",
-                    dataType: "json",
-                    data: {
-                        passenger_id: passenger_id,
-                        csrfmiddlewaretoken: csrftoken,
-                    },
-                    success: function (data) {
-                        console.log(data);
-                        let passenger = data.passenger;
-                        console.log(passenger.name);
-                        let passenger_name = passenger.name;
-                        let passenger_surname = passenger.surname;
-                        console.log(passenger_name);
-
-                        $('#modal-passenger_id').val(passenger_id);
-                        $('#modal-passenger-name').text(passenger_name);
-                        $('#modal-passenger-surname').text(passenger_surname);
-                        $('#modal-segment').text(segment);
-                    }
-                });
-
-                
-            }
-
-            $('#show-details').modal('show');
-            var Boutton = $('#accept-anomaly');
-
-            if (status == 1) {
-                Boutton.prop('disabled', true);
-            } else {
-                Boutton.prop('disabled', false);
-            }
-
-        } catch (error) {
-            console.error("Une erreur s'est produite : ", error.message);
-        }
-    });
-});
-
 // ---------------------- update or create ticket 
-$(document).ready(function () {
-    $('#accept-anomaly').on('click', function (e) {
-        console.log('---coucou----');
-        var ticket_number = $('#modal-ticket_number').text();
-        var anomalie_id = $('#modal-anomalie_id').val();
-        var montant = $('#modal-montant').text();
-        var taxe = $('#modal-taxe').text();
-        var user = $('#modal-user').text();
-        var passenger_id = $('#passenger_id').val();
-        var segment = $('#segment').text();
-        var pnr_id = $('#pnr_id').val();
 
-        if ($("#other_info").is(':hidden')) {
-            
-            $.ajax({
-                type: "POST",
-                url: "/home/update-ticket",
-                dataType: "json",
-                data: {
-                    ticket_number: ticket_number,
-                    anomalie_id: anomalie_id,
-                    montant: montant,
-                    taxe: taxe,
-                    issuing_user: user,
-                    pnr_id: pnr_id,
-                    csrfmiddlewaretoken: csrftoken,
-                },
-                success: function (data) {
-                    console.log(data);
-                    if (data == 'ok') {
-                        toastr.success('Ticket ${ticket_number} remonté');
-                        $('#show-details').hide();
-                        setTimeout(() => {
-                            location.reload();
-                        }, 1000)
-                    }
-                    else {
-                        toastr.error('Erreur. Veuillez recommencer');
-                        $('#show-details').hide();
-                        setTimeout(() => {
-                            location.reload();
-                        }, 1000)
-                    }
-                },
-            });
-        } else {  
-            $.ajax({
-                type: "POST",
-                url: "/home/update-ticket",
-                dataType: "json",
-                data: {
-                    ticket_number: ticket_number,
-                    anomalie_id: anomalie_id,
-                    montant: montant,
-                    taxe: taxe,
-                    issuing_user: user,
-                    passenger_id:passenger_id,
-                    segment:segment,
-                    pnr_id: pnr_id,
-                    csrfmiddlewaretoken: csrftoken,
-                },
-                success: function (data) {
-                    console.log(data);
-                    if (data == 'ok') {
-                        toastr.success(`Ticket ${ticket_number} remonté`);
-                        $('#show-details').hide();
-                        setTimeout(() => {
-                            location.reload();
-                        }, 1000)
-                    }
-                    else {
-                        toastr.error('Erreur. Veuillez recommencer');
-                        $('#show-details').hide();
-                        setTimeout(() => {
-                            location.reload();
-                        }, 1000)
-                    }
-                },
-            });
-        }
-        
-    });
-});
+function accept_anomaly(anomalie_id){
+    console.log('---coucou----');
+    // var anomalie_id = $('#anomalie_id').val();
+    console.log(anomalie_id);
+        $.ajax({
+            type: "POST",
+            url: "/home/update-ticket",
+            dataType: "json",
+            data: {
+                anomalie_id: anomalie_id,
+                csrfmiddlewaretoken: csrftoken,
+            },
+            success: function (data) {
+                if (data == 'ok') {
+                    toastr.success('Ticket remonté');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000)
+                }
+                else {
+                    toastr.error('Erreur. Veuillez recommencer');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000)
+                }
+            },
+        });
+    
+}
+

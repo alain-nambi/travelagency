@@ -1,3 +1,5 @@
+from AmadeusDecoder.models.pnr.Passenger import Passenger
+from AmadeusDecoder.models.pnrelements.PnrAirSegments import PnrAirSegments
 from AmadeusDecoder.models.utilities.Comments import Anomalie, Comment
 from datetime import date, timedelta
 from django import template
@@ -96,3 +98,27 @@ def get_anomaly_state():
 def get_correct_datetime(hours):
     correct_date = hours + timedelta(hours=3)
     return correct_date.strftime("%b. %d, %Y, %H:%M")
+
+# to verify if there is new anomaly on the pnr
+@register.filter(name='new_anomalie')
+def new_anomalie(pnr):
+    anomalies = Anomalie.objects.filter(pnr_id=pnr.id ,status=0).all()
+    if anomalies.exists():
+        return anomalies.count()
+    return None
+
+@register.filter(name='get_details')
+def get_details(anomalie):
+    anomalie = Anomalie.objects.get(pk=anomalie.id)
+    segment_id = anomalie.infos.get('segment')
+    if segment_id != "":    
+        segment = PnrAirSegments.objects.get(pk=segment_id)
+    else:
+        segment = ""
+    
+    passenger = Passenger.objects.get(pk=anomalie.infos.get('passenger_id'))
+
+    context ={}
+    context['passenger'] = passenger
+    context['segment'] = segment
+    return context

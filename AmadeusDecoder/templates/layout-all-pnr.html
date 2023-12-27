@@ -3,6 +3,8 @@
 <html lang="en">
 {% load static %}
 {% load pnr_details %}
+{% load pnr_comments %}
+
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, maximum-scale=10">
@@ -99,10 +101,12 @@ old -->
             <i id="button-nlse" class="fa fa-copy float-right ml-4" title="copier" style="font-size:12px; cursor: pointer;" onclick="copyse()"></i>
           </h6>
         </li>
-        <li class="nav-item ml-5">
-          <div class="d-flex align-items-center" style="gap: 1rem">
+        <li class="nav-item ml-5 d-flex ">
+          <div class="align-items-center" style="gap: 1rem">
             <span id="mail-user" data-mail="issoufali.pnr@outlook.com;{{request.user.email}}">issoufali.pnr@outlook.com;{{request.user.email}}</span>
             <a type="button" class="btn btn-outline-primary zenith" onclick="copymailuser()">Zenith</a> 
+            
+          </div>
             <div id="pnrNotUpdated">
               <button 
                 type="button" 
@@ -116,12 +120,7 @@ old -->
                 Pnr non remonté
               </button>
             </div>
-            
-            
-              
-            
 
-          </div>
         </li>
       </ul>
     </form>

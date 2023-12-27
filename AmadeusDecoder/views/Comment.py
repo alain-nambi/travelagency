@@ -2,11 +2,14 @@ from datetime import datetime
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 
+
 from django.contrib.auth.decorators import login_required
 from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
+from AmadeusDecoder.models.invoice.TicketPassengerSegment import TicketPassengerSegment
 from AmadeusDecoder.models.pnr.Passenger import Passenger
 
-from AmadeusDecoder.models.pnr.Pnr import Pnr 
+from AmadeusDecoder.models.pnr.Pnr import Pnr
+from AmadeusDecoder.models.pnrelements.PnrAirSegments import PnrAirSegments 
 from AmadeusDecoder.models.utilities.Comments import Anomalie, Comment, Response, NotFetched
 from AmadeusDecoder.models.user.Users import User
 from AmadeusDecoder.utilities.SendMail import Sending
@@ -17,6 +20,8 @@ from django.utils import timezone
 
 from django.db.models import Q
 from django.core.serializers import serialize
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 import json
 
 @login_required(login_url='index')
@@ -196,14 +201,22 @@ def get_pnr_not_fetched(request):
 def verif_ticket(request):
     if request.method == 'POST':
         ticket_number = request.POST.get('ticket_number')
-        ticket = Ticket.objects.filter(number=ticket_number)
+        ticket = Ticket.objects.filter(number=ticket_number).first()
+        verif = 'False'
         
-        if ticket.exists():
-            return JsonResponse({'verif': True})
-    return JsonResponse({'verif': False})
+        if ticket is not None and ticket.is_no_adc == False:
+            verif='True'
+        if ticket is not None and ticket.is_no_adc == True and ticket.total != 0:
+            verif= 'is_no_adc'
+        if ticket is not None and ticket.is_no_adc == True and ticket.total == 0:
+            verif= 'is_no_adc'
 
+        
+    return JsonResponse({'verif': verif})
+
+# get by pnr
 @login_required(login_url='index')
-def get_passengers_by_pnr(request):
+def getPassengersAndSegmets(request):
     context = {}
 
     if request.method == 'POST':
@@ -212,7 +225,7 @@ def get_passengers_by_pnr(request):
         
         passengers = pnr.passengers.filter(passenger__passenger_status=1).order_by('id')
         passengers_data = []
-
+        
         for passenger in passengers:
             passenger_data = {
                 'passenger_id': passenger.passenger.id,
@@ -220,15 +233,31 @@ def get_passengers_by_pnr(request):
                 'passenger_surname': passenger.passenger.surname,
             }
             passengers_data.append(passenger_data)
+            
+        pnr = Pnr.objects.get(pk=pnr_id)
+        air_segments = pnr.segments.filter(segment_type='Flight', air_segment_status=1).all().order_by('segmentorder')
+        segments_data = []
+
+        for air_segment in air_segments:
+            segment_data = {
+                'segment_id' : air_segment.id,
+                'segment' : air_segment.segmentorder,
+                'vol' : air_segment.servicecarrier.iata,
+                'vol_number' : air_segment.flightno
+            }
+            segments_data.append(segment_data)
 
         context['passengers'] = passengers_data
+        context['segments'] = segments_data
 
     return JsonResponse({'context': context})
 
 @login_required(login_url='index')
-def getPassengerById(request):
+def getPassengerAndSegmentById(request):
     if request.method == 'POST':
         passenger_id = request.POST.get('passenger_id')
+        segment_id = request.POST.get('segment_id')
+        
         try:
             passenger = Passenger.objects.get(pk=passenger_id)
             passenger_dict = {
@@ -236,8 +265,15 @@ def getPassengerById(request):
                 'name': passenger.name,
                 'surname': passenger.surname,
             }
-
-            return JsonResponse({'passenger': passenger_dict})
+            print(segment_id)
+            segment = PnrAirSegments.objects.get(id=segment_id)
+            segment_dict = {
+                'segmentorder': segment.segmentorder,
+                'vol': segment.servicecarrier.iata,
+                'vol_number': segment.flightno,
+            }
+            
+            return JsonResponse({'passenger': passenger_dict, 'segment': segment_dict})
         except Passenger.DoesNotExist:
             return JsonResponse({'error': 'Passenger not found'}, status=404)
 
@@ -245,12 +281,18 @@ def getPassengerById(request):
 def save_ticket_anomalie(request):
     if request.method == 'POST':
         ticket_number = request.POST.get('ticket_number')
+        
+        if len(ticket_number) > 17:
+            return JsonResponse({'error':'ticket number > 17 '})
+        
         montant_hors_taxe = request.POST.get('montant_hors_taxe')
         taxe = request.POST.get('taxe')
         pnr_id = request.POST.get('pnr_id')
         passenger_id = request.POST.get('passenger_id')
         segment = request.POST.get('segment')
+        ticket_type = request.POST.get('ticket_type')
         
+
         pnr = Pnr.objects.filter(id=pnr_id).first()
             
         user_id = request.POST.get('user_id')
@@ -260,7 +302,7 @@ def save_ticket_anomalie(request):
             info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "ticket_status":0} # ticket_status : 0 ticket existant , 1 ticket non existant
             
         else:
-            info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "passenger_id":passenger_id, "segment": segment, "ticket_status":1} # ticket_status : 0 ticket existant , 1 ticket non existant
+            info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "passenger_id":passenger_id, "segment": segment, "ticket_status":1, 'ticket_type':ticket_type, 'fee': (request.POST.get('fee')).capitalize()} # ticket_status : 0 ticket existant , 1 ticket non existant
             
         anomalie = Anomalie(pnr=pnr, categorie='Billet non remonté', infos=info, issuing_user = user)
         anomalie.save()   
@@ -270,35 +312,66 @@ def save_ticket_anomalie(request):
 @login_required(login_url='index')
 def get_all_anomalies(request):
     anomalies = Anomalie.objects.all()
-    context = {'anomalies': anomalies}
-    return render(request,'anomalies-list.html',context)
+    context = {}
+    context['anomalies'] = anomalies
+    object_list = context['anomalies']
+    row_num = request.GET.get('paginate_by', 20) or 20
+    page_num = request.GET.get('page', 1)
+    paginator = Paginator(object_list, row_num)
+    try:
+        page_obj = paginator.page(page_num)
+    except PageNotAnInteger: 
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+        
+    context = {'page_obj': page_obj, 'row_num': row_num}
     
+    return render(request,'anomalies-list.html',context)
+
+@login_required(login_url='index')
+def anomaly_details(request, pnr_id):
+    context={}
+    anomalie = Anomalie.objects.filter(pnr_id=pnr_id)
+    context['anomalies'] = anomalie
+    context['pnr_id'] = pnr_id
+    return render(request, 'anomalie-details.html', context)
+
+# updating or saving ticket from anomalie 'Billet non remonté'
 @login_required(login_url='index')
 def update_ticket(request):
     if request.method == 'POST':
-        ticket_number = request.POST.get('ticket_number')
-        montant = request.POST.get('montant')
-        taxe = request.POST.get('taxe')
         anomalie_id = request.POST.get('anomalie_id')
-        pnr_id = request.POST.get('pnr_id')
+        print('-----------------COUCOU -------------')
+
+        anomalie = Anomalie.objects.get(pk=anomalie_id)
+        issuing_user = anomalie.issuing_user
+        ticket = Ticket.objects.filter(number=anomalie.infos.get('ticket_number')).first()
         
-        ticket = Ticket.objects.filter(number=ticket_number).first()
         if ticket is not None:
-            ticket.transport_cost = montant
-            ticket.tax = taxe
-            ticket.total = float(montant) + float(taxe)
+            ticket.transport_cost = anomalie.infos.get('montant')
+            ticket.tax = anomalie.infos.get('taxe')
+            ticket.total = float(anomalie.infos.get('montant')) + float(anomalie.infos.get('taxe'))
             ticket.ticket_status = 1
+            ticket.emitter = issuing_user
+            ticket.save()
+           
+        else:
+            
+            ticket = Ticket( transport_cost=anomalie.infos.get('montant'),number=anomalie.infos.get('ticket_number'), tax=anomalie.infos.get('taxe'), total = float(anomalie.infos.get('montant')) + float(anomalie.infos.get('taxe')), ticket_status=1, pnr_id=anomalie.pnr_id, passenger_id=anomalie.infos.get('passenger_id'), ticket_type=anomalie.infos.get('ticket_type'), is_subjected_to_fees=anomalie.infos.get('fee'), emitter=issuing_user)
             ticket.save()
             
-            anomalie = Anomalie.objects.filter(id=anomalie_id).first()
-            anomalie.status = 1
-            anomalie.save()
-            return JsonResponse('ok', safe=False)
-        else:
-            passenger_id = request.POST.get('passenger_id')
-            segment = request.POST.get('segment')
-            ticket = Ticket(number=ticket_number, transport_cost=montant, tax=taxe, total = float(montant) + float(taxe), ticket_status=1, pnr_id=pnr_id, passenger_id=passenger_id, segment= segment)
-        return JsonResponse('not ok', safe=False)
+            segment_id = anomalie.infos.get('segment')
+            if segment_id != "":
+                segment = PnrAirSegments.objects.get(pk=segment_id)
+                ticket_passenger = TicketPassengerSegment(ticket=ticket,segment=segment)
+                ticket_passenger.save()
+                
+        
+        anomalie.status = 1
+        anomalie.accept_date = timezone.now()
+        anomalie.admin_id = request.user
+        anomalie.save()
+   
+        return JsonResponse('ok', safe=False)
             
-            
-            # ,ticket_gp_status=,exch_val=,rfnd_val=,passenger_type=,fare_type=,is_prime=, is_regional=,is_no_adc=,is_subjected_to_fees=,is_invoiced=,is_refund=,is_deposit=,is_issued_outside=,

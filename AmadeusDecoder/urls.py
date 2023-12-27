@@ -65,6 +65,8 @@ urlpatterns = [
     path('home/save-ticket-anomalie', save_ticket_anomalie, name= 'save_ticket_anomalie'),
     path('home/get-all-anomalies', get_all_anomalies, name='get_all_anomalies'),
     path('home/update-ticket', update_ticket, name='update_ticket'),
-    path('home/get-passengers-by-pnr', get_passengers_by_pnr, name= 'get_passengers_by_pnr'),
-    path('home/getPassengerById', getPassengerById, name='getPassengerById'),
+    path('home/get-passengers-and-segments', getPassengersAndSegmets, name= 'getPassengersAndSegmets'),
+    path('home/get-passenger-and-segment-By-Id', getPassengerAndSegmentById, name='getPassengerAndSegmentById'),
+    path('home/anomaly-details/<int:pnr_id>', anomaly_details, name='anomaly_details'),
+    
 ]

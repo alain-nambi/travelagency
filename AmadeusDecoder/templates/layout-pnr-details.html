@@ -3,6 +3,8 @@
 <html lang="en">
 {% load static %}
 {% load pnr_details %}
+{% load pnr_comments %}
+
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, maximum-scale=10">
@@ -116,8 +118,10 @@ old -->
               </div>
           {% endif %}
 
+          
+
         </li>
-        <li class="nav-item ml-3 mt-2">
+        <li class="nav-item ml-3 mt-2 d-flex flex-column">
           <div class="input-group input-group float-sm-right mt-1 mb-1">
             <input type="text" name="table_search" id="inputSearchByPnrNumber" class="form-control form-control-md"
               placeholder="Saisir le numéro du PNR" maxlength="6">
@@ -127,7 +131,22 @@ old -->
               </button>
             </div>
           </div>
+          <div>
+            {% with pnr|new_anomalie as new_anomalie  %}
+						{% if new_anomalie is not None %}
+            <a href="{% url 'get_all_anomalies' %}">
+							<p class="text-success mt-1 mb-0 cde_blink">
+								<i class="fa-solid fa-check-circle" aria-hidden="true"></i>
+									{{new_anomalie}} Anomalie en attente
+							</p>
+            </a>
+            {% endif %}
+            {% endwith %}
+          </div>
+           
+
         </li>
+        
       </ul> 
       <!-- Right navbar links -->
       <ul class="navbar-nav ml-auto">

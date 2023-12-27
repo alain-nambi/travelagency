@@ -1,5 +1,6 @@
 
 from django.db import models
+from datetime import datetime
 from AmadeusDecoder.models.invoice.Ticket import Ticket
 from AmadeusDecoder.models.pnr.Passenger import Passenger
 from AmadeusDecoder.models.pnr.Pnr import Pnr
@@ -47,7 +48,7 @@ class Anomalie(models.Model):
     pnr = models.ForeignKey(Pnr, on_delete=models.CASCADE)
     categorie = models.CharField(max_length=100,null=True)
     infos = HStoreField(null=False)
-    creation_date = models.DateTimeField(auto_now=True)
+    creation_date = models.DateTimeField(null=False, auto_now=True)
     issuing_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='issuing_user', null=False)
     admin_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='admin', null=True)
     status = models.IntegerField(default=0)

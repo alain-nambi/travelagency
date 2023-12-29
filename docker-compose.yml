@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  # Django web service
+  web:
+    build: .                # Build the Docker image from the ./app directory
+    container_name: travelagency_web
+    command: "python manage.py runserver 0.0.0.0:8010"  # Command to run the Django app
+    volumes:
+      - .:/usr/src/app      # Mount the local ./app directory to /usr/src/app in the container
+    ports:
+      - "8010:8010"             # Map port 8002 on the host to port 8000 in the container
+    depends_on:
+      - db                      # Depend on the 'db' service for startup order
+
+  # PostgreSQL database service
+  db:
+    image: postgres:14          # Use the PostgreSQL 14 image from Docker Hub
+    container_name: travelagency_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Mount a volume for PostgreSQL data
+      - ./travelagency_sql:/var/lib/postgresql/data/backup  # Mount a volume for database backups
+    environment:
+      - POSTGRES_USER=postgres  # Set PostgreSQL username
+      - POSTGRES_PASSWORD=postgres  # Set PostgreSQL password
+      - POSTGRES_DB=db_flight_issoufali  # Set the name of the default database
+    ports:
+      - "5433:5432"             # Map port 5433 on the host to port 5432 in the container
+
+volumes:
+  postgres_data:  # Define a named volume for persisting PostgreSQL data

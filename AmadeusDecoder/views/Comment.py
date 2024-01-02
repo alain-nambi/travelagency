@@ -11,7 +11,7 @@ from AmadeusDecoder.models.pnr.Passenger import Passenger
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.pnrelements.PnrAirSegments import PnrAirSegments 
 from AmadeusDecoder.models.utilities.Comments import Anomalie, Comment, Response, NotFetched
-from AmadeusDecoder.models.user.Users import User
+from AmadeusDecoder.models.user.Users import User, UserCopying
 from AmadeusDecoder.utilities.SendMail import Sending
 from AmadeusDecoder.models.invoice.Ticket import Ticket
 
@@ -378,7 +378,10 @@ def update_ticket(request):
                 segment = PnrAirSegments.objects.get(pk=segment_id)
                 ticket_passenger = TicketPassengerSegment(ticket=ticket,segment=segment)
                 ticket_passenger.save()
-                
+        
+
+        user_copying = UserCopying(document=anomalie.pnr.number, user_id=issuing_user)
+        user_copying.save()
         
         anomalie.status = 1
         anomalie.accept_date = timezone.now()

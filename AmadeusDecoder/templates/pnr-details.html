@@ -1054,22 +1054,30 @@
 												<td id="product-type-initial">Autres</td>
 												<td>
 													<div class="form-group mb-0">
-														<select class="form-control form-control-sm" name="service-type-dropdown">
+														<select class="form-control form-control-sm" id="SelectProduct" name="service-type-dropdown">
 															<option hidden>Type</option>
 															{% for product in products %}
 															<option value="{{product.id}}" data-designation="{{product.designation}}">{{product.designation}}</option>
 															{% endfor %}
 														</select>
+														<input type='text' class="form-control form-control-sm" id='ticket-avoir' maxlength='17' name='ticket-avoir' />
 													</div>
 												</td>
-												<td></td>
+												<td>
+													<select id="select_Passenger" class="form-control form-control-sm" ></select>
+												</td>
 												<td><input type="number" step="0.01" name="transport-input-line" class="form-control form-control-sm"
 													placeholder="Transport" name="transport-input-line" style="text-align:right;" value=""></td>
 												<td><input type="number" step="0.01" name="taxe-input-line" class="form-control form-control-sm"
 													placeholder="Taxe" name="taxe-input-line" style="text-align:right;" value=""></td>
 												<td name="total-input-line" style="padding-top:15px; text-align:right;"></td>
-												<td><input type="text" class="form-control form-control-sm"
-														placeholder="Passager/Segment" name="passenger-input-line"></td>
+												<td>
+													<input type="text" class="form-control form-control-sm"
+														placeholder="Passager/Segment" id="passenger_segment" name="passenger-input-line">
+ 
+														<select id="multipleSelect" multiple name="native-select" placeholder="Segment" data-search="false" data-silent-initial-value-set="true">
+														</select>
+												</td>
 												<td></td>
 												<td></td>
 												<td></td>
@@ -1299,13 +1307,12 @@
 						</div>
 					{% endif %}
 						
-					
 					<div>
 						<div id="comment-ticket-form">
 							{% csrf_token %}
 							<div id='ticket-input'>
 								<label for="ticket_number" class="col-form-label">Numero du Billet:</label>
-								<input type='text' maxlength='16' name="ticket_number" class="form-control" id="ticket_number">
+								<input type='text' maxlength='17' name="ticket_number" class="form-control" id="ticket_number">
 								<input type='hidden' name="pnr_id" value="{{pnr.id}}" class="form-control" id="pnr-id" >
 								
 							</div>
@@ -1333,19 +1340,17 @@
 								</div>
 								<div>
 									<label for="taxe" class="col-form-label">Passenger</label>
-									<select id="selectPassenger" class="form-control form-control select-type">
+									<select id="selectPassenger" class="form-control form-control">
 									</select>
 								</div>
 								<div>
 									<label for="taxe" class="col-form-label">Segment</label>
-									<select id="selectSegment" class="form-control form-control select-type">
+									<select id="selectSegment" class="form-control form-control">
 										<option value="">Pas de Segment</option>	
 									</select>
-									
 								</div>
 								
 							</div>
-
 
 							<button class="btn btn-success" id="comment-ticket-next-button" style="margin-top:5px;" disabled>Suivant</button>
 							    

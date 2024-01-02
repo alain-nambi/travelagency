@@ -28,6 +28,9 @@ $(document).ready(function () {
 
     $('#ticket_number').on('input', function () {
         ticket = $('#ticket_number').val();
+        var inputValue = $(this).val();
+        var sanitizedValue = inputValue.replace(/[^0-9-]/g, '');
+        $(this).val(sanitizedValue);
         VerifTicketLength();
     });
 
@@ -44,24 +47,18 @@ $(document).ready(function () {
 
     function VerifTicketLength() {
         ticket = $('#ticket_number').val();
-        var regex = /^[0-9-]+$/;
         var Boutton = $('#comment-ticket-next-button');
-        if (!regex.test(ticket)) {
-            toastr.error("Veuillez saisir uniquement des chiffres");
+        
+        if(ticket.length > 17){
             Boutton.prop('disabled', true);
         }
-        if(ticket.length > 16){
-            Boutton.prop('disabled', true);
-        }
-        if (ticket.length <= 16) {
+        if (ticket.length <= 17) {
             Boutton.prop('disabled', false);
         }
         if (ticket.length == 14) {
-            var firstPart = ticket.substring(0, 13);
-            var modifiedTicket = firstPart + '-' + ticket[13];
+            var modifiedTicket = ticket + '-' ;
+            console.log(modifiedTicket);
             $('#ticket_number').val(modifiedTicket);
-
-            $('#ticket_number').attr('maxlength', 16);
         }
     }
 
@@ -83,7 +80,7 @@ $(document).ready(function () {
 const parent = document.getElementById("selectPassenger");
 const parent_segment = document.getElementById('selectSegment');
 
-const child = document.getElementById("child_passeger");
+const child = document.getElementById("child_passenger");
 const child_segment = document.getElementById('child_segment');
 
 if (child) {

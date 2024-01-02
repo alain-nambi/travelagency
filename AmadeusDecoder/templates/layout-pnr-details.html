@@ -15,6 +15,8 @@
   </title>
   <link rel="icon" type="image/x-icon" href="{% static 'image/app-logo.png' %}">
   <link rel="stylesheet" href="{% static 'css/receipt.css' %}" type="text/css">
+  <link rel="stylesheet" href="{% static 'css/virtual-select.min.css' %}">
+
   
   {% block css %}
   <style>
@@ -708,9 +710,12 @@ old -->
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/js/selectize.min.js" integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
+
   <script src="{% static 'js/main.js' %}"></script>
   <script src="{% static 'js/comment.js' %}"></script>
   <script src="{% static 'js/anomalie.js' %}"></script>
+  <script src="{% static 'js/virtual-select.min.js' %}"></script>
+  {% comment %} <script src="{% static 'js/virtual-select.js' %}"></script> {% endcomment %}
 
   <script src="{% static 'js/gdsCommandHandler.js' %}"></script>
   <script src="{% static 'js/CustomerHandler.js' %}"></script>

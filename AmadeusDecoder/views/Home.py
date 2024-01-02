@@ -17,6 +17,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.forms.models import model_to_dict
 from django.conf import settings
+from AmadeusDecoder.models.invoice.TicketPassengerSegment import TicketPassengerSegment
 
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.pnr.PnrPassenger import PnrPassenger
@@ -1876,11 +1877,22 @@ def import_product(request, pnr_id):
         if 'listNewProduct' in request.POST:
             product = json.loads(request.POST.get('listNewProduct'))
             pnr = Pnr.objects.get(pk=int(pnr_id))
-            other_fees = OthersFee.objects.filter(pnr=pnr_id, product_id=product[0])
-            other_fees = OthersFee(designation=product[2], cost=product[3], tax=product[4], total=product[5],
-                                    pnr=pnr, fee_type=product[1], passenger_segment=product[6], reference=product[7], 
-                                    quantity=1, is_subjected_to_fee=False, creation_date=datetime.now())
-            other_fees.save()
+            if product[0] == '19':
+                emitter = User.objects.get(pk=request.user.id)
+                ticket = Ticket( transport_cost=product[3],number=product[8], tax=product[4], total = product[5],pnr_id=pnr_id, passenger_id=product[9], ticket_type='CREDIT_NOTE',is_subjected_to_fees=False, issuing_date=datetime.now(),emitter=emitter )
+                ticket.save()
+            
+                for segment in product[10]:
+                    segment = PnrAirSegments.objects.get(pk=segment.get('value'))
+                    passenger_segment = TicketPassengerSegment(segment=segment,ticket= ticket)
+                    passenger_segment.save()
+                
+            else:
+                other_fees = OthersFee.objects.filter(pnr=pnr_id, product_id=product[0])
+                other_fees = OthersFee(designation=product[2], cost=product[3], tax=product[4], total=product[5],
+                                        pnr=pnr, fee_type=product[1], passenger_segment=product[6], reference=product[7], 
+                                        quantity=1, is_subjected_to_fee=False, creation_date=datetime.now())
+                other_fees.save()
             
             # save creator user to user copying
             try:

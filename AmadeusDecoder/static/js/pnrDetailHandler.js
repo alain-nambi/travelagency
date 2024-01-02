@@ -1,3 +1,4 @@
+
 const ServiceFeesInput = document.querySelectorAll(
   ".inputeditable.montant.fee-cost"
 );
@@ -632,18 +633,45 @@ document
       );
     document.querySelector(".tr-add-line").hidden = false;
     document.getElementById("add-product-service-line").hidden = false;
-    listNewProduct.push(
-      ProductDropdown.value,
-      ProductTypeInitiale.textContent,
-      designation,
-      parseFloat(ProductTranspInput.value).toFixed(2),
-      parseFloat(ProductTaxInput.value).toFixed(2),
-      (
-        parseFloat(ProductTranspInput.value) + parseFloat(ProductTaxInput.value)
-      ).toFixed(2),
-      ProductpassInput.value,
-      ""
-    );
+    ticket = document.getElementById('ticket-avoir').value;
+    passenger = (document.getElementById('select_Passenger')).value; 
+    console.log(ProductDropdown.value);
+
+    if(ProductDropdown.value == 19){
+      console.log('-------------------COUCOU -----------------');
+      selectedSegment = document.querySelector('#multipleSelect').getSelectedOptions();
+      console.log(selectedSegment);
+      listNewProduct.push(
+        ProductDropdown.value,
+        ProductTypeInitiale.textContent,
+        designation,
+        parseFloat(ProductTranspInput.value).toFixed(2),
+        parseFloat(ProductTaxInput.value).toFixed(2),
+        (
+          parseFloat(ProductTranspInput.value) + parseFloat(ProductTaxInput.value)
+        ).toFixed(2),
+        ProductpassInput.value,
+        "",
+        ticket,
+        passenger,
+        selectedSegment
+      );
+    }
+    else{
+      listNewProduct.push(
+        ProductDropdown.value,
+        ProductTypeInitiale.textContent,
+        designation,
+        parseFloat(ProductTranspInput.value).toFixed(2),
+        parseFloat(ProductTaxInput.value).toFixed(2),
+        (
+          parseFloat(ProductTranspInput.value) + parseFloat(ProductTaxInput.value)
+        ).toFixed(2),
+        ProductpassInput.value,
+        ""
+      );
+    }
+    
 
     $.ajax({
       type: "POST",
@@ -1184,3 +1212,110 @@ if (count__ticketHaveNoPassenger.length > 0) {
 } else {
   $("#error__noPassengerForTicket").hide();
 }
+
+// ----------- AVOIR COMPAGNIE -----------------------------
+$('#ticket-avoir').hide();
+$('#select_Passenger').hide();
+$('#multipleSelect').hide();
+$('#SelectProduct').on('change', function(){
+  select_product = $('#SelectProduct').val();
+
+  if(select_product == 19){
+    $('#SelectProduct').hide();
+    $('#ticket-avoir').show();
+    $('#passenger_segment').hide();
+
+    const parent = document.getElementById("select_Passenger");
+    const child = document.getElementById("child_passenger");
+
+    const parent_passenger_segment = document.getElementById("multipleSelect");
+    const child_passenger_segment = document.getElementById("child_passenger_segment");
+    if (child) {
+      parent.removeChild(child);
+    }
+    if (child_passenger_segment) {
+      parent_passenger_segment.removeChild(child_passenger_segment);
+    }
+    var pnr_id = $('#pnr_id').data('id');
+    console.log(pnr_id);
+    $.ajax({
+      type: "POST",
+      url: "/home/get-passengers-and-segments",
+      dataType: "json",
+      data: {
+        pnr_id: pnr_id,
+        csrfmiddlewaretoken: csrftoken,
+      },
+      success: function (data) {
+        console.log(data);
+        let passengers = data.context.passengers;
+        if (passengers.length > 0) {
+          $('#select_Passenger').show();
+          parent.innerHTML = ''
+
+          passengers.map((passenger) => {
+            const newOption = document.createElement("option");
+            newOption.id = "child_passenger";
+            newOption.value = passenger['passenger_id'];
+            if (passenger['passenger_name'] !== null && passenger['passenger_surname'] != null) {
+              newOption.textContent = passenger['passenger_surname'] + ' ' + passenger['passenger_name'];
+            }
+            if (passenger['passenger_name'] !== null && passenger['passenger_surname'] == null) {
+              newOption.textContent = passenger['passenger_name'];
+            }
+            if (passenger['passenger_name'] == null && passenger['passenger_surname'] !== null) {
+              newOption.textContent = passenger['passenger_surname'];
+            }
+            parent.append(newOption);
+          });
+        } 
+        let segments = data.context.segments;
+        parent_passenger_segment.innerHTML = '';
+
+        if (segments.length > 0) {
+          segments.map((segment) => {
+            const newOption = document.createElement("option");
+            newOption.id = "child_passenger_segment";
+            newOption.value = segment['segment_id'];
+            newOption.textContent = segment['segment'] ;
+            parent_passenger_segment.appendChild(newOption);
+          });
+
+          const myOptions = segments.map((segment) => {
+            return {
+              label: segment['segment'],
+              value: segment['segment_id'],
+            };
+          });
+
+          VirtualSelect.init({
+            ele: '#multipleSelect',
+            multiple: true,
+            options: myOptions
+          })
+
+          $('#multipleSelect').on('change', function(){
+            selectedValues= document.querySelector('#multipleSelect').getSelectedOptions();
+            console.log(selectedValues);
+          });
+
+        }
+      }
+    });
+
+  }
+});
+
+$(document).ready(function () {
+  $('#ticket-avoir').on('input', function () {
+    var inputValue = $(this).val();
+    var sanitizedValue = inputValue.replace(/[^0-9-]/g, '');
+    $(this).val(sanitizedValue);
+
+    if (inputValue.length == 14) {
+      var modifiedValue = inputValue + '-';
+      console.log(modifiedValue);
+      $('#ticket-avoir').val(modifiedValue);
+    }
+  });
+});

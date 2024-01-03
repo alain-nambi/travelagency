@@ -625,71 +625,81 @@ let SaveProductCounting = 0;
 document
   .getElementById("save-product-select")
   .addEventListener("click", (e) => {
-    SaveProductCounting++;
-    let listNewProduct = [];
-    const designation =
-      ProductDropdown.children[ProductDropdown.selectedIndex].getAttribute(
-        "data-designation"
-      );
-    document.querySelector(".tr-add-line").hidden = false;
-    document.getElementById("add-product-service-line").hidden = false;
     ticket = document.getElementById('ticket-avoir').value;
-    passenger = (document.getElementById('select_Passenger')).value; 
-    console.log(ProductDropdown.value);
+    console.log('------TICKET ----------------');
+    console.log(ticket);
+    if (ticket.trim() !== "") {
+      SaveProductCounting++;
+      let listNewProduct = [];
+      const designation =
+        ProductDropdown.children[ProductDropdown.selectedIndex].getAttribute(
+          "data-designation"
+        );
+      document.querySelector(".tr-add-line").hidden = false;
+      document.getElementById("add-product-service-line").hidden = false;
 
-    if(ProductDropdown.value == 19){
-      selectedSegment = document.querySelector('#multipleSelect').getSelectedOptions();
-      console.log(selectedSegment);
-      listNewProduct.push(
-        ProductDropdown.value,
-        ProductTypeInitiale.textContent,
-        designation,
-        parseFloat(ProductTranspInput.value).toFixed(2),
-        parseFloat(ProductTaxInput.value).toFixed(2),
-        (
-          parseFloat(ProductTranspInput.value) + parseFloat(ProductTaxInput.value)
-        ).toFixed(2),
-        ProductpassInput.value,
-        "",
-        ticket,
-        passenger,
-        selectedSegment
-      );
+      passenger = (document.getElementById('select_Passenger')).value;
+      console.log(ProductDropdown.value);
+
+      if (ProductDropdown.value == 19) {
+        selectedSegment = document.querySelector('#multipleSelect').getSelectedOptions();
+        console.log(selectedSegment);
+        listNewProduct.push(
+          ProductDropdown.value,
+          ProductTypeInitiale.textContent,
+          designation,
+          parseFloat(ProductTranspInput.value).toFixed(2),
+          parseFloat(ProductTaxInput.value).toFixed(2),
+          (
+            parseFloat(ProductTranspInput.value) + parseFloat(ProductTaxInput.value)
+          ).toFixed(2),
+          ProductpassInput.value,
+          "",
+          ticket,
+          passenger,
+          selectedSegment
+        );
+      }
+      else {
+        listNewProduct.push(
+          ProductDropdown.value,
+          ProductTypeInitiale.textContent,
+          designation,
+          parseFloat(ProductTranspInput.value).toFixed(2),
+          parseFloat(ProductTaxInput.value).toFixed(2),
+          (
+            parseFloat(ProductTranspInput.value) + parseFloat(ProductTaxInput.value)
+          ).toFixed(2),
+          ProductpassInput.value,
+          ""
+        );
+      }
+
+
+      $.ajax({
+        type: "POST",
+        dataType: "json",
+        url: `/home/pnr/${pnrIdNew}/import_product/`,
+        data: {
+          csrfmiddlewaretoken: csrftoken,
+          pnrId: pnrIdNew,
+          listNewProduct: JSON.stringify(listNewProduct),
+        },
+        success: (response) => {
+          console.log(response);
+          location.reload();
+        },
+        error: (response) => {
+          console.log(response);
+        },
+      });
+
     }
     else{
-      listNewProduct.push(
-        ProductDropdown.value,
-        ProductTypeInitiale.textContent,
-        designation,
-        parseFloat(ProductTranspInput.value).toFixed(2),
-        parseFloat(ProductTaxInput.value).toFixed(2),
-        (
-          parseFloat(ProductTranspInput.value) + parseFloat(ProductTaxInput.value)
-        ).toFixed(2),
-        ProductpassInput.value,
-        ""
-      );
+      toastr.error('Veuillez entrer un Numéro de billet')
+      document.getElementById('ticket-avoir').style.borderColor = 'red';
     }
-    
-
-    $.ajax({
-      type: "POST",
-      dataType: "json",
-      url: `/home/pnr/${pnrIdNew}/import_product/`,
-      data: {
-        csrfmiddlewaretoken: csrftoken,
-        pnrId: pnrIdNew,
-        listNewProduct: JSON.stringify(listNewProduct),
-      },
-      success: (response) => {
-        console.log(response);
-        location.reload();
-      },
-      error: (response) => {
-        console.log(response);
-      },
-    });
-  });
+      });
 
 /*
  * =======================  SET A COUNT IF INPUT OF FEES IS CHANGED ===========================*

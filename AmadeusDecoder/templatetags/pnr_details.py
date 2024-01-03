@@ -8,6 +8,7 @@ from django import template
 from django.db.models import Q
 import json
 import traceback
+from AmadeusDecoder.models.invoice.Fee import OthersFee
 
 import AmadeusDecoder.utilities.configuration_data as configs
 
@@ -772,6 +773,24 @@ def get_order_customer(pnr):
         return order
     else:
         return None
+    
+    # les trajets pour l'avoir compagnie
+@register.filter(name='route_avoir')
+def get_route(otherfee_id):
+    other_fee = OthersFee.objects.get(pk=otherfee_id)
+    route_avoir = ''
+    for passengerSegment in other_fee.related_segments.all().order_by('segment__id'):
+        if passengerSegment.segment.segment_type == 'SVC':
+            route_avoir = 'SVC'
+        else:
+            if passengerSegment.segment.codeorg is not None:
+                route_avoir += passengerSegment.segment.codeorg.iata_code + '/' + passengerSegment.segment.codedest.iata_code
+            route_avoir += '//'
+    if route_avoir.endswith('//'):
+        route_avoir = route_avoir.removesuffix('//')
+    print('--------------- ROUTE_avoir ------------------------')
+    print(route_avoir)
+    return route_avoir
 
 # Other fees: Ancillary/EWA/Passenger/Segment
 # passenger
@@ -779,6 +798,7 @@ def get_order_customer(pnr):
 def get_ancillary_passenger(other_fee):
     try:
         temp_passenger = other_fee.related_segments.first().passenger
+        route=''
         if temp_passenger is not None:
             return other_fee.related_segments.first().passenger 
     except:

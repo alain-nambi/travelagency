@@ -900,7 +900,11 @@
 												{% if other_fee|ancillary_passenger is not None %}
 												<td>
 													{{ other_fee|ancillary_passenger }}
+													{% if other_fee.fee_type == 'AVOIR COMPAGNIE' %}
+														<br>{{ other_fee.id|route_avoir }}
+													{% endif %}
 												</td>
+													
 												{% else %}
 												<td> </td>
 												{% endif %}
@@ -912,12 +916,16 @@
 												<td>
 													{{ other_fee|ancillary_passenger_segment }}
 												</td>
+													
 												{% else %}
 												<td>
 													{% if other_fee.passenger_segment is not None %}
 														{{ other_fee.passenger_segment }}
 													{% endif %}
 												</td>
+												
+												
+													
 												{% endif %}
 												<td>
 													{% if other_fee.creation_date is not None %}

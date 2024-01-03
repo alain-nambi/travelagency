@@ -789,9 +789,14 @@ def get_ancillary_passenger(other_fee):
 def get_ancillary_passenger_segment(other_fee):
     try:
         temp_passenger = get_ancillary_passenger(other_fee)
-        temp_segment = other_fee.related_segments.first().segment
-        if temp_passenger is not None and temp_segment is not None:
-            return temp_passenger.order + '/' + temp_segment.segmentorder
+        temp_segments = other_fee.related_segments.all()
+            
+        if temp_passenger is not None and temp_segments is not None:
+            if temp_segments.count() > 1:
+                segment_order = '-'.join(str(segment.segment.segmentorder) for segment in temp_segments)
+                return temp_passenger.order + '/' +segment_order
+            else:
+                return temp_passenger.order + '/' + temp_segments[0].segment.segmentorder
     except:
         return ''
 

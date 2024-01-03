@@ -55,10 +55,10 @@ $(document).ready(function () {
         if (ticket.length <= 17) {
             Boutton.prop('disabled', false);
         }
-        if (ticket.length == 14) {
-            var modifiedTicket = ticket + '-' ;
-            console.log(modifiedTicket);
-            $('#ticket_number').val(modifiedTicket);
+
+        if(ticket.length == 15 && ticket.charAt(14) !== '-') {
+            var modifiedValue = ticket.slice(0, 14) + '-' + ticket.slice(14);
+            $('#ticket_number').val(modifiedValue);
         }
     }
 

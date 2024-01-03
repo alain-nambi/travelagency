@@ -638,7 +638,6 @@ document
     console.log(ProductDropdown.value);
 
     if(ProductDropdown.value == 19){
-      console.log('-------------------COUCOU -----------------');
       selectedSegment = document.querySelector('#multipleSelect').getSelectedOptions();
       console.log(selectedSegment);
       listNewProduct.push(
@@ -1312,8 +1311,8 @@ $(document).ready(function () {
     var sanitizedValue = inputValue.replace(/[^0-9-]/g, '');
     $(this).val(sanitizedValue);
 
-    if (inputValue.length == 14) {
-      var modifiedValue = inputValue + '-';
+    if (inputValue.length == 15 && inputValue.charAt(14) !== '-') {
+      var modifiedValue = inputValue.slice(0, 14) + '-' + inputValue.slice(14);
       console.log(modifiedValue);
       $('#ticket-avoir').val(modifiedValue);
     }

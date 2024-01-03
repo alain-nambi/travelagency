@@ -1298,6 +1298,7 @@ $(document).ready(function () {
 
       // Add click event listener to the delete button
       deleteButton.addEventListener("click", () => {
+        const otherFeeType = deleteButton.dataset.otherFeeType;
         const otherFeeId = parseInt(deleteButton.dataset.otherFeeId);
         const otherFeeDesignation = String(
           deleteButton.dataset.otherFeeDesignation
@@ -1310,8 +1311,17 @@ $(document).ready(function () {
         otherFee.push(otherFeeId);
 
         // Update the confirmation message
-        spanOtherFeeDesignation.innerHTML = `<strong>${otherFeeDesignation}</strong> avec un montant total de ${otherFeeTotal} euros`;
-        textConfirmationDeleteOtherFeeService.textContent = `Oui, supprimer ${otherFeeDesignation}`;
+        if (otherFeeType == 'AVOIR COMPAGNIE'){
+          spanOtherFeeDesignation.innerHTML = `<strong>${otherFeeType}</strong> avec un montant total de ${otherFeeTotal} euros`;
+          textConfirmationDeleteOtherFeeService.textContent = `Oui, supprimer l'${otherFeeType}`;
+
+        }
+        else{
+          spanOtherFeeDesignation.innerHTML = `<strong>${otherFeeDesignation}</strong> avec un montant total de ${otherFeeTotal} euros`;
+          textConfirmationDeleteOtherFeeService.textContent = `Oui, supprimer ${otherFeeDesignation}`;
+
+        }
+        
       });
 
       return otherFee;
@@ -1335,13 +1345,15 @@ $(document).ready(function () {
             // Loop through delete buttons
             buttonDeleteOtherFeeService.forEach((deleteButton) => {
               // Check if the product designation matches and update visibility
+
               if (
                 productDesignationList.includes(
                   deleteButton.dataset.otherFeeDesignation
-                )
+                ) || deleteButton.dataset.otherFeeType == 'AVOIR COMPAGNIE'
               ) {
                 deleteButton.classList.replace("d-none", "d-block");
-              } else {
+              } 
+              else {
                 deleteButton.classList.replace("d-block", "d-none");
               }
 

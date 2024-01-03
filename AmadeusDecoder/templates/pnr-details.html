@@ -946,19 +946,29 @@
 												<td></td>
 												<td>
 													<!---- only if other_fee is not already invoiced that yan can remove it ----->
+													
 													{% if not other_fee.is_invoiced %}
+													{% comment %} {{other_fee.is_invoiced}} {% endcomment %}
 														<button id="deleteOtherFeeService"
 																class="btn btn-danger d-none px-2 py-1" 
 																type="button" 
 																data-toggle="modal"
 																data-target="#modalRemoveOtherFeeService"
-																title="Supprimer {{ other_fee.designation }} à {{ other_fee.cost|floatformat:'2' }} euros"
+																
+																{% if other_fee.fee_type == 'AVOIR COMPAGNIE' %}
+																	title = "Supprimer l' {{ other_fee.fee_type }} à {{ other_fee.cost|floatformat:'2' }} euros"
+																{% else %}
+																	title="Supprimer {{ other_fee.designation }} à {{ other_fee.cost|floatformat:'2' }} euros"
+																{% endif %}
+																	
+																
 																data-other-fee-id="{{ other_fee.id }}"
-																data-other-fee-designation="{{ other_fee.designation }}"
+																data-other-fee-designation="{{ other_fee.designation }}" data-other-fee-type="{{ other_fee.fee_type }}"
 																data-other-fee-total="{{ other_fee.total }}"
 														>
 															<i class="fa-solid fa-trash"></i>
 														</button>
+													
 													{% endif %}
 													<!---------------------- remove other_fee buttons --------------------------->
 												</td>

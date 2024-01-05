@@ -2190,5 +2190,6 @@ def unordered_pnr_research(request):
         context = {'results' : results, 'pnr_count' :  pnr_count}
     return JsonResponse(context)
         
-        
+def liste_commandes(request):
+    return render(request,'commandes_modal.html') 
         

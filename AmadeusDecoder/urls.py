@@ -68,5 +68,5 @@ urlpatterns = [
     path('home/get-passengers-and-segments', getPassengersAndSegmets, name= 'getPassengersAndSegmets'),
     path('home/get-passenger-and-segment-By-Id', getPassengerAndSegmentById, name='getPassengerAndSegmentById'),
     path('home/anomaly-details/<int:pnr_id>', anomaly_details, name='anomaly_details'),
-    
+    path('home/liste-commandes', liste_commandes, name='liste_commandes'),
 ]

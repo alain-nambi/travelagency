@@ -4560,3 +4560,17 @@ $.ajax({
     console.log(response.return);
   }
 });
+
+$(document).ready(function () {
+  document.getElementById('liste_commandes').addEventListener('click', function () {
+    var currentPagePath = window.location.pathname;
+    var pathSegments = currentPagePath.split('/');
+    var basePath = (pathSegments[pathSegments.length - 2] !== 'home') ? '/home/' : '';
+    var modalPath = basePath + 'liste-commandes';
+    $('#modalListeCommandesContainer').load(modalPath, function () {
+      $('#modalListeCommandes').modal('show');
+    });
+  });
+});
+
+

@@ -73,33 +73,16 @@ old -->
           <a class="nav-link" id="pushed-sidebar" data-widget="pushmenu" href="#" role="button"><i
               class="fas fa-bars"></i></a>   
         </li>
-        <li class="nav-item i">
-          <h6 class="text-info c-pnr ml-4 mb-0">
-            <u style="font-size:12px;">PNR :</u> <span id="pnr">WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/RT</span>
-            <input type="text" id="np" title="Numéro PNR" maxlength="6" placeholder="N° PNR" style="width:70px; padding: 0;"/>
-            <i id="button-np" class="fa fa-copy float-right ml-4" title="copier" style="font-size:12px; cursor: pointer;" onclick="copypnr()"></i>
-          </h6>  
-          <h6 class="text-info c-pnr ml-4 mb-0">
-            <u style="font-size:12px;">PNR archivé :</u> 
-            <span id="pnrArchived">WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/RPP/RLC-</span>
-            <input type="text" id="npArchived" title="Numéro PNR" maxlength="6" placeholder="N° PNR" style="width:70px; padding: 0;"/>
-            <i id="button-np-archived" class="fa fa-copy float-right ml-4" title="copier" style="font-size:12px; cursor: pointer;" onclick="copyarchivedpnr()"></i>
-          </h6>  
-          <h6 class="text-info c-pnr ml-4 mb-0">
-            <u style="font-size:12px; margin-bottom:1px">Billets non émis :</u> <span id="bne">WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/TQT/T</span><span>[Numéro de la tarification]</span>
-            {% comment %} <input type="text" id="nt" title="Numéro de la tarification" maxlength="6" placeholder="N° Tarif." style="width:70px; margin-bottom:1px"/> {% endcomment %}
-            <i id="button-nt" class="fa fa-copy float-right ml-4" title="copier" style="font-size:12px; cursor: pointer;" onclick="copybne()"></i>
-          </h6>
-          <h6 class="text-info c-pnr ml-4 mb-0">
-            <u style="font-size:12px; margin-bottom:1px">Billets émis :</u> <span id="be">WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/TWD/L</span><span>[Numéro de la ligne du billet dans le PNR]</span>
-            {% comment %} <input type="text" id="nlbe" title="Numéro de la ligne du billet dans le PNR" maxlength="6" placeholder="N° Bill." style="width:70px; margin-bottom:1px"/> {% endcomment %}
-            <i id="button-nlbe" class="fa fa-copy float-right ml-4" title="copier" style="font-size:12px; cursor: pointer;" onclick="copybe()"></i>
-          </h6>
-          <h6 class="text-info c-pnr ml-4 mb-0">
-            <u style="font-size:12px; margin-bottom:1px">Services émis :</u> <span id="se">WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/EWD/L</span><span>[Numéro de la ligne du billet dans le PNR]</span>
-            {% comment %} <input type="text" id="nlse" title="Numéro de la ligne du billet dans le PNR" maxlength="6" placeholder="N° Bill." style="width:70px; margin-bottom:1px"/> {% endcomment %}
-            <i id="button-nlse" class="fa fa-copy float-right ml-4" title="copier" style="font-size:12px; cursor: pointer;" onclick="copyse()"></i>
-          </h6>
+        <li class="nav-item ml-5">
+          <button 
+                type="button" 
+                class="btn btn-outline-success zenith" 
+                data-toggle="modal" 
+                data-target="#modalListeCommandes" 
+                title="Liste des commandes"
+                id = "liste_commandes"
+              ><span>Commandes</span>
+              </button>
         </li>
         <li class="nav-item ml-5 d-flex ">
           <div class="align-items-center" style="gap: 1rem">

@@ -32,7 +32,7 @@ if __name__ == '__main__':
     # print(temp.get_text_from_pdf())
     temp = ZenithParser()
     attachement_folder = 'test@test.com'
-    file = 'E-ticket 00DUQ1-SAIDCHAMAOUNI DZA  .pdf'
+    file = 'E-ticket 00GA5R-RANAIVOSON TNR  .pdf'
     temp.set_path('EmailFetcher//utilities//attachments_dir//' + attachement_folder + '//' + file)
     temp.set_email_date(None)
     temp.set_main_txt_path('EmailFetcher//utilities//attachments_dir//' + attachement_folder + '//' + attachement_folder + '.txt')

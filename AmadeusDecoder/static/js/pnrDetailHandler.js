@@ -1317,6 +1317,7 @@ $('#SelectProduct').on('change', function(){
 
 $(document).ready(function () {
   $('#ticket-avoir').on('input', function () {
+    document.getElementById('ticket-avoir').style.borderColor = 'black';
     var inputValue = $(this).val();
     var sanitizedValue = inputValue.replace(/[^0-9-]/g, '');
     $(this).val(sanitizedValue);

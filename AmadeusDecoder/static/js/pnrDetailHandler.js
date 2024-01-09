@@ -628,7 +628,7 @@ document
     ticket = document.getElementById('ticket-avoir').value;
     console.log('------TICKET ----------------');
     console.log(ticket);
-    if (ticket.trim() !== "") {
+    
       SaveProductCounting++;
       let listNewProduct = [];
       const designation =
@@ -642,23 +642,29 @@ document
       console.log(ProductDropdown.value);
 
       if (ProductDropdown.value == 19) {
-        selectedSegment = document.querySelector('#multipleSelect').getSelectedOptions();
-        console.log(selectedSegment);
-        listNewProduct.push(
-          ProductDropdown.value,
-          ProductTypeInitiale.textContent,
-          designation,
-          parseFloat(ProductTranspInput.value).toFixed(2),
-          parseFloat(ProductTaxInput.value).toFixed(2),
-          (
-            parseFloat(ProductTranspInput.value) + parseFloat(ProductTaxInput.value)
-          ).toFixed(2),
-          ProductpassInput.value,
-          "",
-          ticket,
-          passenger,
-          selectedSegment
-        );
+        if (ticket.trim() !== "") {
+          selectedSegment = document.querySelector('#multipleSelect').getSelectedOptions();
+          console.log(selectedSegment);
+          listNewProduct.push(
+            ProductDropdown.value,
+            ProductTypeInitiale.textContent,
+            designation,
+            parseFloat(ProductTranspInput.value).toFixed(2),
+            parseFloat(ProductTaxInput.value).toFixed(2),
+            (
+              parseFloat(ProductTranspInput.value) + parseFloat(ProductTaxInput.value)
+            ).toFixed(2),
+            ProductpassInput.value,
+            "",
+            ticket,
+            passenger,
+            selectedSegment
+          );
+        }
+        else {
+          toastr.error('Veuillez entrer un Numéro de billet')
+          document.getElementById('ticket-avoir').style.borderColor = 'red';
+        }
       }
       else {
         listNewProduct.push(
@@ -674,7 +680,6 @@ document
           ""
         );
       }
-
 
       $.ajax({
         type: "POST",
@@ -693,12 +698,7 @@ document
           console.log(response);
         },
       });
-
-    }
-    else{
-      toastr.error('Veuillez entrer un Numéro de billet')
-      document.getElementById('ticket-avoir').style.borderColor = 'red';
-    }
+    
       });
 
 /*

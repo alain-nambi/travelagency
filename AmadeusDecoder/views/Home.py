@@ -1874,11 +1874,12 @@ def get_quotation(request, pnr_id):
 @login_required(login_url='index')
 def import_product(request, pnr_id):
     if request.method == 'POST':
+        emitter = User.objects.get(pk=request.user.id)
         if 'listNewProduct' in request.POST:
             product = json.loads(request.POST.get('listNewProduct'))
             pnr = Pnr.objects.get(pk=int(pnr_id))
             if product[0] == '19':
-                emitter = User.objects.get(pk=request.user.id)
+                
                 other_fees = OthersFee(designation=product[8], cost=product[3], tax=product[4], total=product[5],
                                         pnr=pnr, fee_type=product[1],reference=product[7], 
                                         quantity=1, is_subjected_to_fee=False, creation_date=datetime.now(), emitter=emitter)
@@ -1893,7 +1894,7 @@ def import_product(request, pnr_id):
             else:
                 other_fees = OthersFee.objects.filter(pnr=pnr_id, product_id=product[0])
                 other_fees = OthersFee(designation=product[2], cost=product[3], tax=product[4], total=product[5],
-                                        pnr=pnr, fee_type=product[1], passenger_segment=product[6], reference=product[7], 
+                                        pnr=pnr, fee_type=product[1], passenger_segment=product[6], reference=product[7], emitter=emitter,
                                         quantity=1, is_subjected_to_fee=False, creation_date=datetime.now())
                 other_fees.save()
             

@@ -9,8 +9,16 @@ const ButtonNpArchived = document.getElementById("button-np-archived")
 // const ButtonNt = document.getElementById('button-nt');
 // const ButtonNlbe = document.getElementById('button-nlbe');
 // const ButtonNlse = document.getElementById('button-nlse');
+$(document).ready(function () {
+    document.getElementById('liste_commandes').addEventListener('click', function () {
+        var currentPagePath = window.location.pathname;
+        var pathSegments = currentPagePath.split('/');
+        var basePath = (pathSegments[pathSegments.length - 2] !== 'home') ? '/home/' : '';
+        var modalPath = basePath + 'liste-commandes';
+        $('#modalListeCommandesContainer').load(modalPath, function () {
+            $('#modalListeCommandes').modal('show');
 
-ButtonNp.addEventListener('click', (e) => {
+            ButtonNp.addEventListener('click', (e) => {
     e.preventDefault();
     // console.log(Np.value.replace(/[^A-Z0-9]/ig, ''));
     const pnr_number = Np.value.replace(/[^A-Z0-9]/ig, '');
@@ -56,6 +64,11 @@ ButtonNpArchived.addEventListener('click', (e) => {
         })
     }
 });
+        });
+    });
+});
+
+
 
 // ButtonNt.addEventListener('click', (e) => {
 //     e.preventDefault();

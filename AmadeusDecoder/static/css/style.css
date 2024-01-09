@@ -156,13 +156,13 @@ input#fee-cost::placeholder {
 
 .sticky-tr-table {
 	position: sticky;
-	top: 9rem;
+	top: 7rem;
 	z-index: 190;
 }
 
 .fixed-header {
 	position: fixed;
-	top: 6rem;
+	top: 4rem;
 	left: 0;
 	width: 100%;
 	background: white;

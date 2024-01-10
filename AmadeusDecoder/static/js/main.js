@@ -1275,12 +1275,19 @@ $(document).ready(function () {
               // Find and remove the corresponding table row
               const trTableOtherFees =
                 document.querySelectorAll(".tr-other-fees");
+              const trTableOtherFeesFee = document.querySelectorAll(".tr-other-fees-fee")
+
               const tableToDelete = Array.from(trTableOtherFees).find(
+                (table) => parseInt(table.dataset.otherFeeId) === otherFee[0]
+              );
+
+              const tableOtherFeesFeeToDelete = Array.from(trTableOtherFeesFee).find(
                 (table) => parseInt(table.dataset.otherFeeId) === otherFee[0]
               );
 
               // Optional chaining to handle the case where the table is already removed
               tableToDelete?.remove();
+              tableOtherFeesFeeToDelete?.remove();
             }
           },
           error: (error) => {

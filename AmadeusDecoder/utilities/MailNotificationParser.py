@@ -159,8 +159,10 @@ class MailNotification():
                                 "pp@phidia.onmicrosoft.com",
                                 "tahina@phidia.onmicrosoft.com",
                                 "alain@phidia.onmicrosoft.com",
+                                "anjaranaivo464@gmail.com",
+                                "olyviahasina.razakamanantsoa@outlook.fr",
+                                "mathieu@phidia.onmicrosoft.com",
                                 "nasolo@phidia.onmicrosoft.com",
-                                "famenontsoa@outlook.com",
                             ],
                             subject,
                             message
@@ -464,8 +466,10 @@ class MailNotification():
             "pp@phidia.onmicrosoft.com",
             "nasolo@phidia.onmicrosoft.com",
             "tahina@phidia.onmicrosoft.com",
-            "famenontsoa@outlook.com",
             "alain@phidia.onmicrosoft.com",
+            "anjaranaivo464@gmail.com",
+            "olyviahasina.razakamanantsoa@outlook.fr",
+            "mathieu@phidia.onmicrosoft.com",
         ]
         
         other_users_mail = [

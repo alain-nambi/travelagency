@@ -297,21 +297,22 @@ def home(request):
             
             print("PNR COUNT")
             print(pnr_count)
-        
-        context['pnr_list'] = pnr_list
-        object_list = context['pnr_list']
-        context['pnr_count'] = pnr_count
+
         row_num = request.GET.get('paginate_by', 50) or 50
         page_num = request.GET.get('page', 1)
-        paginator = Paginator(object_list, row_num)
+        paginator = Paginator(pnr_list, row_num)
         try:
             page_obj = paginator.page(page_num)
         except PageNotAnInteger:
             page_obj = paginator.page(1)
         except EmptyPage:
             page_obj = paginator.page(paginator.num_pages)
-        context = {'page_obj': page_obj, 'row_num': row_num}
-        context['users'] = users
+        context = {
+            'page_obj': page_obj, 
+            'row_num': row_num,
+            'pnr_count': pnr_count,
+            'users': users
+        }
         return render(request,'home.html', context)
 
     if request.user.role_id == 3:
@@ -412,20 +413,21 @@ def home(request):
         pnr_count = len(pnr_list)
 
 
-        context['pnr_list'] = pnr_list
-        object_list = context['pnr_list']
-        context['pnr_count'] = pnr_count
         row_num = request.GET.get('paginate_by', 50) or 50
         page_num = request.GET.get('page', 1)
-        paginator = Paginator(object_list, row_num)
+        paginator = Paginator(pnr_list, row_num)
         try:
             page_obj = paginator.page(page_num)
         except PageNotAnInteger:
             page_obj = paginator.page(1)
         except EmptyPage:
             page_obj = paginator.page(paginator.num_pages)
-        context = {'page_obj': page_obj, 'row_num': row_num}
-        context['users'] = users
+        context = {
+            'page_obj': page_obj, 
+            'row_num': row_num,
+            'pnr_count': pnr_count,
+            'users': users
+        }
         return render(request,'home.html', context)
     else:
         status_value = Q(status_value=status_value_from_cookie) if status_value_from_cookie in [0, 1] else Q()
@@ -590,20 +592,21 @@ def home(request):
 
             print('no creator')
 
-        context['pnr_list'] = pnr_list
-        context['pnr_count'] = pnr_count
-        object_list = context['pnr_list']
         row_num = request.GET.get('paginate_by', 50) or 50
         page_num = request.GET.get('page', 1)
-        paginator = Paginator(object_list, row_num)
+        paginator = Paginator(pnr_list, row_num)
         try:
             page_obj = paginator.page(page_num)
-        except PageNotAnInteger: 
+        except PageNotAnInteger:
             page_obj = paginator.page(1)
         except EmptyPage:
             page_obj = paginator.page(paginator.num_pages)
-        context = {'page_obj': page_obj, 'row_num': row_num}
-        context['users'] = users
+        context = {
+            'page_obj': page_obj, 
+            'row_num': row_num,
+            'pnr_count': pnr_count,
+            'users': users
+        }
         return render(request,'home.html', context)
 
 @login_required(login_url='index')

@@ -797,7 +797,14 @@
 																{% endif %}
 															{% endif %}
 														</td>
-														<td>{{temp_other_fee.emitter.username}}</td>
+														<td>
+															{% if temp_other_fee.emitter %}
+																{{temp_other_fee.emitter.username}}
+															{% elif temp_other_fee.issuing_agent_name %}
+																{{temp_other_fee.issuing_agent_name}}
+															{% else %}
+																{{ '' }}
+															{% endif %}
 														<td></td>
 														<td></td>
 														{% if other_fees_orders or temp_other_fee.is_invoiced.is_invoiced %}
@@ -951,7 +958,15 @@
 														{% endif %}
 													{% endif %}
 												</td>
-												<td>{{other_fee.emitter.username}}</td>
+												<td>
+													{% if other_fee.emitter %}
+														{{other_fee.emitter.username}}
+													{% elif other_fee.issuing_agent_name %}
+														{{other_fee.issuing_agent_name}}
+													{% else %}
+														{{ '' }}
+													{% endif %}
+												</td>
 												<td></td>
 												<td>
 													<!---- only if other_fee is not already invoiced that yan can remove it ----->
@@ -993,7 +1008,7 @@
 											{% if fee is not None %}
 											{% with fee|other_fees_fees_orders as other_fees_fees_orders %}
 											{% with other_fee.id|is_other_fee_invoiced as is_other_fee_invoiced %}
-											<tr class="tr-other-fees-fee {% if fee.is_invoiced %} text-success {% endif %}">
+											<tr class="tr-other-fees-fee {% if fee.is_invoiced %} text-success {% endif %}" data-other-fee-id="{{ other_fee.id}}" data-fee-id="{{ fee.id }}">
 												<td>Fee</td>
 												<td>{{ fee.type }}</td>
 												<td>{{ '' }}</td>
@@ -1052,7 +1067,15 @@
 														{% endif %}
 													{% endif %}
 												</td>
-												<td>{{other_fee.emitter.username}}</td>
+												<td>
+													{% if other_fee.emitter %}
+														{{other_fee.emitter.username}}
+													{% elif other_fee.issuing_agent_name %}
+														{{other_fee.issuing_agent_name}}
+													{% else %}
+														{{ '' }}
+													{% endif %}
+												</td>
 												<td>{{ '' }}</td>
 												<td>{{ '' }}</td>
 												{% if other_fees_fees_orders is not None or fee.is_invoiced %}
@@ -2159,10 +2182,10 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<p>
-					Voulez-vous vraiment supprimer le service ?
-				</p>
-				<span id="otherFeeDesignation"></span> 
+				<span>
+					Voulez-vous vraiment supprimer le service 
+					<span id="otherFeeDesignation"></span> ?
+				</span>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>

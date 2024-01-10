@@ -541,10 +541,10 @@ class MailNotification():
                 
                 # Envoyer le mail pour toutes les utilisateurs d'Isssoufali 
                 Sending.send_email(
-                    "issoufali.pnr@outlook.com", 
-                    administrator_users_mail + other_users_mail + mgbi_users_mail,  
-                    subject, 
-                    message
+                    "alain@phidia.onmicrosoft.com", 
+                    # administrator_users_mail + other_users_mail + mgbi_users_mail,  
+                    # subject, 
+                    # message
                 )
             
             if len(no_anomaly_pnrs_before_afternoon_for_administrator) > 0:
@@ -580,8 +580,8 @@ class MailNotification():
                 Sending.send_email(
                     "alain@phidia.onmicrosoft.com", 
                     # administrator_users_mail + mgbi_users_mail,  
-                    subject, 
-                    message
+                    # subject, 
+                    # message
                 )
                                 
             if len(no_anomaly_pnrs_before_afternoon_for_administrator) < 1 and len(no_anomaly_pnrs_before_afternoon_after_processing) < 1:
@@ -626,10 +626,10 @@ class MailNotification():
                     
                 # Envoyer le mail pour toutes les utilisateurs d'Isssoufali 
                 Sending.send_email(
-                    "issoufali.pnr@outlook.com", 
-                    administrator_users_mail + other_users_mail + mgbi_users_mail,
-                    subject, 
-                    message
+                    "alain@phidia.onmicrosoft.com", 
+                    # administrator_users_mail + other_users_mail + mgbi_users_mail,
+                    # subject, 
+                    # message
                 )
                 
             if len(no_anomaly_pnrs_after_afternoon_for_administrator) > 0:
@@ -665,8 +665,8 @@ class MailNotification():
                 Sending.send_email(
                     "alain@phidia.onmicrosoft.com", 
                     # administrator_users_mail + mgbi_users_mail,  
-                    subject, 
-                    message
+                    # subject, 
+                    # message
                 )
 
             if len(no_anomaly_pnrs_after_afternoon_for_administrator) < 1 and len(no_anomaly_pnrs_after_afternoon_after_processing) < 1:

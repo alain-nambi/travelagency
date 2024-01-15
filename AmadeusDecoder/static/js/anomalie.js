@@ -9,7 +9,8 @@ $('#fee').hide();
 $('#comment-ticket').on('click', function (e) {
     $('#comment-form').hide();
     $('#comment-ticket-form').show();
-
+    VerifTicketLength()
+    $('#ticket_number').val("")
 })
 
 // ---------------------- verif ticket Value
@@ -27,10 +28,14 @@ $(document).ready(function () {
 
 
     $('#ticket_number').on('input', function () {
+        console.log($(this));
         ticket = $('#ticket_number').val();
         var inputValue = $(this).val();
         var sanitizedValue = inputValue.replace(/[^0-9-]/g, '');
         $(this).val(sanitizedValue);
+
+        $('#comment-ticket').attr("disabled", true);
+
         VerifTicketLength();
     });
 
@@ -54,6 +59,9 @@ $(document).ready(function () {
         }
         if (ticket.length <= 17) {
             Boutton.prop('disabled', false);
+        }
+        if (ticket.length < 14) {
+            Boutton.prop('disabled', true);
         }
 
         if(ticket.length == 15 && ticket.charAt(14) !== '-') {

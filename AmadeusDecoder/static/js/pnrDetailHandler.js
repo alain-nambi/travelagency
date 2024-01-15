@@ -650,7 +650,6 @@ document
             ProductTypeInitiale.textContent,
             designation,
             parseFloat(ProductTranspInput.value).toFixed(2),
-            parseFloat(ProductTaxInput.value).toFixed(2),
             (
               parseFloat(ProductTranspInput.value) + parseFloat(ProductTaxInput.value)
             ).toFixed(2),
@@ -1231,6 +1230,7 @@ $('#SelectProduct').on('change', function(){
 
   if(select_product == 19){
     $('#SelectProduct').hide();
+    $('#taxe-input-line').hide();
     $('#ticket-avoir').show();
     $('#passenger_segment').hide();
 
@@ -1326,6 +1326,23 @@ $(document).ready(function () {
       var modifiedValue = inputValue.slice(0, 14) + '-' + inputValue.slice(14);
       console.log(modifiedValue);
       $('#ticket-avoir').val(modifiedValue);
+    }
+  });
+});
+
+$(document).ready(function () {
+  $('#transport-input-line').on('input', function () {
+    if ($('#SelectProduct').val() == 19) {
+      var inputValue = $(this).val();
+      var numericValue = parseFloat(inputValue);
+
+      if (!isNaN(numericValue)) {
+        if (numericValue > 0) {
+          var sanitizedValue = '-' + inputValue;
+          $(this).val(sanitizedValue);
+        }
+      }
+
     }
   });
 });

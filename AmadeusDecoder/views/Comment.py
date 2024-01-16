@@ -316,6 +316,14 @@ def save_ticket_anomalie(request):
         user_id = request.POST.get('user_id')
         user = User.objects.filter(id= user_id).first()
         
+        if montant_hors_taxe == "" or taxe == "":
+            return JsonResponse(
+                {
+                    'error': f'Veuillez remplir toutes les champs nécessaires pour le billet [{ticket_number}]',
+                    'status': 'error'
+                }
+            )
+        
         if passenger_id is None and segment is None:
             info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "ticket_status":0} # ticket_status : 0 ticket existant , 1 ticket non existant
             
@@ -372,11 +380,22 @@ def update_ticket(request):
             ticket.total = float(anomalie.infos.get('montant')) + float(anomalie.infos.get('taxe'))
             ticket.ticket_status = 1
             ticket.emitter = issuing_user
+            ticket.issuing_date = datetime.now()
             ticket.save()
            
         else:
-            
-            ticket = Ticket( transport_cost=anomalie.infos.get('montant'),number=anomalie.infos.get('ticket_number'), tax=anomalie.infos.get('taxe'), total = float(anomalie.infos.get('montant')) + float(anomalie.infos.get('taxe')), ticket_status=1, pnr_id=anomalie.pnr_id, passenger_id=anomalie.infos.get('passenger_id'), ticket_type=anomalie.infos.get('ticket_type'), is_subjected_to_fees=anomalie.infos.get('fee'), emitter=issuing_user)
+            ticket = Ticket()
+            ticket.transport_cost=anomalie.infos.get('montant')
+            ticket.number=anomalie.infos.get('ticket_number')
+            ticket.tax=anomalie.infos.get('taxe')
+            ticket.total = float(anomalie.infos.get('montant')) + float(anomalie.infos.get('taxe'))
+            ticket.ticket_status=1
+            ticket.pnr_id=anomalie.pnr_id
+            ticket.passenger_id=anomalie.infos.get('passenger_id')
+            ticket.ticket_type=anomalie.infos.get('ticket_type')
+            ticket.is_subjected_to_fees=anomalie.infos.get('fee')
+            ticket.emitter=issuing_user
+            ticket.issuing_date=datetime.now()
             ticket.save()
             
             segment_id = anomalie.infos.get('segment')

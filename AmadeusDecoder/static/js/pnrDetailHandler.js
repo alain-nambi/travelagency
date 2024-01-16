@@ -1322,11 +1322,19 @@ $(document).ready(function () {
     var sanitizedValue = inputValue.replace(/[^0-9-]/g, '');
     $(this).val(sanitizedValue);
 
-    if (inputValue.length == 15 && inputValue.charAt(14) !== '-') {
-      var modifiedValue = inputValue.slice(0, 14) + '-' + inputValue.slice(14);
+    $("#save-product-select").prop('disabled', false);
+
+    if (inputValue.length < 13 || inputValue.length > 16) {
+      $("#save-product-select").prop('disabled', true);
+    }
+
+    if (inputValue.length == 14 && inputValue.charAt(13) !== '-') {
+      var modifiedValue = inputValue.slice(0, 13) + '-' + inputValue.slice(13);
       console.log(modifiedValue);
       $('#ticket-avoir').val(modifiedValue);
     }
+
+    
   });
 });
 

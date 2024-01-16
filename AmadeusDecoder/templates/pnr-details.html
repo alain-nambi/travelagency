@@ -1102,7 +1102,7 @@
 															<option value="{{product.id}}" data-designation="{{product.designation}}">{{product.designation}}</option>
 															{% endfor %}
 														</select>
-														<input type='text' class="form-control form-control-sm" id='ticket-avoir' maxlength='17' placeholder='14521452136541-47' name='ticket-avoir' />
+														<input type='text' class="form-control form-control-sm" id='ticket-avoir' maxlength='16' placeholder='1452145213651-47' name='ticket-avoir' />
 													</div>
 												</td>
 												<td>
@@ -1354,7 +1354,7 @@
 							{% csrf_token %}
 							<div id='ticket-input'>
 								<label for="ticket_number" class="col-form-label">Numero du Billet:</label>
-								<input type='text' maxlength='17' name="ticket_number" class="form-control" id="ticket_number">
+								<input type='text' maxlength='16' name="ticket_number" class="form-control" id="ticket_number">
 								<input type='hidden' name="pnr_id" value="{{pnr.id}}" class="form-control" id="pnr-id" >
 								
 							</div>

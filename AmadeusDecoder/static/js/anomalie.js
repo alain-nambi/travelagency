@@ -28,7 +28,6 @@ $(document).ready(function () {
 
 
     $('#ticket_number').on('input', function () {
-        console.log($(this));
         ticket = $('#ticket_number').val();
         var inputValue = $(this).val();
         var sanitizedValue = inputValue.replace(/[^0-9-]/g, '');
@@ -54,18 +53,18 @@ $(document).ready(function () {
         ticket = $('#ticket_number').val();
         var Boutton = $('#comment-ticket-next-button');
         
-        if(ticket.length > 17){
+        if(ticket.length > 16){
             Boutton.prop('disabled', true);
         }
-        if (ticket.length <= 17) {
+        if (ticket.length <= 16) {
             Boutton.prop('disabled', false);
         }
-        if (ticket.length < 14) {
+        if (ticket.length < 13) {
             Boutton.prop('disabled', true);
         }
 
-        if(ticket.length == 15 && ticket.charAt(14) !== '-') {
-            var modifiedValue = ticket.slice(0, 14) + '-' + ticket.slice(14);
+        if(ticket.length == 14 && ticket.charAt(13) !== '-') {
+            var modifiedValue = ticket.slice(0, 13) + '-' + ticket.slice(13);
             $('#ticket_number').val(modifiedValue);
         }
     }
@@ -99,6 +98,35 @@ if (child) {
 $(document).ready(function () {
     $("#comment-ticket-next-button").on("click", function () {
         var pnr_id = $("#pnr-id").val();
+
+        $("#montant_hors_taxe, #taxe").on("input", function() {
+            var inputValue = $(this).val();
+            
+            // Utiliser la regex pour valider le format
+            if (/^\d+(\.\d+)?(,\d+)?$/.test(inputValue)) {
+                // Le format est correct, ne rien faire
+            } else {
+                // Le format est incorrect, nettoyer la valeur
+                var sanitizedValue = inputValue.replace(/[^0-9,.]/g, '');
+                $(this).val(sanitizedValue);
+            }
+        });        
+        
+
+        $("#taxe").on("input", function() {
+            var inputValue = $(this).val();
+            
+            // Utiliser la regex pour valider le format
+            if (/^\d+(\.\d+)?(,\d+)?$/.test(inputValue)) {
+                // Le format est correct, ne rien faire
+            } else {
+                // Le format est incorrect, nettoyer la valeur
+                var sanitizedValue = inputValue.replace(/[^0-9,.]/g, '');
+                $(this).val(sanitizedValue);
+            }
+        })
+
+
         //Ticket verification
         if ($('#info').is(':hidden')) {
             var ticketNumber = $("#ticket_number").val();
@@ -196,15 +224,17 @@ $(document).ready(function () {
                         csrfmiddlewaretoken: csrftoken,
                     },
                     success: function (data) {
+                        // console.log(`DATA EXIST TICKET ${data}`);
+                        // debugger;
                         if (data == 'ok') {
                             toastr.success('Demande envoyée');
                             $('#modal-constat').hide();
                             setTimeout(() => {
                                 location.reload();
                             }, 1000)
-                        }
-                        if(data == 'error'){
-                            toastr.error(data.error);
+                        } 
+                        if (data.status == 'error') {
+                            toastr.error(data.error)
                         }
                     },
                 });   
@@ -242,12 +272,17 @@ $(document).ready(function () {
                         csrfmiddlewaretoken: csrftoken,
                     },
                     success: function (data) {
+                        // console.log(`DATA NOT EXIST TICKET ${data}`);
+                        // debugger;
                         if (data == 'ok') {
                             toastr.success('Demande envoyée');
                             $('#modal-constat').hide();
                             setTimeout(() => {
                                 location.reload();
                             }, 1000)
+                        } 
+                        if (data.status == 'error') {
+                            toastr.error(data.error)
                         }
                     },
                 });   

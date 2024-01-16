@@ -119,7 +119,7 @@ old -->
           <div>
             {% with pnr|new_anomalie as new_anomalie  %}
 						{% if new_anomalie is not None %}
-            <a href="{% url 'get_all_anomalies' %}">
+            <a {% if request.user.role_id == 1 %} href="{% url 'get_all_anomalies' %}" {% endif %}>
 							<p class="text-success mt-1 mb-0 cde_blink">
 								<i class="fa-solid fa-check-circle" aria-hidden="true"></i>
 									{{new_anomalie}} Anomalie en attente

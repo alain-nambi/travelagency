@@ -1,6 +1,6 @@
 {% extends "layout-all-pnr.html" %}
 {% load ticket_segments %}
-{% load pnr_details %}
+{% load home_tags %}
 {% block content %}
 <!-- Main content -->
 <div class="content-wrapper">
@@ -317,7 +317,7 @@
                         <form method="GET" class="d-flex align-items-center justify-content-between"> 
                           <div class="d-flex" style="width: 10rem;">
                             <input type="text" name="paginate_by" class="form-control form-control-sm mt-1 value_page p-0 pl-2" placeholder="{{ row_num }}" required title="Nombres des lignes"/>
-                            <input type="text" class="form-control form-control-sm mt-1 count_page p-0" disabled value=" / {{ request|pnr_count }}" id="pnrCounterOnSearch"/>
+                            <input type="text" class="form-control form-control-sm mt-1 count_page p-0" disabled value=" / {{ pnr_count }}" id="pnrCounterOnSearch"/>
                           </div>
   
                           <button type="submit" class="btn btn-outline-primary mt-1 px-2 py-0" id="buttonShowPnrBySize">Afficher</button>

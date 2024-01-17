@@ -482,6 +482,76 @@ class PnrOnlyParser():
             order += 1
         
         return passengers
+ 
+    def is_leap_year(self, year):
+        """
+        Check if a given year is a leap year.
+        """
+        return (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0)
+
+    def transform_date(self, date_input):
+        try:
+            # Extract year, month, and day from the input string
+            year, month, day = map(int, date_input.split('-'))
+            
+            # Create a datetime object
+            date_object = datetime(year, month, day)
+            
+            # Get the day and month in the desired format (e.g., 29FEB)
+            day_month_format = date_object.strftime('%d%b').upper()
+            
+            return day_month_format
+        except ValueError:
+            # Handle the case where the input date is invalid
+            return None
+
+    def compare_dates(self, date_operation, date_segment_flight):
+        """
+        RP/DZAUU01A3/DZAUU01A3            JM/GS  16DEC23/2259Z   PGUI8Z
+        1.ABDOU HADJI/SAANDATI MRS
+        ## segment de vol
+        2  KQ 255 Y 16DEC 6 DZANBO         FLWN \n
+        3  KQ 112 Y 16DEC 6 NBOCDG         FLWN \n
+        4  KQ 115 L 29FEB 4 CDGNBO HK1       2E 1920 0525+1 *1A/E* \n
+        5  KQ 254 L 01MAR 5 NBODZA HK1       1A 1210 1440   *1A/E*
+
+        date_operation (str): date de création automatique du PNR (16DEC23)
+        date_segment_flight (str): date du vol dans le segment
+        compare_dates (function): comparer la date de l'opération et la date du vol
+        """
+
+        # Cast date to string 
+        date_operation = str(date_operation)
+
+        # Extract the year from the operation date
+        year_operation = int(date_operation.split("-")[0])
+        
+        # Transform date strings to the desired format
+        date_operation = self.transform_date(date_operation)
+        
+        # Define the date format for comparison
+        date_format = "%d%b"
+        
+        if date_segment_flight != "29FEB":
+            # Convert date strings to datetime objects for comparison
+            date_operation = datetime.strptime(date_operation, date_format)
+            date_segment_flight = datetime.strptime(date_segment_flight, date_format)
+            
+            # Extract the month from the datetime objects
+            number_month_operation = date_operation.month
+            number_month_segment_flight = date_segment_flight.month
+    
+            # Compare months
+            if number_month_operation <= number_month_segment_flight:
+                return year_operation
+            else:
+                return year_operation + 1
+        else:
+            # Handle the case where the flight date is "29FEB"
+            while not self.is_leap_year(year_operation):
+                year_operation += 1
+            return year_operation
+
     
     # get all flight segments
     def get_flight(self, pnr_content, pnr):
@@ -558,13 +628,17 @@ class PnrOnlyParser():
                                         landing = flight_info[a-1]
                                         break
                                 a -= 1
-                        departure_time = datetime.strptime(flight_info[departure_time_index] + str(yearOfOperation) + ' ' + departure[0:2] + ':' + departure[2:] + ':00', '%d%b%Y %H:%M:%S')
+
+                        print("CORRECT YEAR OF OPERATION")
+                        correct_year_of_operation = self.compare_dates(date_operation=pnr.gds_creation_date, date_segment_flight=flight_info[departure_time_index])
+
+                        departure_time = datetime.strptime(flight_info[departure_time_index] + str(correct_year_of_operation) + ' ' + departure[0:2] + ':' + departure[2:] + ':00', '%d%b%Y %H:%M:%S')
                         # sometimes, landing time has a '+' attribute in order to show that some days has to be added from the departure date
                         if(len(landing.split('+')) <= 1):
-                            landing_time = datetime.strptime(flight_info[departure_time_index] + str(yearOfOperation) + ' ' + landing[0:2] + ':' + landing[2:] + ':00', '%d%b%Y %H:%M:%S')
+                            landing_time = datetime.strptime(flight_info[departure_time_index] + str(correct_year_of_operation) + ' ' + landing[0:2] + ':' + landing[2:] + ':00', '%d%b%Y %H:%M:%S')
                         else:
                             try:
-                                landing_time = datetime.strptime(flight_info[departure_time_index] + str(yearOfOperation) + ' ' + landing.split('+')[0][0:2] + ':' + landing.split('+')[0][2:] + ':00', '%d%b%Y %H:%M:%S') + timedelta(days=int(landing.split('+')[1]))
+                                landing_time = datetime.strptime(flight_info[departure_time_index] + str(correct_year_of_operation) + ' ' + landing.split('+')[0][0:2] + ':' + landing.split('+')[0][2:] + ':00', '%d%b%Y %H:%M:%S') + timedelta(days=int(landing.split('+')[1]))
                             except:
                                 landing_time = None
                 # if airline code and flight number are not separated with space
@@ -642,8 +716,7 @@ class PnrOnlyParser():
                 if departure_time is not None:
                     temp_year = departure_time.year
                     if not flown_checker:
-                        if departure_time.month < month_of_operation:
-                            temp_year += 1
+                        temp_year = self.compare_dates(date_operation=pnr.gds_creation_date, date_segment_flight=flight_info[departure_time_index])
                     temp_flight.departuretime = datetime(temp_year, departure_time.month, departure_time.day, departure_time.hour, departure_time.minute, departure_time.second, departure_time.microsecond, pytz.UTC)
                 if landing_time is not None:
                     temp_flight.arrivaltime = datetime(temp_year, landing_time.month, landing_time.day, landing_time.hour, landing_time.minute, landing_time.second, landing_time.microsecond, pytz.UTC)

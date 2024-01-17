@@ -2,7 +2,6 @@
 <!DOCTYPE html>
 <html lang="en">
 {% load static %}
-{% load pnr_details %}
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, maximum-scale=10">
@@ -341,7 +340,7 @@ old -->
             <div class="col-md-2">
               <strong class="text-primary">
                 <u>Total PNR:</u> 
-                <span class="request-pnr-counter">{{  request|pnr_count }}</span>
+                <span class="request-pnr-counter">{{  pnr_count }}</span>
               </strong>
             </div>
             <div class="col-md-10">

@@ -5,6 +5,7 @@ Created on Jul 20, 2023
 '''
 import django
 import os
+
 # from AmadeusDecoder.utilities.SendMail import Sending
 
 os.environ.setdefault(
@@ -13,6 +14,7 @@ os.environ.setdefault(
 django.setup()
 
 from AmadeusDecoder.utilities.ServiceFeesDecreaseRequest import ServiceFeesDecreaseRequest
+from AmadeusDecoder.models.pnr.Pnr import Pnr
 
 from AmadeusDecoder.models.invoice.Fee import ReducePnrFeeRequest
 from datetime import datetime
@@ -57,7 +59,7 @@ if __name__ == '__main__':
     # except Exception as e:
     #     raise e
     
-    # Pnr.objects.filter(number='N9VRXD').first().delete()
+    Pnr.objects.filter(number='00DZUT').first().delete()
     # n9vrxd
     
     

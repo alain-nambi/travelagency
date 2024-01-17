@@ -1134,10 +1134,28 @@ class ZenithParserReceipt():
                     except:
                         pass
                     
+                    # print("***** NEW EMD *****")
+                    # print(new_emd.cost)
+                    # print(date_time.date)
+                    # print(new_emd.designation)
+                    # print(new_emd.emitter)
+                    # print(current_passenger)
+                    # print("----- NEW EMD -----")
+                    
                     if not is_created_by_us or self.check_issuing_date(date_time.date()):
                         new_emd.other_fee_status = 3
                     # check is it has been already saved
-                    otherfee_saved_checker = OthersFee.objects.filter(designation=new_emd.designation, pnr=pnr, related_segments__passenger=current_passenger).first()
+                    otherfee_saved_checker  =   OthersFee.objects.filter(
+                                                    designation=new_emd.designation, 
+                                                    pnr=pnr, 
+                                                    related_segments__passenger=current_passenger, 
+                                                    creation_date=date_time
+                                                ).first()
+
+                    # print("***** OTHER FEE SAVED CHECKER *******")
+                    # print(otherfee_saved_checker)
+                    # print("----- OTHER FEE SAVED CHECKER -------")
+
                     if otherfee_saved_checker != None:
                         new_emd = otherfee_saved_checker
                         if is_created_by_us:
@@ -1156,7 +1174,7 @@ class ZenithParserReceipt():
                     #             is_already_saved = True
                     #             break
                     
-                    new_emd.creation_date = date_time.date()
+                    new_emd.creation_date = date_time
                     
                     # emitter
                     if is_know_emitter:

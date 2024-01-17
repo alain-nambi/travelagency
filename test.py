@@ -25,7 +25,7 @@ if __name__ == '__main__':
     temp = AmadeusParser() 
     file = '0_fnd@amadeus.com'
     # file = 12656_famenontsoa@outlook.com'
-    temp.set_path(os.getcwd() + '\\EmailFetcher\\utilities\\attachments_dir\\' + file + '\\' + file.removeprefix('VK8PP7_Fixed/') + '.txt')
+    temp.set_path(os.getcwd() + '/EmailFetcher/utilities/attachments_dir/' + file + '/' + file.removeprefix('VK8PP7_Fixed/') + '.txt')
 
     contents = temp.read_file()
     needed_content = temp.needed_content(contents)

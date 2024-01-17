@@ -13,6 +13,7 @@ os.environ.setdefault(
 django.setup()
 
 from AmadeusDecoder.utilities.ServiceFeesDecreaseRequest import ServiceFeesDecreaseRequest
+from AmadeusDecoder.models.pnr.Pnr import Pnr
 
 from AmadeusDecoder.models.invoice.Fee import ReducePnrFeeRequest
 from datetime import datetime
@@ -57,7 +58,7 @@ if __name__ == '__main__':
     # except Exception as e:
     #     raise e
     
-    # Pnr.objects.filter(number='N9VRXD').first().delete()
+    Pnr.objects.filter(number='PTRADX').first().delete()
     # n9vrxd
     
     

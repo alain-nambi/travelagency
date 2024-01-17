@@ -59,7 +59,11 @@
                                     
                                     {% if anomalie.status == 0 %}
                                         <td><button class="btn btn-danger py-0" name="anomaly_state">Non Traitée</button></td>
-                                    {% else %}
+                                    {% endif %}
+                                    {% if anomalie.status == 2 %}
+                                        <td><button class="btn btn-primary py-0" name="anomaly_state">Refusée</button></td>
+                                    {% endif %}
+                                    {% if anomalie.status == 1 %}
                                         <td><button class="btn btn-success py-0" name="anomaly_state" >Traitée</button></td>
                                     {% endif %}
                                     

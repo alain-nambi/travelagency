@@ -330,14 +330,14 @@ def save_ticket_anomalie(request):
         else:
             info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "passenger_id":passenger_id, "segment": segment, "ticket_status":1, 'ticket_type':ticket_type, 'fee': (request.POST.get('fee')).capitalize()} # ticket_status : 0 ticket existant , 1 ticket non existant
             
-        anomalie = Anomalie(pnr=pnr, categorie='Billet non remonté', infos=info, issuing_user = user)
+        anomalie = Anomalie(pnr=pnr, categorie='Billet non remonté', infos=info, issuing_user = user, creation_date=timezone.now())
         anomalie.save()   
         return JsonResponse('ok',safe=False)
     
 
 @login_required(login_url='index')
 def get_all_anomalies(request):
-    anomalies = Anomalie.objects.all()
+    anomalies = Anomalie.objects.exclude(status=3)
     context = {}
     context['anomalies'] = anomalies
     object_list = context['anomalies']
@@ -358,7 +358,7 @@ def get_all_anomalies(request):
 @login_required(login_url='index')
 def anomaly_details(request, pnr_id):
     context={}
-    anomalie = Anomalie.objects.filter(pnr_id=pnr_id)
+    anomalie = Anomalie.objects.filter(pnr_id=pnr_id).exclude(status=3)
     context['anomalies'] = anomalie
     context['pnr_id'] = pnr_id
     return render(request, 'anomalie-details.html', context)
@@ -409,9 +409,47 @@ def update_ticket(request):
         user_copying.save()
         
         anomalie.status = 1
-        anomalie.accept_date = timezone.now()
+        anomalie.response_date = timezone.now()
         anomalie.admin_id = request.user
         anomalie.save()
    
         return JsonResponse('ok', safe=False)
+
+@login_required(login_url='index')        
+def refuse_anomaly(request):
+    if request.method == 'POST':
+        anomalie_id = request.POST.get('anomalie_id')
+        anomalie = Anomalie.objects.get(pk=anomalie_id)
+        anomalie.status = 2
+        anomalie.response_date = timezone.now()
+        anomalie.admin_id = request.user
+        anomalie.save()
+        return JsonResponse('ok',safe=False)
             
+@login_required(login_url='index')        
+def drop_anomaly(request):
+    if request.method == 'POST':
+        anomalie_id = request.POST.get('anomalie_id')
+        anomalie = Anomalie.objects.get(pk=anomalie_id)
+        anomalie.status = 3
+        anomalie.admin_id = request.user
+        anomalie.save()
+        return JsonResponse('ok',safe=False)
+    
+@login_required(login_url='index')
+def updateAnomaly(request):
+    if request.method == 'POST':
+        ticket = request.POST.get('ticket')
+        montant = request.POST.get('montant')
+        taxe = request.POST.get('taxe')
+        anomaly_id = request.POST.get('anomaly_id')
+        print('-------------------AOMALY ----------------------------')
+        print(montant)
+        anomaly = Anomalie.objects.get(pk=anomaly_id)
+        anomaly.infos['ticket_number'] = ticket
+        anomaly.infos['montant'] = montant
+        anomaly.infos['taxe'] = taxe
+        
+        anomaly.save()
+        return JsonResponse('ok',safe=False)
+        

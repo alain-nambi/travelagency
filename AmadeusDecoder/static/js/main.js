@@ -2853,8 +2853,9 @@ if (button__navigateToPageNumber != null) {
   });
   $("#button__navigateToPageNumber").click(() => {
     $("#input__setPageNumber").val("");
+    var path=window.location.pathname;
     if (pageNumber > 0 && pageNumber <= lastPageNumber) {
-      window.location.href = `/home/?page=${pageNumber}`;
+      window.location.href = `${path}?page=${pageNumber}`;
     } else {
       toastr.error(`Aucun numéro de page de ${pageNumber}`);
       $("#button__navigateToPageNumber").attr("disabled", true);
@@ -2863,8 +2864,10 @@ if (button__navigateToPageNumber != null) {
   $("#input__setPageNumber").keyup(function (e) {
     if (e.keyCode == 13) {
       $("#input__setPageNumber").val("");
+      var path = window.location.pathname;
+
       if (pageNumber > 0 && pageNumber <= lastPageNumber) {
-        window.location.href = `/home/?page=${pageNumber}`;
+        window.location.href = `${path}?page=${pageNumber}`;
       } else {
         toastr.error(`Aucun numéro de page de ${pageNumber}`);
         $("#button__navigateToPageNumber").attr("disabled", true);

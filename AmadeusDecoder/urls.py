@@ -69,4 +69,7 @@ urlpatterns = [
     path('home/get-passenger-and-segment-By-Id', getPassengerAndSegmentById, name='getPassengerAndSegmentById'),
     path('home/anomaly-details/<int:pnr_id>', anomaly_details, name='anomaly_details'),
     path('home/liste-commandes', liste_commandes, name='liste_commandes'),
+    path('home/refuse-anomaly', refuse_anomaly, name='refuse_anomaly'),
+    path('home/drop-anomaly',drop_anomaly, name='drop_anomaly'),
+    path('home/update-anomaly', updateAnomaly, name='update_anomaly'),
 ]

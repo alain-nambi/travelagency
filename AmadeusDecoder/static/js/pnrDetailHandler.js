@@ -1282,14 +1282,7 @@ $('#SelectProduct').on('change', function(){
         parent_passenger_segment.innerHTML = '';
 
         if (segments.length > 0) {
-          segments.map((segment) => {
-            const newOption = document.createElement("option");
-            newOption.id = "child_passenger_segment";
-            newOption.value = segment['segment_id'];
-            newOption.textContent = segment['segment'] ;
-            parent_passenger_segment.appendChild(newOption);
-          });
-
+          
           const myOptions = segments.map((segment) => {
             return {
               label: segment['segment'],

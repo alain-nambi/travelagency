@@ -85,10 +85,8 @@ $(document).ready(function () {
 
 // --------------------- entrée détails anomalie
 const parent = document.getElementById("selectPassenger");
-const parent_segment = document.getElementById('selectSegment');
 
 const child = document.getElementById("child_passenger");
-const child_segment = document.getElementById('child_segment');
 
 if (child) {
     parent.removeChild(child);
@@ -182,14 +180,39 @@ $(document).ready(function () {
                                 }
                                 let segments = data.context.segments;
                                 if (segments.length > 0) {
+                                    const segment_options = segments.map((segment) => {
+                                        return {
+                                            label: segment['segment'],
+                                            value: segment['segment_id'],
+                                        };
+                                    });
 
-                                    segments.map((segment) => {
-                                        const newOption = document.createElement("option");
-                                        newOption.id = "child_segment";
-                                        newOption.value = segment['segment_id'];
-                                        newOption.textContent = segment['segment'] + ' ' + segment['vol'] + ' ' + segment['vol_number'];
+                                    segment_options.push({ label: 'Pas de segment', value: ''});
 
-                                        parent_segment.append(newOption);
+                                    VirtualSelect.init({
+                                        ele: '#selectSegment',
+                                        multiple: true,
+                                    });
+                                    document.querySelector('#selectSegment').setOptions(segment_options);
+
+                                    var disabledOptions = [];
+                                    segment_options.forEach(option => {
+                                        if (option.value != '') {
+                                            disabledOptions.push(option.value);    
+                                        }
+                                    });
+
+                                    $('#selectSegment').on('change', function () {
+                                        selectedValues = document.querySelector('#selectSegment').getSelectedOptions();
+                                        console.log(selectedValues);
+                                        selectedValues.forEach(value => {
+                                            if (value.value == '87594'){
+                                                var val = ['']
+                                                document.querySelector('#selectSegment').setDisabledOptions(val);
+                                                console.log(disabledOptions);
+                                                console.log(selectedValues);
+                                            }
+                                        });
                                     });
                                 } else {
                                     console.log('Error......');
@@ -244,7 +267,8 @@ $(document).ready(function () {
                 var taxe = $('#taxe').val();
                 var user_id = $('#user_id').val();
                 var passenger_id = $('#selectPassenger').val();
-                var segment = $('#selectSegment').val();
+                var segment = document.querySelector('#selectSegment').getSelectedOptions();
+                debugger;
                 var type = $('#selectType').val();
                 var fee;
 
@@ -303,6 +327,8 @@ $(document).ready(function () {
 });
 
 // ---------------------- update or create ticket 
+// $('#card-update-anomaly').hide();
+
 
 function accept_anomaly(anomalie_id){
     console.log('---coucou----');
@@ -334,3 +360,148 @@ function accept_anomaly(anomalie_id){
     
 }
 
+function refuse_anomaly(anomalie_id) {
+
+    $.ajax({
+        type: "POST",
+        url: "/home/refuse-anomaly",
+        dataType: "json",
+        data: {
+            anomalie_id: anomalie_id,
+            csrfmiddlewaretoken: csrftoken,
+        },
+        success: function (data) {
+            if (data == 'ok') {
+                toastr.success('Anomalie refusée');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000)
+            }
+            else {
+                toastr.error('Erreur. Veuillez recommencer');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000)
+            }
+        },
+    });
+
+}
+
+function drop_anomaly(anomalie_id) {
+    $.ajax({
+        type: "POST",
+        url: "/home/drop-anomaly",
+        dataType: "json",
+        data: {
+            anomalie_id: anomalie_id,
+            csrfmiddlewaretoken: csrftoken,
+        },
+        success: function (data) {
+            if (data == 'ok') {
+                toastr.success('Anomalie supprimée');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000)
+            }
+            else {
+                toastr.error('Erreur. Veuillez recommencer');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000)
+            }
+        },
+    });
+
+}
+
+function update_anomaly(anomalie_id){
+    var name = 'card-anomaly-' + anomalie_id;
+    var nameUpdate = 'card-update-anomaly-' + anomalie_id;
+    console.log(name);
+    console.log(nameUpdate);
+
+    var cardAnomaly = document.getElementById(name);
+    cardAnomaly.hidden = true;
+    var cardUpdateAnomaly = document.getElementById(nameUpdate);
+    if (cardUpdateAnomaly) {
+        cardUpdateAnomaly.hidden = !cardUpdateAnomaly.hidden;
+    }
+}
+
+function VerifTicketUpdatedLength(id) {
+    var Boutton = $('#update-anomaly-button');
+    element = document.getElementById(id);
+
+    var sanitizedValue = element.value.replace(/[^0-9-]/g, '');
+    element.value = sanitizedValue;
+
+    if (element.value.length > 16) {
+        Boutton.prop('disabled', true);
+    }
+    if (element.value.length <= 16) {
+        Boutton.prop('disabled', false);
+    }
+    if (element.value.length < 13) {
+        Boutton.prop('disabled', true);
+    }
+    element = document.getElementById(id);
+    if (element.value.length === 14 && element.value.charAt(13) !== '-') {
+        console.log('COUCOU------');
+        var modifiedValue = element.value.slice(0, 13) + '-' + element.value.slice(13);
+        element.value = modifiedValue;
+    }
+
+}
+
+function VerifNumberValue(id){
+    console.log('COUCOU--------------');
+    var Boutton = $('#update-anomaly-button');
+    element = document.getElementById(id);
+    var regex = /^\d+(\.\d{1,2})?$/;
+
+    if (!regex.test(element.value)) {
+        element.style.borderColor = 'red';
+        Boutton.prop('disabled', true);
+        toastr.error(('Le montant doit être au format correct (par exemple, 100 ou 100.50 et non 100.)'));
+    }
+    else{
+        element.style.borderColor = 'black';
+        Boutton.prop('disabled', false);
+    }
+
+}
+
+function updateAnomaly(anomalie_id){
+    var ticket = $('#ticket_to_update-'+anomalie_id).val();
+    var montant = $('#montant_to_update-' + anomalie_id).val();
+    var taxe = $('#taxe_to_update-' + anomalie_id).val();
+
+    $.ajax({
+        type: "POST",
+        url: "/home/update-anomaly",
+        dataType: "json",
+        data: {
+            anomaly_id: anomalie_id,
+            ticket: ticket,
+            montant: montant,
+            taxe: taxe,
+            csrfmiddlewaretoken: csrftoken,
+        },
+        success: function (data) {
+            if (data == 'ok') {
+                toastr.success('Anomalie modifiée');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000)
+            }
+            else {
+                toastr.error('Erreur. Veuillez recommencer');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000)
+            }
+        },
+    });
+
+}

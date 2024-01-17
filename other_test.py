@@ -5,6 +5,7 @@ Created on Jul 20, 2023
 '''
 import django
 import os
+
 # from AmadeusDecoder.utilities.SendMail import Sending
 
 os.environ.setdefault(

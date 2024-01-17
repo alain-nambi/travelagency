@@ -796,7 +796,14 @@
 																{% endif %}
 															{% endif %}
 														</td>
-														<td>{{temp_other_fee.emitter.username}}</td>
+														<td>
+															{% if temp_other_fee.emitter %}
+																{{temp_other_fee.emitter.username}}
+															{% elif temp_other_fee.issuing_agent_name %}
+																{{temp_other_fee.issuing_agent_name}}
+															{% else %}
+																{{ '' }}
+															{% endif %}
 														<td></td>
 														<td></td>
 														{% if other_fees_orders or temp_other_fee.is_invoiced.is_invoiced %}
@@ -942,7 +949,15 @@
 														{% endif %}
 													{% endif %}
 												</td>
-												<td>{{other_fee.emitter.username}}</td>
+												<td>
+													{% if other_fee.emitter %}
+														{{other_fee.emitter.username}}
+													{% elif other_fee.issuing_agent_name %}
+														{{other_fee.issuing_agent_name}}
+													{% else %}
+														{{ '' }}
+													{% endif %}
+												</td>
 												<td></td>
 												<td>
 													<!---- only if other_fee is not already invoiced that yan can remove it ----->
@@ -1033,7 +1048,15 @@
 														{% endif %}
 													{% endif %}
 												</td>
-												<td>{{other_fee.emitter.username}}</td>
+												<td>
+													{% if other_fee.emitter %}
+														{{other_fee.emitter.username}}
+													{% elif other_fee.issuing_agent_name %}
+														{{other_fee.issuing_agent_name}}
+													{% else %}
+														{{ '' }}
+													{% endif %}
+												</td>
 												<td>{{ '' }}</td>
 												<td>{{ '' }}</td>
 												{% if other_fees_fees_orders is not None or fee.is_invoiced %}

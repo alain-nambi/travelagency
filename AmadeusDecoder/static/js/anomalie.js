@@ -267,7 +267,7 @@ $(document).ready(function () {
                 var taxe = $('#taxe').val();
                 var user_id = $('#user_id').val();
                 var passenger_id = $('#selectPassenger').val();
-                var segment = document.querySelector('#selectSegment').getSelectedOptions();
+                const segment = document.querySelector('#selectSegment').getSelectedOptions();
                 // debugger;
 
                 console.log("SEGMENT SELECT");
@@ -284,20 +284,27 @@ $(document).ready(function () {
                     fee = feeCheckbox.checked;
                 }
 
+                const listNewTicketAnomalyInfo = []
+                listNewTicketAnomalyInfo.push({
+                    segment: segment,
+                    ticket_number: ticketNumber,
+                    montant_hors_taxe: mnt_hors_taxe,
+                    taxe: taxe,
+                    user_id: user_id,
+                    pnr_id: pnr_id,
+                    passenger_id: passenger_id,
+                    ticket_type: type,
+                    fee: fee,
+                })
+
+                console.log(listNewTicketAnomalyInfo);
+
                 $.ajax({
                     type: "POST",
                     url: "/home/save-ticket-anomalie",
                     dataType: "json",
                     data: {
-                        ticket_number: ticketNumber,
-                        montant_hors_taxe: mnt_hors_taxe,
-                        taxe: taxe,
-                        user_id: user_id,
-                        pnr_id: pnr_id,
-                        passenger_id: passenger_id,
-                        segment: segment,
-                        ticket_type: type,
-                        fee: fee,
+                        listNewTicketAnomalyInfo: JSON.stringify(listNewTicketAnomalyInfo),
                         csrfmiddlewaretoken: csrftoken,
                     },
                     success: function (data) {
@@ -306,9 +313,9 @@ $(document).ready(function () {
                         if (data == 'ok') {
                             toastr.success('Demande envoyée');
                             $('#modal-constat').hide();
-                            // setTimeout(() => {
-                            //     location.reload();
-                            // }, 1000)
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1000)
                         } 
                         if (data.status == 'error') {
                             toastr.error(data.error)

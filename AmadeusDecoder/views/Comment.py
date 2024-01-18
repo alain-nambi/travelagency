@@ -298,6 +298,12 @@ def getPassengerAndSegmentById(request):
 @login_required(login_url='index')
 def save_ticket_anomalie(request):
     if request.method == 'POST':
+        if "listNewTicketAnomalyInfo" in request.POST:
+            new_tickets = json.loads(request.POST.get("listNewTicketAnomalyInfo"))
+                                     
+            print(f"TICKET  : {new_tickets}")  
+        
+        
         ticket_number = request.POST.get('ticket_number')
         
         if len(ticket_number) > 17:

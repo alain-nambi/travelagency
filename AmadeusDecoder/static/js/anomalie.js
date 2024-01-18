@@ -269,10 +269,8 @@ $(document).ready(function () {
                 var passenger_id = $('#selectPassenger').val();
                 const segment = document.querySelector('#selectSegment').getSelectedOptions();
                 // debugger;
-
                 console.log("SEGMENT SELECT");
                 console.log(segment);
-
 
                 var type = $('#selectType').val();
                 var fee;

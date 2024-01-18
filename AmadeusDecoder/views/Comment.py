@@ -1,3 +1,4 @@
+import ast
 from datetime import datetime
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
@@ -304,25 +305,24 @@ def save_ticket_anomalie(request):
             print(f"TICKET  : {new_tickets}")  
         
         
-        ticket_number = request.POST.get('ticket_number')
+        ticket_number = new_tickets[0]['ticket_number']
         
         if len(ticket_number) > 17:
             return JsonResponse({'error':'ticket number > 17 '})
         
-        montant_hors_taxe = request.POST.get('montant_hors_taxe')
-        taxe = request.POST.get('taxe')
-        pnr_id = request.POST.get('pnr_id')
-        passenger_id = request.POST.get('passenger_id')
-        segment = request.POST.get('segment')
-        ticket_type = request.POST.get('ticket_type')
+        montant_hors_taxe = new_tickets[0]['montant_hors_taxe']
+        taxe = new_tickets[0]['taxe']
+        pnr_id = new_tickets[0]['pnr_id']
+        passenger_id = new_tickets[0]['passenger_id']
+        segments = []
+        ticket_type = new_tickets[0]['ticket_type']
         
-        print("SEGMENT TYPE")
-        print(segment)
-        
+        for segment in new_tickets[0]['segment']:
+            segments.append(segment.get('value'))
 
         pnr = Pnr.objects.filter(id=pnr_id).first()
             
-        user_id = request.POST.get('user_id')
+        user_id = new_tickets[0]['user_id']
         user = User.objects.filter(id= user_id).first()
         
         if montant_hors_taxe == "" or taxe == "":
@@ -337,7 +337,7 @@ def save_ticket_anomalie(request):
             info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "ticket_status":0} # ticket_status : 0 ticket existant , 1 ticket non existant
             
         else:
-            info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "passenger_id":passenger_id, "segment": segment, "ticket_status":1, 'ticket_type':ticket_type, 'fee': (request.POST.get('fee')).capitalize()} # ticket_status : 0 ticket existant , 1 ticket non existant
+            info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "passenger_id":passenger_id, "segment": segments, "ticket_status":1, 'ticket_type':ticket_type, 'fee': str(new_tickets[0]['fee']).capitalize()} # ticket_status : 0 ticket existant , 1 ticket non existant
             
         anomalie = Anomalie(pnr=pnr, categorie='Billet non remonté', infos=info, issuing_user = user, creation_date=timezone.now())
         anomalie.save()   
@@ -377,7 +377,6 @@ def anomaly_details(request, pnr_id):
 def update_ticket(request):
     if request.method == 'POST':
         anomalie_id = request.POST.get('anomalie_id')
-        print('-----------------COUCOU -------------')
 
         anomalie = Anomalie.objects.get(pk=anomalie_id)
         issuing_user = anomalie.issuing_user
@@ -407,12 +406,17 @@ def update_ticket(request):
             ticket.issuing_date=datetime.now()
             ticket.save()
             
-            segment_id = anomalie.infos.get('segment')
+            segment_id = ast.literal_eval(anomalie.infos.get('segment'))
             if segment_id != "":
-                segment = PnrAirSegments.objects.get(pk=segment_id)
-                ticket_passenger = TicketPassengerSegment(ticket=ticket,segment=segment)
-                ticket_passenger.save()
-        
+                if isinstance(segment_id, list):
+                    for element in segment_id:
+                        segment = PnrAirSegments.objects.get(pk=element)
+                        ticket_passenger = TicketPassengerSegment(ticket=ticket,segment=segment)
+                        ticket_passenger.save()
+                elif isinstance(segment_id, int):
+                    segment = PnrAirSegments.objects.get(pk=segment_id)
+                    ticket_passenger = TicketPassengerSegment(ticket=ticket,segment=segment)
+                    ticket_passenger.save()
 
         user_copying = UserCopying(document=anomalie.pnr.number, user_id=issuing_user)
         user_copying.save()

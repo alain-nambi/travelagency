@@ -1,3 +1,5 @@
+import ast
+import json
 from AmadeusDecoder.models.pnr.Passenger import Passenger
 from AmadeusDecoder.models.pnrelements.PnrAirSegments import PnrAirSegments
 from AmadeusDecoder.models.utilities.Comments import Anomalie, Comment
@@ -109,9 +111,20 @@ def new_anomalie(pnr):
 @register.filter(name='get_details')
 def get_details(anomalie):
     anomalie = Anomalie.objects.get(pk=anomalie.id)
-    segment_id = anomalie.infos.get('segment')
-    if segment_id != "":    
-        segment = PnrAirSegments.objects.get(pk=segment_id)
+    #transformer le string "['84560','84562']" en liste
+    segment_id = ast.literal_eval(anomalie.infos.get('segment'))
+
+    segments_list = []
+    if segment_id != "":
+        if isinstance(segment_id, list):
+            for element in segment_id:
+                segments = PnrAirSegments.objects.get(pk=element)
+                segments_list.append(str(segments)+' '+str(segments.segmentorder))
+        elif isinstance(segment_id, int):
+            segments = PnrAirSegments.objects.get(pk=segment_id)
+            segments_list.append(str(segments)+' '+str(segments.segmentorder))
+            
+        segment= ','.join(segments_list)
     else:
         segment = ""
     

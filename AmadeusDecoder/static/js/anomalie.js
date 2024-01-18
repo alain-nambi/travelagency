@@ -204,7 +204,7 @@ $(document).ready(function () {
 
                                     $('#selectSegment').on('change', function () {
                                         selectedValues = document.querySelector('#selectSegment').getSelectedOptions();
-                                        console.log(selectedValues);
+                                        // console.log(selectedValues);
                                         // selectedValues.forEach(value => {
                                         //     if (value.value == ''){
                                         //         var val = ['']
@@ -269,8 +269,8 @@ $(document).ready(function () {
                 var passenger_id = $('#selectPassenger').val();
                 const segment = document.querySelector('#selectSegment').getSelectedOptions();
                 // debugger;
-                console.log("SEGMENT SELECT");
-                console.log(segment);
+                // console.log("SEGMENT SELECT");
+                // console.log(segment);
 
                 var type = $('#selectType').val();
                 var fee;
@@ -295,7 +295,7 @@ $(document).ready(function () {
                     fee: fee,
                 })
 
-                console.log(listNewTicketAnomalyInfo);
+                // console.log(listNewTicketAnomalyInfo);
 
                 $.ajax({
                     type: "POST",
@@ -341,9 +341,9 @@ $(document).ready(function () {
 
 
 function accept_anomaly(anomalie_id){
-    console.log('---coucou----');
+    // console.log('---coucou----');
     // var anomalie_id = $('#anomalie_id').val();
-    console.log(anomalie_id);
+    // console.log(anomalie_id);
         $.ajax({
             type: "POST",
             url: "/home/update-ticket",
@@ -428,8 +428,8 @@ function drop_anomaly(anomalie_id) {
 function update_anomaly(anomalie_id){
     var name = 'card-anomaly-' + anomalie_id;
     var nameUpdate = 'card-update-anomaly-' + anomalie_id;
-    console.log(name);
-    console.log(nameUpdate);
+    // console.log(name);
+    // console.log(nameUpdate);
 
     var cardAnomaly = document.getElementById(name);
     cardAnomaly.hidden = true;
@@ -457,7 +457,7 @@ function VerifTicketUpdatedLength(id) {
     }
     element = document.getElementById(id);
     if (element.value.length === 14 && element.value.charAt(13) !== '-') {
-        console.log('COUCOU------');
+        // console.log('COUCOU------');
         var modifiedValue = element.value.slice(0, 13) + '-' + element.value.slice(13);
         element.value = modifiedValue;
     }
@@ -465,7 +465,7 @@ function VerifTicketUpdatedLength(id) {
 }
 
 function VerifNumberValue(id){
-    console.log('COUCOU--------------');
+    // console.log('COUCOU--------------');
     var Boutton = $('#update-anomaly-button');
     element = document.getElementById(id);
     var regex = /^\d+(\.\d{1,2})?$/;

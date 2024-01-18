@@ -187,7 +187,7 @@ $(document).ready(function () {
                                         };
                                     });
 
-                                    segment_options.push({ label: 'Pas de segment', value: ''});
+                                    // segment_options.push({ label: 'Pas de segment', value: ''});
 
                                     VirtualSelect.init({
                                         ele: '#selectSegment',
@@ -268,7 +268,12 @@ $(document).ready(function () {
                 var user_id = $('#user_id').val();
                 var passenger_id = $('#selectPassenger').val();
                 var segment = document.querySelector('#selectSegment').getSelectedOptions();
-                debugger;
+                // debugger;
+
+                console.log("SEGMENT SELECT");
+                console.log(segment);
+
+
                 var type = $('#selectType').val();
                 var fee;
 
@@ -301,9 +306,9 @@ $(document).ready(function () {
                         if (data == 'ok') {
                             toastr.success('Demande envoyée');
                             $('#modal-constat').hide();
-                            setTimeout(() => {
-                                location.reload();
-                            }, 1000)
+                            // setTimeout(() => {
+                            //     location.reload();
+                            // }, 1000)
                         } 
                         if (data.status == 'error') {
                             toastr.error(data.error)

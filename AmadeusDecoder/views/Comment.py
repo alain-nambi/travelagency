@@ -310,6 +310,9 @@ def save_ticket_anomalie(request):
         segment = request.POST.get('segment')
         ticket_type = request.POST.get('ticket_type')
         
+        print("SEGMENT TYPE")
+        print(segment)
+        
 
         pnr = Pnr.objects.filter(id=pnr_id).first()
             

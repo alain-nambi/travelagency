@@ -205,14 +205,14 @@ $(document).ready(function () {
                                     $('#selectSegment').on('change', function () {
                                         selectedValues = document.querySelector('#selectSegment').getSelectedOptions();
                                         console.log(selectedValues);
-                                        selectedValues.forEach(value => {
-                                            if (value.value == '87594'){
-                                                var val = ['']
-                                                document.querySelector('#selectSegment').setDisabledOptions(val);
-                                                console.log(disabledOptions);
-                                                console.log(selectedValues);
-                                            }
-                                        });
+                                        // selectedValues.forEach(value => {
+                                        //     if (value.value == ''){
+                                        //         var val = ['']
+                                        //         document.querySelector('#selectSegment').setDisabledOptions(disabledOptions);
+                                        //         console.log(disabledOptions);
+                                        //         console.log(selectedValues);
+                                        //     }
+                                        // });
                                     });
                                 } else {
                                     console.log('Error......');

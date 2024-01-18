@@ -1293,8 +1293,9 @@ $('#SelectProduct').on('change', function(){
           VirtualSelect.init({
             ele: '#multipleSelect',
             multiple: true,
-            options: myOptions
           })
+
+          document.querySelector('#multipleSelect').setOptions(myOptions);
 
           $('#multipleSelect').on('change', function(){
             selectedValues= document.querySelector('#multipleSelect').getSelectedOptions();

@@ -305,25 +305,41 @@ def save_ticket_anomalie(request):
             print(f"TICKET  : {new_tickets}")  
         
         
-        ticket_number = new_tickets[0]['ticket_number']
-        
-        if len(ticket_number) > 17:
-            return JsonResponse({'error':'ticket number > 17 '})
-        
-        montant_hors_taxe = new_tickets[0]['montant_hors_taxe']
-        taxe = new_tickets[0]['taxe']
-        pnr_id = new_tickets[0]['pnr_id']
-        passenger_id = new_tickets[0]['passenger_id']
-        segments = []
-        ticket_type = new_tickets[0]['ticket_type']
-        
-        for segment in new_tickets[0]['segment']:
-            segments.append(segment.get('value'))
-
-        pnr = Pnr.objects.filter(id=pnr_id).first()
+            ticket_number = new_tickets[0]['ticket_number']
             
-        user_id = new_tickets[0]['user_id']
-        user = User.objects.filter(id= user_id).first()
+            if len(ticket_number) > 17:
+                return JsonResponse({'error':'ticket number > 17 '})
+        
+            montant_hors_taxe = new_tickets[0]['montant_hors_taxe']
+            taxe = new_tickets[0]['taxe']
+            pnr_id = new_tickets[0]['pnr_id']
+            passenger_id = new_tickets[0]['passenger_id']
+            segments = []
+            ticket_type = new_tickets[0]['ticket_type']
+        
+            for segment in new_tickets[0]['segment']:
+                segments.append(segment.get('value'))
+
+            pnr = Pnr.objects.filter(id=pnr_id).first()
+                
+            user_id = new_tickets[0]['user_id']
+            user = User.objects.filter(id= user_id).first()
+            
+            info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "passenger_id":passenger_id, "segment": segments, "ticket_status":1, 'ticket_type':ticket_type, 'fee': str(new_tickets[0]['fee']).capitalize()} # ticket_status : 0 ticket existant , 1 ticket non existant
+        
+        else:
+            ticket_number = request.POST.get('ticket_number')
+            montant_hors_taxe = request.POST.get('montant_hors_taxe')
+            taxe = request.POST.get('taxe')
+            pnr_id = request.POST.get('pnr_id')
+            user_id = request.POST.get('user_id')
+            user = User.objects.filter(id= user_id).first()
+            
+            
+            pnr = Pnr.objects.filter(id=pnr_id).first()
+            
+            info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "ticket_status":0} # ticket_status : 0 ticket existant , 1 ticket non existant
+            
         
         if montant_hors_taxe == "" or taxe == "":
             return JsonResponse(
@@ -333,11 +349,6 @@ def save_ticket_anomalie(request):
                 }
             )
         
-        if passenger_id is None and segment is None:
-            info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "ticket_status":0} # ticket_status : 0 ticket existant , 1 ticket non existant
-            
-        else:
-            info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "passenger_id":passenger_id, "segment": segments, "ticket_status":1, 'ticket_type':ticket_type, 'fee': str(new_tickets[0]['fee']).capitalize()} # ticket_status : 0 ticket existant , 1 ticket non existant
             
         anomalie = Anomalie(pnr=pnr, categorie='Billet non remonté', infos=info, issuing_user = user, creation_date=timezone.now())
         anomalie.save()   

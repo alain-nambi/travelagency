@@ -42,8 +42,9 @@
                                             
                                         </div>
                                             
-                                        {% if anomalie.infos.ticket_status == '1' %}
+                                        
                                             {% with anomalie|get_details as details %}
+                                            {% if anomalie.infos.ticket_status == '1' %}
                                                 <div class="mx-auto" style="width: 300px;">
                                                     <h6>Ticket : {{anomalie.infos.ticket_type}}</h6>
                                                     {% if anomalie.infos.fee == 'True'%}
@@ -54,8 +55,9 @@
                                                     <h6>Segment : {{ details.segment }} </h6>
 
                                                 </div>
-                                            {% endwith %}
+                                            
                                         {% endif %}
+                                        {% endwith %}
                                     </div>
                                     
 
@@ -109,8 +111,9 @@
                                             <input type="hidden" value="{{anomalie.id}}" id="anomaly_id"/>
                                         </div>
                                             
-                                        {% if anomalie.infos.ticket_status == '1' %}
+                                        
                                             {% with anomalie|get_details as details %}
+                                            {% if anomalie.infos.ticket_status == '1' %}
                                                 <div class="mx-auto" style="width: 300px;">
                                                     <h6>Ticket : {{anomalie.infos.ticket_type}}</h6>
                                                     {% if anomalie.infos.fee == 'True'%}
@@ -120,8 +123,9 @@
                                                     <h6>Segment : {{details.segment}}</h6>
 
                                                 </div>
+                                                {% endif %}
                                             {% endwith %}
-                                        {% endif %}
+                                        
                                     </div>
                                     
 

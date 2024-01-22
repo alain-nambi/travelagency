@@ -112,25 +112,31 @@ def new_anomalie(pnr):
 def get_details(anomalie):
     anomalie = Anomalie.objects.get(pk=anomalie.id)
     #transformer le string "['84560','84562']" en liste
-    segment_id = ast.literal_eval(anomalie.infos.get('segment'))
+    print(anomalie.infos.get('ticket_status'))
+    print(type(anomalie.infos.get('ticket_status')))
+    if int(anomalie.infos.get('ticket_status')) == 1:
+        segment_id = ast.literal_eval(anomalie.infos.get('segment'))
 
-    segments_list = []
-    if segment_id != "":
-        if isinstance(segment_id, list):
-            for element in segment_id:
-                segments = PnrAirSegments.objects.get(pk=element)
+        segments_list = []
+        if segment_id != "":
+            if isinstance(segment_id, list):
+                for element in segment_id:
+                    segments = PnrAirSegments.objects.get(pk=element)
+                    segments_list.append(str(segments)+' '+str(segments.segmentorder))
+            elif isinstance(segment_id, int):
+                segments = PnrAirSegments.objects.get(pk=segment_id)
                 segments_list.append(str(segments)+' '+str(segments.segmentorder))
-        elif isinstance(segment_id, int):
-            segments = PnrAirSegments.objects.get(pk=segment_id)
-            segments_list.append(str(segments)+' '+str(segments.segmentorder))
-            
-        segment= ','.join(segments_list)
-    else:
-        segment = ""
-    
-    passenger = Passenger.objects.get(pk=anomalie.infos.get('passenger_id'))
+                
+            segment= ','.join(segments_list)
+        else:
+            segment = ""
+        
+        passenger = Passenger.objects.get(pk=anomalie.infos.get('passenger_id'))
 
-    context ={}
-    context['passenger'] = passenger
-    context['segment'] = segment
-    return context
+        context ={}
+        context['passenger'] = passenger
+        context['segment'] = segment
+        return context
+    else:
+        print('----ELSE------------')
+        return ""

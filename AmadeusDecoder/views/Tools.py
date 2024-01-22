@@ -36,7 +36,7 @@ def call_customer_import(request):
     
     status = ''
     try:
-        directory = '/opt/odoo/issoufali-addons/export_contacts/data/restore_csv/'
+        directory = '/opt/odoo/issoufali-addons/export_contacts/data/exported/'
         for file in os.listdir(directory):
             if os.path.isfile(os.path.join(directory, file)):
                 CustomerParser.import_customer(os.path.join(directory, file), directory)

@@ -1225,6 +1225,11 @@ if (count__ticketHaveNoPassenger.length > 0) {
 $('#ticket-avoir').hide();
 $('#select_Passenger').hide();
 $('#multipleSelect').hide();
+
+
+
+
+
 $('#SelectProduct').on('change', function(){
   select_product = $('#SelectProduct').val();
 
@@ -1297,10 +1302,32 @@ $('#SelectProduct').on('change', function(){
 
           document.querySelector('#multipleSelect').setOptions(myOptions);
 
-          $('#multipleSelect').on('change', function(){
-            selectedValues= document.querySelector('#multipleSelect').getSelectedOptions();
-            console.log(selectedValues);
-          });
+          // $('#multipleSelect').on('change', function(){
+          //   selectedValues= document.querySelector('#multipleSelect').getSelectedOptions();
+          //   console.log(selectedValues);
+          // });
+
+          const validatePassengerSegment = (isValid) => {
+            if (isValid) {
+              $("#multipleSelect").attr("style", "border: 1px solid green")
+              $("#multipleSelect").removeClass("border border-danger")
+            } else {
+              $("#multipleSelect").removeAttr("style", "border: 1px solid green")
+              $("#multipleSelect").addClass("border border-danger")
+            }
+          } 
+          
+          const multipleSelection = document.querySelector('#multipleSelect')
+          $("#multipleSelect").on("change", () => {
+            if (multipleSelection.value.length > 0) {
+              console.log(true);
+              validatePassengerSegment(true)
+            } else {
+              console.log(false);
+              validatePassengerSegment(false)
+            }
+          })
+          
 
         }
       }

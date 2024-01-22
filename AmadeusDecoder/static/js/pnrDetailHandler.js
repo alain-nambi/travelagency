@@ -1309,26 +1309,44 @@ $('#SelectProduct').on('change', function(){
   }
 });
 
+const validateInputTickerAvoir = (isValid) => {
+  if (isValid) {
+    $('#ticket-avoir').removeClass("form is-invalid")
+    $('#ticket-avoir').addClass("form is-valid")
+  } else {
+    $('#ticket-avoir').addClass("form is-invalid")
+    $('#ticket-avoir').removeClass("form is-valid")
+  }
+}
+
 $(document).ready(function () {
   $('#ticket-avoir').on('input', function () {
-    document.getElementById('ticket-avoir').style.borderColor = 'black';
+    // document.getElementById('ticket-avoir').style.borderColor = 'black';
     var inputValue = $(this).val();
     var sanitizedValue = inputValue.replace(/[^0-9-]/g, '');
     $(this).val(sanitizedValue);
-
+    
     $("#save-product-select").prop('disabled', false);
-
+    
     if (inputValue.length < 13 || inputValue.length > 16) {
       $("#save-product-select").prop('disabled', true);
+      validateInputTickerAvoir(false)
     }
-
+    
+    
+    if (inputValue.length >= 14 && inputValue.length <= 15) {
+      $("#save-product-select").prop('disabled', true);
+      validateInputTickerAvoir(false)
+    }
+    
     if (inputValue.length == 14 && inputValue.charAt(13) !== '-') {
       var modifiedValue = inputValue.slice(0, 13) + '-' + inputValue.slice(13);
-      console.log(modifiedValue);
       $('#ticket-avoir').val(modifiedValue);
     }
 
-    
+    if (inputValue.length == 13 || inputValue.length == 16) {
+      validateInputTickerAvoir(true)
+    }
   });
 });
 

@@ -328,7 +328,7 @@ def home(request):
         elif filtered_creator_cookie is not None and filtered_creator_cookie != 'Empty':
             agent = Q(agent_id__in=filtered_creator_cookie)
         else:
-            agent = Q(agent_id=request.user.id) | Q(agent_id=None)
+            agent = Q(agent_id=request.user.id)
 
         for issuing_user in issuing_users:                
             # Create date filter query object or an empty query object if dates are absent

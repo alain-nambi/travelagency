@@ -2093,7 +2093,7 @@ def unorder_pnr(request):
         
         if passenger_invoices:
             for passenger_invoice in passenger_invoices:
-                PassengerInvoice.objects.filter(id=passenger_invoice.id).update(is_invoiced=False)
+                PassengerInvoice.objects.filter(id=passenger_invoice.id).delete()
                 
                 if passenger_invoice.ticket_id:
                     Ticket.objects.filter(id=passenger_invoice.ticket_id).update(is_invoiced=False)

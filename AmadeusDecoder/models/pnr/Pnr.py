@@ -212,6 +212,23 @@ class Pnr(models.Model, BaseModel):
         else:
             return None
     
+    def update_ticket_status_present_in_passenger_invoice(self):
+        from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
+        from AmadeusDecoder.models.invoice.Ticket import Ticket
+        
+        passenger_invoices = PassengerInvoice.objects.filter(pnr_id=self.id).exclude(status='quotation')
+    
+        if passenger_invoices.exists():
+            for passenger_invoice in passenger_invoices:
+                if (passenger_invoice.ticket_id is not None):
+                    ticket = Ticket.objects.get(pk=passenger_invoice.ticket_id)
+                    ticket.ticket_status = 1
+                    ticket.save()
+        else:
+            print("No passenger invoiced")
+            return None
+
+    
     def __str__(self):
         return str(self.number) + ' {}{}{}'.format('(', 'Zenith' if self.type == 'EWA' else self.type, ')')
         

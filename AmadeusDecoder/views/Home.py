@@ -613,10 +613,10 @@ def pnr_details(request, pnr_id):
     context = {}
     if pnr_id is not None and pnr_id != '':
         pnr_detail = Pnr.objects.get(pk=pnr_id)
-    print("55555") 
-    print(pnr_id)
-    print(pnr_detail.id)
     pnr_detail.update_read_status()
+    
+    # update ticket status to ticket_status=1 when ticket is present in passenger_invoice table
+    pnr_detail.update_ticket_status_present_in_passenger_invoice()
     context['pnr'] = pnr_detail
     context['passengers'] = pnr_detail.passengers.filter(passenger__passenger_status=1).all().order_by('id')
     context['contacts'] = pnr_detail.contacts.all()

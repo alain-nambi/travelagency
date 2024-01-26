@@ -1,171 +1,96 @@
-{% extends "layout.html" %}
-{% block content %}
+{% extends "layout.html" %} {% block content %}
 <div class="content-wrapper">
   <section class="content-header p-0">
     <div class="container-fluid">
       <div class="row mb-2">
-        <div class="col-sm-6">
+        <div class="col-sm-6" style="margin: 20px 0 10px 50px">
           <h1 class="text-primary">Configurations</h1>
         </div>
-        <!--div class="col-sm-6">
-          <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item active">Retour</li>
-          </ol>
-        </div-->
       </div>
-    </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.container-fluid -->
   </section>
   <section class="content">
     <div class="container-fluid">
-      <div class="row ">
+      <div class="row">
         <div class="col-12">
-          <div class="card">
-            <div class="card-header bg-primary">
-              <h4>FTP</h4>
+          <div class="card" style="margin: 0 0 10px 50px">
+            <div class="card-header">
+              <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <button class="btn btn-bg-primary nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab" aria-controls="general" aria-selected="true" onclick="tabClicked(this.id)" >
+                    <h5>Géneral</h5>
+                  </button>
+                </li>
+
+                <li class="nav-item" role="presentation">
+                  <button class="btn btn-bg-primary nav-link" id="email-tab" data-bs-toggle="tab" data-bs-target="#email" type="button" role="tab" aria-controls="email" aria-selected="false" onclick="tabClicked(this.id)" >
+                    <h5>Email</h5>
+                  </button>
+                </li>
+
+                <li class="nav-item" role="presentation">
+                  <button class="btn btn-bg-primary nav-link" id="parsing-tab" data-bs-toggle="tab" data-bs-target="#parsing" type="button" role="tab" aria-controls="parsing" aria-selected="false" onclick="tabClicked(this.id)" >
+                    <h5>Parsing</h5>
+                  </button>
+                </li>
+
+                <li class="nav-item" role="presentation">
+                  <button class="btn btn-bg-primary nav-link" id="ftp-tab" data-bs-toggle="tab" data-bs-target="#ftp" type="button" role="tab" aria-controls="ftp" aria-selected="false" onclick="tabClicked(this.id)">
+                    <h5>FTP</h5>
+                  </button>
+                </li>
+              </ul>
             </div>
+
             <div class="card-body">
-              <div class="row">
-                <div class="col-5 col-sm-3">
-                  <div class="nav flex-column nav-tabs h-100" id="vert-tabs-tab" role="tablist"
-                    aria-orientation="vertical">
-                    <a class="nav-link active" id="vert-tabs-home-tab" data-toggle="pill" href="#vert-tabs-home"
-                      role="tab" aria-controls="vert-tabs-home" aria-selected="true">Upload vers Odoo</a>
-                    <a class="nav-link" id="vert-tabs-profile-tab" data-toggle="pill" href="#vert-tabs-profile"
-                      role="tab" aria-controls="vert-tabs-profile" aria-selected="false">Export list des clients</a>
-                    <a class="nav-link" id="vert-tabs-messages-tab" data-toggle="pill" href="#vert-tabs-messages"
-                      role="tab" aria-controls="vert-tabs-messages" aria-selected="false">Source PNR XML</a>
-                  </div>
+              <div class="tab-content general">
+                <div class="tab-pane active " id="general-tab-panel" role="tabpanel" aria-labelledby="general-tab">
+                  {% include "setting_files/general.html" %}
                 </div>
-                <div class="col-7 col-sm-9">
-                  <div class="tab-content" id="vert-tabs-tabContent">
-                    <div class="tab-pane text-left fade show active" id="vert-tabs-home" role="tabpanel"
-                      aria-labelledby="vert-tabs-home-tab">
-                      <div class="row justify-content-center">
-                        <div class="col-6">
-                          <h4 class="text-primary">Configuration de l'accès au serveur FTP</h4>
-                          <h6 class="text-primary"><u>Upload vers Odoo</u></h6>
-                          <form class="">
-                            <div class="mb-2">
-                              <label class="form-label">Hôte:</label>
-                              <input type="text" class="form-control" placeholder="">
-                            </div>
-                            <div class="mb-2">
-                              <label class="form-label">Port:</label>
-                              <input type="text" class="form-control" placeholder="">
-                            </div>
-                            <div class="mb-2">
-                              <label class="form-label">utilisateur:</label>
-                              <input type="text" class="form-control" placeholder="">
-                            </div>
-                            <div class="mb-2">
-                              <label class="form-label">Mot de passe:</label>
-                              <input type="password" class="form-control" placeholder="">
-                            </div>
-                            <div class="mb-4">
-                              <label class="form-label">Dossier:</label>
-                              <input type="text" class="form-control" placeholder="">
-                            </div>
-                            <div class="row mb-2 text-end">
-                              <div class="col-12">
-                                <button type="submit" id="edit" class="btn btn-outline-success">
-                                  <i class='fas fa-sync-alt fa-spin'></i> 
-                                    Tester la connexion</button>
-                                <button type="button" class="btn btn-outline-primary"><i
-                                    class="fas fa-save"></i>
-                                    Enregistrer</button>
-                              </div>
-                            </div>
-                          </form>
-                        </div>
-                      </div>
+                
+                <div class="tab-pane fade" id="email-tab-panel" role="tabpanel" aria-labelledby="email-tab">
+
+                  <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                    <li class="nav-item">
+                      <a class="nav-link active" id="pills-pnr-tab" data-toggle="pill" href="#pills-pnr" role="tab" aria-controls="pills-pnr" aria-selected="true" onclick="InnertabClicked(this.id)">PNR</a>
+                    </li>
+
+                    <li class="nav-item">
+                      <a class="nav-link" id="pills-notif-tab" data-toggle="pill" href="#pills-notif" role="tab" aria-controls="pills-notif" aria-selected="false" onclick="InnertabClicked(this.id)">Notifications</a>
+                    </li>
+
+                    <li class="nav-item">
+                      <a class="nav-link" id="pills-fees-tab" data-toggle="pill" href="#pills-fees" role="tab" aria-controls="pills-fees" aria-selected="false" onclick="InnertabClicked(this.id)">Fees</a>
+                    </li>
+
+                  </ul>
+
+                  <div class="tab-content email" id="pills-tabContent">
+                    <div class="tab-pane fade show active" id="pills-pnr-tab-panel" role="tabpanel" aria-labelledby="pills-pnr-tab">
+                      {% include "setting_files/email_pnr.html" %}
                     </div>
-                    <div class="tab-pane fade" id="vert-tabs-profile" role="tabpanel"
-                      aria-labelledby="vert-tabs-profile-tab">
-                      <div class="row justify-content-center">
-                        <div class="col-6">
-                          <h4 class="text-primary">Configuration de l'accès au serveur FTP</h4>
-                          <h6 class="text-primary"><u>Export liste des clients</u></h6>
-                          <form class="">
-                            <div class="mb-2">
-                              <label class="form-label">Hôte:</label>
-                              <input type="text" class="form-control" placeholder="">
-                            </div>
-                            <div class="mb-2">
-                              <label class="form-label">Port:</label>
-                              <input type="text" class="form-control" placeholder="">
-                            </div>
-                            <div class="mb-2">
-                              <label class="form-label">utilisateur:</label>
-                              <input type="text" class="form-control" placeholder="">
-                            </div>
-                            <div class="mb-2">
-                              <label class="form-label">Mot de passe:</label>
-                              <input type="password" class="form-control" placeholder="">
-                            </div>
-                            <div class="mb-4">
-                              <label class="form-label">Dossier:</label>
-                              <input type="text" class="form-control" placeholder="">
-                            </div>
-                            <div class="row mb-2 text-end">
-                              <div class="col-12">
-                                <button type="submit" id="edit" class="btn btn-outline-success">
-                                  <i class='fas fa-sync-alt fa-spin'></i> 
-                                    Tester la connexion</button>
-                                <button type="button" class="btn btn-outline-primary"><i
-                                    class="fas fa-save"></i>
-                                    Enregistrer</button>
-                              </div>
-                            </div>
-                          </form>
-                        </div>
-                      </div>
+
+                    <div class="tab-pane fade " id="pills-notif-tab-panel" role="tabpanel" aria-labelledby="pills-notif-tab">
+                      {% include "setting_files/email_notification.html" %}
                     </div>
-                    <div class="tab-pane fade" id="vert-tabs-messages" role="tabpanel"
-                      aria-labelledby="vert-tabs-messages-tab">
-                      <div class="row justify-content-center">
-                        <div class="col-6">
-                          <h4 class="text-primary">Configuration de l'accès au serveur FTP</h4>
-                          <h6 class="text-primary"><u>Source PNR XML</u></h6>
-                          <form class="">
-                            <div class="mb-2">
-                              <label class="form-label">Hôte:</label>
-                              <input type="text" class="form-control" placeholder="">
-                            </div>
-                            <div class="mb-2">
-                              <label class="form-label">Port:</label>
-                              <input type="text" class="form-control" placeholder="">
-                            </div>
-                            <div class="mb-2">
-                              <label class="form-label">utilisateur:</label>
-                              <input type="text" class="form-control" placeholder="">
-                            </div>
-                            <div class="mb-2">
-                              <label class="form-label">Mot de passe:</label>
-                              <input type="password" class="form-control" placeholder="">
-                            </div>
-                            <div class="mb-4">
-                              <label class="form-label">Dossier:</label>
-                              <input type="text" class="form-control" placeholder="">
-                            </div>
-                            <div class="row mb-2 text-end">
-                              <div class="col-12">
-                                <button type="submit" id="edit" class="btn btn-outline-success">
-                                  <i class='fas fa-sync-alt fa-spin'></i> 
-                                    Tester la connexion</button>
-                                <button type="button" class="btn btn-outline-primary"><i
-                                    class="fas fa-save"></i>
-                                    Enregistrer</button>
-                              </div>
-                            </div>
-                          </form>
-                        </div>
-                      </div>
+
+                    <div class="tab-pane fade " id="pills-fees-tab-panel" role="tabpanel" aria-labelledby="pills-fees-tab">
+                      {% include "setting_files/email_fees.html" %}
                     </div>
+
                   </div>
+
+                </div>
+
+                <div class="tab-pane fade" id="parsing-tab-panel" role="tabpanel" aria-labelledby="parsing-tab-panel">
+                </div>
+
+                <div class="tab-pane fade" id="ftp-tab-panel" role="tabpanel" aria-labelledby="ftp-tab" >
+                  {% include "ftp_setting.html" %}
                 </div>
               </div>
             </div>
-            <!-- /.card -->
           </div>
         </div>
       </div>

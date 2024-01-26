@@ -1,0 +1,132 @@
+<div style="display:flex;justify-content: space-between; margin-right: 1rem; ">
+    <div class="card " style="width: 38rem;height:auto; margin:0 120px 0 20px;">
+        <div class="card-header">
+        <h2 class="card-title">Notification recipients</h2>
+        <h4 class="card-description"></h4>
+        <i class="fa fa-pencil" style="float: right" aria-hidden="true"></i>
+        </div>
+
+        <div class="card-body" hidden >
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th scope="col">Environnement</th>
+                <th scope="col">Value Name</th>
+                <th scope="col">Email</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            
+            <tr>
+                <td>1</td>
+                <td>Mark</td>
+                <td>Mark</td>
+            </tr>
+            
+            </tbody>
+        </table>
+        </div>
+        <div class="card-body" >
+        <div>
+            <label for="currency_name"class="col-form-label col-4">Environnement</label>
+            <select class="form-control"  data-placeholder="Sélectionner un environnement">
+            <option value="test">Test</option> 
+            <option value="prod">Prod</option> 
+            </select>
+        </div>
+
+        <div>
+            <label for="currency_name"class="col-form-label col-4">Value Name</label>
+            <select class="form-control"  data-placeholder="Email sending error notification recipients">
+            <option value="test">Email sending error notification recipients</option> 
+            <option value="prod">Email sending error notification</option> 
+            </select>
+        </div>
+
+        <div>
+            <label for="currency_name"class="col-form-label col-4">Email</label>
+            <input type="text" name="email" id="email" class="form-control "/>
+        </div>
+
+        <button type="button" class="btn btn-primary" style="margin-top: 20px;float:right;">Add</button>
+
+        </div>
+    </div>
+
+    <div class="card" style="width: 38rem;height:auto; margin:0 120px 0 20px;">
+        <div class="card-header">
+        <h2 class="card-title">Notification Sender</h2>
+        <h4 class="card-description"></h4>
+        <i class="fa fa-pencil" style="float: right" aria-hidden="true"></i>
+        </div>
+
+        <div class="card-body" >
+            <table class="table table-striped">
+            <thead>
+                <tr>
+                <th scope="col">Environnement</th>
+                <th scope="col">Value Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Password</th>
+                <th scope="col">SMTP</th>
+                <th scope="col">Port</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            
+                <tr>
+                <td>1</td>
+                <td>Mark</td>
+                <td>Mark</td>
+                <td>1</td>
+                <td>Mark</td>
+                <td>Mark</td>
+                </tr>
+            
+            </tbody>
+            </table>
+        </div>
+        <div class="card-body" hidden>
+            <div>
+            <label for="currency_name"class="col-form-label col-4">Environnement</label>
+            <select class="form-control"  data-placeholder="Sélectionner un environnement">
+                <option value="test">Test</option> 
+                <option value="prod">Prod</option> 
+            </select>
+            </div>
+
+            <div>
+            <label for="currency_name"class="col-form-label col-4">Value Name</label>
+            <select class="form-control"  data-placeholder="Email sending error notification recipients">
+                <option value="test">Email sending error notification recipients</option> 
+                <option value="prod">Email sending error notification</option> 
+            </select>
+            </div>
+
+            <div>
+            <label for="currency_name"class="col-form-label col-4">Email</label>
+            <input type="text" name="email" id="email" class="form-control "/>
+            </div>
+
+            <div>
+            <label for="currency_name"class="col-form-label col-4">Password</label>
+            <input type="password" name="password" id="password" class="form-control "/>
+            </div>
+
+            <div>
+            <label for="currency_name"class="col-form-label col-4">SMTP</label>
+            <input type="text" name="smtp" id="smtp" class="form-control "/>
+            </div>
+
+            <div>
+            <label for="currency_name"class="col-form-label col-4">Port</label>
+            <input type="number" name="port" id="port" class="form-control "/>
+            </div>
+
+            <button type="button" class="btn btn-primary" style="margin-top: 20px;float:right;">Add</button>
+
+        </div>
+    </div>
+</div>

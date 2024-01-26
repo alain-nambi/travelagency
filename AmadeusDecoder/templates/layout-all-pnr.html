@@ -73,16 +73,8 @@ old -->
           <a class="nav-link" id="pushed-sidebar" data-widget="pushmenu" href="#" role="button"><i
               class="fas fa-bars"></i></a>   
         </li>
-        <li class="nav-item ml-5">
-          <button 
-                type="button" 
-                class="btn btn-outline-success zenith" 
-                data-toggle="modal" 
-                data-target="#modalListeCommandes" 
-                title="Liste des commandes Amadeus"
-                id = "liste_commandes"
-              ><span>Liste des commandes Amadeus</span>
-              </button>
+        <li class="nav-item">
+          {% include "commandes_modal.html" %}
         </li>
         <li class="nav-item ml-5 d-flex" style="gap: 0.5rem;">
           <div class="align-items-center">

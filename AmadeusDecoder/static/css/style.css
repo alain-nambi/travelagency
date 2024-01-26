@@ -2,6 +2,35 @@
 	font-size: 14px;
 }
 
+/* Styling for WebKit browsers (Chrome, Safari) */
+::-webkit-scrollbar {
+	width: 10px; /* Set the width of the scrollbar */
+}
+
+::-webkit-scrollbar-thumb {
+	background-color: #17a2b8; /* Set the color of the scrollbar thumb */
+	border-radius: 0px; /* Set the border radius of the thumb */
+}
+
+::-webkit-scrollbar-track {
+	background-color: #5e5e5e46; /* Set the color of the scrollbar track */
+}
+
+::moz-scrollbar {
+	width: 10px;
+}
+
+::-moz-scrollbar-thumb {
+	background-color: #17a2b8;
+	/* Set the color of the scrollbar thumb */
+}
+
+::-moz-scrollbar-track {
+	background-color: #5e5e5e46;
+	/* Set the color of the scrollbar track */
+}
+  
+
 @font-face {
 	font-family: SctoGroteskA;
 	src: url("../font/SctoGroteskA-Regular.ttf");
@@ -156,13 +185,13 @@ input#fee-cost::placeholder {
 
 .sticky-tr-table {
 	position: sticky;
-	top: 7rem;
+	top: 9rem;
 	z-index: 190;
 }
 
 .fixed-header {
 	position: fixed;
-	top: 4rem;
+	top: 6rem;
 	left: 0;
 	width: 100%;
 	background: white;

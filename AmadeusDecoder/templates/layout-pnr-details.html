@@ -72,15 +72,7 @@ old -->
         <h5 class="{% if pnr.status_value == 0 %}text-success{% endif %}{% if pnr.status_value == 1 %}text-primary{% endif %} n-pnr" style="margin-top: 3px;"><u style="font-size:16px;">PNR n° {{ pnr }}</u></h5>
         </li>
         <li class="nav-item ml-5">
-          <button 
-                type="button" 
-                class="btn btn-outline-success zenith" 
-                data-toggle="modal" 
-                data-target="#modalListeCommandes" 
-                title="Liste des commandes Amadeus"
-                id = "liste_commandes"
-              ><span>Liste des commandes Amadeus</span>
-              </button>
+			    {% include "commandes_modal.html" %}
         </li>
         <li class="nav-item ml-5 d-flex flex-column">
           <span id="mail-user" data-mail="issoufali.pnr@outlook.com;{{request.user.email}}">issoufali.pnr@outlook.com;{{request.user.email}}</span>

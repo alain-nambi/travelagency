@@ -1,0 +1,223 @@
+<div style="display:flex;justify-content: space-between; margin-right: 1rem; ">
+    <div style="display: flex; flex-direction: column;">
+        <div class="card " style="width: 38rem;height:auto; margin:0 120px 0 20px;">
+            <div class="card-header">
+                <h2 class="card-title">Passager </h2>
+                <h4 class="card-description"></h4>
+                <i class="fa fa-pencil" style="float: right" aria-hidden="true"></i>
+            </div>
+
+            <div class="card-body" >
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th scope="col">Nom de la valeur</th>
+                        <th scope="col">Valeur</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <td>Désignation</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Type</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Identifiants</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Mot d'identification</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Prime ticket</td>
+                            <td></td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card-body" hidden >
+                <div>
+                    <label for="currency_name"class="col-form-label col-4">Nom de la valeur </label>
+                    <select class="form-control"  data-placeholder="Altea">
+                        <option value="test">Type de Passager</option>
+                        <option value="test">Déscription de Passager</option>
+
+                    </select>
+                </div>
+
+                <div>
+                    <label for="pnr"class="col-form-label col-4">Valeur</label>
+                    <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
+                </div>
+
+                <button type="button" class="btn btn-success" style="margin-top: 20px;float:right;">Enregistrer</button>
+                
+            </div>
+        </div>
+    
+        <div class="card " style="width: 38rem;height:auto; margin:60px 120px 0 20px;">
+            <div class="card-header">
+                <h2 class="card-title">Format E-ticket </h2>
+                <h4 class="card-description"></h4>
+                <i class="fa fa-pencil" style="float: right" aria-hidden="true"></i>
+            </div>
+
+            <div class="card-body" >
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        e-ticket
+                        <span class="badge badge-pill badge-primary badge-pill">
+                            <input type="checkbox" checked name="pnr" id="pnr" class="form-control"/>
+                        </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        e‐⁛cket
+                        <span class="badge badge-primary badge-pill">
+                            <input type="checkbox" checked name="pnr" id="pnr" class="form-control"/>
+                        </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        e‐�cket
+                        <span class="badge badge-primary badge-pill">
+                            <input type="checkbox" checked name="pnr" id="pnr" class="form-control"/>
+                        </span>
+                    </li>
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column;">
+        <div class="card " style="width: 38rem;height:auto; margin:0 120px 0 20px;">
+            <div class="card-header">
+                <h2 class="card-title">Identifiants (1) </h2>
+                <h4 class="card-description"></h4>
+                <i class="fa fa-pencil" style="float: right" aria-hidden="true"></i>
+            </div>
+
+            <div class="card-body" >
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th scope="col">Nom de la valeur</th>
+                        <th scope="col">Valeur</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <td>Itinerary header possible format</td>
+                            <td>['Itinéraire', 'Check-in*', 'De', 'A', 'Départ', 'Arrivée', 'Cabine', 'Statut Escales']</td>
+                        </tr>
+                        <tr>
+                            <td>Header names</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Service carrier</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Airport agency code</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Current travel agency identifier</td>
+                            <td></td>
+                        </tr>
+
+                        <tr>
+                            <td>Non relevant identifier for passenger</td>
+                            <td>N° FFP</td>
+                        </tr>
+
+                        <tr>
+                            <td>Itinerary name</td>
+                            <td></td>
+                        </tr>
+
+                        <tr>
+                            <td>Cost detail identifier</td>
+                            <td>Détails du tarif</td>
+                        </tr>
+
+                        <tr>
+                            <td>Ancillaries identifier</td>
+                            <td>Ancillaries</td>
+                        </tr>
+
+                        <tr>
+                            <td>To be excluded recipient email</td>
+                            <td></td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card-body" hidden >
+                <div>
+                    <label for="pnr"class="col-form-label col-6">Itinerary header possible format</label>
+                    <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
+                </div>
+
+                <div>
+                    <label for="pnr"class="col-form-label col-4">Header names</label>
+                    <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
+                </div>
+
+                <div>
+                    <label for="pnr"class="col-form-label col-4">Service carrier</label>
+                    <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
+                </div>
+
+                <div>
+                    <label for="pnr"class="col-form-label col-4">Airport agency code</label>
+                    <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
+                </div>
+
+                <div>
+                    <label for="pnr"class="col-form-label col-6">Current travel agency identifier</label>
+                    <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
+                </div>
+
+                <div>
+                    <label for="pnr"class="col-form-label col-6">Non relevant identifier for passenger</label>
+                    <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
+                </div>
+
+                <div>
+                    <label for="pnr"class="col-form-label col-4">Itinerary name</label>
+                    <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
+                </div>
+
+                <div>
+                    <label for="pnr"class="col-form-label col-4">Cost detail identifier</label>
+                    <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
+                </div>
+
+                <div>
+                    <label for="pnr"class="col-form-label col-4">Ancillaries identifier</label>
+                    <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
+                </div>
+
+                <div>
+                    <label for="pnr"class="col-form-label col-6">To be excluded recipient email</label>
+                    <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
+                </div>
+
+
+                <button type="button" class="btn btn-success" style="margin-top: 20px;float:right;">Enregistrer</button>
+                
+            </div>
+        </div>
+    </div>
+</div>

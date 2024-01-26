@@ -14,7 +14,7 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-12">
-          <div class="card" style="margin: 0 0 10px 50px">
+          <div class="card" style="margin: 0 0 10px 50px;height:1000px;" >
             <div class="card-header">
               <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item" role="presentation">
@@ -51,9 +51,9 @@
                 
                 <div class="tab-pane fade" id="email-tab-panel" role="tabpanel" aria-labelledby="email-tab">
 
-                  <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                  <ul class="nav nav-pills nav-pills-email mb-3" id="pills-tab" role="tablist">
                     <li class="nav-item">
-                      <a class="nav-link active" id="pills-pnr-tab" data-toggle="pill" href="#pills-pnr" role="tab" aria-controls="pills-pnr" aria-selected="true" onclick="InnertabClicked(this.id)">PNR</a>
+                      <a class="nav-link " id="pills-pnr-tab" data-toggle="pill" href="#pills-pnr" role="tab" aria-controls="pills-pnr" aria-selected="true" onclick="InnertabClicked(this.id)">PNR</a>
                     </li>
 
                     <li class="nav-item">
@@ -64,10 +64,31 @@
                       <a class="nav-link" id="pills-fees-tab" data-toggle="pill" href="#pills-fees" role="tab" aria-controls="pills-fees" aria-selected="false" onclick="InnertabClicked(this.id)">Fees</a>
                     </li>
 
+                    <li class="nav-item">
+                      <a class="nav-link" id="pills-pnrparsing-tab" data-toggle="pill" href="#pills-pnrparsing" role="tab" aria-controls="pills-pnrparsing" aria-selected="false" onclick="InnertabClicked(this.id)">PNR Parsing</a>
+                    </li>
+
+                    <li class="nav-item">
+                      <a class="nav-link" id="pills-ticketparsing-tab" data-toggle="pill" href="#pills-ticketparsing" role="tab" aria-controls="pills-ticketparsing" aria-selected="false" onclick="InnertabClicked(this.id)">Ticket Parsing</a>
+                    </li>
+
+                    <li class="nav-item">
+                      <a class="nav-link" id="pills-zenithparsing-tab" data-toggle="pill" href="#pills-zenithparsing" role="tab" aria-controls="pills-zenithparsing" aria-selected="false" onclick="InnertabClicked(this.id)">Zenith Parsing</a>
+                    </li>
+
+                    <li class="nav-item">
+                      <a class="nav-link" id="pills-zenithparsingsuite-tab" data-toggle="pill" href="#pills-zenithparsingsuite" role="tab" aria-controls="pills-zenithparsingsuite" aria-selected="false" onclick="InnertabClicked(this.id)">Zenith Parsing Suite</a>
+                    </li>
+
+                    <li class="nav-item">
+                      <a class="nav-link" id="pills-tstparsing-tab" data-toggle="pill" href="#pills-tstparsing" role="tab" aria-controls="pills-tstparsing" aria-selected="false" onclick="InnertabClicked(this.id)">TST</a>
+                    </li>
+
+
                   </ul>
 
-                  <div class="tab-content email" id="pills-tabContent">
-                    <div class="tab-pane fade show active" id="pills-pnr-tab-panel" role="tabpanel" aria-labelledby="pills-pnr-tab">
+                  <div class="tab-content content-email" id="pills-tabContent">
+                    <div class="tab-pane fade show " id="pills-pnr-tab-panel" role="tabpanel" aria-labelledby="pills-pnr-tab">
                       {% include "setting_files/email_pnr.html" %}
                     </div>
 
@@ -79,11 +100,64 @@
                       {% include "setting_files/email_fees.html" %}
                     </div>
 
+                    <div class="tab-pane fade show " id="pills-pnrparsing-tab-panel" role="tabpanel" aria-labelledby="pills-pnrparsing-tab">
+                      {% include "setting_files/pnr-parsing.html" %}
+                    </div>
+
+                    <div class="tab-pane fade show " id="pills-ticketparsing-tab-panel" role="tabpanel" aria-labelledby="pills-ticketparsing-tab">
+                      {% include "setting_files/ticket-parsing.html" %}
+                    </div>
+
+                    <div class="tab-pane fade " id="pills-zenithparsing-tab-panel" role="tabpanel" aria-labelledby="pills-zenithparsing-tab">
+                      {% include "setting_files/zenith-parsing.html" %}
+                      {% include "setting_files/tst-parsing.html" %}
+
+                      <button type="button" class="btn btn-success" style="margin-top: 20px;float:right;">Suivant</button>
+                    </div>
+
+                    <div class="tab-pane fade " id="pills-zenithparsingsuite-tab-panel" role="tabpanel" aria-labelledby="pills-zenithparsingsuite-tab">
+                      {% include "setting_files/zenith-parsing-suite.html" %}
+                      
+                    </div>
+
+                    <div class="tab-pane fade " id="pills-tstparsing-tab-panel" role="tabpanel" aria-labelledby="pills-tstparsing-tab">
+                      {% include "setting_files/tst-parsing.html" %}
+                      
+                    </div>
+
+
+
                   </div>
 
                 </div>
 
                 <div class="tab-pane fade" id="parsing-tab-panel" role="tabpanel" aria-labelledby="parsing-tab-panel">
+                  <ul class="nav nav-pills nav-pills-parsing  mb-3" id="pills-tab" role="tablist">
+                    <li class="nav-item">
+                      <a class="nav-link " id="pills-emd-tab" data-toggle="pill" href="#pills-emd" role="tab" aria-controls="pills-emd" aria-selected="true" onclick="InnertabParsingClicked(this.id)">EMD</a>
+                    </li>
+
+                    <li class="nav-item">
+                      <a class="nav-link " id="pills-pnrparsing-tab" data-toggle="pill" href="#pills-pnrparsing" role="tab" aria-controls="pills-pnrparsing" aria-selected="false" onclick="InnertabParsingClicked(this.id)">PNR Parsing</a>
+                    </li>
+
+
+                  </ul>
+
+                  <div class="tab-content content-parsing" id="pills-tabContent">
+                    <div class="tab-pane fade show " id="pills-emd-tab-panel" role="tabpanel" aria-labelledby="pills-emd-tab">
+                      {% include "setting_files/emd-parsing.html" %}
+                    </div>
+
+                    <div class="tab-pane fade" id="pills-pnrparsing-tab-panel" role="tabpanel" aria-labelledby="pills-pnrparsing-tab">
+                      <h1>HEYYYYYYYYYYYYYYYYYYYYYYYY!!!!!!!!!!!!</h1>
+                      {% comment %} {% include "setting_files/pnr-parsing.html" %} {% endcomment %}
+                    </div>
+
+                    <div class="tab-pane fade" id="pills-zenith-tab-panel" role="tabpanel" aria-labelledby="pills-zenith-tab">
+                      <h1>Zenith</h1>
+                    </div>
+
                 </div>
 
                 <div class="tab-pane fade" id="ftp-tab-panel" role="tabpanel" aria-labelledby="ftp-tab" >

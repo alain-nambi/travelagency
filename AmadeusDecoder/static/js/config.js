@@ -18,7 +18,7 @@ function tabClicked(tabId) {
     const newTab = document.getElementById(tabId);
     const newPanel = document.getElementById(`${tabId}-panel`);
     console.log('newPanel :',newPanel.id);
-
+    console.log(newPanel);
     if (newTab && newPanel) {
         newTab.classList.add('active');
         newPanel.classList.add('active','show');
@@ -26,16 +26,16 @@ function tabClicked(tabId) {
 }
 
 function InnertabClicked(tabId) {
-    const activeTab = document.querySelector('.nav-pills .active');
-    const activePanel = document.querySelector('#pills-tabContent .active');
-  
-    
+    const activeTab = document.querySelector('.nav-pills.nav-pills-email .active');
+    const activePanel = document.querySelector('.tab-content.content-email .active');
+   
     if (activeTab) {
-        activeTab.classList.remove('active');
+        activeTab.classList.remove('active'); 
     }
 
     if (activePanel) {
         activePanel.classList.remove('active', 'show');
+        activePanel.classList.add('fade');
     }
 
     // Activez l'onglet et le panneau correspondants
@@ -44,6 +44,34 @@ function InnertabClicked(tabId) {
 
     if (newTab && newPanel) {
         newTab.classList.add('active');
+        newPanel.classList.remove('fade');
+        newPanel.classList.add('active','show');
+    }
+}
+
+function InnertabParsingClicked(tabId) {
+    const activeTab = document.querySelector('.nav-pills.nav-pills-parsing .active');
+    const activePanel = document.querySelector('.tab-content.content-parsing .active');
+  
+    if (activeTab) {
+        console.log('active ta:',activeTab.id);
+        activeTab.classList.remove('active');
+    }
+
+    if (activePanel) {
+        activePanel.classList.remove('active', 'show');
+        activePanel.classList.add('fade');
+        console.log('active pa:',activePanel.id);
+    }
+
+    // Activez l'onglet et le panneau correspondants
+    const newTab = document.getElementById(tabId);
+    const newPanel = document.getElementById(`${tabId}-panel`);
+    console.log('newPanel:', newPanel.id);
+    console.log(newPanel);
+    if (newTab && newPanel) {
+        newTab.classList.add('active');
+        newPanel.classList.remove('fade');
         newPanel.classList.add('active','show');
     }
 }

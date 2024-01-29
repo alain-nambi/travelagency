@@ -68,19 +68,19 @@ old -->
             <i class="fa-solid fa-circle-arrow-left text-primary return"></i>
           </a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" style="width: 8rem">  
         <h5 class="{% if pnr.status_value == 0 %}text-success{% endif %}{% if pnr.status_value == 1 %}text-primary{% endif %} n-pnr" style="margin-top: 3px;"><u style="font-size:16px;">PNR n° {{ pnr }}</u></h5>
         </li>
-        <li class="nav-item ml-5">
+        <li class="nav-item ml-1">
 			    {% include "commandes_modal.html" %}
         </li>
-        <li class="nav-item ml-5 d-flex flex-column">
+        <li class="nav-item d-flex flex-column">
           <span id="mail-user" data-mail="issoufali.pnr@outlook.com;{{request.user.email}}">issoufali.pnr@outlook.com;{{request.user.email}}</span>
           <a type="button" class="btn btn-outline-primary zenith" onclick="copymailuser()">Zenith</a> 
         </li>
         
         {% if request.user.role_id == 1 %}
-          <li class="nav-item ml-5">
+          <li class="nav-item ml-1">
             <div id="uncommand_api">
               <button 
                 type="button" 
@@ -96,7 +96,7 @@ old -->
           </li>
         {% endif %}
           
-        <li class="nav-item ml-5 mt-2">
+        <li class="nav-item ml-1 mt-2">
           <div class="input-group input-group float-sm-right mt-1 mb-1">
             <input type="text" name="table_search" id="inputSearchByPnrNumber" class="form-control form-control-md"
               placeholder="Saisir le numéro du PNR" maxlength="6">

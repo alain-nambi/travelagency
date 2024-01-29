@@ -220,7 +220,7 @@ class Pnr(models.Model, BaseModel):
     
         if passenger_invoices.exists():
             for passenger_invoice in passenger_invoices:
-                if (passenger_invoice.ticket_id is not None):
+                if (passenger_invoice.ticket_id is not None and not passenger_invoice.is_invoiced):
                     ticket = Ticket.objects.get(pk=passenger_invoice.ticket_id)
                     ticket.ticket_status = 1
                     ticket.save()

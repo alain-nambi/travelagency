@@ -4,12 +4,12 @@
             <div class="card-header">
                 <h2 class="card-title">Identifiants (1) </h2>
                 <h4 class="card-description"></h4>
-                <i class="fa fa-pencil" style="float: right" aria-hidden="true"></i>
+                
             </div>
 
             <div class="card-body" >
-                <table class="table table-striped">
-                    <thead>
+                <table class="table ">
+                    <thead class="thead-dark">
                     <tr>
                         <th scope="col">Nom de la valeur</th>
                         <th scope="col">Valeur</th>
@@ -18,19 +18,19 @@
 
                     <tbody>
                         <tr>
-                            <td>Ticket</td>
+                            <td>Billet</td>
                             <td></td>
                         </tr>
                         <tr>
-                            <td>Related PNR number</td>
+                            <td>Numéro de PNR correspondant</td>
                             <td></td>
                         </tr>
                         <tr>
-                            <td>All possible ticket statuses</td>
+                            <td>Tous les statuts possibles du ticket</td>
                             <td></td>
                         </tr>
                         <tr>
-                            <td>Ticket issuing date</td>
+                            <td>Date d'émission du billet</td>
                             <td></td>
                         </tr>
                         <tr>
@@ -38,7 +38,7 @@
                             <td></td>
                         </tr>
                         <tr>
-                            <td>Credit note ticket</td>
+                            <td>Billet d'avoir (Credit note ticket)</td>
                             <td></td>
                         </tr>
                         
@@ -46,24 +46,24 @@
                 </table>
             </div>
 
-            <div class="card-body" >
+            <div class="card-body" hidden>
                 <div>
                     <label for="pnr"class="col-form-label col-4">Ticket</label>
                     <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
                 </div>
 
                 <div>
-                    <label for="pnr_type"class="col-form-label col-4">Related PNR number</label>
+                    <label for="pnr_type"class="col-form-label col-4">Numéro de PNR correspondant</label>
                     <input type="text" name="pnr_type" id="pnr_type" class="form-control" placeholder="multi-insert"/>
                 </div>
 
                 <div>
-                    <label for="duplicate_pnr"class="col-form-label col-4">All possible ticket statuses</label>
+                    <label for="duplicate_pnr"class="col-form-label col-4">Tous les statuts possibles du ticket</label>
                     <input type="text" name="duplicate_pnr" id="duplicate_pnr" class="form-control" placeholder="multi-insert"/>
                 </div>
 
                 <div>
-                    <label for="split_pnr"class="col-form-label col-4">Ticket issuing date</label>
+                    <label for="split_pnr"class="col-form-label col-4">Date d'émission du billet</label>
                     <input type="text" name="split_pnr" id="split_pnr" class="form-control" placeholder="multi-insert"/>
                 </div>
 
@@ -73,7 +73,7 @@
                 </div>
 
                 <div>
-                    <label for="split_pnr"class="col-form-label col-4">Credit note ticket</label>
+                    <label for="split_pnr"class="col-form-label col-4">Billet d'avoir (Credit note ticket)</label>
                     <input type="text" name="split_pnr" id="split_pnr" class="form-control" placeholder="multi-insert"/>
                 </div>
 
@@ -88,12 +88,12 @@
             <div class="card-header">
                 <h2 class="card-title">Identifiants (2) </h2>
                 <h4 class="card-description"></h4>
-                <i class="fa fa-pencil" style="float: right" aria-hidden="true"></i>
+                
             </div>
 
             <div class="card-body" >
-                <table class="table table-striped">
-                    <thead>
+                <table class="table ">
+                    <thead class="thead-dark">
                     <tr>
                         <th scope="col">Nom de la valeur</th>
                         <th scope="col">Valeur</th>
@@ -102,15 +102,15 @@
 
                     <tbody>
                         <tr>
-                            <td>IT Fare</td>
+                            <td>Tarif Informatique</td>
                             <td></td>
                         </tr>
                         <tr>
-                            <td>NO ADC</td>
+                            <td>Pas d'ADC</td>
                             <td></td>
                         </tr>
                         <tr>
-                            <td>Cost modification</td>
+                            <td>Modification des coûts</td>
                             <td></td>
                         </tr>
                         <tr>
@@ -118,7 +118,7 @@
                             <td></td>
                         </tr>
                         <tr>
-                            <td>Cost Detail</td>
+                            <td>Détail des coûts</td>
                             <td></td>
                         </tr>
                         <tr>
@@ -129,20 +129,20 @@
                 </table>
             </div>
 
-            <div class="card-body" >
+            <div class="card-body" hidden>
 
                 <div>
-                    <label for="pnr_type"class="col-form-label col-4">IT Fare</label>
+                    <label for="pnr_type"class="col-form-label col-4">Tarif Informatique</label>
                     <input type="text" name="pnr_type" id="pnr_type" class="form-control" placeholder="multi-insert"/>
                 </div>
 
                 <div>
-                    <label for="duplicate_pnr"class="col-form-label col-4">NO ADC</label>
+                    <label for="duplicate_pnr"class="col-form-label col-4">Pas d'ADC</label>
                     <input type="text" name="duplicate_pnr" id="duplicate_pnr" class="form-control" placeholder="multi-insert"/>
                 </div>
 
                 <div>
-                    <label for="split_pnr"class="col-form-label col-4">Cost modification</label>
+                    <label for="split_pnr"class="col-form-label col-4">Modification des coûts</label>
                     <input type="text" name="split_pnr" id="split_pnr" class="form-control" placeholder="multi-insert"/>
                 </div>
 
@@ -152,7 +152,7 @@
                 </div>
 
                 <div>
-                    <label for="split_pnr"class="col-form-label col-4">Cost Detail</label>
+                    <label for="split_pnr"class="col-form-label col-4">Détail des coûts</label>
                     <input type="text" name="split_pnr" id="split_pnr" class="form-control" placeholder="multi-insert"/>
                 </div>
 

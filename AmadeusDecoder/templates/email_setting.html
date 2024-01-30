@@ -1,0 +1,66 @@
+{% extends "layout.html" %} {% block content %}
+<div class="content-wrapper">
+  <section class="content-header p-0">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6" style="margin: 20px 0 10px 50px">
+          <h1 class="text-primary">Configurations</h1>
+        </div>
+      </div>
+    </div>
+    <!-- /.container-fluid -->
+  </section>
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+          <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <i class="fa fa-wrench" style="font-size:30px;" aria-hidden="true"></i>
+             <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div class="navbar-nav">
+                  <a class="nav-item nav-link " href="{% url 'setting' %}"><h5>Générale</h5> </a>
+                  
+                  <a class="nav-item nav-link active" href="{% url 'email_setting' %}"><h5>Email</h5></a>
+                  
+                  <a class="nav-item nav-link " href=" {% url 'parsing_setting' %} "><h5>Lecture de Fichier</h5></a>
+                  
+                  <a class="nav-item nav-link " href=" {% url 'ftp_setting' %} "><h5>FTP</h5></a>
+                </div>
+            </div>
+          </nav>
+          
+          <div class="col-12" style="margin:30px 0 0 10px;">
+            <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="pills-pnr-tab" data-toggle="pill" href="#pills-pnr" role="tab" aria-controls="pills-pnr" aria-selected="true"><h5>PNR</h5></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="pills-notif-tab" data-toggle="pill" href="#pills-notif" role="tab" aria-controls="pills-notif" aria-selected="false"><h5>Notifications</h5></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="pills-fees-tab" data-toggle="pill" href="#pills-fees" role="tab" aria-controls="pills-fees" aria-selected="false"><h5>Fees</h5></a>
+                </li>
+            </ul>
+            <div class="tab-content" id="pills-tabContent" style="margin:30px 0 0 10px;">
+                <div class="tab-pane fade show active" id="pills-pnr" role="tabpanel" aria-labelledby="pills-pnr-tab">
+                    {% include "setting_files/email_pnr.html" %}
+                </div>
+
+                <div class="tab-pane fade" id="pills-notif" role="tabpanel" aria-labelledby="pills-notif-tab">
+                    {% include "setting_files/email_notification.html" %}
+                </div>
+
+                <div class="tab-pane fade" id="pills-fees" role="tabpanel" aria-labelledby="pills-fees-tab">
+                    {% include "setting_files/email_fees.html" %}
+                </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock content %}

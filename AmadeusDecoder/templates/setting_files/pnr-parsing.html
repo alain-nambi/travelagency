@@ -1,15 +1,15 @@
 <div style="display:flex;justify-content: space-between; margin-right: 1rem; ">
     <div style="display: flex; flex-direction: column;">
         <div class="card " style="width: 38rem;height:auto; margin:0 120px 0 20px;">
-            <div class="card-header">
-                <h2 class="card-title">PNR </h2>
+            <div class="card-header" >
+                <h1 class="card-title " >PNR </h1>
                 <h4 class="card-description"></h4>
-                <i class="fa fa-pencil" style="float: right" aria-hidden="true"></i>
+                
             </div>
 
             <div class="card-body" >
-                <table class="table table-striped">
-                    <thead>
+                <table class="table ">
+                    <thead class="thead-dark">
                     <tr>
                         <th scope="col">Nom de la valeur</th>
                         <th scope="col">Valeur</th>
@@ -22,39 +22,39 @@
                             <td></td>
                         </tr>
                         <tr>
-                            <td>PNR Type</td>
+                            <td>Type du PNR</td>
                             <td></td>
                         </tr>
                         <tr>
-                            <td>Duplicate PNR</td>
+                            <td>PNR dupliqué</td>
                             <td></td>
                         </tr>
                         <tr>
-                            <td>Split PNR</td>
+                            <td>PNR partagé (split)</td>
                             <td></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
 
-            <div class="card-body" >
+            <div class="card-body" hidden >
                 <div>
                     <label for="pnr"class="col-form-label col-4">PNR</label>
                     <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
                 </div>
 
                 <div>
-                    <label for="pnr_type"class="col-form-label col-4">PNR Type</label>
+                    <label for="pnr_type"class="col-form-label col-4">Type du PNR</label>
                     <input type="text" name="pnr_type" id="pnr_type" class="form-control" placeholder="multi-insert"/>
                 </div>
 
                 <div>
-                    <label for="duplicate_pnr"class="col-form-label col-4">Duplicate PNR</label>
+                    <label for="duplicate_pnr"class="col-form-label col-4">PNR Dupliqué</label>
                     <input type="text" name="duplicate_pnr" id="duplicate_pnr" class="form-control" placeholder="multi-insert"/>
                 </div>
 
                 <div>
-                    <label for="split_pnr"class="col-form-label col-4">Split PNR</label>
+                    <label for="split_pnr"class="col-form-label col-4">PNR partagé</label>
                     <input type="text" name="split_pnr" id="split_pnr" class="form-control" placeholder="multi-insert"/>
                 </div>
 
@@ -62,16 +62,16 @@
             </div>
         </div>
 
-        <div class="card " style="width: 38rem;height:auto; margin:0 120px 0 20px;">
+        <div class="card " style="width: 38rem;height:auto; margin:30px 120px 0 20px;">
             <div class="card-header">
-                <h2 class="card-title">Parser Tools </h2>
+                <h2 class="card-title">Outils de lecture </h2>
                 <h4 class="card-description"></h4>
-                <i class="fa fa-pencil" style="float: right" aria-hidden="true"></i>
+                
             </div>
 
             <div class="card-body" >
-                <table class="table table-striped">
-                    <thead>
+                <table class="table ">
+                    <thead class="thead-dark">
                     <tr>
                         <th scope="col">Nom de la valeur</th>
                         <th scope="col">Valeur</th>
@@ -80,43 +80,43 @@
 
                     <tbody>
                         <tr>
-                            <td>To be excluded line</td>
+                            <td>Ligne à exclure</td>
                             <td></td>
                         </tr>
                         <tr>
-                            <td>Remark</td>
+                            <td>Remarque</td>
                             <td></td>
                         </tr>
                         <tr>
-                            <td>Possible cost currency</td>
+                            <td>Devise de coût possible</td>
                             <td></td>
                         </tr>
                         <tr>
-                            <td>AM H line</td>
+                            <td>Ligne AM H </td>
                             <td></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
 
-            <div class="card-body" >
+            <div class="card-body" hidden>
                 <div>
-                    <label for="pnr"class="col-form-label col-4">To be excluded line</label>
+                    <label for="pnr"class="col-form-label col-4">Ligne à exclure</label>
                     <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
                 </div>
 
                 <div>
-                    <label for="pnr_type"class="col-form-label col-4">Remark</label>
+                    <label for="pnr_type"class="col-form-label col-4">Remarque</label>
                     <input type="text" name="pnr_type" id="pnr_type" class="form-control" placeholder="multi-insert"/>
                 </div>
 
                 <div>
-                    <label for="duplicate_pnr"class="col-form-label col-4">Possible Cost Currency</label>
+                    <label for="duplicate_pnr"class="col-form-label col-4">Devise de coût possible</label>
                     <input type="text" name="duplicate_pnr" id="duplicate_pnr" class="form-control" placeholder="multi-insert"/>
                 </div>
 
                 <div>
-                    <label for="split_pnr"class="col-form-label col-4">AM H line</label>
+                    <label for="split_pnr"class="col-form-label col-4">Ligne AM H</label>
                     <input type="text" name="split_pnr" id="split_pnr" class="form-control" placeholder="multi-insert"/>
                 </div>
 
@@ -130,12 +130,12 @@
             <div class="card-header">
                 <h2 class="card-title">Contact </h2>
                 <h4 class="card-description"></h4>
-                <i class="fa fa-pencil" style="float: right" aria-hidden="true"></i>
+                
             </div>
 
             <div class="card-body" >
-                <table class="table table-striped">
-                    <thead>
+                <table class="table ">
+                    <thead class="thead-dark">
                     <tr>
                         <th scope="col">Nom de la valeur</th>
                         <th scope="col">Valeur</th>
@@ -145,11 +145,11 @@
                     <tbody>
 
                         <tr>
-                            <td>Contact Type</td>
+                            <td>Type du Contact</td>
                             <td></td>
                         </tr>
                         <tr>
-                            <td>Contact Type Name</td>
+                            <td>Nom du type de contact</td>
                             <td></td>
                         </tr>
 
@@ -157,14 +157,14 @@
                 </table>
             </div>
 
-            <div class="card-body" >
+            <div class="card-body" hidden >
                 <div>
-                    <label for="pnr"class="col-form-label col-4">Contact Type</label>
+                    <label for="pnr"class="col-form-label col-4">Type du Contact</label>
                     <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
                 </div>
 
                 <div>
-                    <label for="pnr_type"class="col-form-label col-4">Contact Type Name</label>
+                    <label for="pnr_type"class="col-form-label col-4">Nom du type de contact</label>
                     <input type="text" name="pnr_type" id="pnr_type" class="form-control" placeholder="multi-insert"/>
                 </div>
 
@@ -173,16 +173,16 @@
             </div>
         </div>
 
-        <div class="card " style="width: 38rem;height:auto; margin:0 120px 0 20px;">
+        <div class="card " style="width: 38rem;height:auto; margin:30px 120px 0 20px;">
             <div class="card-header">
                 <h2 class="card-title">Ticket </h2>
                 <h4 class="card-description"></h4>
-                <i class="fa fa-pencil" style="float: right" aria-hidden="true"></i>
+                
             </div>
 
             <div class="card-body" >
-                <table class="table table-striped">
-                    <thead>
+                <table class="table ">
+                    <thead class="thead-dark">
                     <tr>
                         <th scope="col">Nom de la valeur</th>
                         <th scope="col">Valeur</th>
@@ -192,7 +192,7 @@
                     <tbody>
 
                         <tr>
-                            <td>Ticket Line</td>
+                            <td>Ligne du Ticket</td>
                             <td></td>
                         </tr>
                         <tr>
@@ -204,9 +204,9 @@
                 </table>
             </div>
 
-            <div class="card-body" >
+            <div class="card-body" hidden >
                 <div>
-                    <label for="pnr"class="col-form-label col-4">Ticket Line </label>
+                    <label for="pnr"class="col-form-label col-4">Ligne du Ticket</label>
                     <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
                 </div>
 

@@ -10,3 +10,15 @@ import AmadeusDecoder.utilities.configuration_data as configs
 def setting(request):  
     context = {'configs':configs}
     return render(request,'setting.html',context)    
+
+@login_required(login_url='index')
+def email_setting(request):
+    return render(request,'email_setting.html')
+
+@login_required(login_url='index')
+def parsing_setting(request):
+    return render(request,'parsing_setting.html')
+
+@login_required(login_url='index')
+def ftp_setting(request):
+    return render(request,'ftp_setting.html')

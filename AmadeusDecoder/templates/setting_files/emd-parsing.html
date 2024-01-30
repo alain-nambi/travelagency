@@ -4,12 +4,12 @@
             <div class="card-header">
                 <h2 class="card-title">Parser Tools</h2>
                 <h4 class="card-description"></h4>
-                <i class="fa fa-pencil" style="float: right" aria-hidden="true"></i>
+                
             </div>
 
             <div class="card-body" >
-                <table class="table table-striped">
-                    <thead>
+                <table class="table ">
+                    <thead class="thead-dark">
                     <tr>
                         <th scope="col">Nom de la valeur</th>
                         <th scope="col">Valeur</th>
@@ -25,7 +25,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="card-body" >
+            <div class="card-body" hidden >
                 <div>
                     <label for="currency_name"class="col-form-label col-4">Airport Agency Code</label>
                     <input type="text" name="agency_code" id="agency_code" class="form-control" placeholder="multi-insert"/>
@@ -48,7 +48,7 @@
                     </select>
                 </div>
 
-            <button type="button" class="btn btn-success" style="margin-top: 20px;float:right;">Enregistrer</button>
+                <button type="button" class="btn btn-success" style="margin-top: 20px;float:right;">Enregistrer</button>
 
             </div>
         </div>
@@ -79,110 +79,110 @@
         </div>
     </div>
 
-    <div style="display: flex; flex-direction: column;">
-        <div class="card " style="width: 38rem;height:auto; margin:0 120px 0 20px;">
-            <div class="card-header">
-                <h2 class="card-title">Identifiants</h2>
-                <h4 class="card-description"></h4>
-                <i class="fa fa-pencil" style="float: right" aria-hidden="true"></i>
-            </div>
+  <div class="col-12" style="display: flex; flex-direction: column;">
+    <div class="card " style="width: 38rem;height:auto; margin:0 120px 0 20px;">
+      <div class="card-header">
+        <h2 class="card-title">Identifiants</h2>
+        <h4 class="card-description"></h4>
+        
+      </div>
 
-            <div class="card-body" >
-                <table class="table table-striped">
-                    <thead>
-                    <tr>
-                        <th scope="col">Nom de la valeur</th>
-                        <th scope="col">Valeur</th>
-                    </tr>
-                    </thead>
+      <div class="card-body" >
+        <table class="table ">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">Nom de la valeur</th>
+              <th scope="col">Valeur</th>
+            </tr>
+          </thead>
 
-                    <tbody>
-                        <tr>
-                            <td>EMD</td>
-                            <td>M</td>
-                        </tr>
-                        <tr>
-                            <td>PNR Number</td>
-                            <td>M</td>
-                        </tr>
-                        <tr>
-                            <td>EMD Description</td>
-                            <td>Mark, Mark, Mark</td>
-                        </tr>
-                        <tr>
-                            <td>EMD Issuing Date</td>
-                            <td>Mark</td>
-                        </tr>
-                        <tr>
-                            <td>EMD Payment Method</td>
-                            <td>Mark</td>
-                        </tr>
-                        <tr>
-                            <td>No ADC</td>
-                            <td>Mark</td>
-                        </tr>
-                        <tr>
-                            <td>Cost Modification</td>
-                            <td>Mark</td>
-                        </tr>
-                        <tr>
-                            <td>Cost Detail</td>
-                            <td>Mark</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+          <tbody>
+            <tr>
+              <td>EMD</td>
+              <td>M</td>
+            </tr>
+            <tr>
+              <td>PNR Number</td>
+              <td>M</td>
+            </tr>
+            <tr>
+              <td>EMD Description</td>
+              <td>Mark, Mark, Mark</td>
+            </tr>
+            <tr>
+              <td>EMD Issuing Date</td>
+              <td>Mark</td>
+            </tr>
+            <tr>
+              <td>EMD Payment Method</td>
+              <td>Mark</td>
+            </tr>
+            <tr>
+              <td>No ADC</td>
+              <td>Mark</td>
+            </tr>
+            <tr>
+              <td>Cost Modification</td>
+              <td>Mark</td>
+            </tr>
+            <tr>
+              <td>Cost Detail</td>
+              <td>Mark</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-            <div class="card-body" >
-                <div>
-                    <label for="currency_name"class="col-form-label col-4">Airport Agency Code</label>
-                    <input type="text" name="agency_code" id="agency_code" class="form-control" placeholder="multi-insert"/>
-                </div>
-
-                <div>
-                    <label for="currency_name"class="col-form-label col-6"> EMD</label>
-                    <input type="text" name="emd_description" id="emd_description" class="form-control" placeholder="multi-insert"/>
-                </div>
-
-                <div>
-                    <label for="currency_name"class="col-form-label col-4">PNR Number</label>
-                    <input type="text" name="feed" id="feed" class="form-control" placeholder="multi-insert"/>
-                </div>
-
-                <div>
-                    <label for="currency_name"class="col-form-label col-4">EMD Description</label>
-                    <input type="text" name="feed" id="feed" class="form-control" placeholder="multi-insert"/>
-                </div>
-
-                <div>
-                    <label for="currency_name"class="col-form-label col-4">EMD Issuing Date</label>
-                    <input type="text" name="feed" id="feed" class="form-control" placeholder="multi-insert"/>
-                </div>
-
-                <div>
-                    <label for="currency_name"class="col-form-label col-4">EMD Payment Method</label>
-                    <input type="text" name="feed" id="feed" class="form-control" placeholder="multi-insert"/>
-                </div>
-
-                <div>
-                    <label for="currency_name"class="col-form-label col-4">No ADC</label>
-                    <input type="text" name="feed" id="feed" class="form-control" placeholder="multi-insert"/>
-                </div>
-
-                <div>
-                    <label for="currency_name"class="col-form-label col-4">Cost Modification</label>
-                    <input type="text" name="feed" id="feed" class="form-control" placeholder="multi-insert"/>
-                </div>
-
-                <div>
-                    <label for="currency_name"class="col-form-label col-4">Cost Detail</label>
-                    <input type="text" name="feed" id="feed" class="form-control" placeholder="multi-insert"/>
-                </div>
-
-                <button type="button" class="btn btn-success" style="margin-top: 20px;float:right;">Enregistrer</button>
-
-            </div>
+      <div class="card-body" hidden >
+        <div>
+          <label for="currency_name"class="col-form-label col-4">Airport Agency Code</label>
+          <input type="text" name="agency_code" id="agency_code" class="form-control" placeholder="multi-insert"/>
         </div>
+
+        <div>
+          <label for="currency_name"class="col-form-label col-6"> EMD</label>
+          <input type="text" name="emd_description" id="emd_description" class="form-control" placeholder="multi-insert"/>
+        </div>
+
+        <div>
+          <label for="currency_name"class="col-form-label col-4">PNR Number</label>
+          <input type="text" name="feed" id="feed" class="form-control" placeholder="multi-insert"/>
+        </div>
+
+        <div>
+            <label for="currency_name"class="col-form-label col-4">EMD Description</label>
+            <input type="text" name="feed" id="feed" class="form-control" placeholder="multi-insert"/>
+        </div>
+
+        <div>
+            <label for="currency_name"class="col-form-label col-4">EMD Issuing Date</label>
+            <input type="text" name="feed" id="feed" class="form-control" placeholder="multi-insert"/>
+        </div>
+
+        <div>
+            <label for="currency_name"class="col-form-label col-4">EMD Payment Method</label>
+            <input type="text" name="feed" id="feed" class="form-control" placeholder="multi-insert"/>
+        </div>
+
+        <div>
+            <label for="currency_name"class="col-form-label col-4">No ADC</label>
+            <input type="text" name="feed" id="feed" class="form-control" placeholder="multi-insert"/>
+        </div>
+
+        <div>
+            <label for="currency_name"class="col-form-label col-4">Cost Modification</label>
+            <input type="text" name="feed" id="feed" class="form-control" placeholder="multi-insert"/>
+        </div>
+
+        <div>
+            <label for="currency_name"class="col-form-label col-4">Cost Detail</label>
+            <input type="text" name="feed" id="feed" class="form-control" placeholder="multi-insert"/>
+        </div>
+
+        <button type="button" class="btn btn-success" style="margin-top: 20px;float:right;">Enregistrer</button>
+
+      </div>
     </div>
+  </div>
 
 <div>

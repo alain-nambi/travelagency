@@ -7,7 +7,7 @@ from .views.Manage_customers import customers, create_customer, modify_customer_
 from .views.Manage_users import users, register
 from .views.Account import account
 from .views.Tools import *
-from .views.Setting import setting
+from .views.Setting import *
 from .views.Login import *
 from .views.Home import *
 from .views.Comment import *
@@ -72,4 +72,8 @@ urlpatterns = [
     path('home/refuse-anomaly', refuse_anomaly, name='refuse_anomaly'),
     path('home/drop-anomaly',drop_anomaly, name='drop_anomaly'),
     path('home/update-anomaly', updateAnomaly, name='update_anomaly'),
+    path('setting/email',email_setting, name='email_setting'),
+    path('setting/parsing',parsing_setting, name='parsing_setting'),
+    path('setting/ftp',ftp_setting, name='ftp_setting'),
+    
 ]

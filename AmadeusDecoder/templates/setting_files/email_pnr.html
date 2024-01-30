@@ -15,13 +15,13 @@
       </thead>
 
       <tbody>
-        <a href="#">
-        <tr>
-          <td>1</td>
+        
+        <tr data-toggle="modal" data-target="#EmailPnrModal" data-env="environnement" data-email="email" data-password="password" style="cursor: pointer;" id="trEmailPnrModal">
+          <td>Test</td>
           <td>Mark</td>
           <td>Mark</td>
         </tr>
-        </a>
+        
       </tbody>
     </table>
   </div>
@@ -46,5 +46,45 @@
 
     <button type="button" class="btn btn-primary" style="margin-top: 20px;float:right;">Add</button>
 
+  </div>
+</div>
+
+<div class="modal fade" id="EmailPnrModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalPnrNotUpdatedTitle">
+          <i class="fa fa-upload"></i>
+          Email PNR 
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method='POST'>
+          <div >
+            <label for="currency_name"class="col-form-label col-4">Environnement</label>
+            <input type="text" readonly id="modalEmailPnrEnv" class="form-control "/>
+          </div>
+
+          <div class="form-group">
+            <label for="currency_name"class="col-form-label col-4">Email</label>
+            <input type="text" name="email" id="modalEmailPnrEmail" class="form-control "/>
+          </div>
+
+          <div class="form-group">
+            <label for="currency_name"class="col-form-label col-4">Password</label>
+            <input type="password" name="password" id="modalEmailPnrPassword" class="form-control "/>
+          </div>
+
+
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-success" id="buttonUpdateEmailPnr">Modifier</button>
+      </div>
+    </div>
   </div>
 </div>

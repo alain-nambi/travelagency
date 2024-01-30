@@ -16,7 +16,7 @@
                 </thead>
 
                 <tbody>
-                <tr>
+                <tr data-toggle="modal" data-target="#EmailFeesModal" data-env="environnement" data-value-name="value name" data-email="email" style="cursor: pointer;" id="trEmailFeesModal">
                     <td>1</td>
                     <td>Mark</td>
                     <td>Mark</td>
@@ -71,7 +71,7 @@
 
             <tbody>
             
-                <tr>
+                <tr data-toggle="modal" data-target="#EmailFeesRequestModal" data-env="environnement" data-sender-email="value name" data-recipient-email="email" style="cursor: pointer;" id="trEmailFeesRequestModal">
                 <td>1</td>
                 <td>Mark</td>
                 <td>Mark</td>
@@ -104,4 +104,89 @@
 
         </div>
     </div>
+</div>
+
+<div class="modal fade" id="EmailFeesModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalPnrNotUpdatedTitle">
+          <i class="fa fa-upload"></i>
+          Email Fee History Report Recipient
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method='POST'>
+          <div>
+                <label for="currency_name"class="col-form-label col-4">Environnement</label>
+                <input type="text" readonly id="modalFeesEnv" class="form-control "/>
+                
+            </div>
+
+            <div class="form-group">
+                <label for="currency_name"class="col-form-label col-4">Value Name</label>
+                <select class="form-control" id="modalFeesValueName"  placeholder="Email sending error notification recipients">
+                    <option value="test">Email sending error notification recipients</option> 
+                    <option value="prod">Email sending error notification</option> 
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="currency_name"class="col-form-label col-4">Email</label>
+                <input type="text" name="email" id="modalFeesEmail" class="form-control "/>
+            </div>
+
+
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-success" id="buttonUpdateEmailPnr">Modifier</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="EmailFeesRequestModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalPnrNotUpdatedTitle">
+          <i class="fa fa-mail"></i>
+          Email Fee Request Tools
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method='POST'>
+          <div>
+                <label for="currency_name"class="col-form-label col-4">Environnement</label>
+                <input type="text" readonly id="modalFeesRequestEnv" class="form-control "/>
+                
+            </div>
+
+            <div class="form-group">
+                <label for="currency_name"class="col-form-label col-4">Sender Email</label>
+                <input type="text" name="email" id="modalFeesRequestSenderEmail" class="form-control "/>
+            </div>
+
+            <div class="form-group">
+                <label for="currency_name"class="col-form-label col-4">Recipient Email</label>
+                <input type="text" name="email" id="modalFeesRequestRecipientEmail" class="form-control "/>
+            </div>
+
+
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-success" id="buttonUpdateEmailPnr">Modifier</button>
+      </div>
+    </div>
+  </div>
 </div>

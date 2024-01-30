@@ -17,21 +17,21 @@
                     </thead>
 
                     <tbody>
-                        <tr>
+                        <tr data-toggle="modal" id='1' data-target="#Multi-insert" data-value-name="PNR" data-value="RP,PR,P,R" style="cursor: pointer;" class="trModalInsert">
                             <td>PNR</td>
-                            <td></td>
+                            <td>RP,PR,P,R</td>
                         </tr>
                         <tr>
                             <td>Type du PNR</td>
-                            <td></td>
+                            <td>Altea</td>
                         </tr>
                         <tr>
                             <td>PNR dupliqué</td>
-                            <td></td>
+                            <td>* RR</td>
                         </tr>
                         <tr>
                             <td>PNR partagé (split)</td>
-                            <td></td>
+                            <td>* SP</td>
                         </tr>
                     </tbody>
                 </table>
@@ -79,9 +79,9 @@
                     </thead>
 
                     <tbody>
-                        <tr>
+                        <tr data-toggle="modal" id='2' data-target="#Multi-insert" data-value-name="Ligne à exclure" data-value="L1" style="cursor: pointer;" class="trModalInsert">
                             <td>Ligne à exclure</td>
-                            <td></td>
+                            <td>L1</td>
                         </tr>
                         <tr>
                             <td>Remarque</td>
@@ -223,4 +223,41 @@
         
     </div>
 
+</div>
+
+<div class="modal fade" id="Multi-insert" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalPnrNotUpdatedTitle">
+          <i class="fa-solid fa-file-pen"></i>
+          Identifiant
+        </h5>
+        <button type="button" id="closeinsertmodal" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {% comment %} <form method='POST'> {% endcomment %}
+            <div class="insertmodalwrapper">
+                <label for="currency_name"class="col-form-label col-4" id="modalLabel"></label>
+                <div class="insertmodalcontent" style="">
+                    <ul id="insertmodalul">
+                        <input type="text" id="modalInsert" class="form-control" />
+                    </ul>
+                </div>
+                <div class="insertmodaldetail">
+                    <button type="button" class="btn btn-primary" onclick="removeAll()">Remove All</button>
+                </div>
+            </div>
+
+
+        {% comment %} </form> {% endcomment %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-success" id="buttonUpdateEmailPnr">Modifier</button>
+      </div>
+    </div>
+  </div>
 </div>

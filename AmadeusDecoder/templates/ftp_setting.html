@@ -1,4 +1,35 @@
-<div class="card-body">
+{% extends "layout.html" %} 
+{% block content %}
+  <div class="content-wrapper">
+    <section class="content-header p-0">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6" style="margin: 20px 0 10px 50px">
+            <h1 class="text-primary">Configurations</h1>
+          </div>
+        </div>
+      </div>
+      <!-- /.container-fluid -->
+    </section>
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-12">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+              <i class="fa fa-wrench" style="font-size:30px;" aria-hidden="true"></i>
+              <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                  <div class="navbar-nav">
+                    <a class="nav-item nav-link " href="{% url 'setting' %}"><h5>Générale</h5> </a>
+                    
+                    <a class="nav-item nav-link active" href="{% url 'email_setting' %}"><h5>Email</h5></a>
+                    
+                    <a class="nav-item nav-link " href=" {% url 'parsing_setting' %} "><h5>Lecture de Fichier</h5></a>
+                    
+                    <a class="nav-item nav-link " href=" {% url 'ftp_setting' %} "><h5>FTP</h5></a>
+                  </div>
+              </div>
+            </nav>
+            <div class="card-body">
               <div class="row">
                 <div class="col-5 col-sm-3">
                   <div class="nav flex-column nav-tabs h-100" id="vert-tabs-tab" role="tablist"
@@ -140,3 +171,9 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+{% endblock %}

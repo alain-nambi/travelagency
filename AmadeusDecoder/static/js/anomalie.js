@@ -72,13 +72,15 @@ $(document).ready(function () {
 // ------------------ verif ticket type
 $(document).ready(function () {
     type = document.getElementById('selectType');
-    type.addEventListener("change", function (){
-        if (type.value == 'TKT') {
-            $('#fee').hide();
-        } else {
-            $('#fee').show();
-        }
-    });
+    if (type) {
+        type.addEventListener("change", function (){
+            if (type.value == 'TKT') {
+                $('#fee').hide();
+            } else {
+                $('#fee').show();
+            }
+        });
+    }
 });
 
 

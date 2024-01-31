@@ -4,6 +4,7 @@
 <div class="content-wrapper">
     <section class="content">
       <div class="container-fluid">
+        {% include "commandes_modal.html" %}
         <div class="row ">
           <div class="col-12">
             <div class="card card-primary card-outline ">
@@ -49,7 +50,7 @@
                             </tr>
                           </thead>
                           <tbody>
-                            {% for comment in comments %}
+                            {% for comment in page_obj %}
                               {% if request.user.role_id == 1 %}
                               <tr class="constat-class"
                               onclick="location.href='{% url 'comment-detail' comment.id %}'" style="cursor: pointer;"

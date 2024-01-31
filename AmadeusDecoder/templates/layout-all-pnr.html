@@ -2,6 +2,9 @@
 <!DOCTYPE html>
 <html lang="en">
 {% load static %}
+{% load pnr_details %}
+{% load pnr_comments %}
+
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, maximum-scale=10">
@@ -70,38 +73,15 @@ old -->
           <a class="nav-link" id="pushed-sidebar" data-widget="pushmenu" href="#" role="button"><i
               class="fas fa-bars"></i></a>   
         </li>
-        <li class="nav-item i">
-          <h6 class="text-info c-pnr ml-4 mb-0">
-            <u style="font-size:12px;">PNR :</u> <span id="pnr">WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/RT</span>
-            <input type="text" id="np" title="Numéro PNR" maxlength="6" placeholder="N° PNR" style="width:70px; padding: 0;"/>
-            <i id="button-np" class="fa fa-copy float-right ml-4" title="copier" style="font-size:12px; cursor: pointer;" onclick="copypnr()"></i>
-          </h6>  
-          <h6 class="text-info c-pnr ml-4 mb-0">
-            <u style="font-size:12px;">PNR archivé :</u> 
-            <span id="pnrArchived">WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/RPP/RLC-</span>
-            <input type="text" id="npArchived" title="Numéro PNR" maxlength="6" placeholder="N° PNR" style="width:70px; padding: 0;"/>
-            <i id="button-np-archived" class="fa fa-copy float-right ml-4" title="copier" style="font-size:12px; cursor: pointer;" onclick="copyarchivedpnr()"></i>
-          </h6>  
-          <h6 class="text-info c-pnr ml-4 mb-0">
-            <u style="font-size:12px; margin-bottom:1px">Billets non émis :</u> <span id="bne">WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/TQT/T</span><span>[Numéro de la tarification]</span>
-            {% comment %} <input type="text" id="nt" title="Numéro de la tarification" maxlength="6" placeholder="N° Tarif." style="width:70px; margin-bottom:1px"/> {% endcomment %}
-            <i id="button-nt" class="fa fa-copy float-right ml-4" title="copier" style="font-size:12px; cursor: pointer;" onclick="copybne()"></i>
-          </h6>
-          <h6 class="text-info c-pnr ml-4 mb-0">
-            <u style="font-size:12px; margin-bottom:1px">Billets émis :</u> <span id="be">WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/TWD/L</span><span>[Numéro de la ligne du billet dans le PNR]</span>
-            {% comment %} <input type="text" id="nlbe" title="Numéro de la ligne du billet dans le PNR" maxlength="6" placeholder="N° Bill." style="width:70px; margin-bottom:1px"/> {% endcomment %}
-            <i id="button-nlbe" class="fa fa-copy float-right ml-4" title="copier" style="font-size:12px; cursor: pointer;" onclick="copybe()"></i>
-          </h6>
-          <h6 class="text-info c-pnr ml-4 mb-0">
-            <u style="font-size:12px; margin-bottom:1px">Services émis :</u> <span id="se">WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/EWD/L</span><span>[Numéro de la ligne du billet dans le PNR]</span>
-            {% comment %} <input type="text" id="nlse" title="Numéro de la ligne du billet dans le PNR" maxlength="6" placeholder="N° Bill." style="width:70px; margin-bottom:1px"/> {% endcomment %}
-            <i id="button-nlse" class="fa fa-copy float-right ml-4" title="copier" style="font-size:12px; cursor: pointer;" onclick="copyse()"></i>
-          </h6>
+        <li class="nav-item">
+          {% include "commandes_modal.html" %}
         </li>
-        <li class="nav-item ml-5">
-          <div class="d-flex align-items-center" style="gap: 1rem">
+        <li class="nav-item ml-5 d-flex" style="gap: 0.5rem;">
+          <div class="align-items-center">
             <span id="mail-user" data-mail="issoufali.pnr@outlook.com;{{request.user.email}}">issoufali.pnr@outlook.com;{{request.user.email}}</span>
             <a type="button" class="btn btn-outline-primary zenith" onclick="copymailuser()">Zenith</a> 
+            
+          </div>
             <div id="pnrNotUpdated">
               <button 
                 type="button" 
@@ -114,8 +94,8 @@ old -->
                 <i class="fa fa-upload"></i>
                 Pnr non remonté
               </button>
-            </div>   
-          </div>
+            </div>
+
         </li>
       </ul>
     </form>
@@ -229,6 +209,18 @@ old -->
               <a href="{% url 'comment-list' %}" class="nav-link">
                 <i class="fas fa-exclamation nav-icon"></i>
                 <p>Anomalies PNR</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'get_all_pnr_unordered' %}" class="nav-link">
+                <i class="fas fa-trash-can nav-icon"></i>
+                <p>PNR Décommandés</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'get_all_anomalies' %}" class="nav-link">
+                <i class="fas fa-clock nav-icon"></i>
+                <p>Anomalie en attente</p>
               </a>
             </li>
             {% endif %}
@@ -405,6 +397,9 @@ old -->
     <script src="{% static 'js/main.js' %}"></script>
     <script src="{% static 'js/comment.js' %}"></script>
     <script src="{% static 'js/gdsCommandHandler.js' %}"></script>
+    <script src="{% static 'js/invoice_unorder.js' %}"></script>
+    <script src="{% static 'js/UnorderedPnrHandler.js' %}"></script>
+
 
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/js/selectize.min.js" integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

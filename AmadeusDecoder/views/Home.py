@@ -17,6 +17,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.forms.models import model_to_dict
 from django.conf import settings
+from AmadeusDecoder.models.invoice.TicketPassengerSegment import OtherFeeSegment, TicketPassengerSegment
 
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.pnr.PnrPassenger import PnrPassenger
@@ -25,7 +26,7 @@ from AmadeusDecoder.models.invoice.Clients import Client
 from AmadeusDecoder.models.utilities.Comments import Comment, Response
 from AmadeusDecoder.models.invoice.Ticket import Ticket
 from AmadeusDecoder.models.invoice.Fee import Fee, ReducePnrFeeRequest, OthersFee
-from AmadeusDecoder.models.invoice.Invoice import Invoice
+from AmadeusDecoder.models.invoice.Invoice import Invoice, InvoicesCanceled
 from AmadeusDecoder.models.invoice.InvoiceDetails import InvoiceDetails
 from AmadeusDecoder.models.pnr.Passenger import Passenger
 from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
@@ -1876,14 +1877,32 @@ def get_quotation(request, pnr_id):
 @login_required(login_url='index')
 def import_product(request, pnr_id):
     if request.method == 'POST':
+        emitter = User.objects.get(pk=request.user.id)
         if 'listNewProduct' in request.POST:
             product = json.loads(request.POST.get('listNewProduct'))
             pnr = Pnr.objects.get(pk=int(pnr_id))
-            other_fees = OthersFee.objects.filter(pnr=pnr_id, product_id=product[0])
-            other_fees = OthersFee(designation=product[2], cost=product[3], tax=product[4], total=product[5],
-                                    pnr=pnr, fee_type=product[1], passenger_segment=product[6], reference=product[7], 
-                                    quantity=1, is_subjected_to_fee=False, creation_date=datetime.now())
-            other_fees.save()
+            
+            if product[0] == '19':
+                if float(product[3]) > 0:
+                    product[3] = -abs(product[3])
+                    
+                other_fees = OthersFee(designation=product[7], cost=product[3], total=product[4],
+                                        pnr=pnr, fee_type=product[1],reference=product[6], 
+                                        quantity=1, is_subjected_to_fee=False, creation_date=datetime.now(), emitter=emitter)
+                other_fees.save()
+                
+                for segment in product[9]:
+                    segment = PnrAirSegments.objects.get(pk=segment.get('value'))
+                    passenger = Passenger.objects.get(pk=product[8])
+                    passenger_segment = OtherFeeSegment(segment=segment,other_fee= other_fees, passenger=passenger)
+                    passenger_segment.save()
+            
+            else:
+                other_fees = OthersFee.objects.filter(pnr=pnr_id, product_id=product[0])
+                other_fees = OthersFee(designation=product[2], cost=product[3], tax=product[4], total=product[5],
+                                        pnr=pnr, fee_type=product[1], passenger_segment=product[6], reference=product[7], emitter=emitter,
+                                        quantity=1, is_subjected_to_fee=False, creation_date=datetime.now())
+                other_fees.save()
             
             # save creator user to user copying
             try:
@@ -2057,4 +2076,127 @@ def remove_other_fee_service(request):
 
         return JsonResponse({'status': 'not_found'})
     
+@login_required(login_url="index")
+def unorder_pnr(request):
+    if request.method == 'POST':
+        pnr_number = request.POST.get('pnr_number')
+        invoice_number = request.POST.get('invoice_number')
+        motif = request.POST.get('motif')
+        user_id = request.POST.get('user_id')
+        
+        if motif is None:
+            return JsonResponse({'message': 'Veuillez ajouter un motif'})
+
+        
+        pnr = Pnr.objects.get(number=pnr_number)
+        passenger_invoices = PassengerInvoice.objects.filter(pnr_id=pnr.id, invoice_number=invoice_number).all()
+        
+        if passenger_invoices:
+            for passenger_invoice in passenger_invoices:
+                PassengerInvoice.objects.filter(id=passenger_invoice.id).delete()
+                
+                if passenger_invoice.ticket_id:
+                    Ticket.objects.filter(id=passenger_invoice.ticket_id).update(is_invoiced=False)
+                
+                if passenger_invoice.fee_id:
+                    Fee.objects.filter(id=passenger_invoice.fee_id).update(is_invoiced=False)
+                    
+                if passenger_invoice.other_fee_id:
+                    OthersFee.objects.filter(id=passenger_invoice.other_fee_if).update(is_invoiced=False)
+
+                if passenger_invoice.ticket_id or passenger_invoice.other_fee_id or passenger_invoice.fee_id:
+                    invoices_canceled = InvoicesCanceled(pnr_id=pnr.id,invoice_number=invoice_number,motif=motif,ticket_id=passenger_invoice.ticket_id, other_fee_id = passenger_invoice.other_fee_id,user_id=user_id, fee_id=passenger_invoice.fee_id) 
+                    invoices_canceled.save()
+                
+        
+        return JsonResponse({'status':'ok'})
+    return JsonResponse({'status':'error'})
     
+@login_required(login_url="index")
+def get_all_pnr_unordered(request):
+    context = {}
+    invoices_canceled_list = InvoicesCanceled.objects.all().distinct('pnr_id')
+    
+    pnr_count = invoices_canceled_list.count()
+    
+    context['pnr_list'] = invoices_canceled_list
+    object_list = context['pnr_list']
+    row_num = request.GET.get('paginate_by', 20) or 20
+    page_num = request.GET.get('page', 1)
+    paginator = Paginator(object_list, row_num)
+    try:
+        page_obj = paginator.page(page_num)
+    except PageNotAnInteger: 
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+    context = {'page_obj': page_obj, 'row_num': row_num, 'pnr_count' : pnr_count}
+    
+    return render(request,'unordered_pnr.html', context)
+
+@login_required(login_url="index")
+def unordered_pnr_research(request):
+    context = {}
+    
+    if request.method == 'POST' and request.POST.get('pnr_research'):
+        search_results = []
+        
+        pnr_research = request.POST.get('pnr_research')
+        pnr_results = InvoicesCanceled.objects.all().filter(Q(invoice_number__icontains=pnr_research) | Q(pnr__id__icontains=pnr_research)| Q(motif__icontains=pnr_research) | Q(pnr__number__icontains=pnr_research)).distinct('pnr_id')
+        
+        if pnr_results.exists():
+            for p1 in pnr_results :
+                search_results.append(p1)
+        print(search_results)
+        
+        _passengers = Passenger.objects.all().filter(Q(name__icontains=pnr_research) | Q(surname__icontains=pnr_research) )
+        
+        for p in _passengers :
+            
+            pnr_passenger = PnrPassenger.objects.all().filter(passenger=p).first()
+            if pnr_passenger is not None :
+                pnr_object = InvoicesCanceled.objects.all().filter(pnr_id=pnr_passenger.pnr.pk).distinct()
+                
+                if pnr_object.exists() and pnr_object not in search_results and pnr_object is not None :
+                    search_results.extend(pnr_object)
+        print(search_results)
+        
+        # Search with customer
+        _customers = Client.objects.all().filter(Q(intitule__icontains=pnr_research) )
+        
+        for c in _customers :
+            pnr_passenger_invoice = PassengerInvoice.objects.all().filter(client=c).first()
+            if pnr_passenger_invoice is not None :
+                pnr_cobject = InvoicesCanceled.objects.all().filter(pnr_id=pnr_passenger_invoice.pnr.pk).distinct()
+                
+                if pnr_cobject.exists() and pnr_cobject not in search_results and pnr_cobject is not None :
+                    search_results.extend(pnr_cobject)
+                
+        _users = User.objects.all().filter(Q(username__icontains=pnr_research))        
+        for user in _users:
+            pnr_invoices = InvoicesCanceled.objects.all().filter(user_id=user.pk).distinct()
+            
+            if pnr_invoices.exists() and pnr_invoices not in search_results and pnr_invoices is not None :
+                search_results.extend(pnr_invoices)
+                    
+        print(search_results)
+        
+        results = []
+        for invoice in search_results:
+            
+            values = {}
+            values['pnr_id'] = invoice.pnr.id
+            values['pnr_number'] = invoice.pnr.number
+            values['invoice_number'] = invoice.invoice_number
+            values['motif'] = invoice.motif
+            values['date'] = invoice.date
+            values['user'] = invoice.user.username
+            results.append(values)
+        pnr_count = len(results)
+        
+        context = {'results' : results, 'pnr_count' :  pnr_count}
+    return JsonResponse(context)
+        
+def liste_commandes(request):
+    return render(request,'commandes_modal.html') 
+        

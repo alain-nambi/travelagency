@@ -1,0 +1,159 @@
+{% extends 'layout-all-pnr.html' %}
+{% load pnr_comments %}
+{% block content %}
+<div class="content-wrapper">
+    <section class="content">
+      <div class="container-fluid">
+        {% include "commandes_modal.html" %}
+        <div class="row ">
+          <div class="col-12">
+            <div class="card card-primary card-outline ">
+              <div class="card-header justify-content-between py-0">
+                <div class="row">
+                  <div class="col-md-6 float-left">
+                  <h4 class="text-primary title-all-pnr mt-1 mb-0">Gestion Anomalies</h4>
+                  </div>
+                  <div class="col-md-6 float-right">
+                  <div class="input-group input-group float-sm-right mt-1 mb-1" style="width: 150px;">
+                    <input type="text" name="table_search" id="input-constat" class="form-control form-control-sm"
+                      placeholder="Recherche">
+                    <div class="input-group-append">
+                      <button type="submit" class="btn btn-default py-0">
+                        <i class="fas fa-search"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                </div>
+              </div>
+              {% anomaly_state as anomaly_state %}
+              <div class="d-flex justify-content-end mt-4" style="gap: 2rem; margin-right: 4rem !important">
+                
+                  <span class="px-2 py-1 bg-green">Traitée : {{anomaly_state.false}} </span>
+                  <span class="px-2 py-1 bg-red">Non traitée : {{anomaly_state.true}} </span>
+                
+              </div>
+
+              <div class="card-body">
+                <form method='POST' action=''>
+                  {% csrf_token %}
+                      <div class="table-adapted-to-screen-height card-body table-responsive p-0">
+                        <table class="table table-bordered table-head-fixed text-nowrap all-comment" id="tableAnomaly">
+                          <thead class="bg-info">
+                            <tr>
+                              <th width="5%" class="text-white">PNR</th>
+                              <th width="20%" class="text-white">Catégorie</th>
+                              <th width="5%" class="text-white">Date d'anomalie</th>
+                              <th width="8%" class="text-white">Signalée par</th>
+                              <th width="5%" class="text-white">Statut</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for anomalie in page_obj %}
+                              <tr class="constat-class" onclick="location.href='{% url 'anomaly_details' anomalie.pnr_id %}'" style="cursor: pointer;">
+
+                                    <td>{{anomalie.pnr.id }}</td>
+                                    <td>{{anomalie.categorie}}</td>
+                                    <td>{{anomalie.creation_date| correct_datetime}}</td>
+                                    <td>{{anomalie.issuing_user.username}}</td>
+                                    
+                                    {% if anomalie.status == 0 %}
+                                        <td><button class="btn btn-danger py-0" name="anomaly_state">Non Traitée</button></td>
+                                    {% endif %}
+                                    {% if anomalie.status == 2 %}
+                                        <td><button class="btn btn-primary py-0" name="anomaly_state">Refusée</button></td>
+                                    {% endif %}
+                                    {% if anomalie.status == 1 %}
+                                        <td><button class="btn btn-success py-0" name="anomaly_state" >Traitée</button></td>
+                                    {% endif %}
+                                    
+                                </tr>
+                            {% endfor %}
+                                
+                          </tbody>
+                        </table>
+                      </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+    </section>
+
+<div class="modal fade" id="show-details" style="display: none;" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Details de l'anomalie</h4>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">×</span>
+				</button>
+			</div>
+			<div class="modal-body">
+        <div class="mb-2">
+          <input type="hidden" id="modal-anomalie_id" />
+          <input type="hidden" id="modal-passenger_id" />
+          <input type="hidden" id="modal-pnr_id" />
+
+					<label class="form-label mb-0">Categorie: </label>
+					<p id="modal-categorie"></p>
+				</div>
+        <div class="mb-2">
+					<label class="form-label mb-0">Signalée par: </label>
+					<p id="modal-user"></p>
+				</div>
+				<div class="mb-2">
+					<label class="form-label mb-0">Numéro PNR: </label>
+					<p id="modal-pnr_number"></p>
+				</div>
+        <div class="mb-2" >
+					<label class="form-label mb-0">Numéro du Billet : </label>
+					<p id="modal-ticket_number"></p>
+				</div>
+        <div class="mb-2" id="modal-div-type">
+					<label class="form-label mb-0">Type du Billet : </label>
+					<p id="modal-ticket_type"></p>
+				</div>
+
+        <label style="margin-bottom:10px;" id='modal-fee' class="form-label mb-0">Est soumis à des frais de service </label>
+
+        <div class="mb-2">
+					<label class="form-label mb-0">Montant Hors Taxe: </label>
+					<p id="modal-montant"></p>
+				</div>
+
+        <div class="mb-2">
+					<label class="form-label mb-0">Taxe: </label>
+					<p id="modal-taxe"></p>
+				</div>
+
+        <div class="mb-2" id="modal-p-name">
+					<label class="form-label mb-0">Passenger Name: </label>
+					<p id="modal-passenger-name"></p>
+				</div>
+
+        <div class="mb-2" id="modal-p-surname">
+					<label class="form-label mb-0">Passenger Surname: </label>
+					<p id="modal-passenger-surname"></p>
+				</div>
+
+        <div class="mb-2" id="modal-div-segment">
+					<label class="form-label mb-0">Segment: </label>
+					<p id="modal-segment"></p>
+				</div>
+
+
+
+			</div>
+			<div class="modal-footer">        
+        <button type="button" class="btn btn-success" id="accept-anomaly">Accepter</button>
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Fermer</button>
+
+			</div>
+		</div>
+
+	</div>
+</div>
+
+  </div>
+{% endblock content %}

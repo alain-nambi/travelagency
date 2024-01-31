@@ -1,7 +1,11 @@
 
 from django.db import models
+from datetime import datetime
+from AmadeusDecoder.models.invoice.Ticket import Ticket
+from AmadeusDecoder.models.pnr.Passenger import Passenger
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.user.Users import User
+from django.contrib.postgres.fields import HStoreField
 
 class Comment(models.Model):
     
@@ -33,3 +37,20 @@ class NotFetched(models.Model):
     pnr_number = models.CharField(max_length=100, null=False)
     follower = models.ForeignKey(User, on_delete=models.CASCADE)
     date_creation = models.DateTimeField(auto_now=True)
+    
+
+class Anomalie(models.Model):
+    
+    class Meta:
+        db_table = 't_anomalie'
+        ordering = ['-creation_date']
+        
+    pnr = models.ForeignKey(Pnr, on_delete=models.CASCADE)
+    categorie = models.CharField(max_length=100,null=True)
+    infos = HStoreField(null=False)
+    creation_date = models.DateTimeField(null=False)
+    issuing_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='issuing_user', null=False)
+    admin_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='admin', null=True)
+    status = models.IntegerField(default=0)
+    response_date = models.DateTimeField(null=True)
+        

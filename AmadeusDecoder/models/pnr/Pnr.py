@@ -101,6 +101,11 @@ class Pnr(models.Model, BaseModel):
     # pnr status
     pnr_status = models.IntegerField(default=1) # pnr status: 1: active, 0: void
     
+    
+    def get_invoices_number(self):
+        invoices = PassengerInvoice.objects.filter(pnr_id=self.id).distinct()
+        return invoices
+    
     # get the minimum deadline date: can be segment or ssr
     def get_min_opc(self):
         from AmadeusDecoder.models.pnrelements.ConfirmationDeadline import ConfirmationDeadline

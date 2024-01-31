@@ -3,6 +3,7 @@
 <div class="content-wrapper">
   <section class="content-header p-0">
     <div class="container-fluid">
+      {% include "commandes_modal.html" %}
       <div class="row">
         <div class="col-sm-6">
           <h1 class="text-primary mb-2">Gestion clients</h1>
@@ -58,7 +59,7 @@
                         </tr>
                       </thead>
                       <tbody>
-                        {% for client in clients %}
+                        {% for client in page_obj %}
                         <tr class="client-list">
                           <td>{{ client.last_name }}</td>
                           <td>{{ client.first_name }}</td>
@@ -79,4 +80,5 @@
       </div>
   </section>
 </div>
+
 {% endblock content %}

@@ -8,6 +8,7 @@ from django import template
 from django.db.models import Q
 import json
 import traceback
+from AmadeusDecoder.models.invoice.Fee import OthersFee
 
 import AmadeusDecoder.utilities.configuration_data as configs
 
@@ -187,6 +188,24 @@ def get_order_customer(pnr):
         return order
     else:
         return None
+    
+    # les trajets pour l'avoir compagnie
+@register.filter(name='route_avoir')
+def get_route(otherfee_id):
+    other_fee = OthersFee.objects.get(pk=otherfee_id)
+    route_avoir = ''
+    for passengerSegment in other_fee.related_segments.all().order_by('segment__id'):
+        if passengerSegment.segment.segment_type == 'SVC':
+            route_avoir = 'SVC'
+        else:
+            if passengerSegment.segment.codeorg is not None:
+                route_avoir += passengerSegment.segment.codeorg.iata_code + '/' + passengerSegment.segment.codedest.iata_code
+            route_avoir += '//'
+    if route_avoir.endswith('//'):
+        route_avoir = route_avoir.removesuffix('//')
+    print('--------------- ROUTE_avoir ------------------------')
+    print(route_avoir)
+    return route_avoir
 
 # Other fees: Ancillary/EWA/Passenger/Segment
 # passenger
@@ -194,6 +213,7 @@ def get_order_customer(pnr):
 def get_ancillary_passenger(other_fee):
     try:
         temp_passenger = other_fee.related_segments.first().passenger
+        route=''
         if temp_passenger is not None:
             return other_fee.related_segments.first().passenger 
     except:
@@ -204,9 +224,14 @@ def get_ancillary_passenger(other_fee):
 def get_ancillary_passenger_segment(other_fee):
     try:
         temp_passenger = get_ancillary_passenger(other_fee)
-        temp_segment = other_fee.related_segments.first().segment
-        if temp_passenger is not None and temp_segment is not None:
-            return temp_passenger.order + '/' + temp_segment.segmentorder
+        temp_segments = other_fee.related_segments.all()
+            
+        if temp_passenger is not None and temp_segments is not None:
+            if temp_segments.count() > 1:
+                segment_order = '-'.join(str(segment.segment.segmentorder) for segment in temp_segments)
+                return temp_passenger.order + '/' +segment_order
+            else:
+                return temp_passenger.order + '/' + temp_segments[0].segment.segmentorder
     except:
         return ''
 
@@ -303,6 +328,29 @@ def get_passenger_is_invoiced_in_passenger_invoice(pnr):
             return False
         else:
             return True
+    else:
+        return None
+    
+@register.filter(name='is_one_or_more_passenger_is_invoiced')
+def get_is_one_or_more_passenger_is_invoiced(pnr):
+    from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
+    passenger_invoices = PassengerInvoice.objects.filter(pnr=pnr.id).exclude(status="quotation")
+    is_invoice = []
+
+    if passenger_invoices.exists():
+        for passenger in passenger_invoices:
+            if passenger.ticket is not None and passenger.ticket.ticket_status == 1:
+                is_invoice.append(passenger.is_invoiced)
+            if passenger.other_fee is not None and passenger.other_fee.other_fee_status == 1:
+                is_invoice.append(passenger.is_invoiced)
+            if passenger.fee is not None and passenger.fee.ticket is not None and passenger.fee.ticket.ticket_status == 1:
+                is_invoice.append(passenger.is_invoiced)
+            if passenger.fee is not None and passenger.fee.other_fee is not None and passenger.fee.other_fee.other_fee_status == 1:
+                is_invoice.append(passenger.is_invoiced)
+        if True in is_invoice:
+            return True
+        else:
+            return False
     else:
         return None
 
@@ -1708,3 +1756,5 @@ def get_check_passenger_missing(pnr_id, client_id):
     print(count_passenger_missing)
 
     return count_passenger_missing
+
+

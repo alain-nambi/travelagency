@@ -4,7 +4,8 @@
 
 /* Styling for WebKit browsers (Chrome, Safari) */
 ::-webkit-scrollbar {
-	width: 10px; /* Set the width of the scrollbar */
+	width: 6px; /* Set the width of the scrollbar */
+	height: 6px;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -17,7 +18,8 @@
 }
 
 ::moz-scrollbar {
-	width: 10px;
+	width: 6px;
+	height: 6px;
 }
 
 ::-moz-scrollbar-thumb {

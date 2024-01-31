@@ -1,5 +1,5 @@
 # Dockerfile for the database
-FROM postgres:15
+FROM postgres:14
 
 # Set environment variables
 ENV POSTGRES_USER=postgres

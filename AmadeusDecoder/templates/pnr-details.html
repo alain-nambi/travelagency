@@ -1586,7 +1586,7 @@
 				{% for raw_line in raw_data %}
 				<div class="row">
 					<div class="col-md-12 px-2">
-						<h6 class="text-primary">Données brutes du: {{ raw_line.data_datetime|date:"d/m/y H:i" }}</h6>
+						<h6 class="text-primary">Données brutes du: {{ raw_line.data_datetime|add_hours_plus_three|date:"d/m/y H:i" }}</h6>
 						<p>{{ raw_line.data_text|linebreaks  }}</p>
 					</div>
 				</div>

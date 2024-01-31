@@ -23,18 +23,22 @@ const screenWidth = window.innerWidth;
 
 if (pushedSideBarMenu) {
   pushedSideBarMenu.addEventListener("click", (_e) => {
-    setTimeout(() => {
-      let sideBarTrigger = localStorage.getItem("sidebar")
-      let layoutHomeMenuheight = layoutHomeMenu.offsetHeight
-
-      // console.log(screenWidth);
-
-      if (sideBarTrigger == "opened" && screenWidth <= 1280) {
-        pnrManagementMenu.setAttribute("style", `margin-top: calc(${layoutHomeMenuheight}px - 20px) !important; visibility: visible;`)
-      } else {
-        pnrManagementMenu.setAttribute("style", "visibility: visible;")
-      }
-    }, 100)
+    if (layoutHomeMenu) {
+      setTimeout(() => {
+        let sideBarTrigger = localStorage.getItem("sidebar")
+        let layoutHomeMenuheight = layoutHomeMenu.offsetHeight
+  
+        // console.log(screenWidth);
+  
+        if (sideBarTrigger == "opened" && screenWidth <= 1280) {
+          pnrManagementMenu.setAttribute("style", `margin-top: calc(${layoutHomeMenuheight}px - 20px) !important; visibility: visible;`)
+        } else {
+          pnrManagementMenu.setAttribute("style", "visibility: visible;")
+        }
+      }, 100)
+    } else {
+      console.log("Layout is not visible");
+    }
   })
 }
 

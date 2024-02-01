@@ -374,9 +374,9 @@ class ConfigReader():
     @staticmethod
     def load_absolute_path_for_service_runner():
         PATH_DIR = {
-            'test': '/opt/issoufali/travelagencygit/travelagency/',
+            'test': '',
             # 'test':'/',
-            'prod': '/opt/travelagency/'
+            'prod': ''
         } 
         
         configs.ABSOLUTE_PATH_SERVICE_RUNNER = PATH_DIR

@@ -17,7 +17,7 @@
                     </thead>
 
                     <tbody>
-                        <tr data-toggle="modal" id='1' data-target="#Multi-insert" data-value-name="PNR" data-value="RP,PR,P,R" style="cursor: pointer;" class="trModalInsert">
+                        <tr data-toggle="modal" id='tr1' data-target="#Multi-insert" data-valuename="PNR" data-value="RP,PR,P,R" style="cursor: pointer;" class="trModalInsert">
                             <td>PNR</td>
                             <td>RP,PR,P,R</td>
                         </tr>
@@ -79,7 +79,7 @@
                     </thead>
 
                     <tbody>
-                        <tr data-toggle="modal" id='2' data-target="#Multi-insert" data-value-name="Ligne à exclure" data-value="L1" style="cursor: pointer;" class="trModalInsert">
+                        <tr data-toggle="modal" id='tr2' data-target="#Multi-insert" data-valuename="Ligne à exclure" data-value="L1" style="cursor: pointer;" class="trModalInsert">
                             <td>Ligne à exclure</td>
                             <td>L1</td>
                         </tr>
@@ -133,7 +133,7 @@
                 
             </div>
 
-            <div class="card-body" >
+            <div class="card-body" hidden >
                 <table class="table ">
                     <thead class="thead-dark">
                     <tr>
@@ -144,9 +144,9 @@
 
                     <tbody>
 
-                        <tr>
+                        <tr data-toggle="modal" id='tr3' data-target="#Multi-insert" data-valuename="Type du Contact" data-value="AP, APE, 'APN'" style="cursor: pointer;" class="trModalInsert">
                             <td>Type du Contact</td>
-                            <td></td>
+                            <td>AP, APE, APN</td>
                         </tr>
                         <tr>
                             <td>Nom du type de contact</td>
@@ -157,19 +157,34 @@
                 </table>
             </div>
 
-            <div class="card-body" hidden >
-                <div>
-                    <label for="pnr"class="col-form-label col-4">Type du Contact</label>
-                    <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
+            <div class="card-body" >
+                <div class="multiInsertwrapper">
+                    <label for="currency_name"class="col-form-label col-6" ><h5>Type du Contact</h5></label>
+                    <div class="multiInsertcontent" >
+                        <ul class="multiInsertul" name="contact_type">
+                            <input type="text" name="contact_type" id="multiInsert" class="form-control" />
+                        </ul>
+                    </div>
+                    <div class="multiInsertdetail">
+                        <button type="button" class="btn btn-primary removaAllButton" >Effacer</button>
+                    </div>
                 </div>
 
-                <div>
-                    <label for="pnr_type"class="col-form-label col-4">Nom du type de contact</label>
-                    <input type="text" name="pnr_type" id="pnr_type" class="form-control" placeholder="multi-insert"/>
+                <div class="multiInsertwrapper" style="margin-top:40px;">
+                    <label for="currency_name"class="col-form-label col-6" >Nom du type de contact</label>
+                    <div class="multiInsertcontent" >
+                        <ul class="multiInsertul" name="contact_type_name" >
+                            <input type="text" name="contact_type_name" id="multiInsert" class="form-control" />
+                        </ul>
+                    </div>
+                    <div class="multiInsertdetail">
+                        <button type="button" class="btn btn-primary removaAllButton">Effacer</button>
+                    </div>
                 </div>
 
-                <button type="button" class="btn btn-success" style="margin-top: 20px;float:right;">Enregistrer</button>
-
+            </div>
+            <div class="card-footer">
+                <button type="button" id="saveIt" class="btn btn-success" style="margin-top: 20px;float:right;">Enregistrer</button>
             </div>
         </div>
 
@@ -180,7 +195,7 @@
                 
             </div>
 
-            <div class="card-body" >
+            <div class="card-body" hidden >
                 <table class="table ">
                     <thead class="thead-dark">
                     <tr>
@@ -191,9 +206,9 @@
 
                     <tbody>
 
-                        <tr>
+                        <tr data-toggle="modal" id='tr4' data-target="#Multi-insert" data-valuename="Ligne du Ticket" data-value="FA, FHE" style="cursor: pointer;" class="trModalInsert">
                             <td>Ligne du Ticket</td>
-                            <td></td>
+                            <td>'FA', 'FHE'</td>
                         </tr>
                         <tr>
                             <td>Second Degree Ticket Line</td>
@@ -204,16 +219,31 @@
                 </table>
             </div>
 
-            <div class="card-body" hidden >
-                <div>
-                    <label for="pnr"class="col-form-label col-4">Ligne du Ticket</label>
-                    <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
-                </div>
+            <div class="card-body" >
+                    {% comment %} <div class="insertmodalwrapper">
+                        <label for="currency_name"class="col-form-label col-4" >Ligne du Ticket</label>
+                        <div class="insertmodalcontent" >
+                            <ul id="insertmodalul">
+                                <input type="text" name="ticket_line" id="modalInsert" class="form-control" />
+                            </ul>
+                        </div>
+                        <div class="insertmodaldetail">
+                            <button type="button" class="btn btn-primary" onclick="removeAll()">Remove All</button>
+                        </div>
+                    </div>
 
-                <div>
-                    <label for="pnr_type"class="col-form-label col-4">Second Degree Ticket Line</label>
-                    <input type="text" name="pnr_type" id="pnr_type" class="form-control" placeholder="multi-insert"/>
-                </div>
+                    
+                    <div class="insertmodalwrapper">
+                        <label for="currency_name"class="col-form-label col-4" >Second Degree Ticket Line</label>
+                        <div class="insertmodalcontent" >
+                            <ul id="insertmodalul">
+                                <input type="text" id="modalInsert" name="second_ticket_line" class="form-control" />
+                            </ul>
+                        </div>
+                        <div class="insertmodaldetail">
+                            <button type="button" class="btn btn-primary" onclick="removeAll()">Remove All</button>
+                        </div>
+                    </div> {% endcomment %}
 
                 <button type="button" class="btn btn-success" style="margin-top: 20px;float:right;">Enregistrer</button>
 
@@ -241,13 +271,13 @@
         {% comment %} <form method='POST'> {% endcomment %}
             <div class="insertmodalwrapper">
                 <label for="currency_name"class="col-form-label col-4" id="modalLabel"></label>
-                <div class="insertmodalcontent" style="">
+                <div class="insertmodalcontent">
                     <ul id="insertmodalul">
                         <input type="text" id="modalInsert" class="form-control" />
                     </ul>
                 </div>
                 <div class="insertmodaldetail">
-                    <button type="button" class="btn btn-primary" onclick="removeAll()">Remove All</button>
+                    <button type="button" class="btn btn-primary" onclick="removeAllModal()">Remove All</button>
                 </div>
             </div>
 

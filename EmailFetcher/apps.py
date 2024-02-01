@@ -190,38 +190,38 @@ class EmailfetcherConfig(AppConfig):
         now = datetime.now()
         repeat_timer_for_pnr_upload_notification = 0
         
-        def pnr_upload_repeat_timer(repeat_timer_for_pnr_upload_notification):
-            print("📢 Mail notification for pnr not updated in pnr management...")
-            timer_update_check = RepeatTimer(repeat_timer_for_pnr_upload_notification, checking_pnr_not_uploaded_in_pnr_management)
-            timer_update_check.start()
+        # def pnr_upload_repeat_timer(repeat_timer_for_pnr_upload_notification):
+        #     print("📢 Mail notification for pnr not updated in pnr management...")
+        #     timer_update_check = RepeatTimer(repeat_timer_for_pnr_upload_notification, checking_pnr_not_uploaded_in_pnr_management)
+        #     timer_update_check.start()
     
-        if now.weekday() in [0, 1, 2, 3, 4]: # [Lundi, Mardi, Mercredi, Jeudi, Vendredi]            
-            repeat_timer_for_pnr_upload_notification = 10 * 60
-            pnr_upload_repeat_timer(repeat_timer_for_pnr_upload_notification)
-        if now.weekday() in [5]: # [Samedi]            
-            repeat_timer_for_pnr_upload_notification = 60 * 60
-            pnr_upload_repeat_timer(repeat_timer_for_pnr_upload_notification)
-        if now.weekday() in [6]: # [Dimanche]
-            repeat_timer_for_pnr_upload_notification = 60 * 180
-            pnr_upload_repeat_timer(repeat_timer_for_pnr_upload_notification)
+        # if now.weekday() in [0, 1, 2, 3, 4]: # [Lundi, Mardi, Mercredi, Jeudi, Vendredi]            
+        #     repeat_timer_for_pnr_upload_notification = 10 * 60
+        #     pnr_upload_repeat_timer(repeat_timer_for_pnr_upload_notification)
+        # if now.weekday() in [5]: # [Samedi]            
+        #     repeat_timer_for_pnr_upload_notification = 60 * 60
+        #     pnr_upload_repeat_timer(repeat_timer_for_pnr_upload_notification)
+        # if now.weekday() in [6]: # [Dimanche]
+        #     repeat_timer_for_pnr_upload_notification = 60 * 180
+        #     pnr_upload_repeat_timer(repeat_timer_for_pnr_upload_notification)
         
-        print("==================== Mail notification for pnr not sent to Odoo ====================")
-        timer_update_check = RepeatTimer(1, checking_pnr_not_sent_to_odoo)
-        timer_update_check.start()
+        # print("==================== Mail notification for pnr not sent to Odoo ====================")
+        # timer_update_check = RepeatTimer(1, checking_pnr_not_sent_to_odoo)
+        # timer_update_check.start()
         
-        print('Mail notification is starting....')
-        timer_pnr_misssing = RepeatTimer(1, checking_pnr_missing)
-        timer_pnr_misssing.start()
-        timer_passenger_segment_missing = RepeatTimer(1, checking_passenger_segment_missing)
-        timer_passenger_segment_missing.start()
+        # print('Mail notification is starting....')
+        # timer_pnr_misssing = RepeatTimer(1, checking_pnr_missing)
+        # timer_pnr_misssing.start()
+        # timer_passenger_segment_missing = RepeatTimer(1, checking_passenger_segment_missing)
+        # timer_passenger_segment_missing.start()
 
-        print('Daily Pnr created starting')
-        timer_schedule = RepeatTimer(60, start_pnr_daily_report_schedule)
-        timer_schedule.start()
+        # print('Daily Pnr created starting')
+        # timer_schedule = RepeatTimer(60, start_pnr_daily_report_schedule)
+        # timer_schedule.start()
 
-        print('Pnr unissued OPC checking is running...')
-        timer = RepeatTimer(60, pnr_unissued_opc_checking)  
-        timer.start()
+        # print('Pnr unissued OPC checking is running...')
+        # timer = RepeatTimer(60, pnr_unissued_opc_checking)  
+        # timer.start()
         
         # print('Product synchronisation is starting')
         # timer_synchro = RepeatTimer(5, running_product_synhcro)
@@ -231,6 +231,6 @@ class EmailfetcherConfig(AppConfig):
         # dest_dir = '/export/products'
         
         # send daily pnr fee update report
-        daily_thread_once = RepeatTimer(3600, send_fee_update_list)
-        daily_thread_once.start()
+        # daily_thread_once = RepeatTimer(3600, send_fee_update_list)
+        # daily_thread_once.start()
         

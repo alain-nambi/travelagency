@@ -14,12 +14,21 @@ import AmadeusDecoder.utilities.configuration_data as configs
 
 @login_required(login_url='index')
 def setting(request):
-    context = {'configs':configs}
+    ConfigReader().load_config()
+    context = {'state':"true"}
+    
+    if configs.COMPANY_NAME is None and configs.COMPANY_CURRENCY_NAME is None and configs.COMPANY_CURRENCY_CODE is None and configs.COMPANY_LANGUAGE_CODE is None:
+        context['state'] = "false"
+
     return render(request,'setting.html',context)    
 
 @login_required(login_url='index')
 def email_setting(request):
     context = {'configs':configs, 'env':settings.ENVIRONMENT}
+    email_recipients = Configuration.objects.filter(name="Email Source").filter(Q(value_name__icontains="notification recipients")).filter(Q(environment=settings.ENVIRONMENT)).all()
+    context['email_recipients'] = email_recipients
+    email_sender = Configuration.objects.filter(name="Email Source").filter(Q(value_name__icontains="notification sender")).filter(Q(environment=settings.ENVIRONMENT)).all()
+    context['email_sender'] = email_sender
     return render(request,'email_setting.html',context)
 
 @login_required(login_url='index')
@@ -44,14 +53,19 @@ def parsing_setting(request):
     zenith_receipt_config = Configuration.objects.filter(name="Zenith Receipt Parser Tools").all()
     context['zenith_receipt_config'] = zenith_receipt_config
     
-    emd_config = Configuration.objects.filter(name="EMD Parser Tools").all()
+    emd_config = Configuration.objects.filter(name="EMD Parser Tools").exclude(value_name="EMD statuses").all()
     context['emd_config'] = emd_config
+    emd_statues = Configuration.objects.filter(name="EMD Parser Tools",value_name="EMD statuses").first()
+    context['emd_statues'] = emd_statues.dict_value.items()
+
     
     return render(request,'parsing_setting.html',context)
 
 @login_required(login_url='index')
 def ftp_setting(request):
     return render(request,'ftp_setting.html')
+
+# ---------------- All Update Function -----------------
 
 @login_required(login_url='index')
 def updateGeneralSetting(request):
@@ -118,7 +132,7 @@ def email_fees_update(request):
         print('--------------------------------------')
         print(email)
         print(valuename)
-        Configuration.objects.filter(Q(value_name=valuename) & (Q(environment=settings.ENVIRONMENT) | Q(environment='all'))).update(array_value=email)
+        Configuration.objects.filter(value_name=valuename).update(array_value=email)
         ConfigReader().load_config()
         return JsonResponse('ok',safe=False)
      
@@ -145,4 +159,32 @@ def parsing_update(request):
     ConfigReader().load_config()
     return JsonResponse('ok',safe=False)
     
-    
+# ---------------------------- All Create Function -----------------------
+@login_required(login_url='index')
+def general_information_create(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        currency_name = request.POST.get('currency_name')
+        currency_code = request.POST.get('currency_code')
+        language_code = request.POST.get('language_code')
+        regional_country = json.loads(request.POST.get('regional_country'))
+        
+        company_name_config = Configuration(environment='all',name='Company Information',to_be_applied_on="Global",value_name='Name',single_value=name)
+        company_currency_config = Configuration(environment='all',name='Company Information',to_be_applied_on="Global",value_name='Currency name',single_value=currency_name)
+        company_currency_code_config = Configuration(environment='all',name='Company Information',to_be_applied_on="Global",value_name='Currency code',single_value=currency_code)
+        company_language_config = Configuration(environment='all',name='Company Information',to_be_applied_on="Global",value_name='Language code',single_value=language_code)
+        company_regional_country_config = Configuration(environment='all',name='Company Information',to_be_applied_on="Global",value_name='Regional country',array_value=regional_country)
+        
+        company_currency_code_config.save()
+        company_currency_config.save()
+        company_language_config.save()
+        company_regional_country_config.save()
+        company_name_config.save()
+
+        ConfigReader().load_config()
+        return JsonResponse('ok',safe=False)
+
+
+
+
+

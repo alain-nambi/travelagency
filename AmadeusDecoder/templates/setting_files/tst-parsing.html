@@ -17,7 +17,7 @@
                     </thead>
 
                     <tbody>
-                        {% for config in  tst_config|slice:":4" %}
+                        {% for config in  tst_config|slice:":5" %}
                             <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
                                 <td>{{config.value_name}}</td>
                                 <td>
@@ -34,7 +34,7 @@
                 </table>
             </div>
 
-            <div class="card-body" hidden>
+            <div class="card-body" >
                 <div>
                     <label for="currency_name"class="col-form-label col-4">Nom de la valeur </label>
                     <select class="form-control"  data-placeholder="Altea">
@@ -61,7 +61,12 @@
             </div>
         </div>
 
-        <div class="card " style="width: 38rem;height:auto; margin:30px 120px 0 20px;">
+        
+
+    </div>
+
+    <div style="display:flex;justify-content: space-between; margin-right: 1rem; ">
+        <div class="card " style="width: 38rem;height:auto; margin:0 120px 0 20px;">
             <div class="card-header">
                 <h2 class="card-title">Identifiants (2) </h2>
                 <h4 class="card-description"></h4>
@@ -78,7 +83,7 @@
                     </thead>
 
                     <tbody>
-                       {% for config in  tst_config|slice:"4:" %}
+                       {% for config in  tst_config|slice:"5:" %}
                             <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
                                 <td>{{config.value_name}}</td>
                                 <td>
@@ -125,38 +130,5 @@
         </div>
 
     </div>
-
-    <div style="display:flex;justify-content: space-between; margin-right: 1rem; ">
-        <div class="card " style="width: 38rem; margin:0 120px 0 20px;">
-            <div class="card-header">
-                <h2 class="card-title">Passenger designations </h2>
-                <h4 class="card-description"></h4>
-                <i class="fa fa-pencil" style="float: right" aria-hidden="true"></i>
-            </div>
-
-            <div class="card-body" >
-                <ul class="list-group">
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        MR
-                        <span class="badge badge-pill badge-primary badge-pill">
-                            <input type="checkbox" checked name="pnr" id="pnr" class="form-control"/>
-                        </span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        MS
-                        <span class="badge badge-primary badge-pill">
-                            <input type="checkbox" checked name="pnr" id="pnr" class="form-control"/>
-                        </span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        MSR
-                        <span class="badge badge-primary badge-pill">
-                            <input type="checkbox" checked name="pnr" id="pnr" class="form-control"/>
-                        </span>
-                    </li>
-                </ul>
-                
-            </div>
-        </div>
-    </div>
 </div>
+        <button type="button" class="btn btn-success w-25" style="margin-top: 20px;float:right;" onclick="redirectToTab('pills-zenith-tab')">Suivant</button>

@@ -143,6 +143,7 @@ $(document).ready(function() {
         var value = tr.dataset.value;
         console.log(value);
         value = value.replace(/'/g, '"');
+        
         var liste = JSON.parse(value)
         var ul = document.querySelector(".insertmodalul");
 
@@ -186,7 +187,9 @@ function remove(element, tag){
 }
 
 function addTag(e){
+    console.log("Input !!!");
     if(e.key == "Enter"){
+        console.log("Enter !!!!!!");
         let tag = e.target.value;
         if (tag.length >1 && !tags.includes(tag)) {
             tag.split(',').forEach(tag => {
@@ -204,7 +207,6 @@ input.addEventListener("keyup", addTag);
 multiInsertwrapper.forEach(wrapper => {
     const multiInputUl = wrapper.querySelector('.multiInsertcontent ul');
     const multiInputInput = wrapper.querySelector('.multiInsertcontent input');
-    let finalMultiInsertTags = [];
     let multiInputtags =[];
 
     multiInputInput.addEventListener("keyup",(e) => {
@@ -218,6 +220,7 @@ multiInsertwrapper.forEach(wrapper => {
                     let liTag = `<li>${tag} <i class="fa fa-xmark removeIcon"  ></i></li>`;
                     multiInputUl.insertAdjacentHTML("afterbegin", liTag);
                 });
+                finalMultiInsertTags=[];
                 finalMultiInsertTags.push(multiInputtags);
             });
         }
@@ -236,7 +239,7 @@ multiInsertwrapper.forEach(wrapper => {
                 let liTag = `<li>${tag} <i class="fa fa-xmark removeIcon"  ></i></li>`;
                 multiInputUl.insertAdjacentHTML("afterbegin", liTag);
             });
-            finalMultiInsertTags = finalMultiInsertTags.filter(element => element !== multiInputtags );
+            finalMultiInsertTags = [];
             finalMultiInsertTags.push(multiInputtags); 
         }
     });
@@ -261,6 +264,8 @@ $(document).ready(function () {
         })
     });  
 })
+
+// ---------------- All Update functions ------------------------
 
 // Update Company Information
 function updateGeneralInfo(){
@@ -548,4 +553,44 @@ function UpdateMultiInput(){
             }
         },
     });
+}
+
+function redirectToTab(tabId){
+    $('#'+tabId).tab('show');
+}
+
+// ------------------ All Create Functions--------------------
+
+function CreateCompany(){
+    var name = $('#create_name').val();
+    var currency_name = $('#create_currency_name').val();
+    var currency_code = $('#create_currency_code').val();
+    var language_code = $('#create_language_code').val();
+    console.log('finalMultiInsertTags', finalMultiInsertTags);
+    
+    $.ajax({
+            type: "POST",
+            url: "/setting/general-information-create",
+            dataType: "json",
+            data: {
+                name: name,
+                currency_name: currency_name,
+                currency_code: currency_code,
+                language_code: language_code,
+                regional_country: JSON.stringify(finalMultiInsertTags[0]),
+                csrfmiddlewaretoken: csrftoken,
+            },
+            success: function (data) {
+                if (data == 'ok') {
+                    toastr.success('Informations Enregistrées');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000)
+                } 
+                if (data.status == 'error') {
+                    toastr.error(data.error)
+                }
+            },
+        });
+
 }

@@ -14,6 +14,7 @@ import traceback
 # django.setup()
 
 from django.conf import settings
+from django.shortcuts import redirect
 
 import AmadeusDecoder.utilities.configuration_data as configs
 
@@ -91,6 +92,7 @@ class ConfigReader():
                 error_file.write('Getting company name failed. \n')
                 traceback.print_exc(file=error_file)
                 error_file.write('\n')
+
 
     # load saving protocol file odoo
     @staticmethod

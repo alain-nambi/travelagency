@@ -83,4 +83,5 @@ urlpatterns = [
     path('setting/email-fees-update',email_fees_update,name='email_fees_update'),
     path('setting/email-fee-sender-update',email_fee_sender_update, name='email_fee_sender_update'),
     path('setting/parsing-update',parsing_update,name='parsing_update'),
+    path('setting/general-information-create',general_information_create,name='general_information_create'),
 ]

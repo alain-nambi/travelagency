@@ -13,7 +13,7 @@ env
 *.pem
 /My_Token.txt
 travelagency_env
-*.json
+# *.json
 node_modules
 cypress
 cypress.config.js

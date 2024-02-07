@@ -3,6 +3,7 @@ Created on 27 Aug 2022
 
 @author: Famenontsoa
 '''
+import datetime
 from django.db import models
 from AmadeusDecoder.models.BaseModel import BaseModel
 
@@ -29,3 +30,7 @@ class InvoiceDetails(models.Model, BaseModel):
     # get invoice detail by pnr
     def get_invoice_detail_by_pnr(self, pnr):
         return InvoiceDetails.objects.filter(invoice__pnr = pnr).first()
+    
+    
+    
+

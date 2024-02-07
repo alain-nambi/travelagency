@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from AmadeusDecoder.models.invoice.Clients import Client
 from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice, Pnr
@@ -169,5 +170,17 @@ def delete_customer(request, pnr_id):
 def customers(request):  
     context = {}
     context['clients'] = Client.objects.all()
+    
+    object_list = context['clients']
+    row_num = request.GET.get('paginate_by', 50) or 50
+    page_num = request.GET.get('page', 1)
+    paginator = Paginator(object_list, row_num)
+    try:
+        page_obj = paginator.page(page_num)
+    except PageNotAnInteger: 
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+    context = {'page_obj': page_obj, 'row_num': row_num}
     return render(request,'manage_customers.html', context)    
 

@@ -1,0 +1,156 @@
+{% extends "layout-all-pnr.html" %}
+{% load pnr_comments %}
+{% block content %}
+    
+<div class="content-wrapper">
+	<section class="content-header p-0">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-sm-6">
+					<h1 class="text-primary">Détail de l'anomalie</h1>
+				</div>
+            </section>
+	<section class="content">
+
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-md-12 mt-1">
+						<div class="card card-primary card-outline">
+                            <div class="card-header p-0 " style="margin-top:20px;">
+                                <h5 style='margin-left:10px;'>PNR: <a href="{% url 'pnr_details' pnr_id %}" style="font-size: 1.25rem;"> {{ pnr_id }}</a>
+									
+								</h5>
+                            </div>
+                            {% for anomalie in anomalies %}
+                                <div class="card-body p-0" id="card-anomaly-{{anomalie.id}}" style="margin-top:10px;margin-left:10px;">
+                                    <div class="float-left">
+                                        <h6>Reporté par: {{ anomalie.issuing_user.username }}</h6>
+                                        <h6>Mail: {{ anomalie.issuing_user.email }}</h6>
+                                        <h6> {{anomalie.creation_date| correct_datetime}}</h6>
+                                    
+                                        <div class="mailbox-read-message">
+                                            <button class="btn btn-outline-secondary">{{anomalie.categorie}}</button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mx-auto d-flex justify-content-between" style="width: 600px;">
+                                        <div class="mx-auto" style="width: 300px;">
+                                            <h6>Ticket : {{anomalie.infos.ticket_number}}</h6>
+                                            <h6>Montant : {{anomalie.infos.montant}}</h6>
+                                            <h6>Taxe : {{anomalie.infos.taxe}}</h6>
+                                            
+                                        </div>
+                                            
+                                        
+                                            {% with anomalie|get_details as details %}
+                                            {% if anomalie.infos.ticket_status == '1' %}
+                                                <div class="mx-auto" style="width: 300px;">
+                                                    <h6>Ticket : {{anomalie.infos.ticket_type}}</h6>
+                                                    {% if anomalie.infos.fee == 'True'%}
+                                                        <h6>Soumis a des frais de service </h6>
+                                                    {% endif %}
+                                                    <h6>Passager : {{details.passenger}}</h6>
+
+                                                    <h6>Segment : {{ details.segment }} </h6>
+
+                                                </div>
+                                            
+                                        {% endif %}
+                                        {% endwith %}
+                                    </div>
+                                    
+
+                                    <div class="float-right" style="margin-right:10px;">
+                                        {% if anomalie.status == 0 %}
+                                            <div>
+                                                <button class="btn btn-primary py-0" name="anomaly_state" id="accept-anomaly" onclick="update_anomaly('{{anomalie.id}}')" ><i class="fa fa-pencil" title="Modifier" style="font-size: 15px;"></i></button>
+                                                <button class="btn btn-success py-0" name="anomaly_state" id="accept-anomaly" onclick="accept_anomaly('{{anomalie.id}}')" ><i class="fa fa-check" title="Accepter" style="font-size: 15px;"></i></button>
+                                            </div>
+                                            <div style="margin-top:10px;">
+                                                <button class="btn btn-danger py-0" name="anomaly_state" id="refuse-anomaly" onclick="refuse_anomaly('{{anomalie.id}}')" ><i class="fa fa-x" title="Refuser" style="font-size: 15px;"></i></button>
+                                                <button class="btn btn-danger py-0" name="anomaly_state" id="drop-anomaly" onclick="drop_anomaly('{{anomalie.id}}')" ><i class="fa fa-trash-can" title="Supprimer" style="font-size: 15px; margin-top:5px;"></i></button>
+                                            </div>
+                                        {% endif %}
+                                        
+                                            {% if anomalie.status == 2 %}
+                                                <h6>Refusée le {{ anomalie.response_date }}</h6>
+                                                <h6>par {{anomalie.admin_id.username}}</h6>
+                                                <button class="btn btn-success py-0" name="anomaly_state" >Refusée</button>
+                                                <button class="btn btn-danger py-0" name="anomaly_state" id="drop-anomaly" onclick="drop_anomaly('{{anomalie.id}}')" ><i class="fa fa-trash-can" title="Supprimer" style="font-size: 15px; margin-top:5px;"></i></button>
+                                            {% endif %}
+
+                                            {% if anomalie.status == 1 %}
+                                                <h6>Traitée le {{ anomalie.response_date }}</h6>
+                                                <h6>par {{anomalie.admin_id.username}}</h6>
+                                                <button class="btn btn-success py-0" name="anomaly_state" >Traitée</button>
+                                                <button class="btn btn-danger py-0" name="anomaly_state" id="drop-anomaly" onclick="drop_anomaly('{{anomalie.id}}')" ><i class="fa fa-trash-can" title="Supprimer" style="font-size: 15px; margin-top:5px;"></i></button>
+                                            {% endif %}
+
+                                    </div>
+                                </div>		
+                                <div class="card-footer">
+								
+							    </div>
+                                <div class="card-body p-0" id="card-update-anomaly-{{anomalie.id}}" hidden style="margin-top:10px;margin-left:10px;">
+                                    <div class="float-left">
+                                        <h6>Reporté par: {{ anomalie.issuing_user.username }}</h6>
+                                        <h6>Mail: {{ anomalie.issuing_user.email }}</h6>
+                                        <h6> {{anomalie.creation_date| correct_datetime}}</h6>
+                                    
+                                        <div class="mailbox-read-message">
+                                            <button class="btn btn-outline-secondary">{{anomalie.categorie}}</button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mx-auto d-flex justify-content-between" style="width: 600px;">
+                                        <div class="mx-auto" style="width: 300px;">
+                                            <h6>Ticket :<input type="text" value="{{anomalie.infos.ticket_number}}" id="ticket_to_update-{{anomalie.id}}" onkeyup="VerifTicketUpdatedLength(this.id)" maxlength="16" /></h6>
+                                            <h6>Montant : <input type="number" value="{{anomalie.infos.montant}}" id="montant_to_update-{{anomalie.id}}" onkeyup="VerifNumberValue(this.id)"/></h6>
+                                            <h6>Taxe : <input type="number" value="{{anomalie.infos.taxe}}" id="taxe_to_update-{{anomalie.id}}" onkeyup="VerifNumberValue(this.id)"/></h6>
+                                            <input type="hidden" value="{{anomalie.id}}" id="anomaly_id"/>
+                                        </div>
+                                            
+                                        
+                                            {% with anomalie|get_details as details %}
+                                            {% if anomalie.infos.ticket_status == '1' %}
+                                                <div class="mx-auto" style="width: 300px;">
+                                                    <h6>Ticket : {{anomalie.infos.ticket_type}}</h6>
+                                                    {% if anomalie.infos.fee == 'True'%}
+                                                        Soumis a des frais de service
+                                                    {% endif %}
+                                                    <h6>Passager : {{details.passenger}}</h6>
+                                                    <h6>Segment : {{details.segment}}</h6>
+
+                                                </div>
+                                                {% endif %}
+                                            {% endwith %}
+                                        
+                                    </div>
+                                    
+
+                                    <div class="float-right" style="margin-right:10px;">
+                                        <button class="btn btn-primary py-0" name="anomaly_state" id="update-anomaly-button" onclick="updateAnomaly('{{anomalie.id}}')" >Enregistrer</button>
+                                    </div>
+                                </div>		
+                                <div class="card-footer">
+								
+							    </div>
+                            {% endfor %}
+							
+							
+							</div>
+
+						</div>
+					</div>
+				</div>
+
+
+			</div>
+			
+		</section>
+
+</div>
+
+
+
+{% endblock content %}

@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+{% extends "layout-all-pnr.html" %}
 {% block content %}
 <div class="content-wrapper">
   <section class="content-header p-0">
@@ -58,7 +58,7 @@
                         </tr>
                       </thead>
                       <tbody>
-                        {% for client in clients %}
+                        {% for client in page_obj %}
                         <tr class="client-list">
                           <td>{{ client.last_name }}</td>
                           <td>{{ client.first_name }}</td>
@@ -79,4 +79,5 @@
       </div>
   </section>
 </div>
+
 {% endblock content %}

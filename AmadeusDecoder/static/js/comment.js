@@ -87,3 +87,4 @@ const updateStateDetail = (event, commentId)=> {
         }
     });
 };
+

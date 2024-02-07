@@ -1,4 +1,4 @@
-{% extends 'layout.html' %}
+{% extends "layout-all-pnr.html" %}
 {% block content %}
 {% load pnr_comments %}
 <div class="content-wrapper">
@@ -49,7 +49,7 @@
                             </tr>
                           </thead>
                           <tbody>
-                            {% for comment in comments %}
+                            {% for comment in page_obj %}
                               {% if request.user.role_id == 1 %}
                               <tr class="constat-class"
                               onclick="location.href='{% url 'comment-detail' comment.id %}'" style="cursor: pointer;"

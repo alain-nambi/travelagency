@@ -17,6 +17,10 @@
 	background-color: #5e5e5e46; /* Set the color of the scrollbar track */
 }
 
+#layoutHomeMenu {
+	padding: 2px 0 4px 0 !important;
+}
+
 ::moz-scrollbar {
 	width: 6px;
 	height: 6px;
@@ -187,13 +191,13 @@ input#fee-cost::placeholder {
 
 .sticky-tr-table {
 	position: sticky;
-	top: 9rem;
+	top: 11.25rem;
 	z-index: 190;
 }
 
 .fixed-header {
 	position: fixed;
-	top: 6rem;
+	top: 8.4rem;
 	left: 0;
 	width: 100%;
 	background: white;
@@ -1487,5 +1491,5 @@ button[cy-data="span-date-range"]:hover {
 }
 
 #pnrManagementMenu {
-	margin-top: 3rem !important;
+	margin-top: 5.15rem !important;
 }

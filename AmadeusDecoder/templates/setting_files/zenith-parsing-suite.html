@@ -1,15 +1,16 @@
-    <div class="display:flex;justify-content: space-between; margin-right: 1rem; ">
+<div style="display:flex;justify-content: space-between; margin-right: 1rem; ">
+    <div style="display: flex; flex-direction: column;">
         <div class="card " style="width: 38rem;height:auto; margin:0 120px 0 20px;">
-            <div class="card " style="width: 38rem;height:auto; margin:0 120px 0 20px;">
+            
             <div class="card-header">
                 <h2 class="card-title">Identifiants (2) </h2>
                 <h4 class="card-description"></h4>
                 
             </div>
 
-            <div class="card-body" hidden>
-                <table class="table ">
-                    <thead class="thead-dark">
+            <div class="card-body" >
+                <table class="table table-bordered table-head-fixed text-wrap  ">
+                    <thead class="bg-info">
                     <tr>
                         <th scope="col">Nom de la valeur</th>
                         <th scope="col">Valeur</th>
@@ -17,62 +18,23 @@
                     </thead>
 
                     <tbody>
-                        <tr>
-                            <td>Not emitted PNR start identifier</td>
-                            <td>VOTRE NUMERO DE DOSSIER</td>
-                        </tr>
-                        <tr>
-                            <td>Not emitted PNR start passenger</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>Not emitted PNR start booking</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>Not emitted PNR start booking cost</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>Not emitted pnr start opc</td>
-                            <td></td>
-                        </tr>
-
-                        <tr>
-                            <td>Not emitted pnr end opc</td>
-                            <td>(heure locale de DZA), celle-ci sera AUTOMATIQUEMENT ANNULEE.</td>
-                        </tr>
-
-                        <tr>
-                            <td>EMD reference start</td>
-                            <td></td>
-                        </tr>
-
-                        <tr>
-                            <td>EMD expiry date start</td>
-                            <td></td>
-                        </tr>
-
-                        <tr>
-                            <td>EMD comment start</td>
-                            <td>Commentaire</td>
-                        </tr>
-
-                        <tr>
-                            <td>Main pnr start </td>
-                            <td></td>
-                        </tr>
-
-                        <tr>
-                            <td>Customer Name </td>
-                            <td></td>
-                        </tr>
-                        
+                        {% for config in zenith_config|slice:'10:21' %}
+                            <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
+                                <td>{{config.value_name}}</td>
+                                <td>
+                                    <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                                        {% for element in config.array_value %}
+                                            <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{element}}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                            </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
 
-            <div class="card-body"  >
+            <div class="card-body" hidden >
                 <div>
                     <label for="pnr"class="col-form-label col-6">Not emitted PNR start</label>
                     <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
@@ -137,19 +99,27 @@
                 <button type="button" class="btn btn-success" style="margin-top: 20px;float:right;">Enregistrer</button>
                 
             </div>
+
+            <div class="card-footer" hidden>
+                <button type="button" id="saveIt" class="btn btn-success" style="margin-top: 20px;float:right;">Add</button>
+            </div>
         </div>
 
+        
+    </div>
+
+    <div style="display: flex; flex-direction: column;">
         <div class="card " style="width: 38rem;height:auto; margin:0 120px 0 20px;">
-            <div class="card " style="width: 38rem;height:auto; margin:0 120px 0 20px;">
+            
             <div class="card-header">
                 <h2 class="card-title">Identifiants (3) </h2>
                 <h4 class="card-description"></h4>
                 
             </div>
 
-            <div class="card-body" hidden>
-                <table class="table ">
-                    <thead class="thead-dark">
+            <div class="card-body" >
+                <table class="table table-bordered table-head-fixed text-wrap  ">
+                    <thead class="bg-info">
                     <tr>
                         <th scope="col">Nom de la valeur</th>
                         <th scope="col">Valeur</th>
@@ -157,62 +127,23 @@
                     </thead>
 
                     <tbody>
-                        <tr>
-                            <td>Passport</td>
-                            <td>VOTRE NUMERO DE DOSSIER</td>
-                        </tr>
-                        <tr>
-                            <td>Payment Receipt</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>Payment Method</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>Total Identifier</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>Issuing Date</td>
-                            <td></td>
-                        </tr>
-
-                        <tr>
-                            <td>Issuing Office</td>
-                            <td>(heure locale de DZA), celle-ci sera AUTOMATIQUEMENT ANNULEE.</td>
-                        </tr>
-
-                        <tr>
-                            <td>Cost word</td>
-                            <td></td>
-                        </tr>
-
-                        <tr>
-                            <td>Modification</td>
-                            <td></td>
-                        </tr>
-
-                        <tr>
-                            <td>Tax</td>
-                            <td></td>
-                        </tr>
-
-                        <tr>
-                            <td>Receipt Identifier </td>
-                            <td></td>
-                        </tr>
-
-                        <tr>
-                            <td>Itinerary airport iata code </td>
-                            <td></td>
-                        </tr>
-                        
+                        {% for config in zenith_config|slice:'21:' %}
+                            <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
+                                <td>{{config.value_name}}</td>
+                                <td>
+                                    <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                                        {% for element in config.array_value %}
+                                            <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{element}}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                            </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
 
-            <div class="card-body"  >
+            <div class="card-body" hidden >
                 <div>
                     <label for="pnr"class="col-form-label col-6">Passport</label>
                     <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
@@ -272,5 +203,10 @@
                 <button type="button" class="btn btn-success" style="margin-top: 20px;float:right;">Enregistrer</button>
                 
             </div>
+
+            <div class="card-footer" hidden>
+                <button type="button" id="saveIt" class="btn btn-success" style="margin-top: 20px;float:right;">Add</button>
+            </div>
         </div>
     </div>
+</div>

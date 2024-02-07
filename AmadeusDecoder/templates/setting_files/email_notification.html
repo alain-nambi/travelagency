@@ -1,36 +1,54 @@
-<div style="display:flex;justify-content: space-between; margin-right: 1rem; ">
-    <div class="card " style="width: 38rem;height:auto; margin:0 120px 0 20px;">
+    <div class="card " style="height:auto; margin:0 120px 0 20px;">
         <div class="card-header">
-        <h2 class="card-title">Notification recipients</h2>
+        <h2 class="card-title">Destinataires des Notifications</h2>
         <h4 class="card-description"></h4>
         
         </div>
 
         <div class="card-body"  >
-        <table class="table table-striped">
-            <thead class="thead-dark">
-            <tr>
-                <th scope="col">Environnement</th>
-                <th scope="col">Value Name</th>
-                <th scope="col">Email</th>
-            </tr>
-            </thead>
+          <table class="table table-bordered table-head-fixed text-wrap" style="font-size: 2rem !important;">
+              <thead class="bg-info">
+              <tr>
+                  <th scope="col" style="font-size: 1rem !important;">Environnement</th>
+                  <th scope="col-6"style="font-size: 1rem !important;">Nom de la valeur</th>
+                  <th scope="col" style="font-size: 1rem !important;">Email</th>
+              </tr>
+              </thead>
 
-            <tbody>
-            
-            <tr data-toggle="modal" data-target="#EmailNotifModal" data-env="environnement" data-value-name="value name" data-email="email" style="cursor: pointer;" id="trEmailNotifModal">
-                <td>Test</td>
-                <td>Email sending error notification recipients</td>
-                <td>email@gmail.com, email@gmail.com</td>
-            </tr>
-            
-            </tbody>
-        </table>
+              <tbody>
+              
+              <tr data-toggle="modal" data-target="#EmailNotifModal" data-env="{{env}}" data-value="Destinataires de Notification D'Erreur" data-value-name="Email sending error notification recipients" data-email="{{configs.EMAIL_SENDING_ERROR_NOTIFICATION_RECIPIENTS}}" style="cursor: pointer;font-size: 1rem !important;" class="trEmailNotifModal">
+                  <td>{{env}}</td>
+                  <td>Destinataires de la notification d'erreur D'envoi de mail</td>
+                  
+                  <td>
+                    <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                      {% for mail in configs.EMAIL_SENDING_ERROR_NOTIFICATION_RECIPIENTS %}
+                        <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{mail}}</li>
+                      {% endfor %}
+                    </ul>
+                  </td>
+              </tr>
+
+              <tr data-toggle="modal" data-target="#EmailNotifModal" data-env="{{env}}" data-value="Destinataires de la notification d'erreur de parssage de PNR" data-value-name="PNR parsing error notification recipients" data-email="{{configs.PNR_PARSING_ERROR_NOTIFICATION_RECIPIENTS}}" style="cursor: pointer;" class="trEmailNotifModal">
+                  <td>{{env}}</td>
+                  <td>Destinataires de la notification d'erreur de parssage de PNR</td>
+                  <td>
+                    <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                      {% for mail in configs.PNR_PARSING_ERROR_NOTIFICATION_RECIPIENTS %}
+                        <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{mail}}</li>
+                      {% endfor %}
+                    </ul>
+                  </td>
+              </tr>
+              
+              </tbody>
+          </table>
         </div>
         <div class="card-body" hidden>
             <div>
                 <label for="currency_name"class="col-form-label col-4">Environnement</label>
-                <select class="form-control"  data-placeholder="Sélectionner un environnement">
+                <select class="form-control"  data-placeholder="Sélectionner un {{env}}">
                 <option value="test">Test</option> 
                 <option value="prod">Prod</option> 
                 </select>
@@ -54,21 +72,21 @@
         </div>
     </div>
 
-    <div class="card" style="width: 38rem;height:auto; margin:0 120px 0 20px;">
+    <div class="card" style="height:auto; margin:70px 120px 0 20px;">
         <div class="card-header">
-        <h2 class="card-title">Notification Sender</h2>
+        <h2 class="card-title">Expéditeurs des Notifications</h2>
         <h4 class="card-description"></h4>
     
         </div>
 
         <div class="card-body" >
-            <table class="table table-striped">
-            <thead class="thead-dark">
+            <table class="table table-bordered table-head-fixed text-wrap">
+            <thead class="bg-info">
                 <tr>
                 <th scope="col">Environnement</th>
-                <th scope="col">Value Name</th>
+                <th scope="col">Nom de la valeur</th>
                 <th scope="col">Email</th>
-                <th scope="col">Password</th>
+                <th scope="col">Mot de passe</th>
                 <th scope="col">SMTP</th>
                 <th scope="col">Port</th>
                 </tr>
@@ -76,13 +94,40 @@
 
             <tbody>
             
-                <tr data-toggle="modal" data-target="#EmailNotifSenderModal" data-env="environnement" data-value-name="value name" data-email="email" data-password="password" data-smtp="smtp" data-port="523" style="cursor: pointer;" id="trEmailNotifSenderModal">
-                <td>1</td>
-                <td>Mark</td>
-                <td>Mark</td>
-                <td>1</td>
-                <td>Mark</td>
-                <td>Mark</td>
+                <tr data-toggle="modal" data-target="#EmailNotifSenderModal" data-env="{{env}}" data-value="Expéditeur des Notifications d'erreur d'envoi d'email" data-value-name="Email sending error notification" data-email="{{configs.EMAIL_SENDING_ERROR_NOTIFICATION.address}}" data-password="{{configs.EMAIL_SENDING_ERROR_NOTIFICATION.password}}" data-smtp="{{configs.EMAIL_SENDING_ERROR_NOTIFICATION.smtp}}" data-port="{{configs.EMAIL_SENDING_ERROR_NOTIFICATION.port}}" style="cursor: pointer;" class="trEmailNotifSenderModal" style="font-size: 1rem !important;">
+                  <td>{{env}}</td>
+                  <td>Expéditeur des Notifications d'erreur d'envoi d'email</td>
+                  <td>{{configs.EMAIL_SENDING_ERROR_NOTIFICATION.address}}</td>
+                  <td>{{configs.EMAIL_SENDING_ERROR_NOTIFICATION.password}}</td>
+                  <td>{{configs.EMAIL_SENDING_ERROR_NOTIFICATION.smtp}}</td>
+                  <td>{{configs.EMAIL_SENDING_ERROR_NOTIFICATION.port}}</td>
+                </tr>
+
+                <tr data-toggle="modal" data-target="#EmailNotifSenderModal" data-env="{{env}}" data-value="Expéditeur des Notifications d'erreur de parssage de PNR" data-value-name="PNR parsing error notification sender" data-email="{{configs.PNR_PARSING_ERROR_NOTIFICATION_SENDER.address}}" data-password="{{configs.PNR_PARSING_ERROR_NOTIFICATION_SENDER.password}}" data-smtp="{{configs.PNR_PARSING_ERROR_NOTIFICATION_SENDER.smtp}}" data-port="{{configs.PNR_PARSING_ERROR_NOTIFICATION_SENDER.port}}" style="cursor: pointer;" class="trEmailNotifSenderModal" style="font-size: 1rem !important;">
+                  <td>{{env}}</td>
+                  <td>Expéditeur des Notifications d'erreur de parssage de PNR</td>
+                  <td>{{configs.PNR_PARSING_ERROR_NOTIFICATION_SENDER.address}}</td>
+                  <td>{{configs.PNR_PARSING_ERROR_NOTIFICATION_SENDER.password}}</td>
+                  <td>{{configs.PNR_PARSING_ERROR_NOTIFICATION_SENDER.smtp}}</td>
+                  <td>{{configs.PNR_PARSING_ERROR_NOTIFICATION_SENDER.port}}</td>
+                </tr>
+
+                <tr data-toggle="modal" data-target="#EmailNotifSenderModal" data-env="{{env}}" data-value="Expéditeur des Notifications d'Anomalie" data-value-name="Anomaly email sender" data-email="{{configs.ANOMALY_EMAIL_SENDER.address}}" data-password="{{configs.ANOMALY_EMAIL_SENDER.password}}" data-smtp="{{configs.ANOMALY_EMAIL_SENDER.smtp}}" data-port="{{configs.ANOMALY_EMAIL_SENDER.port}}" style="cursor: pointer;" class="trEmailNotifSenderModal" style="font-size: 1rem !important;">
+                  <td>{{env}}</td>
+                  <td>Expéditeur des Notifications d'Anomalie</td>
+                  <td>{{configs.ANOMALY_EMAIL_SENDER.address}}</td>
+                  <td>{{configs.ANOMALY_EMAIL_SENDER.password}}</td>
+                  <td>{{configs.ANOMALY_EMAIL_SENDER.smtp}}</td>
+                  <td>{{configs.ANOMALY_EMAIL_SENDER.port}}</td>
+                </tr>
+
+                <tr data-toggle="modal" data-target="#EmailNotifSenderModal" data-env="{{env}}" data-value="Expéditeur des Notifications de PNR non récupéré" data-value-name="PNR not fetched notification sender" data-email="{{configs.PNR_NOT_FETCHED_NOTIFICATION_SENDER.address}}" data-password="{{configs.PNR_NOT_FETCHED_NOTIFICATION_SENDER.password}}" data-smtp="{{configs.PNR_NOT_FETCHED_NOTIFICATION_SENDER.smtp}}" data-port="{{configs.PNR_NOT_FETCHED_NOTIFICATION_SENDER.port}}" style="cursor: pointer;" class="trEmailNotifSenderModal" style="font-size: 1rem !important;">
+                  <td>{{env}}</td>
+                  <td>Expéditeur des Notifications de PNR non récupéré</td>
+                  <td>{{configs.PNR_NOT_FETCHED_NOTIFICATION_SENDER.address}}</td>
+                  <td>{{configs.PNR_NOT_FETCHED_NOTIFICATION_SENDER.password}}</td>
+                  <td>{{configs.PNR_NOT_FETCHED_NOTIFICATION_SENDER.smtp}}</td>
+                  <td>{{configs.PNR_NOT_FETCHED_NOTIFICATION_SENDER.port}}</td>
                 </tr>
             
             </tbody>
@@ -91,7 +136,7 @@
         <div class="card-body" hidden>
             <div>
             <label for="currency_name"class="col-form-label col-4">Environnement</label>
-            <select class="form-control"  data-placeholder="Sélectionner un environnement">
+            <select class="form-control"  data-placeholder="Sélectionner un {{env}}">
                 <option value="test">Test</option> 
                 <option value="prod">Prod</option> 
             </select>
@@ -129,7 +174,6 @@
 
         </div>
     </div>
-</div>
 
 <div class="modal fade" id="EmailNotifModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
@@ -137,39 +181,42 @@
       <div class="modal-header">
         <h5 class="modal-title" id="modalPnrNotUpdatedTitle">
           <i class="fa fa-upload"></i>
-          Email Notification recipients 
+          Destinataires des Notifications
         </h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
-        <form method='POST'>
           <div>
-                <label for="currency_name"class="col-form-label col-4">Environnement</label>
-                <input type="text" readonly id="modalNotifEnv" class="form-control "/>
-                
+            <label for="currency_name"class="col-form-label col-4">Environnement</label>
+            <input type="text" readonly id="modalNotifEnv" class="form-control "/>  
+          </div>
+
+          <div class="form-group">
+            <label for="currency_name"class="col-form-label col-4">Value Name</label>
+            <input type="text" readonly id="modalNotifValueName" class="form-control "/>
+          </div>
+
+          <div class="form-group">
+            <label for="currency_name"class="col-form-label col-4">Email</label>
+            <div class="insertmodalwrapper">
+              <label for="currency_name"class="col-form-label col-4" id="modalLabel"></label>
+              <div class="insertmodalcontent">
+                  <ul id="insertmodalul">
+                      <input type="text" id="modalInsert" class="form-control" />
+                  </ul>
+              </div>
+              <div class="insertmodaldetail">
+                  <button type="button" class="btn btn-primary" onclick="removeAllModal()">Effacer</button>
+              </div>
             </div>
+          </div>
 
-            <div class="form-group">
-                <label for="currency_name"class="col-form-label col-4">Value Name</label>
-                <select class="form-control" id="modalNotifValueName"  placeholder="Email sending error notification recipients">
-                    <option value="test">Email sending error notification recipients</option> 
-                    <option value="prod">Email sending error notification</option> 
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="currency_name"class="col-form-label col-4">Email</label>
-                <input type="text" name="email" id="modalNotifEmail" class="form-control "/>
-            </div>
-
-
-        </form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
-        <button type="button" class="btn btn-success" id="buttonUpdateEmailPnr">Modifier</button>
+        <button type="button" class="btn btn-success" onclick="UpdateEmailNotif()">Modifier</button>
       </div>
     </div>
   </div>
@@ -181,7 +228,7 @@
       <div class="modal-header">
         <h5 class="modal-title" id="modalPnrNotUpdatedTitle">
           <i class="fa fa-upload"></i>
-          Email Notification Sender 
+          Expéditeurs des Notifications
         </h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
@@ -196,10 +243,7 @@
 
             <div class="form-group">
             <label for="currency_name"class="col-form-label col-4">Value Name</label>
-            <select class="form-control" id="modalNotifSenderValueName" data-placeholder="Email sending error notification recipients">
-                <option value="test">Email sending error notification recipients</option> 
-                <option value="prod">Email sending error notification</option> 
-            </select>
+            <input type="text" readonly id="modalNotifSenderValueName" class="form-control "/>
             </div>
 
             <div class="form-group">
@@ -226,7 +270,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
-        <button type="button" class="btn btn-success" id="buttonUpdateEmailPnr">Modifier</button>
+        <button type="button" class="btn btn-success" onclick="UpdateEmailNotifSender()">Modifier</button>
       </div>
     </div>
   </div>

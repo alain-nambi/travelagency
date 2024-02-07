@@ -8,8 +8,8 @@
             </div>
 
             <div class="card-body" >
-                <table class="table ">
-                    <thead class="thead-dark">
+                <table class="table table-bordered table-head-fixed text-wrap ">
+                    <thead class="bg-info">
                     <tr>
                         <th scope="col">Nom de la valeur</th>
                         <th scope="col">Valeur</th>
@@ -17,27 +17,18 @@
                     </thead>
 
                     <tbody>
-                        <tr>
-                            <td>Désignation</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>Type</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>Identifiants</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>Mot d'identification</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>Prime ticket</td>
-                            <td></td>
-                        </tr>
-                        
+                        {% for config in zenith_passenger_config %}
+                            <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
+                                <td>{{config.value_name}}</td>
+                                <td>
+                                    <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                                        {% for element in config.array_value %}
+                                            <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{element}}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                            </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -52,47 +43,26 @@
                     </select>
                 </div>
 
-                <div>
-                    <label for="pnr"class="col-form-label col-4">Valeur</label>
-                    <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
-                </div>
-
-                <button type="button" class="btn btn-success" style="margin-top: 20px;float:right;">Enregistrer</button>
                 
+                <div class="multiInsertwrapper">
+                    <label for="currency_name"class="col-form-label col-6" >Valeur</label>
+                    <div class="multiInsertcontent" >
+                        <ul class="multiInsertul" name="contact_type">
+                            <input type="text" name="contact_type" id="multiInsert" class="form-control" />
+                        </ul>
+                    </div>
+                    <div class="multiInsertdetail">
+                        <button type="button" class="btn btn-primary removaAllButton" >Effacer</button>
+                    </div>
+                </div> 
+            </div>
+
+            <div class="card-footer" hidden>
+                <button type="button" id="saveIt" class="btn btn-success" style="margin-top: 20px;float:right;">Add</button>
             </div>
         </div>
     
-        <div class="card " style="width: 38rem;height:auto; margin:60px 120px 0 20px;">
-            <div class="card-header">
-                <h2 class="card-title">Format E-ticket </h2>
-                <h4 class="card-description"></h4>
-                <i class="fa fa-pencil" style="float: right" aria-hidden="true"></i>
-            </div>
 
-            <div class="card-body" >
-                <ul class="list-group">
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        e-ticket
-                        <span class="badge badge-pill badge-primary badge-pill">
-                            <input type="checkbox" checked name="pnr" id="pnr" class="form-control"/>
-                        </span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        e‐⁛cket
-                        <span class="badge badge-primary badge-pill">
-                            <input type="checkbox" checked name="pnr" id="pnr" class="form-control"/>
-                        </span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        e‐�cket
-                        <span class="badge badge-primary badge-pill">
-                            <input type="checkbox" checked name="pnr" id="pnr" class="form-control"/>
-                        </span>
-                    </li>
-                </ul>
-                
-            </div>
-        </div>
     </div>
 
     <div style="display: flex; flex-direction: column;">
@@ -104,8 +74,8 @@
             </div>
 
             <div class="card-body" >
-                <table class="table ">
-                    <thead class="thead-dark">
+                <table class="table table-bordered table-head-fixed text-wrap ">
+                    <thead class="bg-info">
                     <tr>
                         <th scope="col">Nom de la valeur</th>
                         <th scope="col">Valeur</th>
@@ -113,111 +83,52 @@
                     </thead>
 
                     <tbody>
-                        <tr>
-                            <td>Itinerary header possible format</td>
-                            <td>['Itinéraire', 'Check-in*', 'De', 'A', 'Départ', 'Arrivée', 'Cabine', 'Statut Escales']</td>
-                        </tr>
-                        <tr>
-                            <td>Header names</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>Service carrier</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>Airport agency code</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>Current travel agency identifier</td>
-                            <td></td>
-                        </tr>
-
-                        <tr>
-                            <td>Non relevant identifier for passenger</td>
-                            <td>N° FFP</td>
-                        </tr>
-
-                        <tr>
-                            <td>Itinerary name</td>
-                            <td></td>
-                        </tr>
-
-                        <tr>
-                            <td>Cost detail identifier</td>
-                            <td>Détails du tarif</td>
-                        </tr>
-
-                        <tr>
-                            <td>Ancillaries identifier</td>
-                            <td>Ancillaries</td>
-                        </tr>
-
-                        <tr>
-                            <td>To be excluded recipient email</td>
-                            <td></td>
-                        </tr>
-                        
+                        {% for config in zenith_config|slice:':10' %}
+                            <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
+                                <td>{{config.value_name}}</td>
+                                <td>
+                                    <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                                        {% for element in config.array_value %}
+                                            <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{element}}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                            </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
 
             <div class="card-body" hidden >
                 <div>
-                    <label for="pnr"class="col-form-label col-6">Itinerary header possible format</label>
-                    <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
+                    <label for="currency_name"class="col-form-label col-4">Nom de la valeur </label>
+                    <select class="form-control"  data-placeholder="Altea">
+                        <option value="test">Itinerary header possible format</option>
+                        <option value="test">To be excluded recipient email</option>
+
+                    </select>
                 </div>
 
-                <div>
-                    <label for="pnr"class="col-form-label col-4">Header names</label>
-                    <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
-                </div>
-
-                <div>
-                    <label for="pnr"class="col-form-label col-4">Service carrier</label>
-                    <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
-                </div>
-
-                <div>
-                    <label for="pnr"class="col-form-label col-4">Airport agency code</label>
-                    <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
-                </div>
-
-                <div>
-                    <label for="pnr"class="col-form-label col-6">Current travel agency identifier</label>
-                    <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
-                </div>
-
-                <div>
-                    <label for="pnr"class="col-form-label col-6">Non relevant identifier for passenger</label>
-                    <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
-                </div>
-
-                <div>
-                    <label for="pnr"class="col-form-label col-4">Itinerary name</label>
-                    <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
-                </div>
-
-                <div>
-                    <label for="pnr"class="col-form-label col-4">Cost detail identifier</label>
-                    <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
-                </div>
-
-                <div>
-                    <label for="pnr"class="col-form-label col-4">Ancillaries identifier</label>
-                    <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
-                </div>
-
-                <div>
-                    <label for="pnr"class="col-form-label col-6">To be excluded recipient email</label>
-                    <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
-                </div>
-
-
-                <button type="button" class="btn btn-success" style="margin-top: 20px;float:right;">Enregistrer</button>
                 
+                <div class="multiInsertwrapper">
+                    <label for="currency_name"class="col-form-label col-6" >Valeur</label>
+                    <div class="multiInsertcontent" >
+                        <ul class="multiInsertul" name="contact_type">
+                            <input type="text" name="contact_type" id="multiInsert" class="form-control" />
+                        </ul>
+                    </div>
+                    <div class="multiInsertdetail">
+                        <button type="button" class="btn btn-primary removaAllButton" >Effacer</button>
+                    </div>
+                </div> 
+            </div>
+
+            <div class="card-footer" hidden>
+                <button type="button" id="saveIt" class="btn btn-success" style="margin-top: 20px;float:right;">Add</button>
             </div>
         </div>
+
+        <a href=""><button type="button" id="" class="btn btn-success" style="margin-top: 20px;float:right;">Suivant</button></a>
+
     </div>
 </div>

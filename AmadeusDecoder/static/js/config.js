@@ -1,3 +1,21 @@
+$(document).ready(function() {
+    $('#name').hide();
+    $('#currency_name').hide();
+    $('#currency_code').hide();
+    $('#language_code').hide();
+    $('#regional_country').hide();
+    $('#generalInfoFooter').hide();
+    $('.insertmodalwrapper.regional_country').hide();
+});
+
+const ul = document.querySelector(".insertmodalul"),
+input = ul.querySelector("input");
+let tags =[];
+let multiInputTags =[];
+let finalMultiInsertTags = [];
+
+const multiInsertwrapper = document.querySelectorAll(".multiInsertwrapper");
+
 
 function tabClicked(tabId) {
     const activeTab = document.querySelector('.nav-item .active');
@@ -25,8 +43,15 @@ function tabClicked(tabId) {
     }
 }
 
+// All modal data 
 $(document).ready(function() {
-    // Gérer le clic sur une ligne
+    $('#trSavingFileModal').click(function() {
+        
+      $('#modalLinkEnv').val($(this).data('env'));
+      $('#modalLink').val($(this).data('link'));
+
+    });
+
     $('#trEmailPnrModal').click(function() {
 
       $('#modalEmailPnrEnv').val($(this).data('env'));
@@ -35,58 +60,19 @@ $(document).ready(function() {
 
     });
 
-    $('#trEmailNotifModal').click(function() {
-        console.log('trEmailNotifModal');
+    $('.trEmailNotifModal').click(function() {
+        
       $('#modalNotifEnv').val($(this).data('env'));
       $('#modalNotifValueName').val($(this).data('value-name'));
+      $('#modalNotifValueName').text($(this).data('value'));
+
       $('#modalNotifEmail').val($(this).data('email'));
 
-    });
-
-    $('#trEmailNotifSenderModal').click(function() {
-        console.log('trEmailNotifSenderModal');
-      $('#modalNotifSenderEnv').val($(this).data('env'));
-      $('#modalNotifSenderValueName').val($(this).data('value-name'));
-      $('#modalNotifSenderEmail').val($(this).data('email'));
-      $('#modalNotifSenderPassword').val($(this).data('password'));
-      $('#modalSmtp').val($(this).data('smtp'));
-      $('#modalPort').val($(this).data('port'));
-
-    });
-
-     $('#trEmailFeesModal').click(function() {
-        console.log('trEmailFeesModal');
-      $('#modalFeesEnv').val($(this).data('env'));
-      $('#modalFeesValueName').val($(this).data('value-name'));
-      $('#modalFeesEmail').val($(this).data('email'));
-
-    });
-
-    $('#trEmailFeesRequestModal').click(function() {
-        console.log('trEmailFeesRequestModal');
-      $('#modalFeesRequestEnv').val($(this).data('env'));
-      $('#modalFeesRequestSenderEmail').val($(this).data('sender-email'));
-      $('#modalFeesRequestRecipientEmail').val($(this).data('recipient-email'));
-
-    });
-  });
-
-const ul = document.querySelector("#insertmodalul"),
-input = ul.querySelector("input");
-let tags =[];
-let multiInputTags =[];
-let finalMultiInsertTags = [];
-
-const multiInsertwrapper = document.querySelectorAll(".multiInsertwrapper");
-
-$(document).ready(function() {
-    $('.trModalInsert').click(function() {
-        var tr = document.getElementById(this.id);
-
-        $('#modalLabel').text(tr.dataset.valuename);
-        var value = tr.dataset.value;
-        var liste = value.split(',');
-        var ul = document.querySelector("#insertmodalul");
+      const ul_list = $(this).find('.ul_list li');
+        var liste = [];
+        ul_list.each(function() {
+            liste.push($(this).text());
+        });
 
         ul.querySelectorAll("li").forEach(li =>li.remove());
         tags=[];
@@ -102,6 +88,79 @@ $(document).ready(function() {
 
     });
 
+    $('.trEmailNotifSenderModal').click(function() {
+      $('#modalNotifSenderEnv').val($(this).data('env'));
+      $('#modalNotifSenderValueName').val($(this).data('value-name'));
+      $('#modalNotifSenderValueName').text($(this).data('value'));
+      $('#modalNotifSenderEmail').val($(this).data('email'));
+      $('#modalNotifSenderPassword').val($(this).data('password'));
+      $('#modalSmtp').val($(this).data('smtp'));
+      $('#modalPort').val($(this).data('port'));
+
+    });
+
+     $('.trEmailFeesModal').click(function() {
+        const ul_list = $(this).find('.ul_list li');
+        var liste = [];
+        ul_list.each(function() {
+            liste.push($(this).text());
+        });
+
+        ul.querySelectorAll("li").forEach(li =>li.remove());
+        tags=[];
+
+        liste.forEach(element => {
+            console.log('element',element);
+            let li = `<li>${element} <i class="fa fa-xmark" onclick="remove(this, '${element}')" ></i></li>`;
+            ul.insertAdjacentHTML("afterbegin", li);
+            tags.push(element);
+        });
+      $('#modalFeesEnv').val($(this).data('env'));
+      $('#modalFeesValueName').val($(this).data('value-name'));
+      $('#modalFeesValueName').text($(this).data('value'));
+      $('#modalFeesEmail').val($(this).data('email'));
+
+    });
+
+    $('.trEmailFeeSenderModal').click(function() {
+      $('#modalFeeSenderEnv').val($(this).data('env'));
+      $('#modalFeeSenderValueName').val($(this).data('value-name')).text($(this).data('value'));
+      $('#modalFeeSenderEmail').val($(this).data('email'));
+      $('#modalFeeSenderPassword').val($(this).data('password'));
+      $('#modalFeeSenderSmtp').val($(this).data('smtp'));
+      $('#modalFeeSenderPort').val($(this).data('port'));
+    });
+  });
+
+
+
+// Update data
+$(document).ready(function() {
+    $('.trModalInsert').click(function() {
+        var tr = document.getElementById(this.id);
+
+        $('#modalLabel').text(tr.dataset.valuename);
+        var value = tr.dataset.value;
+        console.log(value);
+        value = value.replace(/'/g, '"');
+        var liste = JSON.parse(value)
+        var ul = document.querySelector(".insertmodalul");
+
+        ul.querySelectorAll("li").forEach(li =>li.remove());
+        tags=[];
+        console.log('liste',liste);
+
+        liste.forEach(element => {
+            console.log('element',element);
+            let li = `<li>${element} <i class="fa fa-xmark" onclick="remove(this, '${element}')" ></i></li>`;
+            ul.insertAdjacentHTML("afterbegin", li);
+            tags.push(element);
+        });
+        console.log('tags:', tags);
+
+    });
+
+
     $('#closeinsertmodal').click(function () {
         console.log('modal closed');
         removeAllModal();
@@ -109,13 +168,11 @@ $(document).ready(function() {
 
 });
 
-
 function removeAllModal() {
     ul.querySelectorAll("li").forEach(li =>li.remove());
 }
 
 function CreateTag(){
-    // localStorage.setItem("tablist", JSON)
     ul.querySelectorAll("li").forEach(li =>li.remove());
     tags.slice().reverse().forEach(tag => {
         let liTag = `<li>${tag} <i class="fa fa-xmark" onclick="remove(this, '${tag}')" ></i></li>`;
@@ -124,25 +181,17 @@ function CreateTag(){
 }
 
 function remove(element, tag){
-    let index = tags.indexOf(tag);
-    // console.log(Array.isArray(tags_utilise));
-    // tags_utilise = Array.from(tags_utilise);
     tags = tags.filter(element => element !== tag);
-    // tags.splice(index, 1);
-    console.log('tag after remove :',tags );
     element.parentElement.remove();
 }
 
 function addTag(e){
     if(e.key == "Enter"){
-
         let tag = e.target.value;
         if (tag.length >1 && !tags.includes(tag)) {
             tag.split(',').forEach(tag => {
                 tags.push(tag);
-                CreateTag(tags, ul);
-                console.log('addTag : ',tags);
-                finalMultiInsertTags.push(tags);
+                CreateTag();
             });
         }
         e.target.value ="";
@@ -151,28 +200,352 @@ function addTag(e){
 
 input.addEventListener("keyup", addTag);
 
+// Multi-input
+multiInsertwrapper.forEach(wrapper => {
+    const multiInputUl = wrapper.querySelector('.multiInsertcontent ul');
+    const multiInputInput = wrapper.querySelector('.multiInsertcontent input');
+    let finalMultiInsertTags = [];
+    let multiInputtags =[];
 
-// multiInsertwrapper.forEach(wrapper => {
-//     const ul = wrapper.querySelector('.multiInsertcontent ul');
-//     const input = wrapper.querySelector('.multiInsertcontent input');
-//     let multiInputtags =[];
+    multiInputInput.addEventListener("keyup",(e) => {
+        if(e.key == "Enter"){
+        let tag = e.target.value;
+        if (tag.length >1 && !multiInputtags.includes(tag)) {
+            tag.split(',').forEach(tag => {
+                multiInputtags.push(tag);
+                multiInputUl.querySelectorAll("li").forEach(li =>li.remove());
+                multiInputtags.slice().reverse().forEach(tag => {
+                    let liTag = `<li>${tag} <i class="fa fa-xmark removeIcon"  ></i></li>`;
+                    multiInputUl.insertAdjacentHTML("afterbegin", liTag);
+                });
+                finalMultiInsertTags.push(multiInputtags);
+            });
+        }
+        e.target.value ="";
+    }
+    });
 
-//     input.addEventListener("keyup",(e) => {
-//         addTag(e,multiInputtags,ul);
-//     });
+    multiInputUl.addEventListener("click", function (e) {
+        if (e.target.classList.contains("removeIcon")) {
+            const li = e.target.closest("li");
+            const li_tag = li.innerText;
 
-//     const Button = wrapper.querySelector('.multiInsertdetail button');
-//     $(Button).click(function () {
-//         console.log('click');
-//         ul.querySelectorAll("li").forEach(li =>li.remove());
-//         multiInputtags = [];
-//         finalMultiInsertTags.push(multiInputtags);
-//     });
-//     console.log('final :',finalMultiInsertTags);
-// });
+            multiInputtags = multiInputtags.filter(element => element !== li_tag);
+            multiInputUl.querySelectorAll("li").forEach(li =>li.remove());
+            multiInputtags.slice().reverse().forEach(tag => {
+                let liTag = `<li>${tag} <i class="fa fa-xmark removeIcon"  ></i></li>`;
+                multiInputUl.insertAdjacentHTML("afterbegin", liTag);
+            });
+            finalMultiInsertTags = finalMultiInsertTags.filter(element => element !== multiInputtags );
+            finalMultiInsertTags.push(multiInputtags); 
+        }
+    });
+
+    const Button = wrapper.querySelector('.multiInsertdetail button');
+    $(Button).click(function () {
+        console.log('click');
+        multiInputUl.querySelectorAll("li").forEach(li =>li.remove());
+        finalMultiInsertTags = finalMultiInsertTags.filter(element => element !== multiInputtags );
+        console.log('final :',finalMultiInsertTags);
+    })
+
+});
 
 $(document).ready(function () {
     $('#saveIt').click(function () {
-        console.log('save it :',finalMultiInsertTags);
-    })    
-});
+        multiInsertwrapper.forEach(wrapper => {
+        const multiInputUl = wrapper.querySelector('.multiInsertcontent ul');
+        const multiInputInput = wrapper.querySelector('.multiInsertcontent input');
+            console.log(multiInputInput.getAttribute('name'));
+            multiInputUl.querySelectorAll("li").forEach(li =>console.log(li.textContent));
+        })
+    });  
+})
+
+// Update Company Information
+function updateGeneralInfo(){
+    $('#name_label').hide();
+    $('#currency_name_label').hide();
+    $('#currency_code_label').hide();
+    $('#language_code_label').hide();
+    $('.list-group.ol_list').hide();
+
+    $('.insertmodalwrapper.regional_country').show();
+
+    // multi insert regional country 
+    const ol_list = document.querySelectorAll('.list-group.ol_list li');
+    var liste = [];
+    ol_list.forEach(li => {
+        liste.push(li.innerText);
+    });
+
+    ul.querySelectorAll("li").forEach(li =>li.remove());
+    tags=[];
+    console.log('liste',liste);
+
+    liste.forEach(element => {
+        console.log('element',element);
+        let li = `<li>${element} <i class="fa fa-xmark" onclick="remove(this, '${element}')" ></i></li>`;
+        ul.insertAdjacentHTML("afterbegin", li);
+        tags.push(element);
+    });
+    console.log('tags:', tags);
+
+    $('#name').show();
+    $('#currency_name').show();
+    $('#currency_code').show();
+    $('#language_code').show();
+    $('#regional_country').show();
+    $('#generalInfoFooter').show();
+    
+}
+
+// Update Email pnr
+function UpdateEmailPnr() {
+    var env = $('#modalEmailPnrEnv').val();
+    var email = $('#modalEmailPnrEmail').val();
+    var password = $('#modalEmailPnrPassword').val();
+    console.log(email);
+    console.log(password);
+
+    $.ajax({
+        type: "POST",
+        url: "/setting/email-pnr-update",
+        dataType: "json",
+        data: {
+            email: email,
+            password: password,
+            csrfmiddlewaretoken: csrftoken,
+        },
+        success: function (data) {
+            if (data == 'ok') {
+                toastr.success('Information(s) modifiée(s)');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000)
+            } 
+            if (data.status == 'error') {
+                toastr.error(data.error)
+            }
+        },
+    });
+}
+
+
+$(document).ready(function () {
+    // Update Company Informations
+    $('#updateGeneralInfo').click(function () {
+        var name = $("#name").val();
+        var currency_name = $('#currency_name').val();
+        var currency_code = $('#currency_code').val();
+        var language_code = $('#language_code').val();
+
+        $.ajax({
+            type: "POST",
+            url: "/setting/general-update",
+            dataType: "json",
+            data: {
+                name: name,
+                currency_name: currency_name,
+                currency_code: currency_code,
+                language_code: language_code,
+                regional_country: JSON.stringify(tags),
+                csrfmiddlewaretoken: csrftoken,
+            },
+            success: function (data) {
+                if (data == 'ok') {
+                    toastr.success('Information(s) modifiée(s)');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000)
+                } 
+                if (data.status == 'error') {
+                    toastr.error(data.error)
+                }
+            },
+        });
+    })
+
+    // Update Saving File Protocol
+    $('#buttonUpdateSavingFile').click(function () {
+        var link = $('#modalLink').val();
+        var env = $('#modalLinkEnv').val();
+
+        $.ajax({
+            type: "POST",
+            url: "/setting/saving-protocol-update",
+            dataType: "json",
+            data: {
+                link: link,
+                env: env,
+                csrfmiddlewaretoken: csrftoken,
+            },
+            success: function (data) {
+                if (data == 'ok') {
+                    toastr.success('Information(s) modifiée(s)');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000)
+                } 
+                if (data.status == 'error') {
+                    toastr.error(data.error)
+                }
+            },
+        });
+    })
+
+
+})
+
+// Update Email Notifications
+function UpdateEmailNotifSender(){
+    var port = $('#modalPort').val();
+    var smtp = $('#modalSmtp').val();
+    var email = $('#modalNotifSenderEmail').val();
+    var password = $('#modalNotifSenderPassword').val();
+    var ValueName = $('#modalNotifSenderValueName').val();
+
+    $.ajax({
+        type: "POST",
+        url: "/setting/email-notif-sender-update",
+        dataType: "json",
+        data: {
+            port:port,
+            smtp:smtp,
+            email: email,
+            password: password,
+            valuename: ValueName,
+            csrfmiddlewaretoken: csrftoken,
+        },
+        success: function (data) {
+            if (data == 'ok') {
+                toastr.success('Information(s) modifiée(s)');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000)
+            } 
+            if (data.status == 'error') {
+                toastr.error(data.error)
+            }
+        },
+    });
+}
+
+function UpdateEmailNotif(){
+    console.log('tagssss : ',tags);
+    var email = JSON.stringify(tags);
+    var ValueName = $('#modalNotifValueName').val();
+    
+    $.ajax({
+        type: "POST",
+        url: "/setting/email-notif-update",
+        dataType: "json",
+        data: {
+            email: email,
+            valuename: ValueName,
+            csrfmiddlewaretoken: csrftoken,
+        },
+        success: function (data) {
+            if (data == 'ok') {
+                toastr.success('Information(s) modifiée(s)');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000)
+            } 
+            if (data.status == 'error') {
+                toastr.error(data.error)
+            }
+        },
+    });
+}
+
+function UpdateEmailFees() {
+    console.log('tagssss : ',tags);
+    var email = JSON.stringify(tags);
+    var ValueName = $('#modalFeesValueName').val();
+    
+    $.ajax({
+        type: "POST",
+        url: "/setting/email-fees-update",
+        dataType: "json",
+        data: {
+            email: email,
+            valuename: ValueName,
+            csrfmiddlewaretoken: csrftoken,
+        },
+        success: function (data) {
+            if (data == 'ok') {
+                toastr.success('Information(s) modifiée(s)');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000)
+            } 
+            if (data.status == 'error') {
+                toastr.error(data.error)
+            }
+        },
+    });
+}
+
+function UpdateEmailFeeSender(){
+    var port = $('#modalFeeSenderPort').val();
+    var smtp = $('#modalFeeSenderSmtp').val();
+    var email = $('#modalFeeSenderEmail').val();
+    var password = $('#modalFeeSenderPassword').val();
+    var ValueName = $('#modalFeeSenderValueName').val();
+
+    $.ajax({
+        type: "POST",
+        url: "/setting/email-fee-sender-update",
+        dataType: "json",
+        data: {
+            port:port,
+            smtp:smtp,
+            email: email,
+            password: password,
+            valuename: ValueName,
+            csrfmiddlewaretoken: csrftoken,
+        },
+        success: function (data) {
+            if (data == 'ok') {
+                toastr.success('Information(s) modifiée(s)');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000)
+            } 
+            if (data.status == 'error') {
+                toastr.error(data.error)
+            }
+        },
+    });
+}
+
+// Update multiInsert
+function UpdateMultiInput(){
+    var value_name = $('#modalLabel').text();
+    console.log("update multi input");
+    console.log(value_name);
+    console.log(tags);
+    
+    $.ajax({
+        type: "POST",
+        url: "/setting/parsing-update",
+        dataType: "json",
+        data: {
+            tags: JSON.stringify(tags),
+            valuename: value_name,
+            csrfmiddlewaretoken: csrftoken,
+        },
+        success: function (data) {
+            if (data == 'ok') {
+                toastr.success('Information(s) modifiée(s)');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000)
+            } 
+            if (data.status == 'error') {
+                toastr.error(data.error)
+            }
+        },
+    });
+}

@@ -75,5 +75,12 @@ urlpatterns = [
     path('setting/email',email_setting, name='email_setting'),
     path('setting/parsing',parsing_setting, name='parsing_setting'),
     path('setting/ftp',ftp_setting, name='ftp_setting'),
-    
+    path('setting/general-update',updateGeneralSetting, name='updateGeneralSetting'),
+    path('setting/saving-protocol-update',saving_protocol_update, name='saving_protocol_update'),
+    path('setting/email-pnr-update',email_pnr_update,name='email_pnr_update'),
+    path('setting/email-notif-sender-update',email_notif_sender_update,name='email_notif_sender_update'),
+    path('setting/email-notif-update',email_notif_update,name='email_notif_update'),
+    path('setting/email-fees-update',email_fees_update,name='email_fees_update'),
+    path('setting/email-fee-sender-update',email_fee_sender_update, name='email_fee_sender_update'),
+    path('setting/parsing-update',parsing_update,name='parsing_update'),
 ]

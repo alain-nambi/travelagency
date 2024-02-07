@@ -1,26 +1,91 @@
-<div style="display:flex;justify-content: space-between; margin-right: 1rem; ">
-    <div class="card " style="width: 38rem;height:auto; margin:0 120px 0 20px;">
+    <div class="card " style="margin:0 120px 0 20px;">
         <div class="card-header">
-            <h2 class="card-title">Fee History Report Recipient</h2>
+            <h2 class="card-title">Destinataires des emails par rapport aux frais</h2>
             <h4 class="card-description"></h4>
         </div>
 
         <div class="card-body"  >
-            <table class="table table-striped">
-                <thead class="thead-dark">
+            <table class="table table-bordered table-head-fixed text-wrap">
+                <thead class="bg-info">
                 <tr>
                     <th scope="col">Environnement</th>
-                    <th scope="col">Value Name</th>
+                    <th scope="col">Nom de la valeur</th>
                     <th scope="col">Email</th>
                 </tr>
                 </thead>
 
                 <tbody>
-                <tr data-toggle="modal" data-target="#EmailFeesModal" data-env="environnement" data-value-name="value name" data-email="email" style="cursor: pointer;" id="trEmailFeesModal">
-                    <td>1</td>
-                    <td>Mark</td>
-                    <td>Mark</td>
-                </tr>
+                  <tr data-toggle="modal" data-target="#EmailFeesModal" data-env="{{env}}" data-value="Destinataires des demandes de frais" data-value-name="Fee request recipient" data-email="{{configs.FEE_REQUEST_RECIPIENT}}" style="cursor: pointer;" class="trEmailFeesModal">
+                      <td>{{env}}</td>
+                      <td>Destinataires des demandes de frais</td>
+                      <td>
+                        <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                          {% for mail in configs.FEE_REQUEST_RECIPIENT %}
+                            <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{mail}}</li>
+                          {% endfor %}
+                        </ul>
+                      </td>
+                  </tr>
+
+                  <tr data-toggle="modal" data-target="#EmailFeesModal" data-env="{{env}}" data-value="Destinataires du rapport sur l'historique des frais locaux" data-value-name="Fee history report local recipients" data-email="{{configs.FEE_HISTORY_REPORT_LOCAL_RECIPIENTS}}" style="cursor: pointer;" class="trEmailFeesModal">
+                      <td>{{env}}</td>
+                      <td>Destinataires du rapport sur l'historique des frais locaux</td>
+                      <td>
+                        <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                          {% for mail in configs.FEE_HISTORY_REPORT_LOCAL_RECIPIENTS %}
+                            <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{mail}}</li>
+                          {% endfor %}
+                        </ul>
+                      </td>
+                  </tr>
+
+                  <tr data-toggle="modal" data-target="#EmailFeesModal" data-env="{{env}}" data-value="Destinataires du rapport sur l'historique des frais client" data-value-name="Fee history report customer recipients" data-email="{{configs.FEE_HISTORY_REPORT_CUSTOMER_RECIPIENTS}}" style="cursor: pointer;" class="trEmailFeesModal">
+                      <td>{{env}}</td>
+                      <td>Destinataires du rapport sur l'historique des frais client </td>
+                      <td>
+                        <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                          {% for mail in configs.FEE_HISTORY_REPORT_CUSTOMER_RECIPIENTS %}
+                            <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{mail}}</li>
+                          {% endfor %}
+                        </ul>
+                      </td>
+                  </tr>
+
+                  <tr data-toggle="modal" data-target="#EmailFeesModal" data-env="{{env}}" data-value="Expéditeur des réponses à la demande de réduction des frais" data-value-name="Fee decrease request response recipient" data-email="{{configs.FEE_DECREASE_REQUEST_RESPONSE_SENDER}}" style="cursor: pointer;" class="trEmailFeesModal">
+                      <td>{{env}}</td>
+                      <td>Expéditeur des réponses à la demande de réduction des frais</td>
+                      <td>
+                        <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                          {% for mail in configs.FEE_DECREASE_REQUEST_RESPONSE_SENDER %}
+                            <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{mail}}</li>
+                          {% endfor %}
+                        </ul>
+                      </td>
+                  </tr>
+
+                  <tr data-toggle="modal" data-target="#EmailFeesModal" data-env="{{env}}" data-value="Destinataires des réponses à la demande de réduction des frais" data-value-name="Fee decrease request response recipient" data-email="{{configs.FEE_DECREASE_REQUEST_RESPONSE_RECIPIENTS}}" style="cursor: pointer;" class="trEmailFeesModal">
+                      <td>{{env}}</td>
+                      <td>Destinataires des réponses à la demande de réduction des frais</td>
+                      <td>
+                        <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                          {% for mail in configs.FEE_DECREASE_REQUEST_RESPONSE_RECIPIENTS %}
+                            <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{mail}}</li>
+                          {% endfor %}
+                        </ul>
+                      </td>
+                  </tr>
+
+                  <tr data-toggle="modal" data-target="#EmailFeesModal" data-env="{{env}}" data-value="Destinataires des réponses au demande de frais" data-value-name="Fee request response recipient " data-email="{{configs.FEE_REQUEST_RESPONSE_RECIPIENT}}" style="cursor: pointer;" class="trEmailFeesModal">
+                      <td>{{env}}</td>
+                      <td>Destinataires des réponses au demande de frais</td>
+                      <td>
+                        <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                          {% for mail in configs.FEE_REQUEST_RESPONSE_RECIPIENT %}
+                            <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{mail}}</li>
+                          {% endfor %}
+                        </ul>
+                      </td>
+                  </tr>
                 
                 </tbody>
             </table>
@@ -52,31 +117,35 @@
         </div>
     </div>
 
-    <div class="card" style="width: 38rem;height:auto; margin:0 120px 0 20px;">
+    <div class="card" style="margin:70px 120px 0 20px;">
         <div class="card-header">
-        <h2 class="card-title">Fee Request Tools</h2>
+        <h2 class="card-title">Expéditeurs des emails par rapport aux frais</h2>
         <h4 class="card-description"></h4>
         <i class="fa fa-pencil" style="float: right" aria-hidden="true"></i>
         </div>
 
         <div class="card-body" >
-            <table class="table table-striped">
-            <thead class="thead-dark">
+            <table class="table table-bordered table-head-fixed text-wrap"">
+              <thead class="bg-info">
                 <tr>
                 <th scope="col">Environnement</th>
-                <th scope="col">Sender Email</th>
-                <th scope="col">Recipient Email</th>
+                <th scope="col">Nom de la valeur</th>
+                <th scope="col">Email</th>
+                <th scope="col">Mot de passe</th>
+                <th scope="col">SMTP</th>
+                <th scope="col">Port</th>
                 </tr>
             </thead>
 
             <tbody>
-            
-                <tr data-toggle="modal" data-target="#EmailFeesRequestModal" data-env="environnement" data-sender-email="value name" data-recipient-email="email" style="cursor: pointer;" id="trEmailFeesRequestModal">
-                <td>1</td>
-                <td>Mark</td>
-                <td>Mark</td>
+                <tr data-toggle="modal" data-target="#EmailFeesRequestModal" data-env="{{env}}" data-value="Expéditeur des demandes de frais" data-value-name="Fee request sender" data-email="{{configs.FEE_REQUEST_SENDER.address}}" data-password="{{configs.FEE_REQUEST_SENDER.password}}" data-smtp="{{configs.FEE_REQUEST_SENDER.smtp}}" data-port="{{configs.FEE_REQUEST_SENDER.port}}" style="cursor: pointer;" class="trEmailFeeSenderModal" style="font-size: 1rem !important;">
+                  <td>{{env}}</td>
+                  <td>Expéditeur des demandes de frais</td>
+                  <td>{{configs.FEE_REQUEST_SENDER.address}}</td>
+                  <td>{{configs.FEE_REQUEST_SENDER.password}}</td>
+                  <td>{{configs.FEE_REQUEST_SENDER.smtp}}</td>
+                  <td>{{configs.FEE_REQUEST_SENDER.port}}</td>
                 </tr>
-            
             </tbody>
             </table>
         </div>
@@ -104,7 +173,6 @@
 
         </div>
     </div>
-</div>
 
 <div class="modal fade" id="EmailFeesModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
@@ -128,15 +196,22 @@
 
             <div class="form-group">
                 <label for="currency_name"class="col-form-label col-4">Value Name</label>
-                <select class="form-control" id="modalFeesValueName"  placeholder="Email sending error notification recipients">
-                    <option value="test">Email sending error notification recipients</option> 
-                    <option value="prod">Email sending error notification</option> 
-                </select>
+                <input type="text" readonly id="modalFeesValueName" class="form-control "/>
             </div>
 
             <div class="form-group">
-                <label for="currency_name"class="col-form-label col-4">Email</label>
-                <input type="text" name="email" id="modalFeesEmail" class="form-control "/>
+              <label for="currency_name"class="col-form-label col-4">Email</label>
+              <div class="insertmodalwrapper">
+                <label for="currency_name"class="col-form-label col-4" id="modalLabel"></label>
+                <div class="insertmodalcontent">
+                    <ul class="insertmodalul">
+                        <input type="text" id="modalInsert" class="form-control" />
+                    </ul>
+                </div>
+                <div class="insertmodaldetail">
+                    <button type="button" class="btn btn-primary" onclick="removeAllModal()">Effacer</button>
+                </div>
+              </div>
             </div>
 
 
@@ -144,7 +219,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
-        <button type="button" class="btn btn-success" id="buttonUpdateEmailPnr">Modifier</button>
+        <button type="button" class="btn btn-success" onclick="UpdateEmailFees()">Modifier</button>
       </div>
     </div>
   </div>
@@ -163,29 +238,42 @@
         </button>
       </div>
       <div class="modal-body">
-        <form method='POST'>
-          <div>
-                <label for="currency_name"class="col-form-label col-4">Environnement</label>
-                <input type="text" readonly id="modalFeesRequestEnv" class="form-control "/>
-                
+         <form method='POST'>
+            <div class="form-group">
+            <label for="currency_name"class="col-form-label col-4">Environnement</label>
+            <input type="text" readonly id="modalFeeSenderEnv" class="form-control "/>
             </div>
 
             <div class="form-group">
-                <label for="currency_name"class="col-form-label col-4">Sender Email</label>
-                <input type="text" name="email" id="modalFeesRequestSenderEmail" class="form-control "/>
+            <label for="currency_name"class="col-form-label col-4">Value Name</label>
+            <input type="text" readonly id="modalFeeSenderValueName" class="form-control "/>
             </div>
 
             <div class="form-group">
-                <label for="currency_name"class="col-form-label col-4">Recipient Email</label>
-                <input type="text" name="email" id="modalFeesRequestRecipientEmail" class="form-control "/>
+                <label for="currency_name"class="col-form-label col-4">Email</label>
+                <input type="text" name="email" id="modalFeeSenderEmail" class="form-control "/>
             </div>
 
+            <div class="form-group">
+                <label for="currency_name"class="col-form-label col-4">Password</label>
+                <input type="password" name="password" id="modalFeeSenderPassword" class="form-control "/>
+            </div>
+
+            <div class="form-group">
+                <label for="currency_name"class="col-form-label col-4">SMTP</label>
+                <input type="text" name="smtp" id="modalFeeSenderSmtp" class="form-control "/>
+            </div>
+
+            <div class="form-group">
+                <label for="currency_name"class="col-form-label col-4">Port</label>
+                <input type="number" name="port" id="modalFeeSenderPort" class="form-control "/>
+            </div>
 
         </form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
-        <button type="button" class="btn btn-success" id="buttonUpdateEmailPnr">Modifier</button>
+        <button type="button" class="btn btn-success" onclick="UpdateEmailFeeSender()">Modifier</button>
       </div>
     </div>
   </div>

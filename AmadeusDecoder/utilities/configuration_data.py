@@ -13,6 +13,9 @@ COMPANY_CURRENCY_CODE = None
 COMPANY_LANGUAGE_CODE = None
 REGIONAL_COUNTRIES = []
 
+#Saving File Tools
+FILE_PROTOCOL = []
+
 # Email source
 EMAIL_PNR = {}
 EMAIL_SENDING_ERROR_NOTIFICATION_RECIPIENTS = []
@@ -156,4 +159,4 @@ COUTRIES_DATA = []
 DEPARTMENTS_FRANCE = []
 MUNICIPALITIES_FRANCE = []
 
-ConfigReader().load_congig()
+ConfigReader().load_config()

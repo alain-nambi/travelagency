@@ -45,7 +45,11 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" id="pills-zenith-tab" data-toggle="pill" href="#pills-zenith" role="tab" aria-controls="pills-zenith" aria-selected="false"><h5>ZENITH</h5></a>
+                    <a class="nav-link" id="pills-zenith-tab" data-toggle="pill" href="#pills-zenith" role="tab" aria-controls="pills-zenith" aria-selected="false"><h5>ZENITH (1)</h5></a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" id="pills-zenith-suite-tab" data-toggle="pill" href="#pills-zenith-suite" role="tab" aria-controls="pills-zenith-suite" aria-selected="false"><h5>ZENITH (2)</h5></a>
                 </li>
 
                 <li class="nav-item">
@@ -75,6 +79,10 @@
                       {% include "setting_files/zenith-parsing.html" %}
                   </div>
 
+                  <div class="tab-pane fade" id="pills-zenith-suite" role="tabpanel" aria-labelledby="pills-zenith-suite-tab">
+                      {% include "setting_files/zenith-parsing-suite.html" %}
+                  </div>
+
                   <div class="tab-pane fade" id="pills-receipt" role="tabpanel" aria-labelledby="pills-receipt-tab">
                       {% include "setting_files/zenith-receipt.html" %}
                   </div>
@@ -90,5 +98,42 @@
         </div>
       </div>
     </section>
+    <div class="modal fade" id="Multi-insert" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalPnrNotUpdatedTitle">
+              <i class="fa-solid fa-file-pen"></i>
+              Identifiants
+            </h5>
+            <button type="button" id="closeinsertmodal" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            {% comment %} <form method='POST'> {% endcomment %}
+                <div class="insertmodalwrapper">
+                    <label for="currency_name"class="col-form-label col-6" id="modalLabel"></label>
+                    <div class="insertmodalcontent">
+                        <ul class="insertmodalul">
+                            <input type="text" id="modalInsert" class="form-control" />
+                        </ul>
+                    </div>
+                    <div class="insertmodaldetail">
+                        <button type="button" class="btn btn-primary" onclick="removeAllModal()">Remove All</button>
+                    </div>
+                </div>
+
+
+            {% comment %} </form> {% endcomment %}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+            <button type="button" class="btn btn-success" onclick="UpdateMultiInput()">Modifier</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 {% endblock content%}

@@ -329,7 +329,7 @@ def home(request):
         elif filtered_creator_cookie is not None and filtered_creator_cookie != 'Empty':
             agent = Q(agent_id__in=filtered_creator_cookie)
         else:
-            agent = Q(agent_id=request.user.id) | Q(agent_id=None)
+            agent = Q(agent_id=request.user.id)
 
         for issuing_user in issuing_users:                
             # Create date filter query object or an empty query object if dates are absent
@@ -614,10 +614,10 @@ def pnr_details(request, pnr_id):
     context = {}
     if pnr_id is not None and pnr_id != '':
         pnr_detail = Pnr.objects.get(pk=pnr_id)
-    print("55555") 
-    print(pnr_id)
-    print(pnr_detail.id)
     pnr_detail.update_read_status()
+    
+    # update ticket status to ticket_status=1 when ticket is present in passenger_invoice table
+    pnr_detail.update_ticket_status_present_in_passenger_invoice()
     context['pnr'] = pnr_detail
     context['passengers'] = pnr_detail.passengers.filter(passenger__passenger_status=1).all().order_by('id')
     context['contacts'] = pnr_detail.contacts.all()

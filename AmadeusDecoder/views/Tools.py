@@ -26,7 +26,7 @@ def call_product_import(request):
     
     status = ''
     try:
-        directory = '/opt/issoufali/odoo/issoufali-addons/sync_products/data/exported/'
+        directory = '/opt/odoo/issoufali-addons/sync_products/data/exported/'
         for file in os.listdir(directory):
             if os.path.isfile(os.path.join(directory, file)):
                 ProductParser.import_product(os.path.join(directory, file), directory)
@@ -42,7 +42,7 @@ def call_customer_import(request):
     
     status = ''
     try:
-        directory = '/opt/issoufali/odoo/issoufali-addons/export_contacts/data/exported/'
+        directory = '/opt/odoo/issoufali-addons/export_contacts/data/exported/'
         for file in os.listdir(directory):
             if os.path.isfile(os.path.join(directory, file)):
                 CustomerParser.import_customer(os.path.join(directory, file), directory)

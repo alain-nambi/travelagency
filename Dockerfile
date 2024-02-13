@@ -1,5 +1,5 @@
 # Use the official Python 3.9 image as the base image
-FROM python:3.9
+FROM python:3.10.10
 
 # Set environment variables to ensure a clean Python environment
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -10,6 +10,10 @@ WORKDIR /usr/src/app
 
 # Copy only the requirements file to leverage Docker caching
 COPY requirements.txt /usr/src/app
+
+# # Create a virtual environment and activate it
+# RUN python -m venv venv
+# ENV PATH="/usr/src/app/venv/bin:$PATH"
 
 # Install dependencies specified in the requirements file
 RUN pip install --upgrade pip && \

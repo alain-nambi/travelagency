@@ -584,8 +584,8 @@ class MailNotification():
                 Sending.send_email(
                     "alain@phidia.onmicrosoft.com", 
                     # administrator_users_mail + mgbi_users_mail,  
-                    # subject, 
-                    # message
+                    subject, 
+                    message
                 )
                                 
             if len(no_anomaly_pnrs_before_afternoon_for_administrator) < 1 and len(no_anomaly_pnrs_before_afternoon_after_processing) < 1:
@@ -669,8 +669,8 @@ class MailNotification():
                 Sending.send_email(
                     "alain@phidia.onmicrosoft.com", 
                     # administrator_users_mail + mgbi_users_mail,  
-                    # subject, 
-                    # message
+                    subject, 
+                    message
                 )
 
             if len(no_anomaly_pnrs_after_afternoon_for_administrator) < 1 and len(no_anomaly_pnrs_after_afternoon_after_processing) < 1:

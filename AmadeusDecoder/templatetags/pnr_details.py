@@ -22,11 +22,6 @@ register = template.Library()
 
 AIRPORT_AGENCY_CODE = configs.AIRPORT_AGENCY_CODE
 
-@register.filter(name='get_all_username')
-def get_all_username(_userId):
-    user_obj = User.objects.all()
-    return json.dumps([{"id": user.id, "username": user.username} for user in user_obj])
-
 @register.filter(name='ticket_datetime_invoice_created')
 def get_ticket_datetime_invoice_created(pnr_id, ticket_id):
     from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
@@ -59,13 +54,6 @@ def get_fee_datetime_invoice_created(pnr_id, other_fee):
                 return passenger_invoice.date_creation
     else:
         return None
-
-@register.filter(name='opc')
-def get_min_opc(pnr):
-    try:
-        return pnr.get_min_opc()
-    except:
-        return ''
     
 @register.filter(name='ssrs')
 def get_all_pnr_ssrs(pnr):
@@ -167,24 +155,6 @@ def get_pnr_emitter(pnr):
     except:
         return None
     
-@register.filter(name='pnr_office')
-def get_pnr_office(pnr):
-    try:   
-        # Make agency name uniformised     
-        agence_name_uniformised = ['GSA ISSOUFALI Dzaoudzi', 'GSA ISSOUFALI Jumbo Score', 'GSA ISSOUFALI Mamoudzou']
-        if str(pnr.get_pnr_office()).strip() in agence_name_uniformised:
-            return str(pnr.get_pnr_office()).strip().removeprefix("GSA ISSOUFALI")
-        return pnr.get_pnr_office()
-    except:
-        return None
-    
-@register.filter(name='pnr_creator')
-def get_pnr_creator(pnr):
-    try:
-        return pnr.get_creator_agent()
-    except:
-        return None
-    
 @register.filter(name='company_currency')
 def get_company_currency(company_name):
     import AmadeusDecoder.utilities.configuration_data as configs
@@ -192,50 +162,6 @@ def get_company_currency(company_name):
         return configs.COMPANY_CURRENCY_CODE
     except:
         return ''
-
-@register.filter(name='first_passenger')
-def get_first_passenger(pnr):
-    from AmadeusDecoder.models.pnr.Passenger import Passenger
-    try:
-        passenger = Passenger.objects.filter(passenger__pnr=pnr).first()
-        if passenger is not None:
-            return passenger
-        else:
-            return ''
-    except:
-        return ''
-
-@register.filter(name='passenger_segment_mail_missing')
-def get_passenger_segment_missing(pnr):
-    # from AmadeusDecoder.models.invoice.Ticket import Ticket
-    tickets = pnr.tickets.filter(state=2).all()
-    tickets_passenger_segment = []
-    for ticket in tickets :
-        res = ''
-        try:
-            if ticket.passenger and ticket.passenger.order is not None :
-                res += ticket.passenger.order
-            else :
-                passengers = ''
-                for ticket_passenger_tst in ticket.ticket_tst_parts.all():
-                    passengers += ticket_passenger_tst.passenger.order + '-'
-                res += passengers[:-1]
-    
-            segments = ''
-            for passengerSegment in ticket.ticket_parts.all().order_by('segment__id'):
-                segments += passengerSegment.segment.segmentorder + '-'
-            for ssrs in  ticket.ticket_ssrs.all():
-                segments += ssrs.ssr.order_line + '-'
-    
-            res += '/'
-            res += segments[:-1]
-    
-            tickets_passenger_segment.append(res)
-        except:
-            traceback.print_exc()
-    
-
-    return " , ".join(tickets_passenger_segment)
 
 
 @register.filter(name='get_next')
@@ -634,29 +560,6 @@ def get_passenger_information(pnr):
                 return get_passenger_info(pnr, context)
     else:
         return None
-
-@register.filter(name='customer_in_passenger_invoice')
-def get_customer_in_passenger_invoice(pnr_id):
-    """_summary_
-    Returns:
-        PNR issued : get all customers in passenger_invoice filtered by pnr_id
-        PNR not issued : get customer directly on PNR (customer_id)
-    """
-    from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
-    from AmadeusDecoder.models.invoice.Clients import Client
-    
-    if pnr_id != '' and pnr_id != None:                
-        passenger_invoice_obj = PassengerInvoice.objects.filter(pnr_id=pnr_id)
-        if passenger_invoice_obj.exists():            
-            for passenger_invoice in passenger_invoice_obj:
-                client_obj = Client.objects.filter(id=passenger_invoice.client_id)
-                    
-            if client_obj.exists():
-                for client in client_obj:
-                    return client
-        else:
-            return None
-    return None
 
 @register.filter(name='reference_from_passenger_invoice')
 def get_reference_from_passenger_invoice(pnr_id):
@@ -1832,55 +1735,6 @@ def get_other_fee_cancel_void_status(other_fee):
         is_cancelled= False
 
     return is_cancelled
-
-@register.filter(name='list_agency_name')
-def get_list_agency_name(_):
-    """
-    Retourne une liste de dictionnaires contenant les noms d'agence.
-
-    Args:
-        _ (str): Paramêtre non utilisé.
-
-    Returns:
-        list: Liste de dictionnaires.
-    """
-    
-    _OFFICE_LIST_SKIP = ['DZAUU01A1', 'DZAUU01A3', 'DZAUU01A4']  # Liste des codes de bureau à ignorer
-    _AGENCY_NAME_SKIP = ['GSA ISSOUFALI Dzaoudzi', 'GSA ISSOUFALI Jumbo Score', 'GSA ISSOUFALI Mamoudzou']  # Liste des noms d'agence à ignorer
-    
-    # Récupérer les noms d'agence distincts de la table Pnr
-    distinct_agency_names = set(Pnr.objects.values_list('agency_name', flat=True))
-    
-    # Récupérer les noms de bureau distincts de la table Office
-    office_list = set(Office.objects.filter(company_id=1).values_list('name', flat=True))
-    
-    # Ensemble pour stocker les noms d'agence
-    agency_names = set()
-    
-    # Filtrer et ajouter les noms d'agence à l'ensemble
-    agency_names = {agency.strip() for agency in distinct_agency_names if agency.strip() not in _AGENCY_NAME_SKIP}
-
-    # Filtrer et ajouter les noms de bureau à l'ensemble
-    office_names = {office.strip() for office in office_list if office.strip() not in _OFFICE_LIST_SKIP}
-
-    # Ajouter les noms de bureau à l'ensemble des noms d'agence
-    agency_names.update(office_names)
-    
-    altea_agency = set(['Jumbo Score', 'Dzaoudzi', 'Mamoudzou', 'Office 5'])  # Noms d'agence supplémentaires
-    agency_names = sorted(agency_names.union(altea_agency))  # Fusionner les ensembles et trier les noms d'agence
-    
-    # Afficher les noms d'agence
-    # print(f'''
-    #     Liste de tous les agences \n
-    #     *******************************
-    #     {agency_names}
-    #     *******************************
-    #     {len(agency_names)}
-    #     *******************************
-    # ''')
-    
-    # Créer une liste de dictionnaires contenant les noms d'agence
-    return [{'agency_name': agency} for agency in agency_names]
 
 @register.filter(name='check_passenger_missing')
 def get_check_passenger_missing(pnr_id, client_id):   

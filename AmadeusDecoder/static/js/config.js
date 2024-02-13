@@ -17,6 +17,9 @@ let finalMultiInsertTags = [];
 
 const multiInsertwrapper = document.querySelectorAll(".multiInsertwrapper");
 
+const ulNotification = document.querySelector(".insertmodalul.notification")
+const ulFees = document.querySelector(".insertmodalul.fee")
+
 
 function tabClicked(tabId) {
     const activeTab = document.querySelector('.nav-item .active');
@@ -82,14 +85,14 @@ $(document).ready(function() {
             liste.push($(this).text());
         });
 
-        ul.querySelectorAll("li").forEach(li =>li.remove());
+        ulNotification.querySelectorAll("li").forEach(li =>li.remove());
         tags=[];
         
 
         liste.forEach(element => {
             
             let li = `<li>${element} <i class="fa fa-xmark" onclick="remove(this)" ></i></li>`;
-            ul.insertAdjacentHTML("afterbegin", li);
+            ulNotification.insertAdjacentHTML("afterbegin", li);
             tags.push(element);
         });
         
@@ -121,12 +124,13 @@ $(document).ready(function() {
         });
         console.log(liste);
 
-        ul.querySelectorAll("li").forEach(li =>li.remove());
-        console.log(((((((ul.parentElement).parentElement).parentElement).parentElement).parentElement).parentElement).parentElement)
+        
+        ulFees.querySelectorAll("li").forEach(li =>li.remove());
+        // console.log(((((((ulFees.parentElement).parentElement).parentElement).parentElement).parentElement).parentElement).parentElement)
         tags=[];
         liste.forEach(element => {
             let li = `<li>${element}<i class="fa fa-xmark" onclick="remove(this)"></i></li>`;
-            ul.insertAdjacentHTML("afterbegin", li);
+            ulFees.insertAdjacentHTML("afterbegin", li);
             tags.push(element);
         });
         console.log(tags);
@@ -188,12 +192,12 @@ function removeAllModal() {
     ul.querySelectorAll("li").forEach(li =>li.remove());
 }
 
-function CreateTag(){
-    ul.querySelectorAll("li").forEach(li =>li.remove());
+function CreateTag(target){
+    target.parentElement.querySelectorAll("li").forEach(li =>li.remove());
     tags.slice().reverse().forEach(tag => {
         let liTag = `<li>${tag} <i class="fa fa-xmark" onclick="remove(this)" ></i></li>`;
         
-        ul.insertAdjacentHTML("afterbegin", liTag);
+        target.parentElement.insertAdjacentHTML("afterbegin", liTag);
     });
 }
 
@@ -207,18 +211,27 @@ function remove(element){
 }
 
 function addTag(e){
+    console.log(e.target);
     
     if(e.key == "Enter"){
-        
+        const target = e.target
         let tag = e.target.value;
-        if (tag.length >1 && !tags.includes(tag)) {
+        if (tag.length > 1 && !tags.includes(tag)) {
             tag.split(',').forEach(tag => {
                 tags.push(tag);
-                CreateTag();
+                CreateTag(target);
             });
         }
         e.target.value ="";
     }
+}
+
+if (ulFees && ulFees.querySelector('input')) {
+    ulFees.querySelector('input').addEventListener("keyup", addTag)
+}
+
+if (ulNotification && ulNotification.querySelector('input')) {
+    ulNotification.querySelector('input').addEventListener("keyup", addTag)
 }
 
 input.addEventListener("keyup", addTag);
@@ -320,9 +333,7 @@ function updateGeneralInfo(){
 function UpdateEmailPnr() {
     var env = $('#modalEmailPnrEnv').val();
     var email = $('#modalEmailPnrEmail').val();
-    var password = $('#modalEmailPnrPassword').val();
-    
-    
+    var password = $('#modalEmailPnrPassword').val();    
 
     $.ajax({
         type: "POST",
@@ -541,9 +552,6 @@ function UpdateEmailFeeSender(){
 // Update multiInsert
 function UpdateMultiInput(){
     var value_name = $('#modalLabel').text();
-    
-    
-    
     
     $.ajax({
         type: "POST",
@@ -825,4 +833,41 @@ function HideCard(id){
 
 function OpenCard(id){
     document.getElementById(id).hidden = false
+}
+
+function Emd_statues_update_show(){
+    $('#emd_statues').hide();
+    document.getElementById("emd_statues_update").hidden = false;
+    document.getElementById("emd_statues_footer").hidden = false;
+
+}
+
+function UpdateEmdStatues(){
+    var content = document.querySelector("#emd_statues_update");
+    let statues = {};
+    content.querySelectorAll("li").forEach(element => {
+        let key = element.querySelector('.key').value;
+        let value = element.querySelector('.value').value;
+        statues[key] = value;
+    });
+
+    $.ajax({
+        type: "POST",
+        url: "/setting/emd-statues-update",
+        dataType: "json",
+        data: {
+            statues: statues, 
+            csrfmiddlewaretoken: csrftoken,
+        },
+        success: function (data) {
+            if (data == 'ok') {
+                toastr.success('Informations Modifiées');
+                    location.reload();
+            } 
+            if (data.status == 'error') {
+                toastr.error(data.error)
+            }
+        },
+    });
+
 }

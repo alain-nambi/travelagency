@@ -95,5 +95,7 @@ urlpatterns = [
     path('setting/zenith-parsing-create',zenith_parsing_create,name='zenith_parsing_create'),
     path('setting/zenith-receipt-parsing-create',zenith_receipt_parsing_create,name='zenith_receipt_parsing_create'),
     path('setting/emd-parsing-create',emd_parsing_create,name='emd_parsing_create'),
+    path('setting/emd-statues-update',emd_statues_update,name='emd_statues_update'),
+    
     
 ]

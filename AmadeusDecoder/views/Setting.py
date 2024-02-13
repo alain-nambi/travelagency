@@ -458,3 +458,22 @@ def emd_parsing_create(request):
         zenith_receipt_config.save()
         ConfigReader().load_config()
         return JsonResponse('ok',safe=False)
+
+@login_required(login_url='index')
+def emd_statues_update(request):
+    if request.method == 'POST':
+        dict_value={}
+        statues = json.loads(request.POST.get('statues'))
+        config = Configuration.objects.filter(name='EMD Parser Tools',value_name='EMD statuses')
+        for element in statues:
+            cle, valeur = element.split(':')
+            dict_value[cle] = valeur
+                
+        config.dict_value = dict_value
+        config.save()
+        ConfigReader().load_config()
+        return JsonResponse('ok',safe=False)
+    
+    
+    
+    

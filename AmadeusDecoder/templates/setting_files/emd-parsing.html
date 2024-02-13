@@ -50,18 +50,31 @@
             <div class="card-header">
                 <h2 class="card-title">Les Statuts EMD </h2>
                 <h4 class="card-description"></h4>
-                <i class="fa fa-pencil" style="float: right;cursor:pointer;" aria-hidden="true"></i>
+                <i class="fa fa-pencil" style="float: right;cursor:pointer;" aria-hidden="true" onclick="Emd_statues_update_show()"></i>
             </div>
 
             <div class="card-body" >
               <ul class="list-group" style="padding:10px;">
-                <div class="row">
+                <div class="row " id = "emd_statues">
                   {% for key, value in emd_statues %}
                     <div class="col-md-6">
                       <li class="list-group-item d-flex justify-content-between align-items-center" style="margin-bottom:7px;border-radius:7px;font-size:bold !important;">
-                          {{ key }}
+                          {{key}}
                         <span class="badge badge-primary badge-pill" style="margin-left: 10px;font-size:19px !important;">
-                            {{ value }}
+                            {{value}}
+                        </span>
+                      </li>
+                    </div>
+                  {% endfor %}
+                </div>
+
+                <div class="row" id="emd_statues_update" hidden>
+                  {% for key, value in emd_statues %}
+                    <div class="col-md-6">
+                      <li class="list-group-item d-flex justify-content-between align-items-center" style="margin-bottom:7px;border-radius:7px;font-size:bold !important;">
+                          <input class="form-control key w-25" style="border-radius:10px;" type="text" value="{{ key }}">
+                        <span class="badge badge-primary badge-pill" style="margin-left: 10px;font-size:19px !important;">
+                            <input class="form-control value w-25" style="border-radius:10px;" type="text" value="{{ value }}">
                         </span>
                       </li>
                     </div>
@@ -69,6 +82,9 @@
                 </div>
               </ul>
 
+            </div>
+            <div class="card-footer " id="emd_statues_footer" hidden >
+              <button type="button" class="btn btn-success" onclick="UpdateEmdStatues()" style="margin-top: 20px;float:right;">Modifier</button>
             </div>
         </div>
       {% endif %}

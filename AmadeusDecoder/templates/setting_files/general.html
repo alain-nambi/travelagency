@@ -1,4 +1,4 @@
-<div class="d-flex gap-3">
+
     <div class="card col-md-5" style="width: 38rem; margin:0 120px 0 20px;">
         <div class="card-header">
             <h2 class="card-title">Compagnie Informations</h2>
@@ -105,53 +105,102 @@
             </div>
         {% endif %}
             
-        
-
-       
     </div>
 
-    <div class="card col-md-5 h-auto" style="width: 38rem;height:auto; margin:0 120px 0 20px;">
+    <div class="card col-md-10 h-auto" style="height:auto; margin:70px 120px 0 20px;">
         <div class="card-header">
-        <h2 class="card-title">Odoo Links</h2>
+        <h2 class="card-title">File Protocol</h2>
         <h4 class="card-description"></h4>
         </div>
-        <div class="card-body">
-        <table class="table table-bordered table-head-fixed text-wrap" >
-            <thead class="bg-info">
-            <tr>
-                <th scope="col" >Environnement</th>
-                <th scope="col">Liens</th>
-            </tr>
-            </thead>
 
-            <tbody>
+        
+        {% if state_file_protocol == "true" %}
+            <div class="card-body">
+                <table class="table table-bordered table-head-fixed text-wrap" >
+                    <thead class="bg-info">
+                    <tr>
+                        <th scope="col" >Environement</th>
+                        <th scope="col" >Storage</th>
+                        <th scope="col" {% if configs.FILE_PROTOCOL.single_value == 'Local' %}hidden{% endif %} >Hostname</th>
+                        <th scope="col" {% if configs.FILE_PROTOCOL.single_value == 'Local' %}hidden{% endif %}>Port</th>
+                        <th scope="col" {% if configs.FILE_PROTOCOL.single_value == 'Local' %}hidden{% endif %}>Username</th>
+                        <th scope="col" {% if configs.FILE_PROTOCOL.single_value == 'Local' %}hidden{% endif %}>Password</th>
+                        <th scope="col" {% if configs.FILE_PROTOCOL.single_value == 'Local' %}hidden{% endif %}>Repository</th>
+                        <th scope="col">Link</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                        
+                        <tr data-toggle="modal" data-target="#SavingFileModal" data-env="{{configs.FILE_PROTOCOL.environment}}" data-link="{{configs.FILE_PROTOCOL.dict_value.link}}"  data-hostname="{{configs.FILE_PROTOCOL.dict_value.hostname}}" data-port="{{configs.FILE_PROTOCOL.dict_value.port}}" data-username="{{configs.FILE_PROTOCOL.dict_value.username}}" data-password="{{configs.FILE_PROTOCOL.dict_value.password}}" data-repository="{{configs.FILE_PROTOCOL.dict_value.repository}}" data-storage="{{configs.FILE_PROTOCOL.dict_value.single_value}}"style="cursor: pointer;" id="trSavingFileModal">
+                            <td>{{configs.FILE_PROTOCOL.environment}}</td>
+                            <td> {{configs.FILE_PROTOCOL.single_value}} </td>
+                            <td {% if configs.FILE_PROTOCOL.single_value == 'Local' %}hidden{% endif %}> {{configs.FILE_PROTOCOL.dict_value.hostname}} </td>
+                            <td {% if configs.FILE_PROTOCOL.single_value == 'Local' %}hidden{% endif %}> {{configs.FILE_PROTOCOL.dict_value.port}} </td>
+                            <td {% if configs.FILE_PROTOCOL.single_value == 'Local' %}hidden{% endif %}> {{configs.FILE_PROTOCOL.dict_value.username}} </td>
+                            <td {% if configs.FILE_PROTOCOL.single_value == 'Local' %}hidden{% endif %}> {{configs.FILE_PROTOCOL.dict_value.password}} </td>
+                            <td {% if configs.FILE_PROTOCOL.single_value == 'Local' %}hidden{% endif %}> {{configs.FILE_PROTOCOL.dict_value.repository}} </td>
+                            <td > {{configs.FILE_PROTOCOL.dict_value.link}} </td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
             
-            <tr data-toggle="modal" data-target="#SavingFileModal" data-env="{{configs.FILE_PROTOCOL.environment}}" data-link="{{configs.FILE_PROTOCOL.dict_value.link}}"  style="cursor: pointer;" id="trSavingFileModal">
-                <td>{{configs.FILE_PROTOCOL.environment}}</td>
-                <td> {{configs.FILE_PROTOCOL.dict_value.link}} </td>
-            </tr>
+        
+        {% if state_file_protocol == "false" %}
+            <div class="card-body"  >
+                <div>
+                    <label id="env_label" class="col-form-label col-4">Environnement</label>
+                    <input type="text" readonly class="form-control" id="linkEnv" value="{{env}}" />
+                </div>
+
+                <div class="form-group mb-0">
+                    <label id="storage_label"  class="col-form-label col-4">Storage</label>
+                    <select class="form-control " id="create_storage">
+                      <option value="FTP">FTP</option>
+                      <option value="Local">Local</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label id="hostname_label" class="col-form-label col-4">Hostname</label>
+                    <input type="text" name="hostname" id="create_hostname" class="form-control "/>
+                </div>
+
+                <div>
+                    <label id="port_label" class="col-form-label col-4">Port</label>
+                    <input type="text" name="port" id="create_port" class="form-control "/>
+                </div>
+
+                <div>
+                    <label id="username_label" class="col-form-label col-4">Username</label>
+                    <input type="text" name="username" id="create_username" class="form-control "/>
+                </div>
+
+                <div>
+                    <label id="password_label" class="col-form-label col-4">Password</label>
+                    <input type="password" name="password" id="create_password" class="form-control "/>
+                </div>
+
+                <div>
+                    <label id="repository_label" class="col-form-label col-4">Repository</label>
+                    <input type="text" name="repository" id="create_repository" class="form-control "/>
+                </div>
+
+                <div>
+                    <label id="link_label" class="col-form-label col-4">Link</label>
+                    <input type="text" name="link" id="create_link" class="form-control "/>
+                </div>
+            </div>
+            <div class="card-footer" id="">
+                <button type="button" onclick="CreateOdooLink()" class="btn btn-success" style="margin-top: 20px;float:right;">Enregistrer</button>
+            </div>
+        {% endif %}
             
-            </tbody>
-        </table>
-        </div>
-        <div class="card-body" hidden >
-            <div>
-                <label for="currency_name"class="col-form-label col-4">Environnement</label>
-                <select class="form-control"  data-placeholder="Sélectionner un environnement">
-                <option value="test">Test</option> 
-                <option value="prod">Prod</option> 
-                </select>
-            </div>
-
-            <div>
-                <label for="currency_name"class="col-form-label col-4">Link</label>
-                <input type="text" name="email" id="email" class="form-control "/>
-            </div>
-
-            <button type="button" class="btn btn-primary" style="margin-top: 20px;float:right;">Add</button>
-            </div>
+        
     </div>
-</div>
 
 <div class="modal fade" id="SavingFileModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
@@ -167,17 +216,48 @@
       </div>
       <div class="modal-body">
 
-          <div >
-            <label for="currency_name"class="col-form-label col-4">Environnement</label>
-            <input type="text" readonly id="modalLinkEnv" class="form-control "/>
-          </div>
+            <div >
+                <label for="currency_name"class="col-form-label col-4">Environnement</label>
+                <input type="text" readonly id="modalLinkEnv" class="form-control "/>
+            </div>
 
-          <div class="form-group">
-            <label for="currency_name"class="col-form-label col-4">Lien</label>
-            <input type="text" name="lien" id="modalLink" class="form-control "/>
-          </div>
+            <div class="form-group mb-0">
+                <label id="storage_label_modal"  class="col-form-label col-4">Storage</label>
+                <select class="form-control " id="modal_storage">
+                    <option value="FTP">FTP</option>
+                    <option value="Local">Local</option>
+                </select>
+            </div>
 
+            <div>
+                <label id="hostname_label_modal" class="col-form-label col-4">Hostname</label>
+                <input type="text" name="hostname" id="modal_hostname" class="form-control "/>
+            </div>
 
+            <div>
+                <label id="port_label_modal" class="col-form-label col-4">Port</label>
+                <input type="text" name="port" id="modal_port" class="form-control "/>
+            </div>
+
+            <div>
+                <label id="username_label_modal" class="col-form-label col-4">Username</label>
+                <input type="text" name="username" id="modal_username" class="form-control "/>
+            </div>
+
+            <div>
+                <label id="password_label_modal" class="col-form-label col-4">Password</label>
+                <input type="password" name="password" id="modal_password" class="form-control "/>
+            </div>
+
+            <div>
+                <label id="repository_label_modal" class="col-form-label col-4">Repository</label>
+                <input type="text" name="repository" id="modal_repository" class="form-control "/>
+            </div>
+
+            <div>
+                <label id="link_label_modal" class="col-form-label col-4">Link</label>
+                <input type="text" name="link" id="modal_link" class="form-control "/>
+            </div>
 
       </div>
       <div class="modal-footer">

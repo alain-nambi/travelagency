@@ -53,4 +53,3 @@ class Anomalie(models.Model):
     admin_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='admin', null=True)
     status = models.IntegerField(default=0)
     response_date = models.DateTimeField(null=True)
-        

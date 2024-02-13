@@ -1,131 +1,121 @@
-<div style="display:flex;justify-content: space-between; margin-right: 1rem; ">
+{% if ticket_state == "incomplet" %}
+    <div class="">
+        <a class="btn btn-outline-primary  py-0 px-2" title="Ajouter une ligne" role="button" onclick="OpenCard('add-ticket-parsing-card')">
+            <i class="fa fa-pen" aria-hidden="true"></i>Ajouter une ligne</a>
+    </div>
+{% endif %}
+<div style="display:flex;justify-content: space-between; margin-right: 1rem;margin-top:1rem; ">
     <div style="display: flex; flex-direction: column;">
-        <div class="card " style="width: 40rem;height:auto; margin:0 120px 0 20px;">
-            <div class="card-header">
-                <h2 class="card-title">Identifiants (1) </h2>
-                <h4 class="card-description"></h4>
-                
-            </div>
+        {% if ticket_state == "complet" or ticket_config %}
+            <div class="card " style="width: 40rem;height:auto; margin:0 120px 0 20px;">
+                <div class="card-header">
+                    <h2 class="card-title">Identifiants (1) </h2>
+                    <h4 class="card-description"></h4>
+                </div>
+                <div class="card-body"  >
+                    <table class="table table-bordered table-head-fixed text-wrap ">
+                        <thead class="bg-info">
+                        <tr>
+                            <th scope="col">Nom de la valeur</th>
+                            <th scope="col">Valeur</th>
+                        </tr>
+                        </thead>
 
-            <div class="card-body"  >
-                <table class="table table-bordered table-head-fixed text-wrap ">
-                    <thead class="bg-info">
-                    <tr>
-                        <th scope="col">Nom de la valeur</th>
-                        <th scope="col">Valeur</th>
-                    </tr>
-                    </thead>
-
-                    <tbody>
-                        
-                        {% for config in ticket_config|slice:":6" %}
-                            <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
-                                <td>{{config.value_name}}</td>
-                                <td>
-                                    <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
-                                        {% for element in config.array_value %}
-                                            <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{element}}</li>
-                                        {% endfor %}
-                                    </ul>
-                                </td>
-                            </tr>
-                        {% endfor %}
+                        <tbody>
                             
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="card-body" hidden >
-                <div>
-                    <label for="currency_name"class="col-form-label col-4">Nom de la valeur </label>
-                    <select class="form-control"  data-placeholder="Altea">
-                        <option value="test">Ticket</option>
-                        <option value="test">Tous les statuts possibles du ticket</option>
-
-                    </select>
+                            {% for config in ticket_config|slice:":6" %}
+                                <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
+                                    <td>{{config.value_name}}</td>
+                                    <td>
+                                        <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                                            {% for element in config.array_value %}
+                                                <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{element}}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                                
+                        </tbody>
+                    </table>
                 </div>
                 
-                <div class="multiInsertwrapper">
-                <label for="currency_name"class="col-form-label col-6" >Valeur</label>
-                <div class="multiInsertcontent" >
-                    <ul class="multiInsertul" name="contact_type">
-                        <input type="text" name="contact_type" id="multiInsert" class="form-control" />
-                    </ul>
-                </div>
-                <div class="multiInsertdetail">
-                    <button type="button" class="btn btn-primary removaAllButton" >Effacer</button>
-                </div>
-                </div>
-
-
-                
             </div>
-            <div class="card-footer" hidden>
-                <button type="button" id="saveIt" class="btn btn-success" style="margin-top: 20px;float:right;">Enregistrer</button>
-            </div>
-        </div>
+        {% endif %}
+
     </div>
 
     <div style="display: flex; flex-direction: column;">
-        <div class="card " style="width: 40rem;height:auto; margin:0 120px 0 20px;">
-            <div class="card-header">
-                <h2 class="card-title">Identifiants (2) </h2>
-                <h4 class="card-description"></h4>
-                
-            </div>
+        {% with ticket_config_length=ticket_config|length %}
+            {% if ticket_state == "complet" or ticket_config_length >= 6 %}
+                <div class="card " style="width: 40rem;height:auto; margin:0 120px 0 20px;">
+                    <div class="card-header">
+                        <h2 class="card-title">Identifiants (2) </h2>
+                        <h4 class="card-description"></h4>
+                    </div>
 
-            <div class="card-body" >
-                <table class="table table-bordered table-head-fixed text-wrap ">
-                    <thead class="bg-info">
-                    <tr>
-                        <th scope="col">Nom de la valeur</th>
-                        <th scope="col">Valeur</th>
-                    </tr>
-                    </thead>
-
-                    <tbody>
-                        {% for config in  ticket_config|slice:"6:" %}
-                            <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
-                                <td>{{config.value_name}}</td>
-                                <td>
-                                    <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
-                                        {% for element in config.array_value %}
-                                            <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{element}}</li>
-                                        {% endfor %}
-                                    </ul>
-                                </td>
+                    <div class="card-body" >
+                        <table class="table table-bordered table-head-fixed text-wrap ">
+                            <thead class="bg-info">
+                            <tr>
+                                <th scope="col">Nom de la valeur</th>
+                                <th scope="col">Valeur</th>
                             </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                            </thead>
+
+                            <tbody>
+                                {% for config in  ticket_config|slice:"6:" %}
+                                    <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
+                                        <td>{{config.value_name}}</td>
+                                        <td>
+                                            <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                                                {% for element in config.array_value %}
+                                                    <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{element}}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+            </div>
+            {% endif %}
+        {% endwith %}
+        
+        <div class="card " style="width: 48rem;height:auto; margin:70px 120px 0 20px;" id="add-ticket-parsing-card" {% if ticket_state != "vide" %}hidden{% endif %}>
+            <div class="card-header">
+                <h2 class="card-title">PNR Parsing Tools </h2>
+                <i class="fa fa-x" style="float: right; cursor:pointer;" aria-hidden="true" onclick="HideCard('add-ticket-parsing-card')"></i>
+
             </div>
 
-            <div class="card-body" hidden>
+            <div class="card-body"  >
                 <div>
-                    <label for="currency_name"class="col-form-label col-4">Nom de la valeur </label>
-                    <select class="form-control"  data-placeholder="Altea">
-                        <option value="test">Tarif Informatique</option>
-                        <option value="test">Pas d'ADC</option>
-
+                    <label for="currency_name"class="col-form-label col-4">Value Name</label>
+                    <select class="form-control "  data-placeholder="Altea" >
+                        {% for value_name in ticket_value_name %}
+                            <option value="{{value_name.value_name}}">{{value_name.value_name}}</option>
+                        {% endfor %}
                     </select>
                 </div>
 
-                <div class="multiInsertwrapper">
-                <label for="currency_name"class="col-form-label col-6" >Valeur</label>
-                <div class="multiInsertcontent" >
-                    <ul class="multiInsertul" name="contact_type">
-                        <input type="text" name="contact_type" id="multiInsert" class="form-control" />
-                    </ul>
+                <div class="multiInsertwrapper" style="margin-top:10px;">
+                    <label for="currency_name"class="col-form-label col-6" >Valeur</label>
+                    <div class="multiInsertcontent" >
+                        <ul class="multiInsertul" >
+                            <input type="text"  id="multiInsert" class="form-control" />
+                        </ul>
+                    </div>
+                    <div class="multiInsertdetail">
+                        <button type="button" class="btn btn-primary removaAllButton" >Effacer</button>
+                    </div>
                 </div>
-                <div class="multiInsertdetail">
-                    <button type="button" class="btn btn-primary removaAllButton" >Effacer</button>
-                </div>
-                </div>
-
+            
             </div>
 
-            <div class="card-footer" hidden >
-                <button type="button" id="saveIt" class="btn btn-success" style="margin-top: 20px;float:right;">Enregistrer</button>
+            <div class="card-footer" >
+                <button type="button" id="saveIt" class="btn btn-success" onclick="CreateParsing('ticket-parsing-create','add-ticket-parsing-card')" style="margin-top: 20px;float:right;">Ajouter</button>
             </div>
         </div>
 

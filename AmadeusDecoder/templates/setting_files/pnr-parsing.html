@@ -1,101 +1,206 @@
-<div style="display:flex;justify-content: space-between; margin-right: 1rem; ">
+
+{% if pnr_state == "incomplet" %}
+    <div class="">
+        <a class="btn btn-outline-primary  py-0 px-2" title="Ajouter une ligne" role="button" onclick="OpenCard('add-pnr-parsing-card')">
+            <i class="fa fa-pen" aria-hidden="true"></i>Ajouter une ligne</a>
+    </div>
+{% endif %}
+    
+
+<div style="display:flex;justify-content: space-between; margin-right: 1rem; margin-top: 1rem;">
+    
     <div style="display: flex; flex-direction: column;">
         <div class="card " style="width: 38rem;height:auto; margin:0 120px 0 20px;">
             <div class="card-header" >
                 <h1 class="card-title " >PNR </h1>
-                <h4 class="card-description"></h4>
                 
             </div>
 
-            <div class="card-body" >
-                <table class="table table-bordered table-head-fixed text-wrap ">
-                    <thead class="bg-info">
-                    <tr>
-                        <th scope="col">Nom de la valeur</th>
-                        <th scope="col">Valeur</th>
-                    </tr>
-                    </thead>
-
-                    <tbody>
-                        {% for config in pnr_config %}
-                            <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
-                                <td>{{config.value_name}}</td>
-                                <td>
-                                    <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
-                                        {% for element in config.array_value %}
-                                            <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{element}}</li>
-                                        {% endfor %}
-                                    </ul>
-                                </td>
+            
+            {% if pnr_state == "complet" or pnr_config%}
+                <div class="card-body" >
+                    <table class="table table-bordered table-head-fixed text-wrap ">
+                        <thead class="bg-info">
+                            <tr>
+                                <th scope="col">Nom de la valeur</th>
+                                <th scope="col">Valeur</th>
                             </tr>
-                        {% endfor %}
-                        
-                        
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
 
-            <div class="card-body" hidden >
-                <div>
-                    <label for="pnr"class="col-form-label col-4">PNR</label>
-                    <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
+                        <tbody>
+                            {% for config in pnr_config %}
+                                <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
+                                    <td>{{config.value_name}}</td>
+                                    <td>
+                                        <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                                            {% for element in config.array_value %}
+                                                <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{element}}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            
+                            
+                        </tbody>
+                    </table>
                 </div>
-
-                <div>
-                    <label for="pnr_type"class="col-form-label col-4">Type du PNR</label>
-                    <input type="text" name="pnr_type" id="pnr_type" class="form-control" placeholder="multi-insert"/>
-                </div>
-
-                <div>
-                    <label for="duplicate_pnr"class="col-form-label col-4">PNR Dupliqué</label>
-                    <input type="text" name="duplicate_pnr" id="duplicate_pnr" class="form-control" placeholder="multi-insert"/>
-                </div>
-
-                <div>
-                    <label for="split_pnr"class="col-form-label col-4">PNR partagé</label>
-                    <input type="text" name="split_pnr" id="split_pnr" class="form-control" placeholder="multi-insert"/>
-                </div>
-
-                <button type="button" class="btn btn-success" style="margin-top: 20px;float:right;">Enregistrer</button>
-            </div>
+            {% endif %}
+            
+                
         </div>
+        {% if pnr_state == "complet" or pnr_contact_config%}
+            <div class="card " style="width: 38rem;height:auto; margin:70PX 120px 0 20px;">
+                <div class="card-header">
+                    <h2 class="card-title">Contact </h2>
+                    <h4 class="card-description"></h4>
+                    
+                </div>
 
-         <div class="card " style="width: 38rem;height:auto; margin:70PX 120px 0 20px;">
-            <div class="card-header">
-                <h2 class="card-title">Contact </h2>
-                <h4 class="card-description"></h4>
+                <div class="card-body" >
+                    <table class="table table-bordered table-head-fixed text-nowrap ">
+                        <thead class="bg-info">
+                        <tr>
+                            <th scope="col">Nom de la valeur</th>
+                            <th scope="col">Valeur</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for config in pnr_contact_config  %}
+                                <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
+                                    <td>{{config.value_name}}</td>
+                                    <td>
+                                        
+                                        {% if config.array_value|length == 0 %}
+                                            {% with dict_items=config.dict_value.items %}
+                                                <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                                                    {% for key, value in dict_items %}
+                                                        <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{ key }} => {{ value }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% endwith %}
+
+                                        {% else %}
+                                            <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                                                {% for value in config.array_value %}
+                                                    <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{ value }}</li>
+                                                {% endfor %}
+                                            </ul>
+
+                                        {% endif %}
+                                        
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        {% endif %}
+
+        
+    </div>
+
+    <div style="display: flex; flex-direction: column;">
+        {% if pnr_state == "complet" or pnr_config_tools%}
+            <div class="card " style="width: 48rem;height:auto; margin:30px 120px 0 20px;">
+                <div class="card-header">
+                    <h2 class="card-title">Outils de lecture </h2>
+                    <h4 class="card-description"></h4>
+                    
+                </div>
+
+                <div class="card-body" >
+                    <table class="table table-bordered table-head-fixed text-wrap ">
+                        <thead class="bg-info">
+                        <tr>
+                            <th scope="col">Nom de la valeur</th>
+                            <th scope="col">Valeur</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for config in pnr_config_tools %}
+                                <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
+                                    <td>{{config.value_name}}</td>
+                                    <td>
+                                        <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                                            {% for element in config.array_value %}
+                                                <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{element}}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            
+                            
+                        </tbody>
+                    </table>
+                </div>
+
                 
             </div>
+        {% endif %}
 
-            <div class="card-body" >
-                <table class="table table-bordered table-head-fixed text-nowrap ">
-                    <thead class="bg-info">
-                    <tr>
-                        <th scope="col">Nom de la valeur</th>
-                        <th scope="col">Valeur</th>
-                    </tr>
-                    </thead>
+        {% if pnr_state == "complet" or pnr_ticket_config%}
+            <div class="card " style="width: 48rem;height:auto; margin:30px 120px 0 20px;">
+                <div class="card-header">
+                    <h2 class="card-title">Ticket </h2>
+                    <h4 class="card-description"></h4>
+                    
+                </div>
 
-                    <tbody>
-                        {% for config in pnr_contact_config  %}
-                            <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
-                                <td>{{config.value_name}}</td>
-                                <td>
-                                    <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
-                                        {% for element in config.array_value %}
-                                            <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{element}}</li>
-                                        {% endfor %}
-                                    </ul>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <div class="card-body"  >
+                    <table class="table table-bordered table-head-fixed text-nowrap ">
+                        <thead class="bg-info">
+                        <tr>
+                            <th scope="col">Nom de la valeur</th>
+                            <th scope="col">Valeur</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for config in pnr_ticket_config  %}
+                                <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
+                                    <td>{{config.value_name}}</td>
+                                    <td>
+                                        <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                                            {% for element in config.array_value %}
+                                                <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{element}}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        {% endif %}
+
+        <div class="card " style="width: 48rem;height:auto; margin:70px 120px 0 20px;" id="add-pnr-parsing-card" hidden>
+            <div class="card-header">
+                <h2 class="card-title">PNR Parsing Tools </h2>
+                <i class="fa fa-x" style="float: right; cursor:pointer;" aria-hidden="true" onclick="HideCard('add-pnr-parsing-card')"></i>
+
             </div>
 
-            <div class="card-body" hidden>
-                <div class="multiInsertwrapper">
-                    <label for="currency_name"class="col-form-label col-6" ><h5>Type du Contact</h5></label>
+            <div class="card-body"  >
+                <div>
+                    <label for="currency_name"class="col-form-label col-4">Value Name</label>
+                    <select class="form-control"  data-placeholder="Altea" >
+                        {% for value_name in pnr_value_name %}
+                            <option value="{{value_name.value_name}}">{{value_name.value_name}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="multiInsertwrapper" style="margin-top:10px;">
+                    <label for="currency_name"class="col-form-label col-6" >Valeur</label>
                     <div class="multiInsertcontent" >
                         <ul class="multiInsertul" name="contact_type">
                             <input type="text" name="contact_type" id="multiInsert" class="form-control" />
@@ -105,155 +210,13 @@
                         <button type="button" class="btn btn-primary removaAllButton" >Effacer</button>
                     </div>
                 </div>
-
-                <div class="multiInsertwrapper" style="margin-top:40px;">
-                    <label for="currency_name"class="col-form-label col-6" >Nom du type de contact</label>
-                    <div class="multiInsertcontent" >
-                        <ul class="multiInsertul" name="contact_type_name" >
-                            <input type="text" name="contact_type_name" id="multiInsert" class="form-control" />
-                        </ul>
-                    </div>
-                    <div class="multiInsertdetail">
-                        <button type="button" class="btn btn-primary removaAllButton">Effacer</button>
-                    </div>
-                </div>
-
+            
             </div>
-            <div class="card-footer" hidden>
-                <button type="button" id="saveIt" class="btn btn-success" style="margin-top: 20px;float:right;">Enregistrer</button>
+
+            <div class="card-footer" >
+                <button type="button" id="saveIt" class="btn btn-success" onclick="CreateParsing('pnr-parsing-create','add-pnr-parsing-card')" style="margin-top: 20px;float:right;">Ajouter</button>
             </div>
         </div>
-
-        <div class="card " style="width: 38rem;height:auto; margin:30px 120px 0 20px;">
-            <div class="card-header">
-                <h2 class="card-title">Ticket </h2>
-                <h4 class="card-description"></h4>
-                
-            </div>
-
-            <div class="card-body"  >
-                <table class="table table-bordered table-head-fixed text-nowrap ">
-                    <thead class="bg-info">
-                    <tr>
-                        <th scope="col">Nom de la valeur</th>
-                        <th scope="col">Valeur</th>
-                    </tr>
-                    </thead>
-
-                    <tbody>
-                        {% for config in pnr_ticket_config  %}
-                            <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
-                                <td>{{config.value_name}}</td>
-                                <td>
-                                    <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
-                                        {% for element in config.array_value %}
-                                            <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{element}}</li>
-                                        {% endfor %}
-                                    </ul>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="card-body" hidden >
-                <div class="multiInsertwrapper" style="margin-top:40px;">
-                    <label for="currency_name"class="col-form-label col-6" >Ligne du Ticket</label>
-                    <div class="multiInsertcontent" >
-                        <ul class="multiInsertul" name="ticket_line" >
-                            <input type="text" name="ticket_line" id="multiInsert" class="form-control" />
-                        </ul>
-                    </div>
-                    <div class="multiInsertdetail">
-                        <button type="button" class="btn btn-primary removaAllButton">Effacer</button>
-                    </div>
-                </div>
-                    
-                <div class="multiInsertwrapper" style="margin-top:40px;">
-                    <label for="currency_name"class="col-form-label col-6" >Second Degree Ticket Line</label>
-                    <div class="multiInsertcontent" >
-                        <ul class="multiInsertul" name="second_ticket_line" >
-                            <input type="text" name="second_ticket_line" id="multiInsert" class="form-control" />
-                        </ul>
-                    </div>
-                    <div class="multiInsertdetail">
-                        <button type="button" class="btn btn-primary removaAllButton">Effacer</button>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="card-footer" hidden>
-                <button type="button" id="saveIt" class="btn btn-success" style="margin-top: 20px;float:right;">Enregistrer</button>
-            </div>
-        </div>
-
-    </div>
-
-    <div style="display: flex; flex-direction: column;">
-       
-        <div class="card " style="width: 48rem;height:auto; margin:30px 120px 0 20px;">
-            <div class="card-header">
-                <h2 class="card-title">Outils de lecture </h2>
-                <h4 class="card-description"></h4>
-                
-            </div>
-
-            <div class="card-body" >
-                <table class="table table-bordered table-head-fixed text-wrap ">
-                    <thead class="bg-info">
-                    <tr>
-                        <th scope="col">Nom de la valeur</th>
-                        <th scope="col">Valeur</th>
-                    </tr>
-                    </thead>
-
-                    <tbody>
-                        {% for config in pnr_config_tools %}
-                            <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
-                                <td>{{config.value_name}}</td>
-                                <td>
-                                    <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
-                                        {% for element in config.array_value %}
-                                            <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{element}}</li>
-                                        {% endfor %}
-                                    </ul>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        
-                        
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="card-body" hidden>
-                <div>
-                    <label for="pnr"class="col-form-label col-4">Ligne à exclure</label>
-                    <input type="text" name="pnr" id="pnr" class="form-control" placeholder="multi-insert"/>
-                </div>
-
-                <div>
-                    <label for="pnr_type"class="col-form-label col-4">Remarque</label>
-                    <input type="text" name="pnr_type" id="pnr_type" class="form-control" placeholder="multi-insert"/>
-                </div>
-
-                <div>
-                    <label for="duplicate_pnr"class="col-form-label col-4">Devise de coût possible</label>
-                    <input type="text" name="duplicate_pnr" id="duplicate_pnr" class="form-control" placeholder="multi-insert"/>
-                </div>
-
-                <div>
-                    <label for="split_pnr"class="col-form-label col-4">Ligne AM H</label>
-                    <input type="text" name="split_pnr" id="split_pnr" class="form-control" placeholder="multi-insert"/>
-                </div>
-
-                <button type="button" class="btn btn-success" style="margin-top: 20px;float:right;">Enregistrer</button>
-            </div>
-        </div>
-
     </div>
 
 </div>

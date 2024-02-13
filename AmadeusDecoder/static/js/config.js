@@ -6,6 +6,7 @@ $(document).ready(function() {
     $('#regional_country').hide();
     $('#generalInfoFooter').hide();
     $('.insertmodalwrapper.regional_country').hide();
+     $('.card.EmailNotifCard').hide();
 });
 
 const ul = document.querySelector(".insertmodalul"),
@@ -22,21 +23,21 @@ function tabClicked(tabId) {
     const activePanel = document.querySelector('.tab-content.general .tab-pane.active');
     
     if (activeTab) {
-        console.log("Salut");
-        console.log('active ta:', activeTab.id);
+        
+        
         activeTab.classList.remove('active');
     }
 
     if (activePanel) {
         activePanel.classList.remove('active','show');
-        console.log('active pa:',activePanel.id);
+        
     }
 
     // Activez l'onglet et le panneau correspondants
     const newTab = document.getElementById(tabId);
     const newPanel = document.getElementById(`${tabId}-panel`);
-    console.log('newPanel :',newPanel.id);
-    console.log(newPanel);
+    
+    
     if (newTab && newPanel) {
         newTab.classList.add('active');
         newPanel.classList.add('active','show');
@@ -48,7 +49,14 @@ $(document).ready(function() {
     $('#trSavingFileModal').click(function() {
         
       $('#modalLinkEnv').val($(this).data('env'));
-      $('#modalLink').val($(this).data('link'));
+      $('#modal_storage').val($(this).data('storage'));
+      $('#modal_hostname').val($(this).data('hostname'));
+      $('#modal_username').val($(this).data('username'));
+      $('#modal_password').val($(this).data('password'));
+      $('#modal_repository').val($(this).data('repository'));
+      $('#modal_port').val($(this).data('port'));
+      $('#modal_link').val($(this).data('link'));
+      
 
     });
 
@@ -76,15 +84,15 @@ $(document).ready(function() {
 
         ul.querySelectorAll("li").forEach(li =>li.remove());
         tags=[];
-        console.log('liste',liste);
+        
 
         liste.forEach(element => {
-            console.log('element',element);
-            let li = `<li>${element} <i class="fa fa-xmark" onclick="remove(this, '${element}')" ></i></li>`;
+            
+            let li = `<li>${element} <i class="fa fa-xmark" onclick="remove(this)" ></i></li>`;
             ul.insertAdjacentHTML("afterbegin", li);
             tags.push(element);
         });
-        console.log('tags:', tags);
+        
 
     });
 
@@ -100,26 +108,28 @@ $(document).ready(function() {
     });
 
      $('.trEmailFeesModal').click(function() {
+        
+
+        $('#modalFeesEnv').val($(this).data('env'));
+        $('#modalFeesValueName').val($(this).data('value-name'));
+        $('#modalFeesValueName').text($(this).data('value'));
+        $('#modalFeesEmail').val($(this).data('email'));
         const ul_list = $(this).find('.ul_list li');
         var liste = [];
         ul_list.each(function() {
             liste.push($(this).text());
         });
+        console.log(liste);
 
         ul.querySelectorAll("li").forEach(li =>li.remove());
+        console.log(((((((ul.parentElement).parentElement).parentElement).parentElement).parentElement).parentElement).parentElement)
         tags=[];
-
         liste.forEach(element => {
-            console.log('element',element);
-            let li = `<li>${element} <i class="fa fa-xmark" onclick="remove(this, '${element}')" ></i></li>`;
+            let li = `<li>${element}<i class="fa fa-xmark" onclick="remove(this)"></i></li>`;
             ul.insertAdjacentHTML("afterbegin", li);
             tags.push(element);
         });
-      $('#modalFeesEnv').val($(this).data('env'));
-      $('#modalFeesValueName').val($(this).data('value-name'));
-      $('#modalFeesValueName').text($(this).data('value'));
-      $('#modalFeesEmail').val($(this).data('email'));
-
+        console.log(tags);
     });
 
     $('.trEmailFeeSenderModal').click(function() {
@@ -134,36 +144,41 @@ $(document).ready(function() {
 
 
 
-// Update data
+// Update data // value = value.replace(/'/g, '"');
 $(document).ready(function() {
     $('.trModalInsert').click(function() {
         var tr = document.getElementById(this.id);
 
         $('#modalLabel').text(tr.dataset.valuename);
         var value = tr.dataset.value;
-        console.log(value);
-        value = value.replace(/'/g, '"');
+        console.log('value 1 : ',value);
         
+        // Supprimer les espaces après une virgule
+        value = value.replace(/,\s+/g, ',');
+
+        // Remplacer les apostrophes avant et après une virgule par des guillemets doubles
+        value = value.replace(/,'/g, ',"').replace(/',/g, '",');
+
+        // Remplacer le premier et le dernier apostrophe par des guillemets doubles
+        value = value.replace(/\['/g, '["').replace(/'\]/g, '"]');
+
+        console.log('value 2 : ',value);
         var liste = JSON.parse(value)
         var ul = document.querySelector(".insertmodalul");
 
         ul.querySelectorAll("li").forEach(li =>li.remove());
         tags=[];
-        console.log('liste',liste);
 
         liste.forEach(element => {
-            console.log('element',element);
-            let li = `<li>${element} <i class="fa fa-xmark" onclick="remove(this, '${element}')" ></i></li>`;
+            let li = `<li>${element} <i class="fa fa-xmark" onclick="remove(this)" ></i></li>`;
             ul.insertAdjacentHTML("afterbegin", li);
             tags.push(element);
         });
-        console.log('tags:', tags);
-
+        
     });
 
 
     $('#closeinsertmodal').click(function () {
-        console.log('modal closed');
         removeAllModal();
     });
 
@@ -176,20 +191,25 @@ function removeAllModal() {
 function CreateTag(){
     ul.querySelectorAll("li").forEach(li =>li.remove());
     tags.slice().reverse().forEach(tag => {
-        let liTag = `<li>${tag} <i class="fa fa-xmark" onclick="remove(this, '${tag}')" ></i></li>`;
+        let liTag = `<li>${tag} <i class="fa fa-xmark" onclick="remove(this)" ></i></li>`;
+        
         ul.insertAdjacentHTML("afterbegin", liTag);
     });
 }
 
-function remove(element, tag){
+function remove(element){
+    var tag = element.parentNode.firstChild.nodeValue.trim();
+    console.log('remove tag : ',tag);
+
     tags = tags.filter(element => element !== tag);
+    console.log(tags);
     element.parentElement.remove();
 }
 
 function addTag(e){
-    console.log("Input !!!");
+    
     if(e.key == "Enter"){
-        console.log("Enter !!!!!!");
+        
         let tag = e.target.value;
         if (tag.length >1 && !tags.includes(tag)) {
             tag.split(',').forEach(tag => {
@@ -246,24 +266,15 @@ multiInsertwrapper.forEach(wrapper => {
 
     const Button = wrapper.querySelector('.multiInsertdetail button');
     $(Button).click(function () {
-        console.log('click');
+        
         multiInputUl.querySelectorAll("li").forEach(li =>li.remove());
         finalMultiInsertTags = finalMultiInsertTags.filter(element => element !== multiInputtags );
-        console.log('final :',finalMultiInsertTags);
+        
     })
 
 });
 
-$(document).ready(function () {
-    $('#saveIt').click(function () {
-        multiInsertwrapper.forEach(wrapper => {
-        const multiInputUl = wrapper.querySelector('.multiInsertcontent ul');
-        const multiInputInput = wrapper.querySelector('.multiInsertcontent input');
-            console.log(multiInputInput.getAttribute('name'));
-            multiInputUl.querySelectorAll("li").forEach(li =>console.log(li.textContent));
-        })
-    });  
-})
+
 
 // ---------------- All Update functions ------------------------
 
@@ -286,15 +297,15 @@ function updateGeneralInfo(){
 
     ul.querySelectorAll("li").forEach(li =>li.remove());
     tags=[];
-    console.log('liste',liste);
+    
 
     liste.forEach(element => {
-        console.log('element',element);
-        let li = `<li>${element} <i class="fa fa-xmark" onclick="remove(this, '${element}')" ></i></li>`;
+        
+        let li = `<li>${element} <i class="fa fa-xmark" onclick="remove(this)" ></i></li>`;
         ul.insertAdjacentHTML("afterbegin", li);
         tags.push(element);
     });
-    console.log('tags:', tags);
+    
 
     $('#name').show();
     $('#currency_name').show();
@@ -310,8 +321,8 @@ function UpdateEmailPnr() {
     var env = $('#modalEmailPnrEnv').val();
     var email = $('#modalEmailPnrEmail').val();
     var password = $('#modalEmailPnrPassword').val();
-    console.log(email);
-    console.log(password);
+    
+    
 
     $.ajax({
         type: "POST",
@@ -325,9 +336,7 @@ function UpdateEmailPnr() {
         success: function (data) {
             if (data == 'ok') {
                 toastr.success('Information(s) modifiée(s)');
-                setTimeout(() => {
                     location.reload();
-                }, 1000)
             } 
             if (data.status == 'error') {
                 toastr.error(data.error)
@@ -360,9 +369,8 @@ $(document).ready(function () {
             success: function (data) {
                 if (data == 'ok') {
                     toastr.success('Information(s) modifiée(s)');
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1000)
+                            location.reload();
+
                 } 
                 if (data.status == 'error') {
                     toastr.error(data.error)
@@ -373,24 +381,37 @@ $(document).ready(function () {
 
     // Update Saving File Protocol
     $('#buttonUpdateSavingFile').click(function () {
-        var link = $('#modalLink').val();
-        var env = $('#modalLinkEnv').val();
+        var link = $('#modal_link').val();
+        var storage = $('#modal_storage').val();
+        var hostname = $('#modal_hostname').val();
+        var username = $('#modal_username').val();
+        var password = $('#modal_password').val();
+        var repository = $('#modal_repository').val();
+        var port = $('#modal_port').val();
 
+        var env = $('#modalLinkEnv').val();
+        
+        
         $.ajax({
             type: "POST",
             url: "/setting/saving-protocol-update",
             dataType: "json",
             data: {
                 link: link,
+                storage: storage,
+                hostname: hostname,
+                username: username,
+                password: password,
+                repository: repository,
+                port: port,
                 env: env,
                 csrfmiddlewaretoken: csrftoken,
             },
             success: function (data) {
                 if (data == 'ok') {
                     toastr.success('Information(s) modifiée(s)');
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1000)
+                            location.reload();
+
                 } 
                 if (data.status == 'error') {
                     toastr.error(data.error)
@@ -425,9 +446,7 @@ function UpdateEmailNotifSender(){
         success: function (data) {
             if (data == 'ok') {
                 toastr.success('Information(s) modifiée(s)');
-                setTimeout(() => {
                     location.reload();
-                }, 1000)
             } 
             if (data.status == 'error') {
                 toastr.error(data.error)
@@ -437,7 +456,7 @@ function UpdateEmailNotifSender(){
 }
 
 function UpdateEmailNotif(){
-    console.log('tagssss : ',tags);
+    
     var email = JSON.stringify(tags);
     var ValueName = $('#modalNotifValueName').val();
     
@@ -453,9 +472,7 @@ function UpdateEmailNotif(){
         success: function (data) {
             if (data == 'ok') {
                 toastr.success('Information(s) modifiée(s)');
-                setTimeout(() => {
                     location.reload();
-                }, 1000)
             } 
             if (data.status == 'error') {
                 toastr.error(data.error)
@@ -465,7 +482,7 @@ function UpdateEmailNotif(){
 }
 
 function UpdateEmailFees() {
-    console.log('tagssss : ',tags);
+    
     var email = JSON.stringify(tags);
     var ValueName = $('#modalFeesValueName').val();
     
@@ -481,9 +498,7 @@ function UpdateEmailFees() {
         success: function (data) {
             if (data == 'ok') {
                 toastr.success('Information(s) modifiée(s)');
-                setTimeout(() => {
                     location.reload();
-                }, 1000)
             } 
             if (data.status == 'error') {
                 toastr.error(data.error)
@@ -514,9 +529,7 @@ function UpdateEmailFeeSender(){
         success: function (data) {
             if (data == 'ok') {
                 toastr.success('Information(s) modifiée(s)');
-                setTimeout(() => {
                     location.reload();
-                }, 1000)
             } 
             if (data.status == 'error') {
                 toastr.error(data.error)
@@ -528,9 +541,9 @@ function UpdateEmailFeeSender(){
 // Update multiInsert
 function UpdateMultiInput(){
     var value_name = $('#modalLabel').text();
-    console.log("update multi input");
-    console.log(value_name);
-    console.log(tags);
+    
+    
+    
     
     $.ajax({
         type: "POST",
@@ -544,9 +557,7 @@ function UpdateMultiInput(){
         success: function (data) {
             if (data == 'ok') {
                 toastr.success('Information(s) modifiée(s)');
-                setTimeout(() => {
                     location.reload();
-                }, 1000)
             } 
             if (data.status == 'error') {
                 toastr.error(data.error)
@@ -566,7 +577,7 @@ function CreateCompany(){
     var currency_name = $('#create_currency_name').val();
     var currency_code = $('#create_currency_code').val();
     var language_code = $('#create_language_code').val();
-    console.log('finalMultiInsertTags', finalMultiInsertTags);
+    
     
     $.ajax({
             type: "POST",
@@ -583,9 +594,8 @@ function CreateCompany(){
             success: function (data) {
                 if (data == 'ok') {
                     toastr.success('Informations Enregistrées');
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1000)
+                            location.reload();
+
                 } 
                 if (data.status == 'error') {
                     toastr.error(data.error)
@@ -593,4 +603,226 @@ function CreateCompany(){
             },
         });
 
+}
+
+$('#create_storage').on('change', function () {
+    if ($(this).val() == 'Local') {
+        $('#create_hostname').hide();
+        $('#create_port').hide();
+        $('#create_username').hide();
+        $('#create_password').hide();
+        $('#create_repository').hide();
+        $('#hostname_label').hide();
+        $('#port_label').hide();
+        $('#username_label').hide();
+        $('#password_label').hide();
+        $('#repository_label').hide();
+    }
+    if ($(this).val() == 'FTP') {
+        $('#create_hostname').show();
+        $('#create_port').show();
+        $('#create_username').show();
+        $('#create_password').show();
+        $('#create_repository').show();
+        $('#hostname_label').show();
+        $('#port_label').show();
+        $('#username_label').show();
+        $('#password_label').show();
+        $('#repository_label').show();
+    }
+});
+$('#modal_storage').on('change', function () {
+    if ($(this).val() == 'Local') {
+        $('#modal_hostname').hide();
+        $('#modal_port').hide();
+        $('#modal_username').hide();
+        $('#modal_password').hide();
+        $('#modal_repository').hide();
+        $('#hostname_label_modal').hide();
+        $('#port_label_modal').hide();
+        $('#username_label_modal').hide();
+        $('#password_label_modal').hide();
+        $('#repository_label_modal').hide();
+    }
+    if ($(this).val() == 'FTP') {
+        $('#modal_hostname').show();
+        $('#modal_port').show();
+        $('#modal_username').show();
+        $('#modal_password').show();
+        $('#modal_repository').show();
+        $('#hostname_label_modal').show();
+        $('#port_label_modal').show();
+        $('#username_label_modal').show();
+        $('#password_label_modal').show();
+        $('#repository_label_modal').show();
+    }
+});
+
+function CreateOdooLink(){
+    var link = $('#create_link').val();
+    var storage = $('#create_storage').val();
+    var hostname = $('#create_hostname').val();
+    var port = $('#create_port').val();
+    var username = $('#create_username').val();
+    var password = $('#create_password').val();
+    var repository = $('#create_repository').val();
+
+
+    $.ajax({
+        type: "POST",
+        url: "/setting/general-file-protocol-create",
+        dataType: "json",
+        data: {
+            link: link,
+            storage: storage,
+            hostname: hostname,
+            port: port,
+            username: username,
+            password: password,
+            repository: repository,
+
+            csrfmiddlewaretoken: csrftoken,
+        },
+        success: function (data) {
+            if (data == 'ok') {
+                toastr.success('Informations Enregistrées');
+                    location.reload();
+            } 
+            if (data.status == 'error') {
+                toastr.error(data.error)
+            }
+        },
+    });
+}
+
+function CreateEmailPnr(){
+    var email = $('#email_pnr').val();
+    var password = $('#email_pnr_password').val();
+
+    $.ajax({
+        type: "POST",
+        url: "/setting/email-pnr-create",
+        dataType: "json",
+        data: {
+            password: password,
+            email: email,
+            csrfmiddlewaretoken: csrftoken,
+        },
+        success: function (data) {
+            if (data == 'ok') {
+                toastr.success('Informations Enregistrées');
+                    location.reload();
+            } 
+            if (data.status == 'error') {
+                toastr.error(data.error)
+            }
+        },
+    });
+
+}
+
+function CreateEmailNotif(){
+    var email = JSON.stringify(finalMultiInsertTags[0])
+    var value_name = $('#email_notif_value_name').val();
+
+    $.ajax({
+        type: "POST",
+        url: "/setting/email-notification-recipients-create",
+        dataType: "json",
+        data: {
+            value_name: value_name,
+            email: email,
+            csrfmiddlewaretoken: csrftoken,
+        },
+        success: function (data) {
+            if (data == 'ok') {
+                toastr.success('Informations Enregistrées');
+                    location.reload();
+            } 
+            if (data.status == 'error') {
+                toastr.error(data.error)
+            }
+        },
+    });
+
+}
+
+function AddEmailNotification() {
+    $('.card.EmailNotifCard').show();
+}
+
+function CreateEmailFeeSender(){
+    var email = $('#email_fee_sender').val();
+    var password = $('#password_email_fee_sender').val();
+    var smtp = $('#smtp_email_fee_sender').val();
+    var port = $('#port_email_fee_sender').val();
+    var config_id = $('#value_name_email_fee_sender').val();
+
+    $.ajax({
+        type: "POST",
+        url: "/setting/email-fee-sender-create",
+        dataType: "json",
+        data: {
+            email: email,
+            password: password,
+            smtp: smtp,
+            port: port,
+            config_id :config_id,
+            csrfmiddlewaretoken: csrftoken,
+        },
+        success: function (data) {
+            if (data == 'ok') {
+                toastr.success('Informations Enregistrées');
+                    location.reload();
+            } 
+            if (data.status == 'error') {
+                toastr.error(data.error)
+            }
+        },
+    });
+}
+
+$(document).ready(function () {
+    $('#add-pnr-parsing').click(function () {
+        
+        document.getElementById('add-pnr-config-card').hidden=false;
+    });
+});
+
+// ---------------------------- All Parsing Functions ---------------------------
+
+function CreateParsing(chemin,id) {
+    const card = document.querySelector('#'+id);
+    const select = card.querySelector("select")
+
+    const value_name = $('#' + id + ' select').val();
+    var value = JSON.stringify(finalMultiInsertTags[0])
+    $.ajax({
+        type: "POST",
+        url: "/setting/"+chemin,
+        dataType: "json",
+        data: {
+            value_name: value_name,
+            value: value,
+            csrfmiddlewaretoken: csrftoken,
+        },
+        success: function (data) {
+            if (data == 'ok') {
+                toastr.success('Informations Enregistrées');
+                location.reload();
+            } 
+            if (data.status == 'error') {
+                toastr.error(data.error)
+            }
+        },
+    });
+
+}
+
+function HideCard(id){
+    document.getElementById(id).hidden = true
+}
+
+function OpenCard(id){
+    document.getElementById(id).hidden = false
 }

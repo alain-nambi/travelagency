@@ -62,5 +62,39 @@
       </div>
     </div>
   </section>
+      <div class="modal fade" id="Multi-insert" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="modalPnrNotUpdatedTitle">
+                <i class="fa-solid fa-file-pen"></i>
+                Identifiants
+              </h5>
+              <button type="button" id="closeinsertmodal" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                  <div class="insertmodalwrapper">
+                      <label for="currency_name"class="col-form-label col-6" id="modalLabel"></label>
+                      <div class="insertmodalcontent">
+                          <ul class="insertmodalul">
+                              <input type="text" id="modalInsert" class="form-control" />
+                          </ul>
+                      </div>
+                      <div class="insertmodaldetail">
+                          <button type="button" class="btn btn-primary" onclick="removeAllModal()">Effacer</button>
+                      </div>
+                  </div>
+
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+              <button type="button" class="btn btn-success" onclick="UpdateMultiInput()">Modifier</button>
+            </div>
+          </div>
+        </div>
+    </div>
 </div>
 {% endblock content %}

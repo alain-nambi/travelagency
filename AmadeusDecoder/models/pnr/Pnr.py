@@ -98,6 +98,7 @@ class Pnr(models.Model, BaseModel):
             size=20
         )
     is_archived = models.BooleanField(default=0)
+    is_canceled = models.BooleanField(default=0)
     # pnr status
     pnr_status = models.IntegerField(default=1) # pnr status: 1: active, 0: void
     

@@ -153,6 +153,9 @@ def home(request):
         
     # print(f"AGENCY NAME : {agency_name}")
     
+    # Hide cancelled PNR
+    pnr_is_canceled = Q(is_canceled=False)
+    
     if request.user.id in [4, 5]: #==> [Farida et Mouniati peuvent voir chacun l'ensemble de leurs pnr]
         pnr_list = []
         pnr_count = 0
@@ -180,7 +183,8 @@ def home(request):
                             date_filter,
                             max_system_creation_date,
                             agency_name,
-                            agent
+                            agent,
+                            pnr_is_canceled,
                         ).first()
                     
                 if pnr not in pnr_list and pnr is not None:
@@ -241,7 +245,8 @@ def home(request):
                             status_value,
                             date_filter,
                             max_system_creation_date,
-                            agency_name
+                            agency_name,
+                            pnr_is_canceled,
                         ).filter(is_invoiced=is_invoiced).first()
                 
                 if pnr not in pnr_list and pnr is not None:
@@ -255,7 +260,8 @@ def home(request):
                             date_filter,
                             agent,
                             max_system_creation_date,
-                            agency_name
+                            agency_name,
+                            pnr_is_canceled,
                         ).filter(is_invoiced=is_invoiced).order_by(date_order_by + 'system_creation_date')
             
             for pnr in pnr_obj:
@@ -345,6 +351,7 @@ def home(request):
                         max_system_creation_date,
                         agency_name,
                         agent,
+                        pnr_is_canceled,
                     ).first()
 
             # If Pnr is not already in the set and is not None, add it to the set and the list
@@ -365,6 +372,7 @@ def home(request):
                         max_system_creation_date,
                         status_value,
                         agency_name,
+                        pnr_is_canceled,
                     ).filter(
                         is_invoiced,
                     ).order_by(
@@ -447,6 +455,7 @@ def home(request):
                                 max_system_creation_date,
                                 date_filter,
                                 agency_name,
+                                pnr_is_canceled,
                             )
 
             if is_invoiced is not None:
@@ -499,6 +508,7 @@ def home(request):
                                     max_system_creation_date,
                                     date_filter,
                                     agency_name,
+                                    pnr_is_canceled,
                                 )
 
                 if is_invoiced is not None:
@@ -550,7 +560,8 @@ def home(request):
                                 status_value,
                                 max_system_creation_date,
                                 date_filter,
-                                agency_name
+                                agency_name,
+                                pnr_is_canceled,
                             )
 
             if is_invoiced is not None:
@@ -721,7 +732,7 @@ def pnr_research(request):
         search_results = []
         
         pnr_research = request.POST.get('pnr_research')
-        pnr_results = Pnr.objects.all().filter(Q(number__icontains=pnr_research)).filter(Q(system_creation_date__gt=maximum_timezone))
+        pnr_results = Pnr.objects.all().filter(Q(number__icontains=pnr_research)).filter(Q(system_creation_date__gt=maximum_timezone)).filter(Q(is_canceled=False))
         for p1 in pnr_results :
             search_results.append(p1)
         # search with passenger
@@ -810,7 +821,7 @@ def pnr_search_by_pnr_number(request):
     if request.method == 'POST':
         pnr_number = request.POST.get('PnrNumber', None)
         if pnr_number is not None:
-            pnr = Pnr.objects.all().filter(number=pnr_number).filter(Q(system_creation_date__gt=maximum_timezone)).first()
+            pnr = Pnr.objects.all().filter(number=pnr_number).filter(Q(system_creation_date__gt=maximum_timezone)).filter(Q(is_canceled=False)).first()
             if pnr is not None:
                 context['pnr_id'] = pnr.id
             else:

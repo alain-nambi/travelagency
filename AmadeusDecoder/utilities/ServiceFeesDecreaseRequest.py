@@ -79,7 +79,8 @@ class ServiceFeesDecreaseRequest():
     # request response url
     def request_response_url(self, response_type, choiceType, token, pnr_object, customers, first_passenger, feeOriginAmount, feeAmount, ticket_total_cost, ticket_total_all):
         # when modifying requested fees
-        mail_recipient = FEE_REQUEST_RESPONSE_RECIPIENT[0]
+        mail_recipient = FEE_REQUEST_RESPONSE_RECIPIENT
+        double_mail_recipient = ",".join(mail_recipient)
         subject = "FEE%20MODIFY%20REQUEST"
         mail_body = ""
         ticket_concerned = ""
@@ -106,8 +107,8 @@ class ServiceFeesDecreaseRequest():
         button_texts = {'accepted':'Accepter', 'rejected':'Refuser', 'modify':'Modifier'}
         border_colors = {'accepted':'#4CAF50', 'rejected':'#f44336', 'modify':'#008CBA'}
         modify_url = """
-            <A HREF="mailto:{mail_to_recipient}?subject={subject}&body={mail_body}" target="_top" style="padding: 8px 12px; border: 1px solid {border_color};border-radius: 2px;font-family: Helvetica, Arial, sans-serif;font-size: 14px; color: #ffffff;text-decoration: none;font-weight:bold;display: inline-block;">{button_text}</A>
-        """.format(mail_to_recipient=mail_recipient, subject=subject, mail_body=mail_body, button_text=button_texts[response_type], border_color=border_colors[response_type])
+            <A HREF="mailto:{double_mail_recipient}?subject={subject}&body={mail_body}" target="_top" style="padding: 8px 12px; border: 1px solid {border_color};border-radius: 2px;font-family: Helvetica, Arial, sans-serif;font-size: 14px; color: #ffffff;text-decoration: none;font-weight:bold;display: inline-block;">{button_text}</A>
+        """.format(double_mail_recipient=double_mail_recipient, subject=subject, mail_body=mail_body, button_text=button_texts[response_type], border_color=border_colors[response_type])
         
         return modify_url
         

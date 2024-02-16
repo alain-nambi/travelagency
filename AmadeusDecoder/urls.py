@@ -6,7 +6,7 @@ from .views.Dashboard import dashboard
 from .views.Manage_customers import customers, create_customer, modify_customer_info, modify_customer_in_passenger_invoice, delete_customer
 from .views.Manage_users import users, register
 from .views.Account import account
-from .views.Tools import tools, call_customer_import, call_product_import
+from .views.Tools import *
 from .views.Setting import setting
 from .views.Login import *
 from .views.Home import *
@@ -57,4 +57,19 @@ urlpatterns = [
     path('home/get-all-municipalities/', get_all_municipalities, name= 'get_all_municipalities'),
     path('home/other-fee/remove/', remove_other_fee_service, name='remove_other_fee_service'),
     path('home/get-all-products/', get_all_products, name='get_all_products'),
+    path('home/get-invoice-number-to-uncommand/<str:numeroPnr>', get_invoice_number, name='get_invoice_number'),
+    path('home/unorder-pnr',unorder_pnr, name='unorder_pnr'),
+    path('home/get-all-pnr-unordered',get_all_pnr_unordered, name='get_all_pnr_unordered'),
+    path('home/unordered-pnr-research', unordered_pnr_research, name= 'unordered_pnr_research'),
+    path('home/verif/ticket', verif_ticket, name= 'verif_ticket'),
+    path('home/save-ticket-anomalie', save_ticket_anomalie, name= 'save_ticket_anomalie'),
+    path('home/get-all-anomalies', get_all_anomalies, name='get_all_anomalies'),
+    path('home/update-ticket', update_ticket, name='update_ticket'),
+    path('home/get-passengers-and-segments', getPassengersAndSegmets, name= 'getPassengersAndSegmets'),
+    path('home/get-passenger-and-segment-By-Id', getPassengerAndSegmentById, name='getPassengerAndSegmentById'),
+    path('home/anomaly-details/<int:pnr_id>', anomaly_details, name='anomaly_details'),
+    path('home/liste-commandes', liste_commandes, name='liste_commandes'),
+    path('home/refuse-anomaly', refuse_anomaly, name='refuse_anomaly'),
+    path('home/drop-anomaly',drop_anomaly, name='drop_anomaly'),
+    path('home/update-anomaly', updateAnomaly, name='update_anomaly'),
 ]

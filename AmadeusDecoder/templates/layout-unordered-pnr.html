@@ -3,8 +3,6 @@
 <html lang="en">
 {% load static %}
 {% load pnr_details %}
-{% load pnr_comments %}
-
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, maximum-scale=10">
@@ -73,15 +71,21 @@ old -->
           <a class="nav-link" id="pushed-sidebar" data-widget="pushmenu" href="#" role="button"><i
               class="fas fa-bars"></i></a>   
         </li>
-        <li class="nav-item">
-          {% include "commandes_modal.html" %}
+        <li class="nav-item ml-5">
+          <button 
+                type="button" 
+                class="btn btn-outline-success zenith" 
+                data-toggle="modal" 
+                data-target="#modalListeCommandes" 
+                title="Liste des commandes Amadeus"
+                id = "liste_commandes"
+              ><span>Liste des commandes Amadeus</span>
+              </button>
         </li>
-        <li class="nav-item ml-5 d-flex" style="gap: 0.5rem;">
-          <div class="align-items-center">
+        <li class="nav-item ml-5">
+          <div class="d-flex align-items-center" style="gap: 1rem">
             <span id="mail-user" data-mail="issoufali.pnr@outlook.com;{{request.user.email}}">issoufali.pnr@outlook.com;{{request.user.email}}</span>
             <a type="button" class="btn btn-outline-primary zenith" onclick="copymailuser()">Zenith</a> 
-            
-          </div>
             <div id="pnrNotUpdated">
               <button 
                 type="button" 
@@ -95,7 +99,12 @@ old -->
                 Pnr non remonté
               </button>
             </div>
+            
+            
+              
+            
 
+          </div>
         </li>
       </ul>
     </form>
@@ -332,31 +341,14 @@ old -->
             <div class="col-md-2">
               <strong class="text-primary">
                 <u>Total PNR:</u> 
-                <span class="request-pnr-counter">{{  pnr_count }}</span>
+                <span class="request-pnr-counter">{{ pnr_count }}</span>
               </strong>
             </div>
             <div class="col-md-10">
 
               <div id="pagination"></div>
               {% include "pagination.html" %}
-              <!-- <div class="pager">
-                <span class="right">
-                  <span class="prev">
-                    <i class="fa fa-angle-left"></i>
-                  </span>
-                  <span class="pagecount"></span>
-                  <span class="next">
-                    <i class="fa fa-angle-right"></i>
-                  </span>
-                </span>
-                <select class="form-control form-control-sm pagesize" style="display: inline; width: 40%;">
-                  <option value="" disabled selected>Nombres de lignes</option>
-                  <option value="20">20</option>
-                  <option value="50">50</option>
-                  <option value="100">100</option>
-                  <option value="{{ pnr_count }}">Tous</option>
-                </select>
-              </div> -->
+
             </div>
           </div>
         </div>
@@ -399,7 +391,6 @@ old -->
     <script src="{% static 'js/gdsCommandHandler.js' %}"></script>
     <script src="{% static 'js/invoice_unorder.js' %}"></script>
     <script src="{% static 'js/UnorderedPnrHandler.js' %}"></script>
-    <script src="{% static 'js/anomalie.js' %}"></script>
 
 
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>

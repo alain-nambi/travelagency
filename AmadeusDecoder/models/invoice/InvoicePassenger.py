@@ -30,3 +30,4 @@ class PassengerInvoice(models.Model):
     control = models.IntegerField(default=0) # 0: not controlled, 1: controlled
     invoice_number = models.CharField(max_length=100, null=True, default=None)
     is_archived = models.BooleanField(default=False)
+    

@@ -907,7 +907,11 @@
 												{% if other_fee|ancillary_passenger is not None %}
 												<td>
 													{{ other_fee|ancillary_passenger }}
+													{% if other_fee.fee_type == 'AVOIR COMPAGNIE' %}
+														<br>{{ other_fee.id|route_avoir }}
+													{% endif %}
 												</td>
+													
 												{% else %}
 												<td> </td>
 												{% endif %}
@@ -919,12 +923,16 @@
 												<td>
 													{{ other_fee|ancillary_passenger_segment }}
 												</td>
+													
 												{% else %}
 												<td>
 													{% if other_fee.passenger_segment is not None %}
 														{{ other_fee.passenger_segment }}
 													{% endif %}
 												</td>
+												
+												
+													
 												{% endif %}
 												<td>
 													{% if other_fee.creation_date is not None %}
@@ -961,19 +969,29 @@
 												<td></td>
 												<td>
 													<!---- only if other_fee is not already invoiced that yan can remove it ----->
+													
 													{% if not other_fee.is_invoiced %}
+													{% comment %} {{other_fee.is_invoiced}} {% endcomment %}
 														<button id="deleteOtherFeeService"
 																class="btn btn-danger d-none px-2 py-1" 
 																type="button" 
 																data-toggle="modal"
 																data-target="#modalRemoveOtherFeeService"
-																title="Supprimer {{ other_fee.designation }} à {{ other_fee.cost|floatformat:'2' }} euros"
+																
+																{% if other_fee.fee_type == 'AVOIR COMPAGNIE' %}
+																	title = "Supprimer l' {{ other_fee.fee_type }} à {{ other_fee.cost|floatformat:'2' }} euros"
+																{% else %}
+																	title="Supprimer {{ other_fee.designation }} à {{ other_fee.cost|floatformat:'2' }} euros"
+																{% endif %}
+																	
+																
 																data-other-fee-id="{{ other_fee.id }}"
-																data-other-fee-designation="{{ other_fee.designation }}"
+																data-other-fee-designation="{{ other_fee.designation }}" data-other-fee-type="{{ other_fee.fee_type }}"
 																data-other-fee-total="{{ other_fee.total }}"
 														>
 															<i class="fa-solid fa-trash"></i>
 														</button>
+													
 													{% endif %}
 													<!---------------------- remove other_fee buttons --------------------------->
 												</td>
@@ -1077,22 +1095,30 @@
 												<td id="product-type-initial">Autres</td>
 												<td>
 													<div class="form-group mb-0">
-														<select class="form-control form-control-sm" name="service-type-dropdown">
+														<select class="form-control form-control-sm" id="SelectProduct" name="service-type-dropdown">
 															<option hidden>Type</option>
 															{% for product in products %}
 															<option value="{{product.id}}" data-designation="{{product.designation}}">{{product.designation}}</option>
 															{% endfor %}
 														</select>
+														<input type='text' class="form-control form-control-sm" id='ticket-avoir' maxlength='16' placeholder='1452145213651-47' name='ticket-avoir' />
 													</div>
 												</td>
-												<td></td>
-												<td><input type="number" step="0.01" name="transport-input-line" class="form-control form-control-sm"
+												<td>
+													<select id="select_Passenger" class="form-control form-control-sm" ></select>
+												</td>
+												<td><input type="number" step="0.01" name="transport-input-line" class="form-control form-control-sm" id="transport-input-line"
 													placeholder="Transport" name="transport-input-line" style="text-align:right;" value=""></td>
-												<td><input type="number" step="0.01" name="taxe-input-line" class="form-control form-control-sm"
+												<td><input type="number" step="0.01" name="taxe-input-line" class="form-control form-control-sm" id="taxe-input-line"
 													placeholder="Taxe" name="taxe-input-line" style="text-align:right;" value=""></td>
 												<td name="total-input-line" style="padding-top:15px; text-align:right;"></td>
-												<td><input type="text" class="form-control form-control-sm"
-														placeholder="Passager/Segment" name="passenger-input-line"></td>
+												<td>
+													<input type="text" class="form-control form-control-sm"
+														placeholder="Passager/Segment" id="passenger_segment" name="passenger-input-line">
+ 
+														<select id="multipleSelect" multiple name="native-select" placeholder="Segment" data-search="false" data-silent-initial-value-set="true">
+														</select>
+												</td>
 												<td></td>
 												<td></td>
 												<td></td>
@@ -1315,14 +1341,72 @@
 				</button>
 			</div>
 				<div class="modal-body">
-					<form action="" method="post" id="comment-form">
-						{% csrf_token %}
-						<div class="form-group">
-							<textarea class="form-control comment-detected-anomaly" rows="3"
-								placeholder="Anomalie détectée..." id="comment"></textarea>
+					
+					{% if user.role_id == 1 %}
+					<div style="margin-bottom:5px;">
+						<button class="btn btn-info" id="comment-ticket" enabled>Billet non remonté</button>
+					</div>
+					{% endif %}
+						
+					<div>
+						<div id="comment-ticket-form">
+							{% csrf_token %}
+							<div id='ticket-input'>
+								<label for="ticket_number" class="col-form-label">Numero du Billet:</label>
+								<input type='text' maxlength='16' name="ticket_number" class="form-control" id="ticket_number">
+								<input type='hidden' name="pnr_id" value="{{pnr.id}}" class="form-control" id="pnr-id" >
+								
+							</div>
+							<div id='info'>
+								<label for="montant_hors_taxe" class="col-form-label">Montant Hors Taxe</label>
+								<input type='number' name="montant_hors_taxe" class="form-control" id="montant_hors_taxe">
+								<label for="taxe" class="col-form-label">Taxe</label>
+								<input type='number' name="taxe" class="form-control" id="taxe">
+								<input type='hidden' name="user_id" value="{{user.id}}" class="form-control" id="user_id" >
+								
+							</div>
+
+							<div id='other_info'>
+								<div>
+									<label for="taxe" class="col-form-label">Type du Billet</label>
+									<select id="selectType" class="form-control form-control select-type">
+										<option value='TKT'>TKT</option>
+										<option value='EMD'>EMD</option>
+									</select>
+								</div>
+								<div>
+									<label id="fee">
+										<input type="checkbox" id="feecheckbox" name="fee" >frais de service
+									</label>
+								</div>
+								<div>
+									<label for="selectPassenger" class="col-form-label">Passenger</label>
+									<select id="selectPassenger" class="form-control form-control">
+									</select>
+								</div>
+								<div>
+									<label for="selectSegment" class="col-form-label">Segment</label>
+									<br>
+									<select id="selectSegment" multiple name="native-select" placeholder="Segment" data-search="false" data-silent-initial-value-set="true" >	
+									</select>
+								</div>
+								
+							</div>
+
+							<button class="btn btn-success" id="comment-ticket-next-button" style="margin-top:5px;" disabled>Suivant</button>
+							    
 						</div>
+
+						<form action="" method="post" id="comment-form">
+							{% csrf_token %}
+							<div class="form-group">
+								<textarea class="form-control comment-detected-anomaly" rows="3"
+									placeholder="Anomalie détectée..." id="comment"></textarea>
+							</div>
 						<button class="btn btn-success" id="send-comment" disabled>Envoyer</button>
 					</form>
+					</div>
+					
 					{% with pnr|anomaly_comments as anomaly_comments %}
 						{% if anomaly_comments is not None %}
 							<div style="padding:5px; margin-top:10px; border-radius:3px;">
@@ -2128,6 +2212,46 @@
 		<button type="button" class="btn btn-primary" id="RefreshErrorSaving"><i class="fa-solid fa-arrows-rotate"></i> Actualiser</button>
 		</div>
 		</div>
+	</div>
+</div>
+{% comment %} modal unorder pnr {% endcomment %}
+<div class="modal fade" id="modalUncommandApi" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+	<div class="modal-content">
+		<div class="modal-header">
+		<h5 class="modal-title" id="modalUncommandApiTitle">
+			<i class="fa-solid fa-xmark"></i>
+			Décommander un PNR
+		</h5>
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+		</button>
+		</div>
+		{% with pnr|is_one_or_more_passenger_is_invoiced as is_one_or_more_passenger_is_invoiced %}
+			<div class="modal-body">
+				<div class="form-group">
+						{% if is_one_or_more_passenger_is_invoiced %}
+							<input type='hidden' name="user_id" class="form-control" id="user_id" value="{{ user.id }}" ></input>
+							<label for="message-text" class="col-form-label">Numero PNR:</label>
+							<input type='text' name="pnr_number" class="form-control" id="pnr_number" value="{{ pnr.number }}" disabled=true></input>
+							<label for="message-text" class="col-form-label">Numero de commande:</label>
+							<select class="custom-select" id="selectNumCommande"></select>
+							<label for="message-text" class="col-form-label">Motif:</label>
+							<input type='text' name="motif" required class="form-control" id="motif" placeholder="Saisir le motif afin de décommander le PNR"></input>
+						{% else %}
+							<span>Aucune commande n'a été faite pour ce PNR</span>
+						{% endif %}
+							
+					</div>
+				</div>
+				{% if is_one_or_more_passenger_is_invoiced %}
+					<div class="modal-footer">
+						<button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+						<button type="button" class="btn btn-success" id="sendRemovePassengerInvoice" >Envoyer</button>
+					</div>
+				{% endif %}
+			</div>
+		{% endwith %}
 	</div>
 </div>
 

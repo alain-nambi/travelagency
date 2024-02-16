@@ -23,18 +23,22 @@ const screenWidth = window.innerWidth;
 
 if (pushedSideBarMenu) {
   pushedSideBarMenu.addEventListener("click", (_e) => {
-    setTimeout(() => {
-      let sideBarTrigger = localStorage.getItem("sidebar")
-      let layoutHomeMenuheight = layoutHomeMenu.offsetHeight
-
-      // console.log(screenWidth);
-
-      if (sideBarTrigger == "opened" && screenWidth <= 1280) {
-        pnrManagementMenu.setAttribute("style", `margin-top: calc(${layoutHomeMenuheight}px - 20px) !important; visibility: visible;`)
-      } else {
-        pnrManagementMenu.setAttribute("style", "visibility: visible;")
-      }
-    }, 100)
+    if (layoutHomeMenu) {
+      setTimeout(() => {
+        let sideBarTrigger = localStorage.getItem("sidebar")
+        let layoutHomeMenuheight = layoutHomeMenu.offsetHeight
+  
+        // console.log(screenWidth);
+  
+        if (sideBarTrigger == "opened" && screenWidth <= 1280) {
+          pnrManagementMenu.setAttribute("style", `margin-top: calc(${layoutHomeMenuheight}px - 20px) !important; visibility: visible;`)
+        } else {
+          pnrManagementMenu.setAttribute("style", "visibility: visible;")
+        }
+      }, 100)
+    } else {
+      console.log("Layout is not visible");
+    }
   })
 }
 
@@ -54,7 +58,7 @@ if (listActiveFilter) {
 
   // Événement déclenché lorsque le bouton de la souris est enfoncé sur l'élément
   listActiveFilter.addEventListener("mousedown", (e) => {
-  // console.log("MOUSE IS DOWN");
+    // console.log("MOUSE IS DOWN");
     pressed = true; // Le bouton de la souris est enfoncé
     startX = e.clientX; // On enregistre la position initiale de la souris
     listActiveFilter.style.cursor = 'grabbing'; // On change le curseur de la souris
@@ -90,7 +94,7 @@ if (listActiveFilter) {
 
     // Définit une nouvelle animation frame pour effectuer le défilement horizontal
     // animationFrameId = requestAnimationFrame(() => {
-       
+
     // });
   });
 }
@@ -118,7 +122,7 @@ $(document).ready(function () {
   // LOADING THE CURRENT PAGE IF buttonMenuAgencyFilter IS CLICKED
   const buttonMenuAgencyFilter = document.querySelector("#buttonMenuAgencyFilter")
   if (buttonMenuAgencyFilter) {
-    buttonMenuAgencyFilter.addEventListener("click", function(e) {
+    buttonMenuAgencyFilter.addEventListener("click", function (e) {
       e.preventDefault()
       if (agencyListSelection.value !== "-1") {
         setTimeout(() => {
@@ -132,7 +136,7 @@ $(document).ready(function () {
               Veuillez séléctionner une agence
             </span>
           `
-          ) 
+          )
         }
       }
     })
@@ -163,7 +167,7 @@ $(document).ready(function () {
     $("#icon__pnrCreator").removeClass("fa-arrow-down");
     $("#icon__pnrCreator").addClass("fa-arrow-up");
   }
-  
+
   // Handle click event on '.pnr-creator-list' elements
   $('.pnr-creator-list').on('click', function (event) {
     event.preventDefault();
@@ -185,7 +189,7 @@ $(document).ready(function () {
       localStorage.setItem('isSortedByCreator', newSortOrder);
       Cookies.set('isSortedByCreator', 'agent__username');
     }
-    
+
     // Reload the page to apply the new sorting order
     window.location.reload();
   });
@@ -193,10 +197,10 @@ $(document).ready(function () {
 
 $(document).ready(function () {
   const isPnrFilterSelected = getCookies("filter_pnr")
-  const isCreatorSelected   = getCookies("creator_pnr_filter")
+  const isCreatorSelected = getCookies("creator_pnr_filter")
   const isDateRangeSelected = getCookies("dateRangeFilter")
-  const isStatusSelected    = getCookies("filter_pnr_by_status")
-  const isAgencySelected    = getCookies("agency_name_filter")
+  const isStatusSelected = getCookies("filter_pnr_by_status")
+  const isAgencySelected = getCookies("agency_name_filter")
 
   // console.log('====================================');
   // console.log(isPnrFilterSelected);
@@ -312,10 +316,10 @@ $(document).ready(function () {
 
         if (creators.length == 1 && creators[0] == "0") {
           usernames = "Tout"
-        } 
+        }
         else if (creators.length == 1 && creators[0] == "Empty") {
           usernames = 'Non attribué'
-        } 
+        }
         else {
           // console.log('====================================');
           // console.log("usernames");
@@ -325,7 +329,7 @@ $(document).ready(function () {
               usernames.push(JSON_USERS_DATA.find((user) => user.id === parseInt(creator)).username)
             }
           })
-  
+
           // Sort the array in alphabetical order using the compare function
           usernames.sort((a, b) => a.localeCompare(b));
         }
@@ -351,7 +355,7 @@ $(document).ready(function () {
     // console.log('====================================');
     // console.log(username);
     // console.log('====================================');
-    
+
     return `
       <div
         style="
@@ -391,11 +395,11 @@ $(document).ready(function () {
 
   const isDateRangeSelectedValue = (date) => {
     const dateStart = date.split(" * ")[0];
-    const dateEnd   = date.split(" * ")[1];
+    const dateEnd = date.split(" * ")[1];
 
     // Convertir le chaine de caractère en objet Date() 
     const objDateStart = new Date(dateStart);
-    const objDateEnd   = new Date(dateEnd);
+    const objDateEnd = new Date(dateEnd);
 
     // Fonction pour formater une date en format FR
     function formatDateFR(date) {
@@ -480,17 +484,17 @@ $(document).ready(function () {
 
   // Use JS object instead of if-else conditions or switch case
   const pnrFilterSelectedValues = {
-    None  : "Tous les PNR",
-    False : "PNR: non envoyé",
-    True  : "PNR: envoyé",
-    null  : "PNR: non envoyé",
+    None: "Tous les PNR",
+    False: "PNR: non envoyé",
+    True: "PNR: envoyé",
+    null: "PNR: non envoyé",
   };
-  
+
   const statusSelectedValues = {
-    0    : "PNR: émis",
-    1    : "PNR: non émis",
-    2    : "PNR: émis et non émis",
-    null : "PNR: émis",
+    0: "PNR: émis",
+    1: "PNR: non émis",
+    2: "PNR: émis et non émis",
+    null: "PNR: émis",
   };
 
   // Add pnr filter selected value
@@ -523,37 +527,37 @@ $(document).ready(function () {
 
   if (listActiveFilter) {
     $("#buttonCreatorNameFilter").on("click", (e) => {
-      Cookies.remove("creator_pnr_filter", {path: "/home"})
+      Cookies.remove("creator_pnr_filter", { path: "/home" })
       window.location.reload()
-    }) 
+    })
     $("#buttonDateRangeFilter").on("click", (e) => {
-      Cookies.remove("dateRangeFilter", {path: "/home"})
+      Cookies.remove("dateRangeFilter", { path: "/home" })
       window.location.reload()
     })
     $("#buttonStatusFilter").on("click", (e) => {
-      Cookies.remove("filter_pnr_by_status", {path: "/home"})
+      Cookies.remove("filter_pnr_by_status", { path: "/home" })
       document.cookie = `filter_pnr_by_status=2; SameSite=Lax`
       localStorage.setItem("filterByPnrStatus", "all")
       window.location.reload()
     })
     $("#buttonPnrFilter").on("click", (e) => {
       if (userRoleId !== 3) {
-        Cookies.remove("filter_pnr", {path: "/home"})
+        Cookies.remove("filter_pnr", { path: "/home" })
         document.cookie = `filter_pnr=None; SameSite=Lax`
         localStorage.removeItem("filterPnrBy")
         window.location.reload()
       }
     })
     $("#buttonCancelAgencyFilter").on("click", (e) => {
-      Cookies.remove("agency_name_filter", {path: "/home"})
+      Cookies.remove("agency_name_filter", { path: "/home" })
       localStorage.removeItem("agency_name_filter")
       window.location.reload()
     })
   }
 })
 
-$(function() {
-  const selectNormalize = $("#normalize").selectize({ 
+$(function () {
+  const selectNormalize = $("#normalize").selectize({
     onChange: (value) => {
       const userIds = new Set(value)
       const arrayOfUserIds = Array.from(userIds)
@@ -583,21 +587,21 @@ $(function() {
 
   // Convertit l'objet Date actuel en une chaîne de caractères représentant la date actuelle au format spécifié ("day month year") et spécifie la locale française.
   const currentDateToString = new Date(Date.now());
-  const options             = { year: 'numeric', month: 'long', day: 'numeric' };
-  const localeDateString    = currentDateToString.toLocaleDateString('fr-FR', options);
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  const localeDateString = currentDateToString.toLocaleDateString('fr-FR', options);
 
   // Cache tous les éléments de menu de filtre lors du chargement de la page.
-  const $wrapperMenuFilter   = $(".wrapper-menu-filter");
-  const $closeButtonFilter   = $(".close-button-filter");
-  const $pnrMenu             = $(".pnr-menu");
-  const $pnrStatus           = $(".pnr-status");
-  const $dateRangeMenu       = $(".date-range-menu");
-  const $creatorMenu         = $(".creator-group-menu");
-  const $agencyMenu          = $(".agency-list-menu");
-  const liElements           = $(".filter-menu > .list");
-  const $pnrLiElements       = $(".pnr-menu .pnr-list");
+  const $wrapperMenuFilter = $(".wrapper-menu-filter");
+  const $closeButtonFilter = $(".close-button-filter");
+  const $pnrMenu = $(".pnr-menu");
+  const $pnrStatus = $(".pnr-status");
+  const $dateRangeMenu = $(".date-range-menu");
+  const $creatorMenu = $(".creator-group-menu");
+  const $agencyMenu = $(".agency-list-menu");
+  const liElements = $(".filter-menu > .list");
+  const $pnrLiElements = $(".pnr-menu .pnr-list");
   const $pnrStatusLiElements = $(".pnr-status .pnr-list");
-  
+
   $wrapperMenuFilter.hide();
   $pnrMenu.hide();
   $pnrStatus.hide();
@@ -621,7 +625,7 @@ $(function() {
   let isMenuOpen = false;
 
   // Attache un gestionnaire d'événements pour afficher/cacher le menu de filtre lorsqu'on clique sur le bouton Menu Filter. Il bascule également la classe CSS active sur le bouton pour refléter son état.
-  $("#buttonMenuFilter").click(function(e) {
+  $("#buttonMenuFilter").click(function (e) {
     isMenuOpen = !isMenuOpen;
     isMenuOpen ? $wrapperMenuFilter.show() : $wrapperMenuFilter.hide();
     $(this).toggleClass("active", isMenuOpen);
@@ -633,18 +637,18 @@ $(function() {
     $agencyMenu.hide();
   });
 
-  document.addEventListener('click', function(event) {
+  document.addEventListener('click', function (event) {
     // console.log(event.target);
-  
+
     // Vérifie si la variable isMenuOpen est définie et est de type boolean
     if (typeof isMenuOpen === 'boolean') {
       // Vérifie si le menu est ouvert (isMenuOpen est true) et si l'élément cliqué se trouve en dehors du menu
       if (isMenuOpen && !event.target.closest("#buttonMenuFilter, .wrapper-menu-filter, .pnr-menu, .pnr-status, .date-range-menu, .creator-group-menu, .filter-menu > .list, .pnr-menu .pnr-list, .pnr-status .pnr-list, #reportrange, .daterangepicker, .next, .prev, .creator-group-menu, .agency-list, .agency-list-menu.absolute")) {
         // Si les conditions sont remplies, cela signifie que vous avez cliqué en dehors du menu, donc le menu doit être fermé
-  
+
         // Inverse la valeur de isMenuOpen (true devient false, et vice versa)
         isMenuOpen = !isMenuOpen;
-  
+
         // Vérifie si les variables sont définies avant de les utiliser
         if ($wrapperMenuFilter && $pnrMenu && $pnrStatus && $dateRangeMenu && $creatorMenu && $agencyMenu) {
           // Masque les éléments suivants pour les rendre invisibles sur la page
@@ -661,12 +665,12 @@ $(function() {
     } else {
       console.error('La variable isMenuOpen doit être définie et de type boolean.');
     }
-  
+
     // console.log(isMenuOpen);
   });
 
   // Attache un gestionnaire d'événements pour chaque élément de menu de filtre afin de sélectionner/désélectionner les filtres et d'afficher/cacher les menus correspondants.
-  liElements.click(function(li) {
+  liElements.click(function (li) {
     liElements.removeClass("active");
 
     if (this.classList.contains("list-one")) {
@@ -708,7 +712,7 @@ $(function() {
       $pnrStatus.hide();
       $agencyMenu.show();
     }
-    
+
     this.classList.add("active");
   });
 
@@ -716,7 +720,7 @@ $(function() {
   $(".pnr-menu i.fa-check").addClass("opacity-0");
 
   // Sélectionne toutes les icônes de coche dans le menu PNR et stocke-les dans la variable $pnrCheckIcons. 
-  const $pnrCheckIcons       = $pnrLiElements.find('i.fa-check');
+  const $pnrCheckIcons = $pnrLiElements.find('i.fa-check');
   const $pnrStatusCheckIcons = $pnrStatusLiElements.find('i.fa-check');
 
   // console.log($pnrCheckIcons);
@@ -737,7 +741,7 @@ $(function() {
     'not_issued': '#showNotIssuedPnr i.fa-check',
     'all': '#showAllPnrWithoutIssuing i.fa-check'
   }
-  
+
   // Nous pouvons utiliser l'opérateur ternaire pour simplifier la logique conditionnelle.
   const selector = filterSelectors[filterType] ? filterSelectors[filterType] : filterSelectors['all'];
   const selectorStatus = filterStatusSelectors[filterStatus] ? filterStatusSelectors[filterStatus] : filterStatusSelectors['issued']
@@ -745,7 +749,7 @@ $(function() {
   // Au lieu d'utiliser addClass et removeClass séparément, nous pouvons les chaîner ensemble.
   $pnrCheckIcons.removeClass('opacity-100').addClass('opacity-0');
   $pnrStatusCheckIcons.removeClass('opacity-100').addClass('opacity-0')
-  
+
   // Si un sélecteur a été trouvé, nous pouvons appliquer la classe d'opacité aux éléments correspondants.
   if (selector) {
     const $visibleIcons = $pnrCheckIcons.filter(selector);
@@ -763,27 +767,27 @@ $(function() {
 
   // console.log($($pnrLiElements).find("i.fa-check"));
 
-  $pnrLiElements.click(function() {
+  $pnrLiElements.click(function () {
     // Retirer la classe "opacity-100" de tous les éléments i
     $(".pnr-menu i.fa-check").removeClass("opacity-100");
     $(".pnr-menu i.fa-check").addClass("opacity-0");
-  
+
     // Ajouter la classe "opacity-100" à l'élément i du clic en cours
     $(this).find("i.fa-check").addClass("opacity-100");
     $(this).find("i.fa-check").removeClass("opacity-0");
-  
+
     if (this.classList.contains("list-one")) {
       // Faire quelque chose pour le premier élément de la liste
       localStorage.setItem("filterPnrBy", "all")
       document.cookie = `filter_pnr=None; SameSite=Lax`
     }
-  
+
     if (this.classList.contains("list-two")) {
       // Faire quelque chose pour le deuxième élément de la liste
       localStorage.setItem("filterPnrBy", "send")
       document.cookie = `filter_pnr=True; SameSite=Lax`
     }
-  
+
     if (this.classList.contains("list-three")) {
       // Faire quelque chose pour le troisième élément de la liste
       localStorage.setItem("filterPnrBy", "not send")
@@ -809,7 +813,7 @@ $(function() {
       localStorage.setItem("filterByPnrStatus", "issued")
       document.cookie = `filter_pnr_by_status=0; SameSite=Lax`
     }
-  
+
     if (this.classList.contains("list-two")) {
       // Faire quelque chose pour le deuxième élément de la liste
       localStorage.setItem("filterByPnrStatus", "not_issued")
@@ -866,7 +870,7 @@ $(function() {
     showDropdowns: true,
     minDate: "01/01/2023",
     autoApply: true,
-  }, function(start, end, label) {
+  }, function (start, end, label) {
     // Formate les dates de début et de fin pour l'affichage et le stockage
     const storageFormat = 'YYYY-MM-DD';
 
@@ -890,7 +894,7 @@ $(function() {
     showDropdowns: true,
     minDate: "01/01/2023",
     autoApply: true,
-  }, function(start, end, label) {
+  }, function (start, end, label) {
     // Formate les dates de début et de fin pour l'affichage et le stockage
     const storageFormat = 'YYYY-MM-DD';
 
@@ -958,7 +962,7 @@ $(function() {
               La date de début doit être inférieure à la date de fin
             </span>
           `
-          ) 
+          )
         }
       } else {
         document.cookie = `dateRangeFilter=${startDateStorage} * ${endDateStorage}; SameSite=Lax`;
@@ -1012,14 +1016,14 @@ $(function() {
               La date de début doit être inférieure à la date de fin
             </span>
           `
-          ) 
+          )
         }
       } else {
         // Set the date range filter cookie.
         document.cookie = `dateRangeBegin=${startDateCookie}; SameSite=Lax`;
         document.cookie = `dateRangeEnd=${endDateCookie}; SameSite=Lax`;
         document.cookie = `dateRangeFilter=${startDateCookie} * ${endDateCookie}; SameSite=Lax`;
-  
+
         // Reload the page after 600 milliseconds.
         setTimeout(() => {
           window.location.reload();
@@ -1043,7 +1047,7 @@ $(function() {
             Veuillez sélectionner le créateur
           </span>
         `
-        ) 
+        )
       }
     }
   })
@@ -1305,6 +1309,7 @@ $(document).ready(function () {
 
       // Add click event listener to the delete button
       deleteButton.addEventListener("click", () => {
+        const otherFeeType = deleteButton.dataset.otherFeeType;
         const otherFeeId = parseInt(deleteButton.dataset.otherFeeId);
         const otherFeeDesignation = String(
           deleteButton.dataset.otherFeeDesignation
@@ -1317,8 +1322,17 @@ $(document).ready(function () {
         otherFee.push(otherFeeId);
 
         // Update the confirmation message
-        spanOtherFeeDesignation.innerHTML = `<strong>${otherFeeDesignation}</strong>`;
-        textConfirmationDeleteOtherFeeService.textContent = `Oui, supprimer ${otherFeeDesignation}`;
+        if (otherFeeType == 'AVOIR COMPAGNIE') {
+          spanOtherFeeDesignation.innerHTML = `<strong>${otherFeeType}</strong> avec un montant total de ${otherFeeTotal} euros`;
+          textConfirmationDeleteOtherFeeService.textContent = `Oui, supprimer l'${otherFeeType}`;
+
+        }
+        else {
+          spanOtherFeeDesignation.innerHTML = `<strong>${otherFeeDesignation}</strong> avec un montant total de ${otherFeeTotal} euros`;
+          textConfirmationDeleteOtherFeeService.textContent = `Oui, supprimer ${otherFeeDesignation}`;
+
+        }
+
       });
 
       return otherFee;
@@ -1342,13 +1356,15 @@ $(document).ready(function () {
             // Loop through delete buttons
             buttonDeleteOtherFeeService.forEach((deleteButton) => {
               // Check if the product designation matches and update visibility
+
               if (
                 productDesignationList.includes(
                   deleteButton.dataset.otherFeeDesignation
-                )
+                ) || deleteButton.dataset.otherFeeType == 'AVOIR COMPAGNIE'
               ) {
                 deleteButton.classList.replace("d-none", "d-block");
-              } else {
+              }
+              else {
                 deleteButton.classList.replace("d-block", "d-none");
               }
 
@@ -1594,8 +1610,62 @@ $(document).ready(function () {
   });
 });
 
+function copyarchivedpnrhistory() {
+  var content = document.getElementById("pnrArchivedHistory");
+  var selection = window.getSelection();
+  var range = document.createRange();
+  range.selectNodeContents(content);
+  selection.removeAllRanges();
+  selection.addRange(range);
+  document.execCommand("copy");
+  toastr.info(
+    "RPP/TTH a été copié dans presse papier"
+  );
+}
+
+const npArchivedTicket = document.querySelector("#npArchivedTicket")
+if (npArchivedTicket) {
+  $('#npArchivedTicket').on('input', function () {
+    ticket = $('#npArchivedTicket').val();
+    var inputValue = $(this).val();
+    var sanitizedValue = inputValue.replace(/[^0-9-]/g, '');
+    $(this).val(sanitizedValue);
+});
+}
+
+function copyarchivedpnrticket() {
+  var content = document.getElementById("pnrArchivedTicket");
+  var selection = window.getSelection();
+  var range = document.createRange();
+  range.selectNodeContents(content);
+  selection.removeAllRanges();
+  selection.addRange(range);
+
+  const npArchivedTicket = $("#npArchivedTicket").val().replace(/[^0-9]/gi, "");
+
+  // console.log(typeof(npArchivedTicket), parseInt(npArchivedTicket));
+
+  if (npArchivedTicket.length > 0 && npArchivedTicket.length <= 2 && parseInt(npArchivedTicket) > 0) {
+    navigator.clipboard.writeText(`WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/RPP/TST${parseInt(npArchivedTicket)}`)
+      .then(() => {
+        toastr.info(`WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/RPP/TST${parseInt(npArchivedTicket)} a été copié dans presse papier`);
+      })
+      .catch((error) => {
+        console.error('Unable to copy to clipboard', error);
+      });
+  } else {
+    toastr.error("Veuillez saisir le numéro de ligne valide!");
+  }
+
+  setTimeout(function () {
+    $("#pnrArchivedTicket").text(`WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/RPP/TST`);
+    $("#npArchivedTicket").val("");
+  }, 1000);
+}
+
+
 //copy pnr
-function copyarchivedpnr () {
+function copyarchivedpnr() {
   var content = document.getElementById("pnrArchived");
   var selection = window.getSelection();
   var range = document.createRange();
@@ -1922,8 +1992,8 @@ $(document).ready(function () {
     placeholder: "Sélectionner client",
     allowClear: true,
     "language": {
-      "noResults": function(){
-          const noResultsFoundHTML = `
+      "noResults": function () {
+        const noResultsFoundHTML = `
             <div class="d-flex align-items-center" style="gap: 1rem;"> 
               <i class="fa fa-search" aria-hidden="true"></i>
               <span class="text-sm"> 
@@ -1935,13 +2005,13 @@ $(document).ready(function () {
                 <strong class="text-sm"> le nom <span class="text-warning text-sm">exact</span> du client </strong> 
               </span>
             </div>
-          ` 
+          `
 
-          return noResultsFoundHTML;
+        return noResultsFoundHTML;
       }
     },
     escapeMarkup: function (markup) {
-        return markup;
+      return markup;
     },
     ajax: {
       type: 'POST',
@@ -1961,7 +2031,7 @@ $(document).ready(function () {
         return {
           results: $.map(data, function (item) {
             return {
-              text: `${item.intitule} (${item.id})` ,
+              text: `${item.intitule} (${item.id})`,
               id: item.id
             }
           })
@@ -1981,8 +2051,8 @@ $(document).ready(function () {
       placeholder: "Sélectionner client",
       allowClear: true,
       "language": {
-        "noResults": function(){
-            const noResultsFoundHTML = `
+        "noResults": function () {
+          const noResultsFoundHTML = `
               <div class="d-flex align-items-center" style="gap: 1rem;"> 
                 <i class="fa fa-search" aria-hidden="true"></i>
                 <span class="text-sm"> 
@@ -1994,9 +2064,9 @@ $(document).ready(function () {
                   <strong class="text-sm"> le nom <span class="text-warning text-sm">exact</span> du client </strong> 
                 </span>
               </div>
-            ` 
-  
-            return noResultsFoundHTML;
+            `
+
+          return noResultsFoundHTML;
         },
       },
       escapeMarkup: function (markup) {
@@ -2012,7 +2082,7 @@ $(document).ready(function () {
             params.term && params.term.trim() !== ""
               ? { term: params.term, csrfmiddlewaretoken: csrftoken }
               : { csrfmiddlewaretoken: csrftoken };
-  
+
           return query;
         },
         processResults: function (data) {
@@ -2374,7 +2444,7 @@ $(function () {
         sorter: "customDateParser",
       },
       ".pnr-creator-list-after-search": {
-        sorter:  false,
+        sorter: false,
       },
     },
     widgets: ["zebra", "columns", "stickyHeaders"],
@@ -2409,10 +2479,10 @@ $(document).ready(function () {
     isDateOrderByAsc === true
       ? (isDateOrderByAsc = false)
       : (isDateOrderByAsc = true);
-      
+
     isDateOrderByChecked = true;
 
-    isDateOrderByAsc 
+    isDateOrderByAsc
       ? localStorage.setItem('isOrderedByDateCreatedSearch', "true")
       : localStorage.setItem('isOrderedByDateCreatedSearch', "false")
 
@@ -2440,7 +2510,7 @@ $(document).ready(function () {
       ? (isSortedByCreator = false)
       : (isSortedByCreator = true);
 
-    isSortedByCreator 
+    isSortedByCreator
       ? localStorage.setItem('isSortedByCreatorSearch', 'asc')
       : localStorage.setItem('isSortedByCreatorSearch', 'desc')
 
@@ -2457,7 +2527,7 @@ $(document).ready(function () {
       $("#icon__pnrCreatorSearch").removeClass("fa-arrow-down");
       $("#icon__pnrCreatorSearch").addClass("fa-arrow-up");
     }
-  
+
     searchFunction(PAGE_SIZE, null, false, isSortedByCreator);
   });
 })
@@ -2596,8 +2666,8 @@ function searchFunction(pageSize, isDateOrderByAsc, isDateOrderByChecked, isSort
                   pnr.state == 1
                     ? "tr-danger"
                     : pnr.state == 2
-                    ? "tr-warning"
-                    : "";
+                      ? "tr-warning"
+                      : "";
 
                 let read_class =
                   pnr.is_read != 1 ? "non-lue" : pnr.is_read == 1 ? "lue" : "";
@@ -2606,10 +2676,10 @@ function searchFunction(pageSize, isDateOrderByAsc, isDateOrderByChecked, isSort
                   pnr.state == 2
                     ? '<span class="tooltips state_2 float-right" tooltip="" tooltip-position="top" tooltip-type="warning"><i class="fa fa-exclamation-triangle warning"></i></span>'
                     : pnr.state == 1
-                    ? '<span class="tooltips state_1 float-right" tooltip="" tooltip-position="top" tooltip-type="danger"><i class="fa fa-exclamation-triangle text-danger"></i></span>'
-                    : pnr.state == 0
-                    ? "<span></span>"
-                    : "";
+                      ? '<span class="tooltips state_1 float-right" tooltip="" tooltip-position="top" tooltip-type="danger"><i class="fa fa-exclamation-triangle text-danger"></i></span>'
+                      : pnr.state == 0
+                        ? "<span></span>"
+                        : "";
 
                 let pnrAgencyName =
                   pnr.agency.split(":")[0] == ""
@@ -2787,8 +2857,9 @@ if (button__navigateToPageNumber != null) {
   });
   $("#button__navigateToPageNumber").click(() => {
     $("#input__setPageNumber").val("");
+    var path=window.location.pathname;
     if (pageNumber > 0 && pageNumber <= lastPageNumber) {
-      window.location.href = `/home/?page=${pageNumber}`;
+      window.location.href = `${path}?page=${pageNumber}`;
     } else {
       toastr.error(`Aucun numéro de page de ${pageNumber}`);
       $("#button__navigateToPageNumber").attr("disabled", true);
@@ -2797,8 +2868,10 @@ if (button__navigateToPageNumber != null) {
   $("#input__setPageNumber").keyup(function (e) {
     if (e.keyCode == 13) {
       $("#input__setPageNumber").val("");
+      var path = window.location.pathname;
+
       if (pageNumber > 0 && pageNumber <= lastPageNumber) {
-        window.location.href = `/home/?page=${pageNumber}`;
+        window.location.href = `${path}?page=${pageNumber}`;
       } else {
         toastr.error(`Aucun numéro de page de ${pageNumber}`);
         $("#button__navigateToPageNumber").attr("disabled", true);
@@ -2933,9 +3006,8 @@ if (customerCountry != null) {
         // We set France country by default
         // And loads all other country
         customerCountry.innerHTML += `
-          <option value="${country.name}" ${
-            country.name == "France" ? 'selected="true"' : ""
-        }> ${country.name} </option>
+          <option value="${country.name}" ${country.name == "France" ? 'selected="true"' : ""
+          }> ${country.name} </option>
         `;
       });
     },
@@ -3007,9 +3079,8 @@ if (customerCountry != null) {
 
           // We set Mayotte department by default
           selectCustomerDepartement.innerHTML += `
-            <option value="${departement.code} - ${departement.nom}" ${
-            departement.code == 976 ? "selected='true'" : ""
-          }> ${departement.nom} </option>
+            <option value="${departement.code} - ${departement.nom}" ${departement.code == 976 ? "selected='true'" : ""
+            }> ${departement.nom} </option>
           `;
         }
       },
@@ -3155,9 +3226,9 @@ if (customerCodePostal != null) {
                       <option 
                         value="${departement.code} - ${departement.nom}" 
                         ${departement.code == ville.departement.code
-                            ? "selected='true'"
-                            : ""
-                        }
+                        ? "selected='true'"
+                        : ""
+                      }
                       > 
                         ${departement.nom} 
                       </option>
@@ -3185,7 +3256,7 @@ if (customerCodePostal != null) {
 if (selectCustomerVille != null) {
   selectCustomerVille.addEventListener("change", (e) => {
     const selectedCustomerVille = e.target.value;
-  
+
     $.ajax({
       type: "POST",
       dataType: "json",
@@ -3200,12 +3271,12 @@ if (selectCustomerVille != null) {
           try {
             let postalCodeString = response[0].codes_postaux
             const postalCode = postalCodeString.trim().split(',')
-  
+
             if (postalCode) {
               if (postalCode.length > 0 && postalCode.length < 2) {
                 selectCustomerCodePostal.hidden = true;
                 customerCodePostal.hidden = false;
-    
+
                 customerCodePostal.value = postalCode;
                 customerCodePostal.classList.remove("is-invalid");
                 customerCodePostal.classList.add("is-valid");
@@ -3213,7 +3284,7 @@ if (selectCustomerVille != null) {
                 selectCustomerCodePostal.hidden = false;
                 customerCodePostal.hidden = true;
                 selectCustomerCodePostal.innerHTML = "";
-    
+
                 postalCode.forEach((code) => {
                   selectCustomerCodePostal.innerHTML += `
                     <option value=${code}> ${code} </option>
@@ -3676,7 +3747,7 @@ if (pnrCreatorFilter != null) {
     }
   }
 
-  pnrCreatorFilter.addEventListener('change', e=> {
+  pnrCreatorFilter.addEventListener('change', e => {
     document.cookie = `creator_pnr_filter=${e.target.value}; SameSite=Lax`;
     location.reload();
   });
@@ -3721,7 +3792,7 @@ $(".pnr-creation-date").click((e) => {
       document.cookie = `creation_date_order_by="asc"; SameSite=Lax`
     }
   }
-  
+
   // Reload the page to apply the new sorting order
   window.location.reload();
 });
@@ -4106,9 +4177,8 @@ function receiptProcess(
   span__pnrNumber__modalCheckReceipt.textContent = `#${pnrNumber}`;
   span__issuedDate__modalCheckReceipt.textContent = dateHoursForToday;
   span__streetAndCity__modalCheckReceipt.textContent = `${customerData.address}, ${customerData.city}`;
-  span__stateAndCountry__modalCheckReceipt.textContent = `${
-    customerData.country
-  }, ${customerData.departement || ""}`;
+  span__stateAndCountry__modalCheckReceipt.textContent = `${customerData.country
+    }, ${customerData.departement || ""}`;
   span__phone__modalCheckReceipt.textContent = `${customerData.telephone}`;
   span__email__modalCheckReceipt.textContent = `${customerData.email.toLowerCase()}`;
   span__totalAmountOrder__modalCheckReceipt.textContent = `${totalAmountOrder.toFixed(
@@ -4125,34 +4195,34 @@ function receiptProcess(
     try {
       // Convert the date string to a JavaScript Date object.
       const date = new Date(dateString);
-  
+
       // Get the day of the month.
       const day = date.getDate();
-  
+
       // Get the month name in French.
       const monthNameInFrench = [
-        "janvier", 
-        "février", 
-        "mars", 
-        "avril", 
-        "mai", 
-        "juin", 
-        "juillet", 
-        "août", 
-        "septembre", 
-        "octobre", 
-        "novembre", 
+        "janvier",
+        "février",
+        "mars",
+        "avril",
+        "mai",
+        "juin",
+        "juillet",
+        "août",
+        "septembre",
+        "octobre",
+        "novembre",
         "décembre"
       ];
-      
+
       const monthName = monthNameInFrench[date.getMonth()];
-  
+
       // Get the year.
       const year = date.getFullYear();
-  
+
       // Format the date in French.
       const frenchDate = `${day} ${monthName} ${year}`;
-  
+
       return frenchDate;
     } catch (error) {
       console.log("Erreur dans la conversion de la date " + error);
@@ -4169,14 +4239,14 @@ function receiptProcess(
           <div class="col-sm-3">${ticket.passenger[ticketCounter]}</div>
           <div class="col-sm-2">${convertToFrenchDate(ticket.issuing_date[ticketCounter])}</div>
           <div class="col-sm-1 text-right">${ticket.transport_cost[
-            ticketCounter
-          ].toFixed(2)}</div>
+          ticketCounter
+        ].toFixed(2)}</div>
           <div class="col-sm-1 text-right">${ticket.tax[ticketCounter].toFixed(
-            2
-          )}</div>
+          2
+        )}</div>
           <div class="col-sm-1 text-right">${ticket.total[
-            ticketCounter
-          ].toFixed(2)}</div>
+          ticketCounter
+        ].toFixed(2)}</div>
         </div>
       `;
       ticketCounter++;
@@ -4192,14 +4262,14 @@ function receiptProcess(
           <div class="col-sm-3"></div>
           <div class="col-sm-2">${convertToFrenchDate(fee.issuing_date[feeCounter])}</div>
           <div class="col-sm-1 text-right">${fee.cost[feeCounter].toFixed(
-            2
-          )}</div>
+        2
+      )}</div>
           <div class="col-sm-1 text-right">${fee.tax[feeCounter].toFixed(
-            2
-          )}</div>
+        2
+      )}</div>
           <div class="col-sm-1 text-right">${fee.total[feeCounter].toFixed(
-            2
-          )}</div>
+        2
+      )}</div>
         </div>
       `;
       feeCounter++;
@@ -4215,14 +4285,14 @@ function receiptProcess(
           <div class="col-sm-3">${otherFee.passenger[otherFeeCounter]}</div>
           <div class="col-sm-2">${convertToFrenchDate(otherFee.issuing_date[otherFeeCounter])}</div>
           <div class="col-sm-1 text-right">${otherFee.cost[
-            otherFeeCounter
-          ].toFixed(2)}</div>
+          otherFeeCounter
+        ].toFixed(2)}</div>
           <div class="col-sm-1 text-right">${otherFee.tax[
-            otherFeeCounter
-          ].toFixed(2)}</div>
+          otherFeeCounter
+        ].toFixed(2)}</div>
           <div class="col-sm-1 text-right">${otherFee.total[
-            otherFeeCounter
-          ].toFixed(2)}</div>
+          otherFeeCounter
+        ].toFixed(2)}</div>
         </div>
       `;
       otherFeeCounter++;
@@ -4534,24 +4604,28 @@ if (managePnrToSwitch && managePnrToSwitch.getAttribute("data-pnr-to-switch")) {
 
 $.ajax({
   type: "GET",
-  url:'/home/customer/import_customer/',
-  dataType:'json',
+  url: '/home/customer/import_customer/',
+  dataType: 'json',
   success: (response) => {
     console.log(response.return);
   },
-  error: (response)=> {
+  error: (response) => {
     console.log(response.return);
   }
 });
 
 $.ajax({
   type: "GET",
-  url:'/home/product/import_product_odoo/',
-  dataType:'json',
+  url: '/home/product/import_product_odoo/',
+  dataType: 'json',
   success: (response) => {
     console.log(response.return);
   },
-  error: (response)=> {
+  error: (response) => {
     console.log(response.return);
   }
 });
+
+
+
+

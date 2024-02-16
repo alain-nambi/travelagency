@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+{% extends "layout-all-pnr.html" %}
 {% block content %}
 <div class="content-wrapper">
   <section class="content-header p-0">
@@ -15,7 +15,7 @@
       </div>
     </div><!-- /.container-fluid -->
   </section>
-  <section class="content">
+  <section class="content" style="margin-top: 2.6rem;">
     <div class="container-fluid">
       <div class="row ">
         <div class="col-12">
@@ -58,7 +58,7 @@
                         </tr>
                       </thead>
                       <tbody>
-                        {% for client in clients %}
+                        {% for client in page_obj %}
                         <tr class="client-list">
                           <td>{{ client.last_name }}</td>
                           <td>{{ client.first_name }}</td>
@@ -79,4 +79,5 @@
       </div>
   </section>
 </div>
+
 {% endblock content %}

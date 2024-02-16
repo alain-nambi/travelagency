@@ -1,4 +1,4 @@
-{% extends 'layout.html' %}
+{% extends "layout-all-pnr.html" %}
 {% load pnr_comments %}
 {% block content %}
 <div class="content-wrapper">
@@ -15,7 +15,7 @@
 			<div class="container-fluid">
 				<div class="row">
 					<div class="col-md-12 mt-1">
-						<div class="card card-primary card-outline">
+						<div class="card card-primary card-outline" style="margin-top: 3rem;">
 							<div class="card-body p-0">
 								<div class="mailbox-read-info">
 									<h5>PNR: <a href="{% url 'pnr_details' comments.pnr_id_id %}" style="font-size: 1.25rem;">{{ comments.pnr_id.number }}</a>

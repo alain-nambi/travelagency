@@ -3,6 +3,8 @@
 <html lang="en">
 {% load static %}
 {% load pnr_details %}
+{% load pnr_comments %}
+
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, maximum-scale=10">
@@ -13,6 +15,8 @@
   </title>
   <link rel="icon" type="image/x-icon" href="{% static 'image/app-logo.png' %}">
   <link rel="stylesheet" href="{% static 'css/receipt.css' %}" type="text/css">
+  <link rel="stylesheet" href="{% static 'css/virtual-select.min.css' %}">
+
   
   {% block css %}
   <style>
@@ -64,42 +68,35 @@ old -->
             <i class="fa-solid fa-circle-arrow-left text-primary return"></i>
           </a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" style="width: 8rem">  
         <h5 class="{% if pnr.status_value == 0 %}text-success{% endif %}{% if pnr.status_value == 1 %}text-primary{% endif %} n-pnr" style="margin-top: 3px;"><u style="font-size:16px;">PNR n° {{ pnr }}</u></h5>
         </li>
-        <li class="nav-item i">
-          <h6 class="text-info c-pnr ml-4 mb-0">
-            <u style="font-size:12px;">PNR :</u> <span id="pnr">WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/RT</span>
-            <input type="text" id="np" title="Numéro PNR" maxlength="6" placeholder="N° PNR" style="width:70px; padding: 0;"/>
-            <i id="button-np" class="fa fa-copy float-right ml-4" title="copier" style="font-size:12px; cursor: pointer;" onclick="copypnr()"></i>
-          </h6> 
-          <h6 class="text-info c-pnr ml-4 mb-0">
-            <u style="font-size:12px;">PNR archivé :</u> 
-            <span id="pnrArchived">WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/RPP/RLC-</span>
-            <input type="text" id="npArchived" title="Numéro PNR" maxlength="6" placeholder="N° PNR" style="width:70px; padding: 0;"/>
-            <i id="button-np-archived" class="fa fa-copy float-right ml-4" title="copier" style="font-size:12px; cursor: pointer;" onclick="copyarchivedpnr()"></i>
-          </h6>  
-          <h6 class="text-info c-pnr ml-4 mb-0">
-            <u style="font-size:12px; margin-bottom:1px">Billets non émis :</u> <span id="bne">WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/TQT/T</span><span>[Numéro de la tarification]</span>
-            {% comment %} <input type="text" id="nt" title="Numéro de la tarification" maxlength="6" placeholder="N° Tarif." style="width:70px; margin-bottom:1px"/> {% endcomment %}
-            <i id="button-nt" class="fa fa-copy float-right ml-4" title="copier" style="font-size:12px; cursor: pointer;" onclick="copybne()"></i>
-          </h6>
-          <h6 class="text-info c-pnr ml-4 mb-0">
-            <u style="font-size:12px; margin-bottom:1px">Billets émis :</u> <span id="be">WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/TWD/L</span><span>[Numéro de la ligne du billet dans le PNR]</span>
-            {% comment %} <input type="text" id="nlbe" title="Numéro de la ligne du billet dans le PNR" maxlength="6" placeholder="N° Bill." style="width:70px; margin-bottom:1px"/> {% endcomment %}
-            <i id="button-nlbe" class="fa fa-copy float-right ml-4" title="copier" style="font-size:12px; cursor: pointer;" onclick="copybe()"></i>
-          </h6>
-          <h6 class="text-info c-pnr ml-4 mb-0">
-            <u style="font-size:12px; margin-bottom:1px">Services émis :</u> <span id="se">WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/EWD/L</span><span>[Numéro de la ligne du billet dans le PNR]</span>
-            {% comment %} <input type="text" id="nlse" title="Numéro de la ligne du billet dans le PNR" maxlength="6" placeholder="N° Bill." style="width:70px; margin-bottom:1px"/> {% endcomment %}
-            <i id="button-nlse" class="fa fa-copy float-right ml-4" title="copier" style="font-size:12px; cursor: pointer;" onclick="copyse()"></i>
-          </h6>
+        <li class="nav-item ml-1">
+			    {% include "commandes_modal.html" %}
         </li>
-        <li class="nav-item ml-5">
+        <li class="nav-item d-flex flex-column">
           <span id="mail-user" data-mail="issoufali.pnr@outlook.com;{{request.user.email}}">issoufali.pnr@outlook.com;{{request.user.email}}</span>
           <a type="button" class="btn btn-outline-primary zenith" onclick="copymailuser()">Zenith</a> 
         </li>
-        <li class="nav-item ml-3 mt-2">
+        
+        {% if request.user.role_id == 1 %}
+          <li class="nav-item ml-1">
+            <div id="uncommand_api">
+              <button 
+                type="button" 
+                class="btn btn-outline-danger zenith" 
+                data-toggle="modal" 
+                data-target="#modalUncommandApi" 
+                title="Décommander le PNR"
+                id = "uncommand_api"
+              >
+                <span>Décommander le PNR</span>
+              </button>
+            </div>
+          </li>
+        {% endif %}
+          
+        <li class="nav-item ml-1 mt-2">
           <div class="input-group input-group float-sm-right mt-1 mb-1">
             <input type="text" name="table_search" id="inputSearchByPnrNumber" class="form-control form-control-md"
               placeholder="Saisir le numéro du PNR" maxlength="6">
@@ -110,6 +107,21 @@ old -->
             </div>
           </div>
         </li>
+        <li class="nav-item ml-5 mt-2">
+          <div>
+            {% with pnr|new_anomalie as new_anomalie  %}
+						{% if new_anomalie is not None %}
+            <a {% if request.user.role_id == 1 %} href="{% url 'get_all_anomalies' %}" {% endif %}>
+							<p class="text-success mt-1 mb-0 cde_blink">
+								<i class="fa-solid fa-check-circle" aria-hidden="true"></i>
+									{{new_anomalie}} Anomalie en attente
+							</p>
+            </a>
+            {% endif %}
+            {% endwith %}
+          </div>
+        </li>
+        
       </ul> 
       <!-- Right navbar links -->
       <ul class="navbar-nav ml-auto">
@@ -142,11 +154,7 @@ old -->
             <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
           </div>
         </li> {% endcomment %}
-        <li class="nav-item">
-          {% comment %} <a class="nav-link" data-widget="fullscreen" href="#" role="button">
-            <i class="fas fa-expand-arrows-alt"></i>
-          </a> {% endcomment %}
-        </li>
+
         <li class="nav-item dropdown">
           <a class="nav-link" data-toggle="dropdown" href="#">
             <i class="far fa-user"></i> {{request.user.username}}
@@ -163,6 +171,7 @@ old -->
           </div>
         </li>
       </ul>
+
     </nav>
     <!-- /.navbar -->
     <!-- Main Sidebar Container -->
@@ -220,6 +229,18 @@ old -->
               <a href="{% url 'comment-list' %}" class="nav-link">
                 <i class="fas fa-exclamation nav-icon"></i>
                 <p>Anomalies PNR</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'get_all_pnr_unordered' %}" class="nav-link">
+                <i class="fas fa-trash-can nav-icon"></i>
+                <p>PNR Décommandés</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'get_all_anomalies' %}" class="nav-link">
+                <i class="fas fa-clock nav-icon"></i>
+                <p>Anomalie en attente</p>
               </a>
             </li>
             {% endif %}
@@ -662,11 +683,18 @@ old -->
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/js/selectize.min.js" integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
+
   <script src="{% static 'js/main.js' %}"></script>
   <script src="{% static 'js/comment.js' %}"></script>
+  <script src="{% static 'js/anomalie.js' %}"></script>
+  <script src="{% static 'js/virtual-select.min.js' %}"></script>
+  {% comment %} <script src="{% static 'js/virtual-select.js' %}"></script> {% endcomment %}
+
   <script src="{% static 'js/gdsCommandHandler.js' %}"></script>
   <script src="{% static 'js/CustomerHandler.js' %}"></script>
   <script src="{% static 'js/pnrDetailHandler.js' %}"></script>
+  <script src="{% static 'js/invoice_unorder.js' %}"></script>
+
 
   <script>
     $('.tooltips.empty-passenger').append("<span></span>");

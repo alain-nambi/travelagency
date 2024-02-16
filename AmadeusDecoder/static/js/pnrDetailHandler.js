@@ -44,6 +44,7 @@ ServiceFeesInput.forEach((inputFees, index) => {
     inputFees.addEventListener('change', (e) => {
         // console.log(inputFees.parentElement.parentElement.parentElement.children[5].children[0]);
         // const InputTicketTotal = inputFees.parentElement.parentElement.parentElement.children[5].children[0];
+        let user_role_id = e.target.getAttribute('data-user-role-id');
         let cost = parseFloat(e.target.value) || 0;
         let fee_id = e.target.getAttribute('data-fee-id');
         // InputTicketTotal.textContent = cost.toFixed(2);
@@ -63,8 +64,18 @@ ServiceFeesInput.forEach((inputFees, index) => {
             })
             MontantTotal.textContent = TicketAmoutTotal.toFixed(2);
         }
-        else{
-            
+        if ((currentCost >= cost && user_role_id == 2) || (currentCost >= cost && user_role_id == 1)) {
+            let TicketAmoutTotal = 0;
+            AmoutTicket.forEach((ticket) => {
+                const TicketTotal = parseFloat(ticket.textContent);
+                TicketAmoutTotal += TicketTotal;
+            });
+            document.querySelectorAll('.tr-fee').forEach((td) => {
+                TicketAmoutTotal += parseFloat(td.children[5].children[0].textContent);
+            })
+            MontantTotal.textContent = TicketAmoutTotal.toFixed(2);
+        }
+        if (currentCost >= cost && user_role_id != 2 && user_role_id != 1 ) {
                 inputFees.value = inputCurrentCost;
                 $('#modal-dmdfrs').modal();
                 $('.fee-request').val(cost.toFixed(2));

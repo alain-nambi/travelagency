@@ -12,7 +12,7 @@
                     <label class="col-form-label col-4" id="name_label">
                     {{configs.COMPANY_NAME}}
                     </label>
-                    <input name="name" value="{{configs.COMPANY_NAME}}" class="form-control" id="name" />
+                    <input name="name" value="{{configs.COMPANY_NAME}}" class="form-control" id="name" {% if state == "true" %}hidden{% endif %}/>
                 </div>
                 <hr>
                 <div class="row">
@@ -20,14 +20,14 @@
                     <label  class="col-form-label col-4" id="currency_name_label">
                     {{configs.COMPANY_CURRENCY_NAME}}
                     </label>
-                    <input name="currency_name" value="{{configs.COMPANY_CURRENCY_NAME}}" class="form-control" id="currency_name"/>
+                    <input name="currency_name" value="{{configs.COMPANY_CURRENCY_NAME}}" class="form-control" id="currency_name" {% if state == "true" %}hidden{% endif %}/>
                 </div><hr>
                 <div class="row">
                     <label class="col-form-label col-4" >Currency Code</label >
                     <label class="col-form-label col-4" id="currency_code_label">
                     {{configs.COMPANY_CURRENCY_CODE}}
                     </label>
-                    <input name="currency_code" value="{{configs.COMPANY_CURRENCY_CODE}}" class="form-control" id="currency_code" />
+                    <input name="currency_code" value="{{configs.COMPANY_CURRENCY_CODE}}" class="form-control" id="currency_code" {% if state == "true" %}hidden{% endif %}/>
                 </div><hr>
 
                 <div class="row">
@@ -35,7 +35,7 @@
                     <label  class="col-form-label col-4" id="language_code_label" >
                     {{configs.COMPANY_LANGUAGE_CODE}}
                     </label>
-                    <input name="language_code" value="{{configs.COMPANY_LANGUAGE_CODE}}" class="form-control" id="language_code" />
+                    <input name="language_code" value="{{configs.COMPANY_LANGUAGE_CODE}}" class="form-control" id="language_code" {% if state == "true" %}hidden{% endif %}/>
                 </div><hr>
 
                 <div class="row">
@@ -53,7 +53,7 @@
                    
                     </div>
 
-                    <div class="col-12 insertmodalwrapper regional_country">
+                    <div class="col-12 insertmodalwrapper regional_country" id="regional_country" hidden>
                         <label for="currency_name"class="col-form-label col-4" id="modalLabel"></label>
                         <div class="insertmodalcontent">
                             <ul id="insertmodalul">
@@ -66,10 +66,13 @@
                     </div>
                 </div>
             </div>
+            <div class="card-footer" hidden>
+                <button type="button" id="GeneralInfoUpdate" class="btn btn-success"  style="margin-top: 20px;float:right;">Modifier</button>
+            </div>
         {% endif %}
         
-        {% if state == "false" %}
-            <div class="card-body" >
+        
+            <div class="card-body" {% if state != "false" %}hidden{% endif %} >
                 <div class="row">
                     <label for="name" class="col-form-label col-4" >Name</label>
                     <input type="text"  class="form-control" id="create_name" />
@@ -100,10 +103,9 @@
                     </div>
                 </div>
             </div>
-             <div class="card-footer" id="create_generalInfoFooter">
+             <div class="card-footer" {% if state != "false" %}hidden{% endif %}>
                 <button type="button" onclick="CreateCompany()" class="btn btn-success" style="margin-top: 20px;float:right;">Enregistrer</button>
             </div>
-        {% endif %}
             
     </div>
 
@@ -286,7 +288,7 @@
                 <label for="currency_name"class="col-form-label col-6" id="modalLabel"></label>
                 <div class="insertmodalcontent">
                     <ul class="insertmodalul">
-                        <input type="text" id="modalInsert" class="form-control" />
+                        <input type="text" class="form-control" />
                     </ul>
                 </div>
                 <div class="insertmodaldetail">

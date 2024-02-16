@@ -1,10 +1,5 @@
 $(document).ready(function() {
-    $('#name').hide();
-    $('#currency_name').hide();
-    $('#currency_code').hide();
-    $('#language_code').hide();
-    $('#regional_country').hide();
-    $('#generalInfoFooter').hide();
+
     $('.insertmodalwrapper.regional_country').hide();
      $('.card.EmailNotifCard').hide();
 });
@@ -288,7 +283,6 @@ multiInsertwrapper.forEach(wrapper => {
 });
 
 
-
 // ---------------- All Update functions ------------------------
 
 // Update Company Information
@@ -298,8 +292,12 @@ function updateGeneralInfo(){
     $('#currency_code_label').hide();
     $('#language_code_label').hide();
     $('.list-group.ol_list').hide();
+    console.log('update!!!!!!!!!!!!');
 
-    $('.insertmodalwrapper.regional_country').show();
+    document.getElementById('regional_country').hidden = false;
+    console.log(document.getElementById('regional_country'));
+    document.getElementById('GeneralInfoUpdate').hidden = false;
+
 
     // multi insert regional country 
     const ol_list = document.querySelectorAll('.list-group.ol_list li');
@@ -319,13 +317,10 @@ function updateGeneralInfo(){
         tags.push(element);
     });
     
-
-    $('#name').show();
-    $('#currency_name').show();
-    $('#currency_code').show();
-    $('#language_code').show();
-    $('#regional_country').show();
-    $('#generalInfoFooter').show();
+    document.getElementById('name').hidden = false;
+    document.getElementById('currency_name').hidden = false;
+    document.getElementById('currency_code').hidden = false;
+    document.getElementById('language_code').hidden = false;
     
 }
 
@@ -359,7 +354,7 @@ function UpdateEmailPnr() {
 
 $(document).ready(function () {
     // Update Company Informations
-    $('#updateGeneralInfo').click(function () {
+    $('#GeneralInfoUpdate').click(function () {
         var name = $("#name").val();
         var currency_name = $('#currency_name').val();
         var currency_code = $('#currency_code').val();
@@ -856,7 +851,7 @@ function UpdateEmdStatues(){
         url: "/setting/emd-statues-update",
         dataType: "json",
         data: {
-            statues: statues, 
+            statues: JSON.stringify(statues), 
             csrfmiddlewaretoken: csrftoken,
         },
         success: function (data) {

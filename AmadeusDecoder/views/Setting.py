@@ -464,12 +464,9 @@ def emd_statues_update(request):
     if request.method == 'POST':
         dict_value={}
         statues = json.loads(request.POST.get('statues'))
-        config = Configuration.objects.filter(name='EMD Parser Tools',value_name='EMD statuses')
-        for element in statues:
-            cle, valeur = element.split(':')
-            dict_value[cle] = valeur
+        config = Configuration.objects.filter(name='EMD Parser Tools',value_name='EMD statuses').first()
                 
-        config.dict_value = dict_value
+        config.dict_value = statues
         config.save()
         ConfigReader().load_config()
         return JsonResponse('ok',safe=False)

@@ -132,7 +132,7 @@
       {% endif %}
     {% endwith %}
 
-    <div class="card " style="width: 48rem;height:auto; margin:70px 120px 0 20px;" id="add-emd-parsing-card" {% if emd_state == "complet" %}hidden{% endif %}>
+    <div class="card " style="width: 48rem;height:auto; margin:70px 120px 0 20px;" id="add-emd-parsing-card" {% if emd_state != "vide" %}hidden{% endif %}>
       <div class="card-header">
           <h2 class="card-title">EMD Parser Tools </h2>
           <i class="fa fa-x" style="float: right; cursor:pointer;" aria-hidden="true" onclick="HideCard('add-emd-parsing-card')"></i>

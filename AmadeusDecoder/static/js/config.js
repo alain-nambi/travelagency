@@ -117,18 +117,15 @@ $(document).ready(function() {
         ul_list.each(function() {
             liste.push($(this).text());
         });
-        console.log(liste);
 
         
         ulFees.querySelectorAll("li").forEach(li =>li.remove());
-        // console.log(((((((ulFees.parentElement).parentElement).parentElement).parentElement).parentElement).parentElement).parentElement)
         tags=[];
         liste.forEach(element => {
             let li = `<li>${element}<i class="fa fa-xmark" onclick="remove(this)"></i></li>`;
             ulFees.insertAdjacentHTML("afterbegin", li);
             tags.push(element);
         });
-        console.log(tags);
     });
 
     $('.trEmailFeeSenderModal').click(function() {
@@ -150,7 +147,6 @@ $(document).ready(function() {
 
         $('#modalLabel').text(tr.dataset.valuename);
         var value = tr.dataset.value;
-        console.log('value 1 : ',value);
         
         // Supprimer les espaces après une virgule
         value = value.replace(/,\s+/g, ',');
@@ -161,7 +157,6 @@ $(document).ready(function() {
         // Remplacer le premier et le dernier apostrophe par des guillemets doubles
         value = value.replace(/\['/g, '["').replace(/'\]/g, '"]');
 
-        console.log('value 2 : ',value);
         var liste = JSON.parse(value)
         var ul = document.querySelector(".insertmodalul");
 
@@ -198,15 +193,12 @@ function CreateTag(target){
 
 function remove(element){
     var tag = element.parentNode.firstChild.nodeValue.trim();
-    console.log('remove tag : ',tag);
 
     tags = tags.filter(element => element !== tag);
-    console.log(tags);
     element.parentElement.remove();
 }
 
 function addTag(e){
-    console.log(e.target);
     
     if(e.key == "Enter"){
         const target = e.target
@@ -291,16 +283,16 @@ function updateGeneralInfo(){
     $('#currency_name_label').hide();
     $('#currency_code_label').hide();
     $('#language_code_label').hide();
-    $('.list-group.ol_list').hide();
-    console.log('update!!!!!!!!!!!!');
+    $('.ul_list').hide();
 
     document.getElementById('regional_country').hidden = false;
-    console.log(document.getElementById('regional_country'));
-    document.getElementById('GeneralInfoUpdate').hidden = false;
+    document.getElementById('regional_country').style.display = 'block';
+
+    document.getElementById('modif_footer').hidden = false;
 
 
     // multi insert regional country 
-    const ol_list = document.querySelectorAll('.list-group.ol_list li');
+    const ol_list = document.querySelectorAll('.ul_list li');
     var liste = [];
     ol_list.forEach(li => {
         liste.push(li.innerText);

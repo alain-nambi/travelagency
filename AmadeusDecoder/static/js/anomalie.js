@@ -94,6 +94,34 @@ if (child) {
     parent.removeChild(child);
 }
 
+function accept_anomaly(anomalie_id){
+
+        $.ajax({
+            type: "POST",
+            url: "/home/update-ticket",
+            dataType: "json",
+            data: {
+                anomalie_id: anomalie_id,
+                csrfmiddlewaretoken: csrftoken,
+            },
+            success: function (data) {
+                if (data == 'ok') {
+                    toastr.success('Ticket remonté');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000)
+                }
+                else {
+                    toastr.error('Erreur. Veuillez recommencer');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000)
+                }
+            },
+        });
+    
+}
+
 //---------------- Ticket verification and saving anomalie
 $(document).ready(function () {
     $("#comment-ticket-next-button").on("click", function () {
@@ -206,15 +234,7 @@ $(document).ready(function () {
 
                                     $('#selectSegment').on('change', function () {
                                         selectedValues = document.querySelector('#selectSegment').getSelectedOptions();
-                                        // console.log(selectedValues);
-                                        // selectedValues.forEach(value => {
-                                        //     if (value.value == ''){
-                                        //         var val = ['']
-                                        //         document.querySelector('#selectSegment').setDisabledOptions(disabledOptions);
-                                        //         console.log(disabledOptions);
-                                        //         console.log(selectedValues);
-                                        //     }
-                                        // });
+                                        
                                     });
                                 } else {
                                     console.log('Error......');
@@ -249,10 +269,9 @@ $(document).ready(function () {
                         csrfmiddlewaretoken: csrftoken,
                     },
                     success: function (data) {
-                        // console.log(`DATA EXIST TICKET ${data}`);
-                        // debugger;
-                        if (data == 'ok') {
-                            toastr.success('Demande envoyée');
+                        console.log(data);
+                        if (data.status == 'ok') {
+                            accept_anomaly(data.anomalie_id)
                             $('#modal-constat').hide();
                             setTimeout(() => {
                                 location.reload();
@@ -308,10 +327,9 @@ $(document).ready(function () {
                         csrfmiddlewaretoken: csrftoken,
                     },
                     success: function (data) {
-                        // console.log(`DATA NOT EXIST TICKET ${data}`);
-                        // debugger;
-                        if (data == 'ok') {
-                            toastr.success('Demande envoyée');
+                        console.log(data);
+                        if (data.status == 'ok') {
+                            accept_anomaly(data.anomalie_id)
                             $('#modal-constat').hide();
                             setTimeout(() => {
                                 location.reload();
@@ -342,35 +360,7 @@ $(document).ready(function () {
 // $('#card-update-anomaly').hide();
 
 
-function accept_anomaly(anomalie_id){
-    // console.log('---coucou----');
-    // var anomalie_id = $('#anomalie_id').val();
-    // console.log(anomalie_id);
-        $.ajax({
-            type: "POST",
-            url: "/home/update-ticket",
-            dataType: "json",
-            data: {
-                anomalie_id: anomalie_id,
-                csrfmiddlewaretoken: csrftoken,
-            },
-            success: function (data) {
-                if (data == 'ok') {
-                    toastr.success('Ticket remonté');
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1000)
-                }
-                else {
-                    toastr.error('Erreur. Veuillez recommencer');
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1000)
-                }
-            },
-        });
-    
-}
+
 
 function refuse_anomaly(anomalie_id) {
 

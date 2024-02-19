@@ -22,13 +22,11 @@ function tabClicked(tabId) {
     
     if (activeTab) {
         
-        
         activeTab.classList.remove('active');
     }
 
     if (activePanel) {
         activePanel.classList.remove('active','show');
-        
     }
 
     // Activez l'onglet et le panneau correspondants
@@ -718,14 +716,46 @@ function CreateEmailPnr(){
 
 function CreateEmailNotif(){
     var email = JSON.stringify(finalMultiInsertTags[0])
-    var value_name = $('#email_notif_value_name').val();
+    var value_name_id = $('#email_notif_value_name').val();
 
     $.ajax({
         type: "POST",
         url: "/setting/email-notification-recipients-create",
         dataType: "json",
         data: {
-            value_name: value_name,
+            value_name_id: value_name_id,
+            email: email,
+            csrfmiddlewaretoken: csrftoken,
+        },
+        success: function (data) {
+            if (data == 'ok') {
+                toastr.success('Informations Enregistrées');
+                    location.reload();
+            } 
+            if (data.status == 'error') {
+                toastr.error(data.error)
+            }
+        },
+    });
+
+}
+
+function CreateEmailNotifSender(){
+    var value_name_id = $('#email_notif_sender_value_name').val();
+    var port = $('#port_email_notif_sender').val();
+    var smtp = $('#smtp_email_notif_sender').val();
+    var email = $('#email_notif_sender').val();
+    var password = $('#password_email_notif_sender').val();
+
+    $.ajax({
+        type: "POST",
+        url: "/setting/email-notification-sender-create",
+        dataType: "json",
+        data: {
+            port:port,
+            smtp:smtp,
+            password: password,
+            value_name_id: value_name_id,
             email: email,
             csrfmiddlewaretoken: csrftoken,
         },
@@ -858,3 +888,14 @@ function UpdateEmdStatues(){
     });
 
 }
+
+function showPassword(inputId){
+    var passwordInput = document.getElementById(inputId)
+
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+    } else {
+        passwordInput.type = 'password';
+    }
+}
+        

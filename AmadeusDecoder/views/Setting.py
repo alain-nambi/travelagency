@@ -34,13 +34,13 @@ def email_setting(request):
     value_name_to_exclude = [config.value_name for config in configurations]
     email_recipients_value_name = Config.objects.filter(name="Email Source").filter(Q(value_name__icontains="recipients")).exclude(value_name__in=value_name_to_exclude).all()
 
-    context = {'configs':configs, 'env':settings.ENVIRONMENT,'state_email_pnr':"true",'state_email_recipients':"true",'state_email_sender':"true",'email_recipients_value_name':email_recipients_value_name}
+    context = {'configs':configs, 'env':settings.ENVIRONMENT,'state_email_pnr':"true",'state_email_recipients':"complet",'state_email_sender':"complet",'email_recipients_value_name':email_recipients_value_name}
     
     email_recipients = Configuration.objects.filter(name="Email Source").filter(Q(value_name__icontains="notification recipients")).filter(Q(environment=settings.ENVIRONMENT)).all()
     context['email_recipients'] = email_recipients
     if not email_recipients.exists():
-        context['state_email_recipients']="false"
-    if len(email_recipients_value_name) !=0:
+        context['state_email_recipients']="vide"
+    if len(email_recipients_value_name) !=0 and len(email_recipients) !=0:
         context['state_email_recipients'] = "incomplet" 
     if configs.EMAIL_PNR == {}: 
         context['state_email_pnr'] = "false"
@@ -49,40 +49,46 @@ def email_setting(request):
     email_sender_configurations = Configuration.objects.filter(name="Email Source").filter(Q(environment=settings.ENVIRONMENT)).filter(Q(value_name__icontains="sender")).all()
     email_sender_value_name_to_exclude = [config.value_name for config in email_sender_configurations]
     email_sender_value_name = Config.objects.filter(name="Email Source").filter(Q(value_name__icontains="sender")).exclude(value_name__in=email_sender_value_name_to_exclude).all()
-    email_sender = Configuration.objects.filter(name="Email Source").filter(Q(value_name__icontains="notification sender")).filter(Q(environment=settings.ENVIRONMENT)).all()
+    email_sender = Configuration.objects.filter(name="Email Source").filter(Q(value_name__icontains="sender")).filter(Q(environment=settings.ENVIRONMENT)).all()
     context['email_sender'] = email_sender
     context ['email_sender_value_name'] = email_sender_value_name
     if not email_sender.exists():
-        context['state_email_sender']="false"
-    if len(email_sender_value_name) !=0:
+        context['state_email_sender']="vide"
+    if len(email_sender_value_name) !=0 and len(email_sender) !=0:
         context['state_email_sender'] = "incomplet" 
 
-    email_fee_configurations = Configuration.objects.filter(name="Email Source").filter(Q(environment=settings.ENVIRONMENT)).filter(Q(name="Email Source") | Q(name="Report Email") | Q(name="Fee Request Tools")).all()
-    email_fee_value_name_to_exclude = [config.value_name for config in email_fee_configurations]
-    email_fee_recipients = Configuration.objects.filter(Q(name="Email Source") | Q(name="Report Email") | Q(name="Fee Request Tools")).filter(Q(environment=settings.ENVIRONMENT) | Q(environment="all")).exclude(value_name="Fee request sender").filter(Q(value_name__icontains="fee")).all()
-    email_fee_value_name = Config.objects.filter(Q(name="Email Source") | Q(name="Report Email") | Q(name="Fee Request Tools")).exclude(value_name__icontains="sender").filter(Q(value_name__icontains="fee")).exclude(value_name__in=email_fee_value_name_to_exclude).all()
-
-    context['email_fee_value_name'] = email_fee_value_name
-    context['email_fee_recipients'] = email_fee_recipients
-    context['state_email_fee'] = "complet"
-    if not email_fee_recipients.exists():
-        context['state_email_fee']="false"
-    if len(email_fee_value_name) !=0:
-        context['state_email_fee'] = "incomplet" 
         
-        
-    email_fee_sender_config = Configuration.objects.filter(name="Email Source").filter(Q(environment=settings.ENVIRONMENT)).filter(Q(name="Email Source") | Q(name="Report Email") | Q(name="Fee Request Tools")).filter(Q(value_name__icontains="sender")).all()
+    email_fee_sender_config = []
+    email_fee_sender_config.extend( Configuration.objects.filter(name="Email Source").filter(Q(environment=settings.ENVIRONMENT)).filter(Q(value_name__icontains="Fee")).filter(Q(value_name__icontains="sender")).all() )
+    
+    email_fee_sender_config.extend( Configuration.objects.filter(Q(environment=settings.ENVIRONMENT)).filter(Q(name="Report Email") | Q(name="Fee Request Tools")).filter(Q(value_name__icontains="sender")).all())
+    
+    print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+    print(email_fee_sender_config)
+    
     email_fee_sender_value_name_to_be_exclude = [config.value_name for config in email_fee_sender_config]
-    email_fee_sender = Configuration.objects.filter(name="Email Source").filter(Q(environment=settings.ENVIRONMENT)).filter(Q(name="Email Source") | Q(name="Report Email") | Q(name="Fee Request Tools")).filter(Q(value_name__icontains="sender")).all()
-    email_fee_sender_value_name = Config.objects.filter(Q(name="Email Source") | Q(name="Report Email") | Q(name="Fee Request Tools")).filter(Q(value_name__icontains="sender")).exclude(value_name__in=email_fee_sender_value_name_to_be_exclude).all()
     
+    print(email_fee_sender_value_name_to_be_exclude)
     
+    email_fee_sender = []
+    email_fee_sender.extend( Configuration.objects.filter(name="Email Source").filter(Q(environment=settings.ENVIRONMENT)).filter(Q(value_name__icontains="Fee")).filter(Q(value_name__icontains="sender")).all() )
+    
+    email_fee_sender.extend( Configuration.objects.filter(Q(environment=settings.ENVIRONMENT)).filter(Q(name="Report Email") | Q(name="Fee Request Tools")).filter(Q(value_name__icontains="sender")).all())
+    
+    email_fee_sender_value_name = []
+    email_fee_sender_value_name.extend( Config.objects.filter(name="Email Source").filter(Q(value_name__icontains="Fee")).filter(Q(value_name__icontains="sender")).exclude(value_name__in=email_fee_sender_value_name_to_be_exclude).all() )
+    email_fee_sender_value_name.extend( Config.objects.filter(Q(name="Report Email") | Q(name="Fee Request Tools")).filter(Q(value_name__icontains="sender")).exclude(value_name__in=email_fee_sender_value_name_to_be_exclude).all())
+    
+
     context['email_fee_sender_value_name'] = email_fee_sender_value_name
     context['email_fee_sender'] = email_fee_sender
-    if not email_fee_sender.exists():
-        context['state_email_fee_sender']="false"
-    if len(email_fee_value_name) !=0:
+    context['state_email_fee_sender'] = "complet"
+    if not email_fee_sender :
+        context['state_email_fee_sender']="vide"
+    if len(email_fee_sender_value_name) !=0 and len(email_fee_sender) !=0:
         context['state_email_fee_sender'] = "incomplet" 
+        
+
         
     return render(request,'email_setting.html',context)
 
@@ -112,7 +118,7 @@ def parsing_setting(request):
     context['ticket_state'] = "complet"
     ticket_config = Configuration.objects.filter(name="Ticket Parser Tools").all()
     context['ticket_config'] = ticket_config
-    if len(ticket_value_name) !=0:
+    if len(ticket_value_name) !=0 and lan(ticket_config) !=0:
         context['ticket_state'] = "incomplet" 
     if not ticket_config.exists():
         context['ticket_state'] = "vide"
@@ -123,7 +129,7 @@ def parsing_setting(request):
     context['tst_state'] = "complet"
     tst_config = Configuration.objects.filter(name="TST Parser Tools").all()
     context['tst_config'] = tst_config
-    if len(tst_value_name) !=0:
+    if len(tst_value_name) !=0 and len(tst_config) !=0:
         context['tst_state'] = "incomplet" 
     if not tst_config.exists():
         context['tst_state'] = "vide"
@@ -136,7 +142,7 @@ def parsing_setting(request):
     context['zenith_passenger_config'] = zenith_passenger_config
     zenith_config = Configuration.objects.filter(name="Zenith Parser Tools").exclude(Q(value_name__icontains="Passenger")).all()
     context['zenith_config'] = zenith_config
-    if len(zenith_value_name) !=0:
+    if len(zenith_value_name) !=0 and len(zenith_config) !=0:
         context['zenith_state'] = "incomplet" 
     if not zenith_config.exists():
         context['zenith_state'] = "vide"
@@ -148,7 +154,7 @@ def parsing_setting(request):
     context['zenith_receipt_state'] = "complet"
     zenith_receipt_config = Configuration.objects.filter(name="Zenith Receipt Parser Tools").all()
     context['zenith_receipt_config'] = zenith_receipt_config
-    if len(zenith_receipt_value_name) !=0:
+    if len(zenith_receipt_value_name) !=0 and len(zenith_receipt_config)!= 0:
         context['zenith_receipt_state'] = "incomplet" 
     if not zenith_receipt_config.exists():
         context['zenith_receipt_state'] = "vide"
@@ -161,7 +167,7 @@ def parsing_setting(request):
     emd_config = Configuration.objects.filter(name="EMD Parser Tools").exclude(value_name="EMD statuses").all()
     context['emd_config'] = emd_config
     emd_statues = Configuration.objects.filter(name="EMD Parser Tools",value_name="EMD statuses").first()
-    if len(emd_value_name) !=0:
+    if len(emd_value_name) !=0 and len(emd_config)!= 0:
         context['emd_state'] = "incomplet" 
     if not emd_config.exists():
         context['emd_state'] = "vide"
@@ -345,9 +351,29 @@ def email_pnr_create(request):
 def email_notification_recipients_create(request):
     if request.method == 'POST':
         email = json.loads(request.POST.get('email'))
-        value_name = request.POST.get('value_name')
-        email_notif_config = Configuration(environment=settings.ENVIRONMENT,name='Email Source',to_be_applied_on="Global",value_name=value_name,array_value=email)
+        value_name_id = request.POST.get('value_name_id')
+        config = Config.objects.get(pk=value_name_id)
+        
+        email_notif_config = Configuration(environment=settings.ENVIRONMENT,name=config.name,to_be_applied_on=config.to_be_applied_on,value_name=config.value_name,array_value=email)
         email_notif_config.save()
+        
+        ConfigReader().load_config()
+        return JsonResponse('ok',safe=False)
+    
+@login_required(login_url='index')
+def email_notification_sender_create(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        value_name_id = request.POST.get('value_name_id')
+        password = request.POST.get('password')
+        smtp = request.POST.get('smtp')
+        port = request.POST.get('port')
+        
+        config = Config.objects.get(pk=value_name_id)
+        dict_value = {"address":email,"password":password,"smtp":smtp,"port":port}
+        email_notif_config = Configuration(environment=settings.ENVIRONMENT,name=config.name,to_be_applied_on=config.to_be_applied_on,value_name=config.value_name,dict_value=dict_value)
+        email_notif_config.save()
+        
         ConfigReader().load_config()
         return JsonResponse('ok',safe=False)
 

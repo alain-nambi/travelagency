@@ -6,6 +6,43 @@
 {% endif %}
 <div style="display:flex;justify-content: space-between; margin-right: 1rem; margin-top:1rem; ">
     <div style="display: flex; flex-direction: column;">
+                <div class="card " style="width: 48rem;height:auto; margin:70px 120px 0 20px;" id="add-tst-parsing-card" {% if tst_state != "vide" %}hidden{% endif %}>
+            <div class="card-header">
+                <h2 class="card-title">PNR Parsing Tools </h2>
+                <i class="fa fa-x" style="float: right; cursor:pointer;" aria-hidden="true" onclick="HideCard('add-tst-parsing-card')" {% if tst_state == "vide" %}hidden{% endif %}></i>
+
+            </div>
+
+            <div class="card-body"  >
+                <div>
+                    <label for="currency_name"class="col-form-label col-4">Value Name</label>
+                    <select class="form-control "  data-placeholder="Altea" >
+                        {% for value_name in tst_value_name %}
+                            <option value="{{value_name.value_name}}">{{value_name.value_name}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="multiInsertwrapper" style="margin-top:10px;">
+                    <label for="currency_name"class="col-form-label col-6" >Valeur</label>
+                    <div class="multiInsertcontent" >
+                        <ul class="multiInsertul" >
+                            <input type="text"  id="multiInsert" class="form-control" />
+                        </ul>
+                    </div>
+                    <div class="multiInsertdetail">
+                        <button type="button" class="btn btn-primary removaAllButton" >Effacer</button>
+                    </div>
+                </div>
+            
+            </div>
+
+            <div class="card-footer" >
+                <button type="button" id="saveIt" class="btn btn-success" onclick="CreateParsing('tst-parsing-create','add-tst-parsing-card')" style="margin-top: 20px;float:right;">Ajouter</button>
+            </div>
+        </div>
+
+        
         {% if tst_state == "complet" or tst_config %}
             <div class="card " style="width: 38rem;height:auto; margin:0 120px 0 20px;">
                 <div class="card-header">
@@ -89,41 +126,6 @@
             {% endif %}
         {% endwith %}
 
-        <div class="card " style="width: 48rem;height:auto; margin:70px 120px 0 20px;" id="add-tst-parsing-card" {% if tst_state != "vide" %}hidden{% endif %}>
-            <div class="card-header">
-                <h2 class="card-title">PNR Parsing Tools </h2>
-                <i class="fa fa-x" style="float: right; cursor:pointer;" aria-hidden="true" onclick="HideCard('add-tst-parsing-card')"></i>
-
-            </div>
-
-            <div class="card-body"  >
-                <div>
-                    <label for="currency_name"class="col-form-label col-4">Value Name</label>
-                    <select class="form-control "  data-placeholder="Altea" >
-                        {% for value_name in tst_value_name %}
-                            <option value="{{value_name.value_name}}">{{value_name.value_name}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="multiInsertwrapper" style="margin-top:10px;">
-                    <label for="currency_name"class="col-form-label col-6" >Valeur</label>
-                    <div class="multiInsertcontent" >
-                        <ul class="multiInsertul" >
-                            <input type="text"  id="multiInsert" class="form-control" />
-                        </ul>
-                    </div>
-                    <div class="multiInsertdetail">
-                        <button type="button" class="btn btn-primary removaAllButton" >Effacer</button>
-                    </div>
-                </div>
-            
-            </div>
-
-            <div class="card-footer" >
-                <button type="button" id="saveIt" class="btn btn-success" onclick="CreateParsing('tst-parsing-create','add-tst-parsing-card')" style="margin-top: 20px;float:right;">Ajouter</button>
-            </div>
-        </div>
 
     </div>
 </div>

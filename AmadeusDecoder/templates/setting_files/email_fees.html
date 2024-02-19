@@ -46,31 +46,31 @@
         
       </div>
     {% endif %}
-    <div class="card " style="margin:70px 120px 0 20px;"  id="add-email-fee-card" {% if state_email_fee != "vide" %}hidden{% endif %}>
+    <div class="card " style="margin:70px 120px 30px 20px;width:48rem;"  id="add-email-fee-card" {% if state_email_fee != "vide" %}hidden{% endif %}>
       <div class="card-header">
-          <h2 class="card-title">Email Fees</h2>
-          <i class="fa fa-x" style="float: right; cursor:pointer;" aria-hidden="true" onclick="HideCard('add-email-fee-card')"></i>
+          <h2 class="card-title">Email Fees Recipients</h2>
+          <i class="fa fa-x" style="float: right; cursor:pointer;" aria-hidden="true" onclick="HideCard('add-email-fee-card')" {% if state_email_fee == "vide" %}hidden{% endif %}></i>
       </div>
       <div class="card-body"  >
-        <div>
+        <div class="form-group">
             <label class="col-form-label col-4">Environnement</label>
             <input type="text" readonly value="{{env}}" class="form-control "/>
         </div>
 
-        <div>
+        <div class="form-group">
             <label class="col-form-label col-4">Value Name</label>
-            <select class="form-control"  data-placeholder="Email sending error notification recipients">
+            <select class="form-control" >
               {% for config in email_fee_value_name %}
                 <option value="{{config.id}}">{{config.value_name}}</option>
               {% endfor %}
             </select>
         </div>
 
-        <div class="multiInsertwrapper">
+        <div class="multiInsertwrapper form-group">
           <label class="col-form-label col-6" >Email</label>
           <div class="multiInsertcontent" >
               <ul class="multiInsertul" >
-                  <input type="text" id="email_notif_recipients"  class="form-control" />
+                  <input type="text"  class="form-control" />
               </ul>
           </div>
           <div class="multiInsertdetail">
@@ -84,17 +84,17 @@
       </div>
     </div>
 
-    {% if state_email_fee == "incomplet" %}
-      <div class="" style="margin-bottom:1rem;margin-top:1rem;">
+    {% if state_email_fee_sender == "incomplet" %}
+      <div class="" style="margin-bottom:1rem;">
           <a class="btn btn-outline-primary  py-0 px-2" title="Ajouter une ligne" role="button" onclick="OpenCard('add-email-fee-sender-card')">
               <i class="fa fa-pen" aria-hidden="true"></i>Ajouter une ligne</a>
       </div>
     {% endif %}
 
-        {% if configs.FEE_REQUEST_SENDER %}
-        <div class="card " style="margin:0 120px 0 20px;" >
+        {% if state_email_fee_sender == "complet" or state_email_fee_sender == "incomplet" %}
+        <div class="card " style="margin:30px 120px 0 20px;" >
           <div class="card-header">
-              <h2 class="card-title">Email Fees</h2>
+              <h2 class="card-title">Email Fees Sender</h2>
           </div>
           <div class="card-body" >
             <table class="table table-bordered table-head-fixed text-wrap"">
@@ -110,33 +110,38 @@
               </thead>
 
               <tbody>
-                  <tr data-toggle="modal" data-target="#EmailFeesRequestModal" data-env="{{env}}" data-value="Expéditeur des demandes de frais" data-value-name="Fee request sender" data-email="{{configs.FEE_REQUEST_SENDER.address}}" data-password="{{configs.FEE_REQUEST_SENDER.password}}" data-smtp="{{configs.FEE_REQUEST_SENDER.smtp}}" data-port="{{configs.FEE_REQUEST_SENDER.port}}" style="cursor: pointer;" class="trEmailFeeSenderModal" style="font-size: 1rem !important;">
+                
+                {% for config in email_fee_sender %}
+                  <tr data-toggle="modal" data-target="#EmailFeesRequestModal" data-env="{{env}}"  data-value-name="{{config.value_name}}" data-email="{{configs.dict_value.address}}" data-password="{{configs.dict_value.password}}" data-smtp="{{configs.dict_value.smtp}}" data-port="{{configs.dict_value.port}}" style="cursor: pointer;" class="trEmailFeeSenderModal" style="font-size: 1rem !important;">
                     <td>{{env}}</td>
-                    <td>Expéditeur des demandes de frais</td>
-                    <td>{{configs.FEE_REQUEST_SENDER.address}}</td>
-                    <td>{{configs.FEE_REQUEST_SENDER.password}}</td>
-                    <td>{{configs.FEE_REQUEST_SENDER.smtp}}</td>
-                    <td>{{configs.FEE_REQUEST_SENDER.port}}</td>
+                    <td>{{config.value_name}}</td>
+                    <td>{{configs.dict_value.address}}</td>
+                    <td>{{configs.dict_value.password}}</td>
+                    <td>{{configs.dict_value.smtp}}</td>
+                    <td>{{configs.dict_value.port}}</td>
                   </tr>
+                {% endfor %}
+
               </tbody>
             </table>
           </div>
         </div>                        
         {% endif %}
-        <div class="card" style="margin:70px 120px 0 20px;"  id="add-email-fee-sender-card" {% if state_email_fee_sender != "vide" %}hidden{% endif %}>
+
+        <div class="card" style="margin:70px 120px 0 20px;width:48rem;"  id="add-email-fee-sender-card" {% if state_email_fee_sender != "vide" %}hidden{% endif %}>
           <div class="card-header">
           <h2 class="card-title">Email Fee Sender</h2>
           <h4 class="card-description"></h4>
-          <i class="fa fa-x" style="float: right; cursor:pointer;" aria-hidden="true" onclick="HideCard('add-email-fee-sender-card')"></i>
+          <i class="fa fa-x" style="float: right; cursor:pointer;" aria-hidden="true" onclick="HideCard('add-email-fee-sender-card')" {% if state_email_fee_sender == "vide" %}hidden{% endif %}></i>
           </div>
 
           <div class="card-body">
-            <div>
+            <div class="form-group">
               <label class="col-form-label col-4">Environnement</label>
               <input type="text" readonly value="{{env}}" class="form-control "/>
             </div>
 
-            <div>
+            <div class="form-group">
               <label class="col-form-label col-4">Value Name</label>
               <select class="form-control" id="value_name_email_fee_sender">
                 {% for config in email_fee_sender_value_name %}
@@ -145,22 +150,24 @@
             </select>
             </div>
 
-            <div>
+            <div class="form-group">
               <label class="col-form-label col-4">Email</label>
               <input type="text" name="email_fee_sender" id="email_fee_sender" class="form-control "/>
             </div>
 
-            <div>
+            <div class="form-group">
               <label class="col-form-label col-4">Password</label>
               <input type="password" name="password_email_fee_sender" id="password_email_fee_sender" class="form-control "/>
+              <span class="fas fa-eye" onclick="showPassword('password_email_fee_sender')"  style="cursor: pointer;"></span>
+              
             </div>
 
-            <div>
+            <div class="form-group">
               <label class="col-form-label col-4">SMTP</label>
               <input type="text" name="smtp_email_fee_sender" id="smtp_email_fee_sender" class="form-control "/>
             </div>
 
-            <div>
+            <div class="form-group">
               <label class="col-form-label col-4">Port</label>
               <input type="number" name="port_email_fee_sender" id="port_email_fee_sender" class="form-control "/>
             </div>
@@ -234,32 +241,34 @@
       </div>
       <div class="modal-body">
          <form method='POST'>
-            <div class="form-group">
+            <div class="input-group mb-3">
             <label class="col-form-label col-4">Environnement</label>
             <input type="text" readonly id="modalFeeSenderEnv" class="form-control "/>
             </div>
 
-            <div class="form-group">
+            <div class="input-group mb-3">
             <label class="col-form-label col-4">Value Name</label>
             <input type="text" readonly id="modalFeeSenderValueName" class="form-control "/>
             </div>
 
-            <div class="form-group">
+            <div class="input-group mb-3">
                 <label class="col-form-label col-4">Email</label>
                 <input type="text" name="email" id="modalFeeSenderEmail" class="form-control "/>
             </div>
 
-            <div class="form-group">
+            <div class="input-group mb-3">
                 <label class="col-form-label col-4">Password</label>
                 <input type="password" name="password" id="modalFeeSenderPassword" class="form-control "/>
+                <span class="fas fa-eye" onclick="showPassword('modalFeeSenderPassword')"  style="cursor: pointer;margin-top:10px"></span>
+                
             </div>
 
-            <div class="form-group">
+            <div class="input-group mb-3">
                 <label class="col-form-label col-4">SMTP</label>
                 <input type="text" name="smtp" id="modalFeeSenderSmtp" class="form-control "/>
             </div>
 
-            <div class="form-group">
+            <div class="input-group mb-3">
                 <label class="col-form-label col-4">Port</label>
                 <input type="number" name="port" id="modalFeeSenderPort" class="form-control "/>
             </div>

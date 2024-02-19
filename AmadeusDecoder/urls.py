@@ -87,6 +87,7 @@ urlpatterns = [
     path('setting/general-file-protocol-create',general_file_protocol_create,name='general_file_protocol_create'),
     path('setting/email-pnr-create',email_pnr_create,name='email_pnr_create'),
     path('setting/email-notification-recipients-create',email_notification_recipients_create,name='email_notification_recipients_create'),
+    path('setting/email-notification-sender-create',email_notification_sender_create,name='email_notification_sender_create'),
     path('setting/email-fee-sender-create',email_fee_sender_create,name='email_fee_sender_create'),
     path('setting/email-fee-recipient-create',email_fee_recipient_create,name='email_fee_recipient_create'),
     path('setting/pnr-parsing-create',pnr_parsing_create,name='pnr_parsing_create'),

@@ -91,7 +91,7 @@
     <div class="card " style="width: 48rem;height:auto; margin:70px 120px 0 20px;" id="add-zenith-receipt-parsing-card" {% if zenith_receipt_state != "vide" %}hidden{% endif %}>
             <div class="card-header">
                 <h2 class="card-title">Zenith Receipt Parsing Tools </h2>
-                <i class="fa fa-x" style="float: right; cursor:pointer;" aria-hidden="true" onclick="HideCard('add-zenith-receipt-parsing-card')"></i>
+                <i class="fa fa-x" style="float: right; cursor:pointer;" aria-hidden="true" onclick="HideCard('add-zenith-receipt-parsing-card')" {% if zenith_receipt_state == "vide" %}hidden{% endif %}></i>
 
             </div>
 

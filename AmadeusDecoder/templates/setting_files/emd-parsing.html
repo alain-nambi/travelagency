@@ -135,7 +135,7 @@
     <div class="card " style="width: 48rem;height:auto; margin:70px 120px 0 20px;" id="add-emd-parsing-card" {% if emd_state != "vide" %}hidden{% endif %}>
       <div class="card-header">
           <h2 class="card-title">EMD Parser Tools </h2>
-          <i class="fa fa-x" style="float: right; cursor:pointer;" aria-hidden="true" onclick="HideCard('add-emd-parsing-card')"></i>
+          <i class="fa fa-x" style="float: right; cursor:pointer;" aria-hidden="true" onclick="HideCard('add-emd-parsing-card')" {% if emd_state == "vide" %}hidden{% endif %}></i>
 
       </div>
 
@@ -144,7 +144,7 @@
               <label for="currency_name"class="col-form-label col-4">Value Name</label>
               <select class="form-control "  data-placeholder="Altea" >
                   {% for value_name in emd_value_name %}
-                      <option value="{{value_name.value_name}}">{{value_name.value_name}}</option>
+                      <option value="{{value_name.id}}">{{value_name.value_name}}</option>
                   {% endfor %}
               </select>
           </div>

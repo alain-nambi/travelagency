@@ -352,7 +352,9 @@ def save_ticket_anomalie(request):
             
         anomalie = Anomalie(pnr=pnr, categorie='Billet non remonté', infos=info, issuing_user = user, creation_date=timezone.now())
         anomalie.save()   
-        return JsonResponse('ok',safe=False)
+        anomalie_id = anomalie.id
+        response_data = {'status':'ok','anomalie_id':anomalie_id}
+        return JsonResponse(response_data,safe=False)
     
 
 @login_required(login_url='index')

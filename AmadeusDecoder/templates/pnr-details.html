@@ -840,7 +840,7 @@
 																<input id="fee-cost" 
 																	data-fee-is-invoiced="{{ is_fee_invoiced }}"
 																	class="inputeditable montant fee-cost {% if fee.cost < fee.old_cost and fee.old_cost != 0 %} text-danger {% elif fee.cost > fee.old_cost and fee.old_cost != 0 or fee.is_invoiced or fee_not_ordered.is_quotation %} text-success {% endif %}" 
-																	data-user-role-id = "{{request.user.role_id}}"
+																	data-user-id = "{{request.user.id}}"
 																	data-fee-id="{{fee.id}}" 
 																	data-total-fee-cost="{{ fee.total|floatformat:'2' }}"
 																	old-data-cost= "{{ fee.newest_cost|floatformat:'2' }}"

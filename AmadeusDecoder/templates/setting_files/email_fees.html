@@ -112,13 +112,13 @@
               <tbody>
                 
                 {% for config in email_fee_sender %}
-                  <tr data-toggle="modal" data-target="#EmailFeesRequestModal" data-env="{{env}}"  data-value-name="{{config.value_name}}" data-email="{{configs.dict_value.address}}" data-password="{{configs.dict_value.password}}" data-smtp="{{configs.dict_value.smtp}}" data-port="{{configs.dict_value.port}}" style="cursor: pointer;" class="trEmailFeeSenderModal" style="font-size: 1rem !important;">
+                  <tr data-toggle="modal" data-target="#EmailFeesRequestModal" data-env="{{env}}"  data-value-name="{{config.value_name}}" data-email="{{config.dict_value.address}}" data-password="{{config.dict_value.password}}" data-smtp="{{config.dict_value.smtp}}" data-port="{{config.dict_value.port}}" style="cursor: pointer;" class="trEmailFeeSenderModal" style="font-size: 1rem !important;">
                     <td>{{env}}</td>
                     <td>{{config.value_name}}</td>
-                    <td>{{configs.dict_value.address}}</td>
-                    <td>{{configs.dict_value.password}}</td>
-                    <td>{{configs.dict_value.smtp}}</td>
-                    <td>{{configs.dict_value.port}}</td>
+                    <td>{{config.dict_value.address}}</td>
+                    <td>{{config.dict_value.password}}</td>
+                    <td>{{config.dict_value.smtp}}</td>
+                    <td>{{config.dict_value.port}}</td>
                   </tr>
                 {% endfor %}
 

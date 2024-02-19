@@ -87,7 +87,22 @@ def email_setting(request):
         context['state_email_fee_sender']="vide"
     if len(email_fee_sender_value_name) !=0 and len(email_fee_sender) !=0:
         context['state_email_fee_sender'] = "incomplet" 
-        
+    
+    email_fee_configurations = Configuration.objects.filter(name="Email Source").filter(Q(environment=settings.ENVIRONMENT)).filter(Q(name="Email Source") | Q(name="Report Email") | Q(name="Fee Request Tools")).filter(Q(value_name__icontains="recipient")).all()
+    
+    email_fee_value_name_to_exclude = [config.value_name for config in email_fee_configurations]
+    
+    email_fee_recipients = Configuration.objects.filter(Q(name="Email Source") | Q(name="Report Email") | Q(name="Fee Request Tools")).filter(Q(environment=settings.ENVIRONMENT) | Q(environment="all")).filter(Q(value_name__icontains="recipient")).filter(Q(value_name__icontains="fee")).all()
+    
+    email_fee_value_name = Config.objects.filter(Q(name="Email Source") | Q(name="Report Email") | Q(name="Fee Request Tools")).filter(Q(value_name__icontains="recipient")).filter(Q(value_name__icontains="fee")).exclude(value_name__in=email_fee_value_name_to_exclude).all()
+
+    context['email_fee_value_name'] = email_fee_value_name
+    context['email_fee_recipients'] = email_fee_recipients
+    context['state_email_fee'] = "complet"
+    if not email_fee_recipients.exists():
+        context['state_email_fee']="vide"
+    if len(email_fee_value_name) !=0 and len(email_fee_recipients) !=0:
+        context['state_email_fee'] = "incomplet" 
 
         
     return render(request,'email_setting.html',context)
@@ -118,7 +133,7 @@ def parsing_setting(request):
     context['ticket_state'] = "complet"
     ticket_config = Configuration.objects.filter(name="Ticket Parser Tools").all()
     context['ticket_config'] = ticket_config
-    if len(ticket_value_name) !=0 and lan(ticket_config) !=0:
+    if len(ticket_value_name) !=0 and len(ticket_config) !=0:
         context['ticket_state'] = "incomplet" 
     if not ticket_config.exists():
         context['ticket_state'] = "vide"
@@ -326,12 +341,14 @@ def general_file_protocol_create(request):
         repository = request.POST.get('repository')
         storage = request.POST.get('storage')
         
+        config = Config.objects.get(value_name = 'File protocol')
+        
         if hostname is not None and port is not None and username is not None and password is not None and repository is not None:
             dict_value = {"hostname":hostname, "port":port, "username":username, "password":password, "repository":repository, "link":link}
         else:
             dict_value = {"link":link}
 
-        config_file_protocol =  Configuration(environment=settings.ENVIRONMENT,name='Saving File Tools',to_be_applied_on="Global",value_name='File protocol',single_value=storage,dict_value= dict_value)
+        config_file_protocol =  Configuration(environment=settings.ENVIRONMENT,name=config.name,to_be_applied_on=config.to_be_applied_on,value_name=config.value_name,single_value=storage,dict_value= dict_value)
         config_file_protocol.save()
         ConfigReader().load_config()
         return JsonResponse('ok',safe=False)

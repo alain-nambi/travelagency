@@ -202,10 +202,8 @@ function addTag(e){
         const target = e.target
         let tag = e.target.value;
         if (tag.length > 1 && !tags.includes(tag)) {
-            tag.split(',').forEach(tag => {
-                tags.push(tag);
-                CreateTag(target);
-            });
+            tags.push(tag);
+            CreateTag(target);
         }
         e.target.value ="";
     }
@@ -231,16 +229,16 @@ multiInsertwrapper.forEach(wrapper => {
         if(e.key == "Enter"){
         let tag = e.target.value;
         if (tag.length >1 && !multiInputtags.includes(tag)) {
-            tag.split(',').forEach(tag => {
-                multiInputtags.push(tag);
-                multiInputUl.querySelectorAll("li").forEach(li =>li.remove());
-                multiInputtags.slice().reverse().forEach(tag => {
-                    let liTag = `<li>${tag} <i class="fa fa-xmark removeIcon"  ></i></li>`;
-                    multiInputUl.insertAdjacentHTML("afterbegin", liTag);
-                });
-                finalMultiInsertTags=[];
-                finalMultiInsertTags.push(multiInputtags);
+            
+            multiInputtags.push(tag);
+            multiInputUl.querySelectorAll("li").forEach(li =>li.remove());
+            multiInputtags.slice().reverse().forEach(tag => {
+                let liTag = `<li>${tag} <i class="fa fa-xmark removeIcon"  ></i></li>`;
+                multiInputUl.insertAdjacentHTML("afterbegin", liTag);
             });
+            finalMultiInsertTags=[];
+            finalMultiInsertTags.push(multiInputtags);
+            
         }
         e.target.value ="";
     }
@@ -266,7 +264,9 @@ multiInsertwrapper.forEach(wrapper => {
     $(Button).click(function () {
         
         multiInputUl.querySelectorAll("li").forEach(li =>li.remove());
-        finalMultiInsertTags = finalMultiInsertTags.filter(element => element !== multiInputtags );
+        multiInputtags = [];
+        console.log(multiInputtags);
+        finalMultiInsertTags = [];
         
     })
 
@@ -812,9 +812,17 @@ $(document).ready(function () {
         
         document.getElementById('add-pnr-config-card').hidden=false;
     });
+
+    $('#add-zenith-parsing-card select').on('change', function() {
+    var value_name = $(this).val();
+    console.log(value_name);
+    });
+
 });
 
 // ---------------------------- All Parsing Functions ---------------------------
+
+
 
 function CreateParsing(chemin,id) {
     const card = document.querySelector('#'+id);

@@ -23,7 +23,7 @@
                     <label for="currency_name"class="col-form-label col-4">Value Name</label>
                     <select class="form-control"  data-placeholder="Altea" >
                         {% for value_name in pnr_value_name %}
-                            <option value="{{value_name.value_name}}">{{value_name.value_name}}</option>
+                            <option value="{{value_name.id}}">{{value_name.value_name}}</option>
                         {% endfor %}
                     </select>
                 </div>

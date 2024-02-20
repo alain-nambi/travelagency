@@ -430,16 +430,19 @@ def email_fee_recipient_create(request):
 @login_required(login_url='index')
 def pnr_parsing_create(request):
     if request.method == 'POST':
-        value_name = request.POST.get('value_name')
+        value_name_id = request.POST.get('value_name')
         value = json.loads(request.POST.get('value'))
-        pnr_config = Configuration(environment="all",name='PNR Parser Tools',to_be_applied_on="PNR",value_name=value_name,array_value=value)
+        
+        config = Config.objects.get(pk=value_name_id)
+        
+        pnr_config = Configuration(environment="all",name=config.name,to_be_applied_on=config.to_be_applied_on,value_name=config.value_name,array_value=value)
         dict_value={}
-        if value_name == 'Contact type names':
+        if config.value_name == 'Contact type names':
             for element in value:
                 cle, valeur = element.split(':')
                 dict_value[cle] = valeur
                 
-            pnr_config = Configuration(environment="all",name='PNR Parser Tools',to_be_applied_on="PNR",value_name=value_name,dict_value=dict_value)
+            pnr_config = Configuration(environment="all",name=config.name,to_be_applied_on=config.to_be_applied_on,value_name=config.value_name,dict_value=dict_value)
             
         pnr_config.save()
         ConfigReader().load_config()
@@ -448,9 +451,12 @@ def pnr_parsing_create(request):
 @login_required(login_url='index')
 def ticket_parsing_create(request):
     if request.method == 'POST':
-        value_name = request.POST.get('value_name')
+        value_name_id = request.POST.get('value_name')
         value = json.loads(request.POST.get('value'))
-        ticket_config = Configuration(environment="all",name='Ticket Parser Tools',to_be_applied_on="Ticket",value_name=value_name,array_value=value)
+        
+        config = Config.objects.get(pk=value_name_id)
+        
+        ticket_config = Configuration(environment="all",name=config.name,to_be_applied_on=config.to_be_applied_on,value_name=config.value_name,array_value=value)
         ticket_config.save()
         ConfigReader().load_config()
         return JsonResponse('ok',safe=False)
@@ -458,9 +464,12 @@ def ticket_parsing_create(request):
 @login_required(login_url='index')
 def tst_parsing_create(request):
     if request.method == 'POST':
-        value_name = request.POST.get('value_name')
+        value_name_id = request.POST.get('value_name')
         value = json.loads(request.POST.get('value'))
-        tst_config = Configuration(environment="all",name='TST Parser Tools',to_be_applied_on="TST",value_name=value_name,array_value=value)
+        
+        config = Config.objects.get(pk=value_name_id)
+        
+        tst_config = Configuration(environment="all",name=config.name,to_be_applied_on=config.to_be_applied_on,value_name=config.value_name,array_value=value)
         tst_config.save()
         ConfigReader().load_config()
         return JsonResponse('ok',safe=False)
@@ -468,9 +477,12 @@ def tst_parsing_create(request):
 @login_required(login_url='index')
 def zenith_parsing_create(request):
     if request.method == 'POST':
-        value_name = request.POST.get('value_name')
+        value_name_id = request.POST.get('value_name')
         value = json.loads(request.POST.get('value'))
-        zenith_config = Configuration(environment="all",name='Zenith Parser Tools',to_be_applied_on="Zenith",value_name=value_name,array_value=value)
+        
+        config = Config.objects.get(pk=value_name_id)
+        
+        zenith_config = Configuration(environment="all",name=config.name,to_be_applied_on=config.to_be_applied_on,value_name=config.value_name,array_value=value)
         zenith_config.save()
         ConfigReader().load_config()
         return JsonResponse('ok',safe=False)
@@ -478,9 +490,12 @@ def zenith_parsing_create(request):
 @login_required(login_url='index')
 def zenith_receipt_parsing_create(request):
     if request.method == 'POST':
-        value_name = request.POST.get('value_name')
+        value_name_id = request.POST.get('value_name')
         value = json.loads(request.POST.get('value'))
-        zenith_receipt_config = Configuration(environment="all",name='Zenith Receipt Parser Tools',to_be_applied_on="Zenith",value_name=value_name,array_value=value)
+        
+        config = Config.objects.get(pk=value_name_id)
+        
+        zenith_receipt_config = Configuration(environment="all",name=config.name,to_be_applied_on=config.to_be_applied_on,value_name=config.value_name,array_value=value)
         zenith_receipt_config.save()
         ConfigReader().load_config()
         return JsonResponse('ok',safe=False)
@@ -488,16 +503,19 @@ def zenith_receipt_parsing_create(request):
 @login_required(login_url='index')
 def emd_parsing_create(request):
     if request.method == 'POST':
-        value_name = request.POST.get('value_name')
+        value_name_id = request.POST.get('value_name')
         value = json.loads(request.POST.get('value'))
-        zenith_receipt_config = Configuration(environment="all",name='EMD Parser Tools',to_be_applied_on="GLOBAL",value_name=value_name,array_value=value)
+        
+        config = Config.objects.get(pk=value_name_id)
+        
+        zenith_receipt_config = Configuration(environment="all",name=config.name,to_be_applied_on=config.to_be_applied_on,value_name=config.value_name,array_value=value)
         dict_value={}
-        if value_name == 'EMD statuses':
+        if config.value_name == 'EMD statuses':
             for element in value:
                 cle, valeur = element.split(':')
                 dict_value[cle] = valeur
                 
-            zenith_receipt_config = Configuration(environment="all",name='EMD Parser Tools',to_be_applied_on="GLOBAL",value_name=value_name,dict_value=dict_value)
+            zenith_receipt_config = Configuration(environment="all",name=config.name,to_be_applied_on=config.to_be_applied_on,value_name=config.value_name,dict_value=dict_value)
         zenith_receipt_config.save()
         ConfigReader().load_config()
         return JsonResponse('ok',safe=False)

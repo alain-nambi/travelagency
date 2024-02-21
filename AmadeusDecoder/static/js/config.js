@@ -149,11 +149,21 @@ $(document).ready(function() {
         // Supprimer les espaces après une virgule
         value = value.replace(/,\s+/g, ',');
 
-        // Remplacer les apostrophes avant et après une virgule par des guillemets doubles
-        value = value.replace(/,'/g, ',"').replace(/',/g, '",');
-
-        // Remplacer le premier et le dernier apostrophe par des guillemets doubles
-        value = value.replace(/\['/g, '["').replace(/'\]/g, '"]');
+        if (tr.dataset.valuename == "Itinerary header possible format") {
+            value = value.replace(/'/g, '')
+            value = value.replace(/,\[/g, ',"');
+            value = value.replace(/\],/g, '",');
+            value = value.replace(/\]]/g, '"]');
+            value = value.replace(/\[\[/g, '["');
+        }
+        else {
+            // Remplacer les apostrophes avant et après une virgule par des guillemets doubles
+            value = value.replace(/,'/g, ',"').replace(/',/g, '",');
+            // Remplacer le premier et le dernier apostrophe par des guillemets doubles
+            value = value.replace(/\['/g, '["').replace(/'\]/g, '"]');
+        }
+        
+        console.log("value : ", value);
 
         var liste = JSON.parse(value)
         var ul = document.querySelector(".insertmodalul");
@@ -166,6 +176,8 @@ $(document).ready(function() {
             ul.insertAdjacentHTML("afterbegin", li);
             tags.push(element);
         });
+        console.log(liste);
+        console.log(tags);
         
     });
 
@@ -178,6 +190,7 @@ $(document).ready(function() {
 
 function removeAllModal() {
     ul.querySelectorAll("li").forEach(li =>li.remove());
+    tags = [];
 }
 
 function CreateTag(target){
@@ -193,6 +206,7 @@ function remove(element){
     var tag = element.parentNode.firstChild.nodeValue.trim();
 
     tags = tags.filter(element => element !== tag);
+    console.log("remove : ",tags);
     element.parentElement.remove();
 }
 
@@ -537,26 +551,41 @@ function UpdateEmailFeeSender(){
 // Update multiInsert
 function UpdateMultiInput(){
     var value_name = $('#modalLabel').text();
-    
-    $.ajax({
-        type: "POST",
-        url: "/setting/parsing-update",
-        dataType: "json",
-        data: {
-            tags: JSON.stringify(tags),
-            valuename: value_name,
-            csrfmiddlewaretoken: csrftoken,
-        },
-        success: function (data) {
-            if (data == 'ok') {
-                toastr.success('Information(s) modifiée(s)');
-                    location.reload();
-            } 
-            if (data.status == 'error') {
-                toastr.error(data.error)
+    let state = 'ok';
+    if (value_name == "Itinerary header possible format"){
+        tags.forEach(element => {
+            element = element.split(',');
+            if(element.length != 9){
+                toastr.error('Veuillez entrer neuf élément pour ce champ');
+                state = 'not ok'
             }
-        },
-    });
+            else{
+                state = 'ok'
+            }
+        });
+    }
+    if (state == 'ok'){
+        $.ajax({
+            type: "POST",
+            url: "/setting/parsing-update",
+            dataType: "json",
+            data: {
+                tags: JSON.stringify(tags),
+                valuename: value_name,
+                csrfmiddlewaretoken: csrftoken,
+            },
+            success: function (data) {
+                if (data == 'ok') {
+                    toastr.success('Information(s) modifiée(s)');
+                        location.reload();
+                } 
+                if (data.status == 'error') {
+                    toastr.error(data.error)
+                }
+            },
+        });
+    }
+    
 }
 
 function redirectToTab(tabId){

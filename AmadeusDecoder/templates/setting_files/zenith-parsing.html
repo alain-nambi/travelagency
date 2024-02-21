@@ -102,16 +102,35 @@
 
                         <tbody>
                             {% for config in zenith_config|slice:':10' %}
-                                <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
-                                    <td>{{config.value_name}}</td>
-                                    <td>
-                                        <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
-                                            {% for element in config.array_value %}
-                                                <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{element}}</li>
-                                            {% endfor %}
-                                        </ul>
-                                    </td>
-                                </tr>
+                                {% if config.value_name == "Itinerary header possible format" %}
+                                    <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_of_array_value}}" style="cursor: pointer;" class="trModalInsert">
+                                        <td>{{config.value_name}}</td>
+                                        <td>
+                                            <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                                                {% for array in config.array_of_array_value %}
+                                                    
+                                                    <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">
+                                                        {% for element in array %}
+                                                            {{ element }}{% if not forloop.last %},{% endif %}
+                                                        {% endfor %}
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                
+                                {% else %}
+                                    <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
+                                        <td>{{config.value_name}}</td>
+                                        <td>
+                                            <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                                                {% for element in config.array_value %}
+                                                    <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{element}}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                {% endif %}
                             {% endfor %}
                         </tbody>
                     </table>

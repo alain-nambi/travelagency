@@ -298,10 +298,19 @@ def email_fee_sender_update(request):
 @login_required(login_url='index')
 def parsing_update(request):
     tags = json.loads(request.POST.get('tags'))
-    print('-----------------------------------------')
     value_name = request.POST.get('valuename')
-    print(value_name)
-    Configuration.objects.filter(value_name=value_name).update(array_value=tags)
+    array_of_array_value = []
+
+    for tag in tags:
+        tag = tag.split(',')
+        print(tag)
+        array_of_array_value.append(tag)
+       
+    if value_name == "Itinerary header possible format":
+        Configuration.objects.filter(value_name=value_name).update(array_of_array_value=array_of_array_value)
+    else:
+        Configuration.objects.filter(value_name=value_name).update(array_value=tags)
+
     ConfigReader().load_config()
     return JsonResponse('ok',safe=False)
     
@@ -479,10 +488,18 @@ def zenith_parsing_create(request):
     if request.method == 'POST':
         value_name_id = request.POST.get('value_name')
         value = json.loads(request.POST.get('value'))
-        
+        array_of_array_value = []
+        for element in value:
+            element = element.split(',')
+            array_of_array_value.append(element)
+
         config = Config.objects.get(pk=value_name_id)
-        
-        zenith_config = Configuration(environment="all",name=config.name,to_be_applied_on=config.to_be_applied_on,value_name=config.value_name,array_value=value)
+
+        if config.id == 57:
+            zenith_config = Configuration(environment="all",name=config.name,to_be_applied_on=config.to_be_applied_on,value_name=config.value_name,array_of_array_value=array_of_array_value)
+        else:
+            zenith_config = Configuration(environment="all",name=config.name,to_be_applied_on=config.to_be_applied_on,value_name=config.value_name,array_value=value)
+            
         zenith_config.save()
         ConfigReader().load_config()
         return JsonResponse('ok',safe=False)

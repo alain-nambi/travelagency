@@ -44,41 +44,57 @@
         
         {% with tst_config_length=tst_config|length %}
             {% if tst_state == "complet" or tst_config_length >= 10 %}
-                <div class="card " style="width: 38rem;height:auto; margin:0 120px 0 20px;">
-                    
-                    <div class="card-header">
-                        <h2 class="card-title">Identifiants (2) </h2>
-                        <h4 class="card-description"></h4>
+                
+                {% for config in zenith_config|slice:'10:21' %}
+                    <div class="card " style="width: 38rem;height:auto; margin:0 120px 0 20px;">
                         
+                        <div class="card-header">
+                            <h2 class="card-title">Identifiants (2) </h2>
+                            <h4 class="card-description"></h4>
+                            
+                        </div>
+
+                        <div class="card-body" >
+                            <table class="table table-bordered table-head-fixed text-wrap  ">
+                                <thead class="bg-info">
+                                <tr>
+                                    <th scope="col">Nom de la valeur</th>
+                                    <th scope="col">Valeur</th>
+                                </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% if config.value_name == "Itinerary header possible format" %}
+                                        <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_of_array_value}}" style="cursor: pointer;" class="trModalInsert">
+                                            <td>{{config.value_name}}</td>
+                                            <td>
+                                                <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                                                    {% for element in config.array_of_array_value %}
+                                                        <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{element}}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    
+                                    {% else %}
+                                        <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
+                                            <td>{{config.value_name}}</td>
+                                            <td>
+                                                <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                                                    {% for element in config.array_value %}
+                                                        <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{element}}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                
+                                </tbody>
+                            </table>
+                        </div>
+
                     </div>
-
-                    <div class="card-body" >
-                        <table class="table table-bordered table-head-fixed text-wrap  ">
-                            <thead class="bg-info">
-                            <tr>
-                                <th scope="col">Nom de la valeur</th>
-                                <th scope="col">Valeur</th>
-                            </tr>
-                            </thead>
-
-                            <tbody>
-                                {% for config in zenith_config|slice:'10:21' %}
-                                    <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
-                                        <td>{{config.value_name}}</td>
-                                        <td>
-                                            <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
-                                                {% for element in config.array_value %}
-                                                    <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{element}}</li>
-                                                {% endfor %}
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-
-                </div>
+                {% endfor %}
             {% endif %}
         {% endwith %}
         
@@ -87,41 +103,57 @@
     <div style="display: flex; flex-direction: column;">
         {% with tst_config_length=tst_config|length %}
             {% if tst_state == "complet" or tst_config_length >= 20 %}
-                <div class="card " style="width: 38rem;height:auto; margin:0 120px 0 20px;">
-                    
-                    <div class="card-header">
-                        <h2 class="card-title">Identifiants (3) </h2>
-                        <h4 class="card-description"></h4>
+                
+                {% for config in zenith_config|slice:'21:' %}
+                    <div class="card " style="width: 38rem;height:auto; margin:0 120px 0 20px;">
                         
+                        <div class="card-header">
+                            <h2 class="card-title">Identifiants (3) </h2>
+                            <h4 class="card-description"></h4>
+                            
+                        </div>
+
+                        <div class="card-body" >
+                            <table class="table table-bordered table-head-fixed text-wrap  ">
+                                <thead class="bg-info">
+                                <tr>
+                                    <th scope="col">Nom de la valeur</th>
+                                    <th scope="col">Valeur</th>
+                                </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% if config.value_name == "Itinerary header possible format" %}
+                                        <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_of_array_value}}" style="cursor: pointer;" class="trModalInsert">
+                                            <td>{{config.value_name}}</td>
+                                            <td>
+                                                <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                                                    {% for element in config.array_of_array_value %}
+                                                        <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{element}}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    
+                                    {% else %}
+                                        <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
+                                            <td>{{config.value_name}}</td>
+                                            <td>
+                                                <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                                                    {% for element in config.array_value %}
+                                                        <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{element}}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                
+                                </tbody>
+                            </table>
+                        </div>
+
                     </div>
-
-                    <div class="card-body" >
-                        <table class="table table-bordered table-head-fixed text-wrap  ">
-                            <thead class="bg-info">
-                            <tr>
-                                <th scope="col">Nom de la valeur</th>
-                                <th scope="col">Valeur</th>
-                            </tr>
-                            </thead>
-
-                            <tbody>
-                                {% for config in zenith_config|slice:'21:' %}
-                                    <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
-                                        <td>{{config.value_name}}</td>
-                                        <td>
-                                            <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
-                                                {% for element in config.array_value %}
-                                                    <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{element}}</li>
-                                                {% endfor %}
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-
-                </div>
+                {% endfor %}
             {% endif %}
         {% endwith %}
 

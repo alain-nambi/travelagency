@@ -1,0 +1,299 @@
+{% if state_email_recipients == "incomplet" %}
+    <div class="">
+        <a class="btn btn-outline-primary  py-0 px-2" title="Ajouter une ligne" role="button" onclick="OpenCard('add-email-recipients-parsing-card')">
+            <i class="fa fa-pen" aria-hidden="true"></i>Ajouter une ligne</a>
+    </div>
+{% endif %}
+
+<div style="display:flex;justify-content: space-between; margin-right: 1rem;margin-top:1rem; ">
+  <div style="display: flex; flex-direction: column;">    
+    {% if state_email_recipients == "complet" or state_email_recipients == "incomplet" %}
+      <div class="card " style=" height:auto; margin:0 120px 0 20px;">
+        <div class="card-header">
+          <h2 class="card-title">Notifications Recipients</h2>
+          <h4 class="card-description"></h4>
+        </div>
+
+          <div class="card-body"  >
+            <table class="table table-bordered table-head-fixed text-wrap" style="font-size: 2rem !important;">
+                <thead class="bg-info">
+                <tr>
+                    <th scope="col" style="font-size: 1rem !important;">Environnement</th>
+                    <th scope="col-6"style="font-size: 1rem !important;">Nom de la valeur</th>
+                    <th scope="col" style="font-size: 1rem !important;">Email</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                  
+                  {% for email in email_recipients %}
+                    <tr data-toggle="modal" data-target="#EmailNotifModal" data-env="{{env}}" data-value="{{email.value_name}}" data-value-name="{{email.value_name}}" data-email="{{email.array_name}}" style="cursor: pointer;font-size: 1rem !important;" class="trEmailNotifModal">
+                      <td>{{env}}</td>
+                      <td>{{email.value_name}}</td>
+                      
+                      <td>
+                        <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                          {% for mail in email.array_value %}
+                            <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{mail}}</li>
+                          {% endfor %}
+                        </ul>
+                      </td>
+
+              
+                    </tr>
+                  {% endfor %}
+
+                </tbody>
+            </table>
+
+          </div>
+      </div>
+    {% endif %}
+        
+
+    {% if state_email_sender == "incomplet" %}
+      <div class="" style="margin-top:20px;">
+          <a class="btn btn-outline-primary  py-0 px-2" title="Ajouter une ligne" role="button" onclick="OpenCard('add-email-sender-parsing-card')">
+              <i class="fa fa-pen" aria-hidden="true"></i>Ajouter une ligne</a>
+      </div>
+    {% endif %}
+        
+        {% if state_email_sender == "complet" or state_email_sender == "incomplet" %}
+        <div class="card" style="height:auto; margin:20px 120px 0 20px;">
+          <div class="card-header">
+          <h2 class="card-title">Notifications Sender</h2>    
+          </div>
+            <div class="card-body" >
+              <table class="table table-bordered table-head-fixed text-wrap">
+                <thead class="bg-info">
+                    <tr>
+                    <th scope="col">Environnement</th>
+                    <th scope="col">Nom de la valeur</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Mot de passe</th>
+                    <th scope="col">SMTP</th>
+                    <th scope="col">Port</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                  
+                  {% for email in email_sender %}
+                    <tr data-toggle="modal" data-target="#EmailNotifSenderModal" data-env="{{env}}"  data-value-name="{{email.value_name}}" data-email="{{email.dict_value.address}}" data-password="{{email.dict_value.password}}" data-smtp="{{email.dict_value.smtp}}" data-port="{{email.dict_value.port}}" style="cursor: pointer;" class="trEmailNotifSenderModal" style="font-size: 1rem !important;">
+                      <td>{{env}}</td>
+                      <td>{{email.value_name}}</td>
+                      <td>{{email.dict_value.address}}</td>
+                      <td>{{email.dict_value.password}}</td>
+                      <td>{{email.dict_value.smtp}}</td>
+                      <td>{{email.dict_value.port}}</td>
+                    </tr>
+                  {% endfor %}
+                  
+                </tbody>
+              </table>
+            </div>
+          </div>
+        {% endif %}
+          
+        
+        <div class="card" id="add-email-sender-parsing-card" style="height:auto;width:38rem; margin:70px 120px 0 20px;" {% if state_email_sender != "vide" %}hidden{% endif %}>
+          <div class="card-header">
+          <h2 class="card-title">Notifications Sender</h2>    
+          <i class="fa fa-x" style="float: right; cursor:pointer;" aria-hidden="true" onclick="HideCard('add-email-sender-parsing-card')" {% if state_email_sender == "vide" %}hidden{% endif %}></i>
+          </div>
+          <div class="card-body">
+            <div>
+              <label class="col-form-label col-4">Environnement</label>
+              <input type="text" readonly value="{{env}}" class="form-control "/>
+            </div>
+
+            <div>
+              <label class="col-form-label col-4">Value Name</label>
+              <select class="form-control" id="email_notif_sender_value_name"  data-placeholder="Email sending error notification recipients">
+                  <option></option>
+                  
+                  {% for config in email_sender_value_name %}
+                    <option value="{{config.id}}">{{config.value_name}}</option> 
+                  {% endfor %}
+
+              </select>
+            </div>
+
+            <div>
+              <label class="col-form-label col-4">Email</label>
+              <input type="text" name="email_notif_sender" id="email_notif_sender" class="form-control "/>
+            </div>
+
+            <div>
+              <label class="col-form-label col-4">Password</label>
+              <input type="password" name="password_email_notif_sender" id="password_email_notif_sender" class="form-control "/>
+              <span class="fas fa-eye" onclick="showPassword('password_email_notif_sender')" style="cursor: pointer;"></span>
+            </div>
+
+            <div>
+              <label class="col-form-label col-4">SMTP</label>
+              <input type="text" name="smtp_email_notif_sender" id="smtp_email_notif_sender" class="form-control "/>
+            </div>
+
+            <div>
+              <label class="col-form-label col-4">Port</label>
+              <input type="number" name="port_email_notif_sender" id="port_email_notif_sender" class="form-control "/>
+            </div>
+          </div>
+          <div class="card-footer" id="">
+            <button type="button" onclick="CreateEmailNotifSender()" class="btn btn-success" style="margin-top: 20px;float:right;">Enregistrer</button>
+          </div>
+        </div>
+        
+  </div>
+
+  <div style="display: flex; flex-direction: column;">
+      <div class="card " style=" height:auto;width:38rem; margin:70px 120px 0 20px;"id="add-email-recipients-parsing-card" {% if state_email_recipients != "vide" %}hidden{% endif %}>
+        <div class="card-header">
+          <h2 class="card-title">Notifications Recipients</h2>
+          <i class="fa fa-x" style="float: right; cursor:pointer;" aria-hidden="true" onclick="HideCard('add-email-recipients-parsing-card')" {% if state_email_recipients == "vide" %}hidden{% endif %}></i>
+      </div>
+      
+        <div class="card-body" id='email_notif_card'>
+          <div>
+              <label class="col-form-label col-4">Environement</label>
+              <input type="text" readonly value="{{env}}" class="form-control "/>
+          </div>
+
+          <div>
+              <label class="col-form-label col-4">Value Name</label>
+              <select class="form-control" id="email_notif_value_name">
+              <option></option>
+              {% for config in email_recipients_value_name %}
+                <option value="{{config.id}}">{{config.value_name}}</option>
+              {% endfor %}
+                
+              </select>
+          </div>
+
+          <div>
+              <div class="multiInsertwrapper">
+                  <label class="col-form-label col-6" >Email</label>
+                  <div class="multiInsertcontent" >
+                      <ul class="multiInsertul" >
+                          <input type="text" id="email_notif_recipients"  class="form-control" />
+                      </ul>
+                  </div>
+                  <div class="multiInsertdetail">
+                      <button type="button" class="btn btn-primary removaAllButton" >Effacer</button>
+                  </div>
+              </div>
+          </div>
+        </div>
+        
+        <div class="card-footer" id="">
+          <button type="button" onclick="CreateEmailNotif()" class="btn btn-success" style="margin-top: 20px;float:right;">Enregistrer</button>
+        </div>
+      </div>
+  </div>
+</div>
+
+<div class="modal fade" id="EmailNotifModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalPnrNotUpdatedTitle">
+          <i class="fa fa-upload"></i>
+          Email Notification Recipients
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          <div>
+            <label class="col-form-label col-4">Environnement</label>
+            <input type="text" readonly id="modalNotifEnv" class="form-control "/>  
+          </div>
+
+          <div class="form-group">
+            <label class="col-form-label col-4">Value Name</label>
+            <input type="text" readonly id="modalNotifValueName" class="form-control "/>
+          </div>
+
+          <div class="form-group">
+            <label class="col-form-label col-4">Email</label>
+            <div class="insertmodalwrapper">
+              <label class="col-form-label col-4" id="modalLabel"></label>
+              <div class="insertmodalcontent">
+                  <ul class="insertmodalul notification">
+                      <input type="text" id="modalInsertNotification" class="form-control" />
+                  </ul>
+              </div>
+              <div class="insertmodaldetail">
+                  <button type="button" class="btn btn-primary" onclick="removeAllModal()">Effacer</button>
+              </div>
+            </div>
+          </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-success" onclick="UpdateEmailNotif()">Modifier</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="EmailNotifSenderModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalPnrNotUpdatedTitle">
+          <i class="fa fa-upload"></i>
+          Notifications Sender
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+            <div class="form-group">
+            <label class="col-form-label col-4">Environnement</label>
+            <input type="text" readonly id="modalNotifSenderEnv" class="form-control "/>
+            </div>
+
+            <div class="form-group">
+            <label class="col-form-label col-4">Value Name</label>
+            <input type="text" readonly id="modalNotifSenderValueName" class="form-control "/>
+            </div>
+
+            <div class="form-group">
+                <label class="col-form-label col-4">Email</label>
+                <input type="text" name="email" id="modalNotifSenderEmail" class="form-control "/>
+            </div>
+
+            <div class="form-group">
+                <label class="col-form-label col-4">Password</label>
+                <input type="password" name="password" id="modalNotifSenderPassword" class="form-control "/>
+                <span class="fas fa-eye" onclick="showPassword('modalNotifSenderPassword')"  style="cursor: pointer;"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="col-form-label col-4">SMTP</label>
+                <input type="text" name="smtp" id="modalSmtp" class="form-control "/>
+            </div>
+
+            <div class="form-group">
+                <label class="col-form-label col-4">Port</label>
+                <input type="number" name="port" id="modalPort" class="form-control "/>
+            </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-success" onclick="UpdateEmailNotifSender()">Modifier</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+  <button type="button" class="btn btn-success w-25" style="margin-top: 20px;float:right;" onclick="redirectToTab('pills-fees-tab')">Suivant</button>

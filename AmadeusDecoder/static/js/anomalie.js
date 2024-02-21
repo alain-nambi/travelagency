@@ -80,7 +80,7 @@ $(document).ready(function () {
                 $('#fee').show();
             }
         });
-    }
+    }  
 });
 
 
@@ -121,7 +121,6 @@ function accept_anomaly(anomalie_id){
         });
     
 }
-
 
 //---------------- Ticket verification and saving anomalie
 $(document).ready(function () {
@@ -270,7 +269,7 @@ $(document).ready(function () {
                         csrfmiddlewaretoken: csrftoken,
                     },
                     success: function (data) {
-
+                        console.log(data);
                         if (data.status == 'ok') {
                             accept_anomaly(data.anomalie_id)
                             $('#modal-constat').hide();
@@ -325,7 +324,7 @@ $(document).ready(function () {
                         csrfmiddlewaretoken: csrftoken,
                     },
                     success: function (data) {
-                        
+                        console.log(data);
                         if (data.status == 'ok') {
                             accept_anomaly(data.anomalie_id)
                             $('#modal-constat').hide();

@@ -14,6 +14,7 @@ import traceback
 # django.setup()
 
 from django.conf import settings
+from django.shortcuts import redirect
 
 import AmadeusDecoder.utilities.configuration_data as configs
 
@@ -91,7 +92,24 @@ class ConfigReader():
                 error_file.write('Getting company name failed. \n')
                 traceback.print_exc(file=error_file)
                 error_file.write('\n')
-                
+
+
+    # load saving protocol file odoo
+    @staticmethod
+    def load_file_protocol():
+        config_name = 'Saving File Tools'
+        environment = settings.ENVIRONMENT
+        try:
+            configs.FILE_PROTOCOL = Configuration.objects.filter(name=config_name, environment=environment).first()
+            
+        except:
+            print('There was some error when loading saving file tools configuration data. See error.txt for details.')
+            with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
+                error_file.write('{}: \n'.format(datetime.datetime.now()))
+                error_file.write('Getting saving file failed. \n')
+                traceback.print_exc(file=error_file)
+                error_file.write('\n')
+    
     # load email source data
     @staticmethod
     def load_email_source():
@@ -313,7 +331,7 @@ class ConfigReader():
         try:
             configs.FEE_REQUEST_RESPONSE_RECIPIENT = Configuration.objects.filter(name=config_name, value_name='Fee request response recipient').first().array_value
             configs.FEE_DECREASE_REQUEST_RESPONSE_SENDER = Configuration.objects.filter(name=config_name, value_name='Fee decrease request response sender').first().array_value
-            configs.FEE_DECREASE_REQUEST_RESPONSE_RECIPIENTS = Configuration.objects.filter(name=config_name, value_name='Fee request request response recipient').first().array_value
+            configs.FEE_DECREASE_REQUEST_RESPONSE_RECIPIENTS = Configuration.objects.filter(name=config_name, value_name='Fee decrease request response recipient').first().array_value
         except:
             print('There was some error when loading Fee request tool data. See error.txt for details.')
             with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
@@ -374,9 +392,9 @@ class ConfigReader():
     @staticmethod
     def load_absolute_path_for_service_runner():
         PATH_DIR = {
-            'test': '/opt/issoufali/travelagencygit/travelagency/',
+            'test': '',
             # 'test':'/',
-            'prod': '/opt/travelagency/'
+            'prod': ''
         } 
         
         configs.ABSOLUTE_PATH_SERVICE_RUNNER = PATH_DIR
@@ -424,9 +442,10 @@ class ConfigReader():
                 
                 
     # load a chain of configs
-    def load_congig(self):
+    def load_config(self):
         print('Loading configuration ...')
         self.load_company_info()
+        self.load_file_protocol()
         self.load_email_source()
         self.load_emd_parser_tool_data()
         self.load_tst_parser_tool_data()

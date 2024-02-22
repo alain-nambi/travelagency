@@ -358,7 +358,7 @@ def save_ticket_anomalie(request):
         anomalie_id = anomalie.id
         response_data = {'status':'ok','anomalie_id':anomalie_id}
 
-        envoyer_email(request,anomalie_id)
+
         return JsonResponse(response_data,safe=False)
     
 
@@ -484,20 +484,3 @@ def updateAnomaly(request):
         anomaly.save()
         return JsonResponse('ok',safe=False)
         
-def envoyer_email(request,anomalie_id):
-
-    anomalie = Anomalie.object.get(pk = anomalie_id)
-    user = User.object.get(pk = anomalie.issuing_user)
-    admin = User.object.get(pk = anomalie.admin_id)
-
-    # Paramètres de l'email
-    sujet = 'Retour anomalie'
-    message = 'Contenu du message.'
-    adresse_email_destinataire = user.email
-    adresse_email_expediteur = admin.email
-
-    # Envoi de l'email
-    send_mail(sujet, message, adresse_email_expediteur, [adresse_email_destinataire])
-
-    # Ajoutez le code pour rendre une réponse HTTP appropriée
-    return JsonResponse('ok',safe=False)

@@ -74,6 +74,10 @@ body {
 	margin: 1.5rem 2.5rem;
 	padding-left: 2rem;
 	border-radius: 8px;
+	position: sticky;
+	top: 9rem;
+	z-index: 999;
+	box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
 
 #navbarSettingConfig > div a,
@@ -87,6 +91,26 @@ body {
 #navbarEmailConfig > div a:hover {
 	color: #000;
 }
+.password-button-modal {
+	cursor: pointer;
+	background: cadetblue;
+	padding: 10px 15px;
+	color: #fff;
+	position: absolute;
+	right: 14px;
+	bottom: 28px;
+}
+
+.pillsTabEmail {
+	padding: 5px;
+	background: #fff;
+	border-radius: 7px;
+	position: sticky !important;
+	top: 189px;
+	z-index: 999;
+}
+
+
 
 
 .card-header-file-protocol,

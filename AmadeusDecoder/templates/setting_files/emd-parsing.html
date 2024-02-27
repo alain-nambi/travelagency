@@ -8,7 +8,7 @@
     <div style="display: flex; flex-direction: column;">
       {% if emd_state == "complet" or emd_config %}
         <div class="card " style="width: 38rem;height:auto; margin:0 120px 0 20px;">
-            <div class="card-header">
+            <div class="card-header-tools-identifiant">
                 <h2 class="card-title">Parser Tools</h2>
                 <h4 class="card-description"></h4>
                 
@@ -47,7 +47,7 @@
       
       {% if emd_statues %}
         <div class="card" style="width: 38rem;height:auto; margin:50px 120px 0 20px;">
-            <div class="card-header">
+            <div class="card-header-tools-identifiant">
                 <h2 class="card-title">Les Statuts EMD </h2>
                 <h4 class="card-description"></h4>
                 <i class="fa fa-pencil" style="float: right;cursor:pointer;" aria-hidden="true" onclick="Emd_statues_update_show()"></i>
@@ -96,7 +96,7 @@
     {% with emd_length=emd_config|length %}
       {% if emd_state == "complet" or emd_length >= 6 %}
         <div class="card " style="width: 38rem;height:auto; margin:0 120px 0 20px;">
-          <div class="card-header">
+          <div class="card-header-tools-identifiant">
             <h2 class="card-title">Identifiants</h2>
             <h4 class="card-description"></h4>
           </div>

@@ -154,6 +154,9 @@ def home(request):
         
     # print(f"AGENCY NAME : {agency_name}")
     
+    # Hide cancelled PNR
+    # pnr_is_canceled = Q(is_canceled=False)
+    
     if request.user.id in [4, 5]: #==> [Farida et Mouniati peuvent voir chacun l'ensemble de leurs pnr]
         pnr_list = []
         pnr_count = 0
@@ -181,7 +184,8 @@ def home(request):
                             date_filter,
                             max_system_creation_date,
                             agency_name,
-                            agent
+                            agent,
+                            
                         ).first()
                     
                 if pnr not in pnr_list and pnr is not None:
@@ -242,7 +246,8 @@ def home(request):
                             status_value,
                             date_filter,
                             max_system_creation_date,
-                            agency_name
+                            agency_name,
+                            
                         ).filter(is_invoiced=is_invoiced).first()
                 
                 if pnr not in pnr_list and pnr is not None:
@@ -256,7 +261,8 @@ def home(request):
                             date_filter,
                             agent,
                             max_system_creation_date,
-                            agency_name
+                            agency_name,
+                            
                         ).filter(is_invoiced=is_invoiced).order_by(date_order_by + 'system_creation_date')
             
             for pnr in pnr_obj:
@@ -346,6 +352,7 @@ def home(request):
                         max_system_creation_date,
                         agency_name,
                         agent,
+                        
                     ).first()
 
             # If Pnr is not already in the set and is not None, add it to the set and the list
@@ -366,6 +373,7 @@ def home(request):
                         max_system_creation_date,
                         status_value,
                         agency_name,
+                        
                     ).filter(
                         is_invoiced,
                     ).order_by(
@@ -448,6 +456,7 @@ def home(request):
                                 max_system_creation_date,
                                 date_filter,
                                 agency_name,
+                                
                             )
 
             if is_invoiced is not None:
@@ -500,6 +509,7 @@ def home(request):
                                     max_system_creation_date,
                                     date_filter,
                                     agency_name,
+                                    
                                 )
 
                 if is_invoiced is not None:
@@ -551,7 +561,8 @@ def home(request):
                                 status_value,
                                 max_system_creation_date,
                                 date_filter,
-                                agency_name
+                                agency_name,
+                                
                             )
 
             if is_invoiced is not None:

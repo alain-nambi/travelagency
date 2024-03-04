@@ -269,7 +269,6 @@ $(document).ready(function () {
                         csrfmiddlewaretoken: csrftoken,
                     },
                     success: function (data) {
-                        console.log(data);
                         if (data.status == 'ok') {
                             accept_anomaly(data.anomalie_id)
                             $('#modal-constat').hide();
@@ -289,9 +288,7 @@ $(document).ready(function () {
                 var user_id = $('#user_id').val();
                 var passenger_id = $('#selectPassenger').val();
                 const segment = document.querySelector('#selectSegment').getSelectedOptions();
-                // debugger;
-                // console.log("SEGMENT SELECT");
-                // console.log(segment);
+
 
                 var type = $('#selectType').val();
                 var fee;
@@ -316,7 +313,6 @@ $(document).ready(function () {
                     fee: fee,
                 })
 
-                // console.log(listNewTicketAnomalyInfo);
 
                 $.ajax({
                     type: "POST",
@@ -327,7 +323,7 @@ $(document).ready(function () {
                         csrfmiddlewaretoken: csrftoken,
                     },
                     success: function (data) {
-                        console.log(data);
+                        
                         if (data.status == 'ok') {
                             accept_anomaly(data.anomalie_id)
                             $('#modal-constat').hide();
@@ -358,7 +354,6 @@ $(document).ready(function () {
 
 // ---------------------- update or create ticket 
 // $('#card-update-anomaly').hide();
-
 
 
 

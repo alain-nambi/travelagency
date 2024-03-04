@@ -44,6 +44,8 @@ ServiceFeesInput.forEach((inputFees, index) => {
     inputFees.addEventListener('change', (e) => {
         // console.log(inputFees.parentElement.parentElement.parentElement.children[5].children[0]);
         // const InputTicketTotal = inputFees.parentElement.parentElement.parentElement.children[5].children[0];
+        let role_id = e.target.getAttribute('data-role-id');
+        let user_id = e.target.getAttribute('data-user-id');
         let cost = parseFloat(e.target.value) || 0;
         let fee_id = e.target.getAttribute('data-fee-id');
         // InputTicketTotal.textContent = cost.toFixed(2);
@@ -52,6 +54,9 @@ ServiceFeesInput.forEach((inputFees, index) => {
         let currentCost = e.target.getAttribute('old-data-cost');
         let inputCurrentCost = e.target.getAttribute('data-cost');
         let is_at_airport = e.target.getAttribute('is-at-airport');
+
+        // console.log(role_id, currentCost, cost);
+
         if (currentCost <= cost || is_at_airport == 'True') {
             let TicketAmoutTotal = 0;
             AmoutTicket.forEach((ticket) => {
@@ -63,8 +68,18 @@ ServiceFeesInput.forEach((inputFees, index) => {
             })
             MontantTotal.textContent = TicketAmoutTotal.toFixed(2);
         }
-        else{
-            
+        if ((currentCost >= cost && user_id == 13) || (currentCost >= cost && user_id == 22) || (currentCost >= cost && user_id == 15) || (currentCost >= cost && role_id == 1)) {
+            let TicketAmoutTotal = 0;
+            AmoutTicket.forEach((ticket) => {
+                const TicketTotal = parseFloat(ticket.textContent);
+                TicketAmoutTotal += TicketTotal;
+            });
+            document.querySelectorAll('.tr-fee').forEach((td) => {
+                TicketAmoutTotal += parseFloat(td.children[5].children[0].textContent);
+            })
+            MontantTotal.textContent = TicketAmoutTotal.toFixed(2);
+        }
+        if (currentCost >= cost && user_id != 13 && user_id != 22 && user_id != 15 && role_id != 1) {
                 inputFees.value = inputCurrentCost;
                 $('#modal-dmdfrs').modal();
                 $('.fee-request').val(cost.toFixed(2));

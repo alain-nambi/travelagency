@@ -529,6 +529,16 @@ class PnrCostParser():
                                     temp_ticket.is_no_adc = True
                                 if ticket.transport_cost == 0 and ticket.total > 0:
                                     temp_ticket.is_prime = True
+                                print("_______ TST fare not matching ________")
+                                # PBDZDI : TST fare not matching
+                                # print(temp_ticket)
+                                # print(ticket.transport_cost)
+                                # print(ticket.tax)
+                                # print(ticket.total)
+                                if ticket.total > 0 and ticket.transport_cost == 0 and ticket.tax == 0:
+                                    temp_ticket.transport_cost = temp_ticket.total
+                                
+                                
                                 # special agency processing
                                 # if temp_ticket.issuing_agency is not None:
                                 #     if temp_ticket.issuing_agency.code in SPECIAL_AGENCY_CODE:

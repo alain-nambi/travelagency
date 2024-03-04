@@ -933,7 +933,7 @@ def reduce_fee(request) :
         feeOriginAmount = request.POST.get('feeOriginAmount')
         choiceType = request.POST.get('choiceType')
         motif = request.POST.get('motif')
-        userId = request.POST.get('user_id')
+        userId = request.POST.get('userId')
 
         # Code à vérifier car changement radical dans le processus de demande de diminution de frais de service
         if pnrId is not None and feeId is not None:

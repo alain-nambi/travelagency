@@ -45,7 +45,7 @@
         
         {% if tst_state == "complet" or tst_config %}
             <div class="card " style="width: 38rem;height:auto; margin:0 120px 0 20px;">
-                <div class="card-header">
+                <div class="card-header-tools-identifiant">
                     <h2 class="card-title">Identifiants (1) </h2>
                     <h4 class="card-description"></h4>
                     
@@ -55,8 +55,8 @@
                     <table class="table table-bordered table-head-fixed text-wrap ">
                         <thead class="bg-info">
                         <tr>
-                            <th scope="col">Value Name</th>
-                            <th scope="col">Value</th>
+                            <th scope="col" style="background: #fff !important;color: #000 !important;">Value Name</th>
+                            <th scope="col" style="background: #fff !important;color: #000 !important;">Value</th>
                         </tr>
                         </thead>
 
@@ -88,7 +88,7 @@
         {% with tst_config_length=tst_config|length %}
             {% if tst_state == "complet" or tst_config_length >= 5 %}
                 <div class="card " style="width: 38rem;height:auto; margin:0 120px 0 20px;">
-                    <div class="card-header">
+                    <div class="card-header-tools-identifiant">
                         <h2 class="card-title">Identifiants (2) </h2>
                         <h4 class="card-description"></h4>
                         
@@ -98,8 +98,8 @@
                         <table class="table table-bordered table-head-fixed text-wrap ">
                             <thead class="bg-info">
                             <tr>
-                                <th scope="col">Value Name</th>
-                                <th scope="col">Value</th>
+                                <th scope="col" style="background: #fff !important;color: #000 !important;">Value Name</th>
+                                <th scope="col" style="background: #fff !important;color: #000 !important;">Value</th>
                             </tr>
                             </thead>
 

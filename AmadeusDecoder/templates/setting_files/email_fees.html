@@ -8,8 +8,8 @@
     
     {% if state_email_fee == "complet" or email_fee_recipients%}
       <div class="card " style="margin:0 120px 0 20px;">
-        <div class="card-header">
-            <h2 class="card-title">Email Fees</h2>
+        <div class="card-header-email-fees">
+            <h2 class="card-title"><strong style="font-size: 16px;">Email Fees Recipients</strong></h2>
             <h4 class="card-description"></h4>
         </div>
 
@@ -17,9 +17,9 @@
             <table class="table table-bordered table-head-fixed text-wrap">
                 <thead class="bg-info">
                 <tr>
-                    <th scope="col">Environnement</th>
-                    <th scope="col">Nom de la valeur</th>
-                    <th scope="col">Email</th>
+                    <th scope="col" style="background: #fff !important;color: #000 !important;">Environnement</th>
+                    <th scope="col" style="background: #fff !important;color: #000 !important;">Nom de la valeur</th>
+                    <th scope="col" style="background: #fff !important;color: #000 !important;">Email</th>
                 </tr>
                 </thead>
 
@@ -93,19 +93,19 @@
 
         {% if state_email_fee_sender == "complet" or state_email_fee_sender == "incomplet" %}
         <div class="card " style="margin:30px 120px 0 20px;" >
-          <div class="card-header">
-              <h2 class="card-title">Email Fees Sender</h2>
+          <div class="card-header-email-sender">
+              <h2 class="card-title"><strong style="font-size: 16px;">Email Fees Sender</strong></h2>
           </div>
           <div class="card-body" >
             <table class="table table-bordered table-head-fixed text-wrap"">
               <thead class="bg-info">
                 <tr>
-                <th scope="col">Environnement</th>
-                <th scope="col">Nom de la valeur</th>
-                <th scope="col">Email</th>
-                <th scope="col">Mot de passe</th>
-                <th scope="col">SMTP</th>
-                <th scope="col">Port</th>
+                <th scope="col" style="background: #fff !important;color: #000 !important;">Environnement</th>
+                <th scope="col" style="background: #fff !important;color: #000 !important;">Nom de la valeur</th>
+                <th scope="col" style="background: #fff !important;color: #000 !important;">Email</th>
+                <th scope="col" style="background: #fff !important;color: #000 !important;">Mot de passe</th>
+                <th scope="col" style="background: #fff !important;color: #000 !important;">SMTP</th>
+                <th scope="col" style="background: #fff !important;color: #000 !important;">Port</th>
                 </tr>
               </thead>
 

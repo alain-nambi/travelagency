@@ -49,7 +49,7 @@
             
             {% if pnr_state == "complet" or pnr_config%}
                 <div class="card " style="width: 38rem;height:auto; margin:0 120px 0 20px;">
-                    <div class="card-header" >
+                    <div class="card-header-pnr-parsing" >
                         <h1 class="card-title " >PNR </h1>
                         
                     </div>
@@ -57,8 +57,8 @@
                         <table class="table table-bordered table-head-fixed text-wrap ">
                             <thead class="bg-info">
                                 <tr>
-                                    <th scope="col">Nom de la valeur</th>
-                                    <th scope="col">Valeur</th>
+                                    <th scope="col" style="background: #fff !important;color: #000 !important;">Nom de la valeur</th>
+                                    <th scope="col" style="background: #fff !important;color: #000 !important;"style="background: #fff !important;color: #000 !important;">Valeur</th>
                                 </tr>
                             </thead>
 
@@ -86,7 +86,7 @@
                 
         {% if pnr_state == "complet" or pnr_contact_config%}
             <div class="card " style="width: 38rem;height:auto; margin:70PX 120px 0 20px;">
-                <div class="card-header">
+                <div class="card-header-pnr-contact">
                     <h2 class="card-title">Contact </h2>
                     <h4 class="card-description"></h4>
                     
@@ -96,14 +96,14 @@
                     <table class="table table-bordered table-head-fixed text-nowrap ">
                         <thead class="bg-info">
                         <tr>
-                            <th scope="col">Nom de la valeur</th>
-                            <th scope="col">Valeur</th>
+                            <th scope="col" style="background: #fff !important;color: #000 !important;">Nom de la valeur</th>
+                            <th scope="col" style="background: #fff !important;color: #000 !important;">Valeur</th>
                         </tr>
                         </thead>
 
                         <tbody>
                             {% for config in pnr_contact_config  %}
-                                <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
+                                <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" {% if config.array_value|length == 0 %} data-value="{{config.dict_value}}" {% else %} data-value="{{config.array_value}}" {% endif %} style="cursor: pointer;" class="trModalInsert">
                                     <td>{{config.value_name}}</td>
                                     <td>
                                         
@@ -141,7 +141,7 @@
     <div style="display: flex; flex-direction: column;">
         {% if pnr_state == "complet" or pnr_config_tools%}
             <div class="card " style="width: 48rem;height:auto; margin:30px 120px 0 20px;">
-                <div class="card-header">
+                <div class="card-header-pnr-reading-tools">
                     <h2 class="card-title">Outils de lecture </h2>
                     <h4 class="card-description"></h4>
                     
@@ -151,8 +151,8 @@
                     <table class="table table-bordered table-head-fixed text-wrap ">
                         <thead class="bg-info">
                         <tr>
-                            <th scope="col">Nom de la valeur</th>
-                            <th scope="col">Valeur</th>
+                            <th scope="col" style="background: #fff !important;color: #000 !important;">Nom de la valeur</th>
+                            <th scope="col" style="background: #fff !important;color: #000 !important;">Valeur</th>
                         </tr>
                         </thead>
 
@@ -181,7 +181,7 @@
 
         {% if pnr_state == "complet" or pnr_ticket_config%}
             <div class="card " style="width: 48rem;height:auto; margin:30px 120px 0 20px;">
-                <div class="card-header">
+                <div class="card-header-pnr-ticket">
                     <h2 class="card-title">Ticket </h2>
                     <h4 class="card-description"></h4>
                     
@@ -191,8 +191,8 @@
                     <table class="table table-bordered table-head-fixed text-nowrap ">
                         <thead class="bg-info">
                         <tr>
-                            <th scope="col">Nom de la valeur</th>
-                            <th scope="col">Valeur</th>
+                            <th scope="col" style="background: #fff !important;color: #000 !important;">Nom de la valeur</th>
+                            <th scope="col" style="background: #fff !important;color: #000 !important;">Valeur</th>
                         </tr>
                         </thead>
 

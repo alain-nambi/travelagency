@@ -145,10 +145,10 @@ $(document).ready(function() {
 
         $('#modalLabel').text(tr.dataset.valuename);
         var value = tr.dataset.value;
-        
         // Supprimer les espaces après une virgule
         value = value.replace(/,\s+/g, ',');
 
+        // transform array of array to array ( [['a','b']] => ["a,b"] )
         if (tr.dataset.valuename == "Itinerary header possible format") {
             value = value.replace(/'/g, '')
             value = value.replace(/,\[/g, ',"');
@@ -156,6 +156,23 @@ $(document).ready(function() {
             value = value.replace(/\]]/g, '"]');
             value = value.replace(/\[\[/g, '["');
         }
+        
+        // transform dict to aray ( {'key':'value'} => ["key:value"])
+        if (tr.dataset.valuename == "Contact type names"){
+            // transform {} => []
+            value = value.replace(/{/g, '[').replace(/}/g, ']');
+
+            //Supprimer les espaces après :
+            value = value.replace(/:\s+/g, ':');
+
+            // enlever les quotes avant et après une virgule
+            value = value.replace(/':'/g,':');
+
+            // Remplacer les apostrophes par des guillemets doubles
+            value = value.replace(/'/g, '"');
+
+        }
+
         else {
             // Remplacer les apostrophes avant et après une virgule par des guillemets doubles
             value = value.replace(/,'/g, ',"').replace(/',/g, '",');
@@ -935,4 +952,4 @@ function showPassword(inputId){
         passwordInput.type = 'password';
     }
 }
-        
+

@@ -62,9 +62,90 @@ body {
 	background-size: cover;
 }
 
-
 .custom-transition {
 	animation: customAnimation linear 0.3s;
+}
+
+#navbarSettingConfig,
+#navbarEmailConfig,
+#navbarParsingConfig {
+	margin-top: 3rem !important;
+	background-color: #fff;
+	margin: 1.5rem 2.5rem;
+	padding-left: 2rem;
+	border-radius: 8px;
+	position: sticky;
+	top: 9rem;
+	z-index: 999;
+	box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+}
+
+#navbarSettingConfig > div a,
+#navbarEmailConfig > div a,
+#navbarParsingConfig > div a {
+	padding-top: 1rem;
+	color: #00000075;
+}
+
+#navbarSettingConfig > div a:hover,
+#navbarEmailConfig > div a:hover {
+	color: #000;
+}
+.password-button-modal {
+	cursor: pointer;
+	background: cadetblue;
+	padding: 10px 15px;
+	color: #fff;
+	position: absolute;
+	right: 14px;
+	bottom: 28px;
+}
+
+.pillsTabEmail {
+	padding: 5px;
+	background: #fff;
+	border-radius: 7px;
+	position: sticky !important;
+	top: 189px;
+	z-index: 999;
+}
+
+
+
+
+.card-header-file-protocol,
+.card-header-company-info,
+.card-header-notification-recipients,
+.card-header-notification-sender,
+.card-header-email-fees,
+.card-header-email-sender,
+.card-header-pnr-parsing,
+.card-header-pnr-reading-tools,
+.card-header-pnr-contact,
+.card-header-pnr-ticket,
+.card-header-tools-identifiant {
+	background-color: #007bff;
+	border-bottom: 1px solid rgba(0,0,0,.125);
+	padding: 0.75rem 1.5rem;
+	color: #fff;
+	border-top-left-radius: 8px;
+	border-top-right-radius: 8px;
+}
+
+#removeAllCountry,
+#removeAllCountry:hover {
+	background-color: #007bff;
+}
+
+.btn-update-general-info {
+	color: #fff;
+	padding: 3px 8px 3px 8px;
+	border-radius: 4px;
+	border: 1px solid #fff;
+}
+
+#GeneralInfoUpdate {
+	background-color: #218838 !important;
 }
 
 @keyframes customAnimation {

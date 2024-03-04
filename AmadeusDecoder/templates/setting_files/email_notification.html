@@ -9,8 +9,8 @@
   <div style="display: flex; flex-direction: column;">    
     {% if state_email_recipients == "complet" or state_email_recipients == "incomplet" %}
       <div class="card " style=" height:auto; margin:0 120px 0 20px;">
-        <div class="card-header">
-          <h2 class="card-title">Notifications Recipients</h2>
+        <div class="card-header-notification-recipients">
+          <h2 class="card-title"><strong style="font-size: 16px;">Notifications Recipients</strong></h2>
           <h4 class="card-description"></h4>
         </div>
 
@@ -18,9 +18,9 @@
             <table class="table table-bordered table-head-fixed text-wrap" style="font-size: 2rem !important;">
                 <thead class="bg-info">
                 <tr>
-                    <th scope="col" style="font-size: 1rem !important;">Environnement</th>
-                    <th scope="col-6"style="font-size: 1rem !important;">Nom de la valeur</th>
-                    <th scope="col" style="font-size: 1rem !important;">Email</th>
+                    <th scope="col" style="background: #fff !important;color: #000 !important;">Environnement</th>
+                    <th scope="col-6" style="background: #fff !important;color: #000 !important;">Nom de la valeur</th>
+                    <th scope="col"  style="background: #fff !important;color: #000 !important;">Email</th>
                 </tr>
                 </thead>
 
@@ -60,19 +60,19 @@
         
         {% if state_email_sender == "complet" or state_email_sender == "incomplet" %}
         <div class="card" style="height:auto; margin:20px 120px 0 20px;">
-          <div class="card-header">
-          <h2 class="card-title">Notifications Sender</h2>    
+          <div class="card-header-notification-sender">
+          <h2 class="card-title"><strong style="font-size: 16px;">Notifications Sender</strong></h2>    
           </div>
             <div class="card-body" >
               <table class="table table-bordered table-head-fixed text-wrap">
                 <thead class="bg-info">
                     <tr>
-                    <th scope="col">Environnement</th>
-                    <th scope="col">Nom de la valeur</th>
-                    <th scope="col">Email</th>
-                    <th scope="col">Mot de passe</th>
-                    <th scope="col">SMTP</th>
-                    <th scope="col">Port</th>
+                    <th scope="col" style="background: #fff !important;color: #000 !important;">Environnement</th>
+                    <th scope="col" style="background: #fff !important;color: #000 !important;">Nom de la valeur</th>
+                    <th scope="col" style="background: #fff !important;color: #000 !important;">Email</th>
+                    <th scope="col" style="background: #fff !important;color: #000 !important;">Mot de passe</th>
+                    <th scope="col" style="background: #fff !important;color: #000 !important;">SMTP</th>
+                    <th scope="col" style="background: #fff !important;color: #000 !important;">Port</th>
                     </tr>
                 </thead>
 
@@ -269,9 +269,9 @@
             </div>
 
             <div class="form-group">
-                <label class="col-form-label col-4">Password</label>
+                <label class="col-form-label col-4 ">Password</label>
                 <input type="password" name="password" id="modalNotifSenderPassword" class="form-control "/>
-                <span class="fas fa-eye" onclick="showPassword('modalNotifSenderPassword')"  style="cursor: pointer;"></span>
+                <span class="fas fa-eye password-button-modal" onclick="showPassword('modalNotifSenderPassword')"  style="cursor: pointer;"></span>
             </div>
 
             <div class="form-group">

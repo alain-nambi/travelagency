@@ -45,7 +45,7 @@
         
         {% if ticket_state == "complet" or ticket_config %}
             <div class="card " style="width: 40rem;height:auto; margin:0 120px 0 20px;">
-                <div class="card-header">
+                <div class="card-header-tools-identifiant">
                     <h2 class="card-title">Identifiants (1) </h2>
                     <h4 class="card-description"></h4>
                 </div>
@@ -53,8 +53,8 @@
                     <table class="table table-bordered table-head-fixed text-wrap ">
                         <thead class="bg-info">
                         <tr>
-                            <th scope="col">Nom de la valeur</th>
-                            <th scope="col">Valeur</th>
+                            <th scope="col" style="background: #fff !important;color: #000 !important;">Nom de la valeur</th>
+                            <th scope="col" style="background: #fff !important;color: #000 !important;">Valeur</th>
                         </tr>
                         </thead>
 
@@ -86,7 +86,7 @@
         {% with ticket_config_length=ticket_config|length %}
             {% if ticket_state == "complet" or ticket_config_length >= 6 %}
                 <div class="card " style="width: 40rem;height:auto; margin:0 120px 0 20px;">
-                    <div class="card-header">
+                    <div class="card-header-tools-identifiant">
                         <h2 class="card-title">Identifiants (2) </h2>
                         <h4 class="card-description"></h4>
                     </div>
@@ -95,8 +95,8 @@
                         <table class="table table-bordered table-head-fixed text-wrap ">
                             <thead class="bg-info">
                             <tr>
-                                <th scope="col">Nom de la valeur</th>
-                                <th scope="col">Valeur</th>
+                                <th scope="col" style="background: #fff !important;color: #000 !important;">Nom de la valeur</th>
+                                <th scope="col" style="background: #fff !important;color: #000 !important;">Valeur</th>
                             </tr>
                             </thead>
 

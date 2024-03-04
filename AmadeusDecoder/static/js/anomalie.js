@@ -269,6 +269,7 @@ $(document).ready(function () {
                         csrfmiddlewaretoken: csrftoken,
                     },
                     success: function (data) {
+                        console.log(data);
                         if (data.status == 'ok') {
                             accept_anomaly(data.anomalie_id)
                             $('#modal-constat').hide();
@@ -323,7 +324,7 @@ $(document).ready(function () {
                         csrfmiddlewaretoken: csrftoken,
                     },
                     success: function (data) {
-                        
+                        console.log(data);
                         if (data.status == 'ok') {
                             accept_anomaly(data.anomalie_id)
                             $('#modal-constat').hide();

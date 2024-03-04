@@ -1,12 +1,16 @@
-
-    <div class="card col-md-5" style="width: 38rem; margin:0 120px 0 20px;">
-        <div class="card-header">
-            <h2 class="card-title">Compagnie Informations</h2>
-            <i class="fa fa-pencil" style="float: right; cursor:pointer;" aria-hidden="true" onclick="updateGeneralInfo()"></i>
+<div class="col-12">
+    
+    <div class="card col-md-5 px-0" style="width: 38rem; margin:0 0 0 10px; box-shadow: none; border-radius: 8px;">
+        <div class="card-header-company-info d-flex align-items-center justify-content-between">
+            <h1 class="card-title"><strong  style="font-size: 16px;">Compagnie Informations</strong></h1>
+            <button class="bg-transparent btn-update-general-info" onclick="updateGeneralInfo()">
+                <i class="fa fa-pencil" aria-hidden="true"></i>
+                <span>Modifier</span>
+            </button>
         </div>
         
         {% if state == "true" %}
-            <div class="card-body">
+            <div class="card-body" style="padding: 0.5rem 1.25rem 0.5rem 1.25rem;">
                 <div class="row">
                     <label class="col-form-label col-4" >Name</label >
                     <label class="col-form-label col-4" id="name_label">
@@ -14,21 +18,23 @@
                     </label>
                     <input name="name" value="{{configs.COMPANY_NAME}}" class="form-control" id="name" {% if state == "true" %}hidden{% endif %}/>
                 </div>
-                <hr>
+                <hr style="margin-top: 6px; margin-bottom: 6px;">
                 <div class="row">
                     <label class="col-form-label col-4">Currency Name</label>
                     <label  class="col-form-label col-4" id="currency_name_label">
                     {{configs.COMPANY_CURRENCY_NAME}}
                     </label>
                     <input name="currency_name" value="{{configs.COMPANY_CURRENCY_NAME}}" class="form-control" id="currency_name" {% if state == "true" %}hidden{% endif %}/>
-                </div><hr>
+                </div>
+                <hr style="margin-top: 6px; margin-bottom: 6px;">
                 <div class="row">
                     <label class="col-form-label col-4" >Currency Code</label >
                     <label class="col-form-label col-4" id="currency_code_label">
                     {{configs.COMPANY_CURRENCY_CODE}}
                     </label>
                     <input name="currency_code" value="{{configs.COMPANY_CURRENCY_CODE}}" class="form-control" id="currency_code" {% if state == "true" %}hidden{% endif %}/>
-                </div><hr>
+                </div>
+                <hr style="margin-top: 6px; margin-bottom: 6px;">
 
                 <div class="row">
                     <label  class="col-form-label col-4" >Language Code</label >
@@ -36,7 +42,8 @@
                     {{configs.COMPANY_LANGUAGE_CODE}}
                     </label>
                     <input name="language_code" value="{{configs.COMPANY_LANGUAGE_CODE}}" class="form-control" id="language_code" {% if state == "true" %}hidden{% endif %}/>
-                </div><hr>
+                </div>
+                <hr style="margin-top: 6px; margin-bottom: 6px;">
 
                 <div class="row">
                     <label class="col-form-label col-4" >Pays Régional</label >
@@ -60,14 +67,15 @@
                                 <input type="text" name="regional_country" id="modalInsert" class="form-control" />
                             </ul>
                         </div>
-                        <div class="insertmodaldetail">
-                            <button type="button" class="btn btn-primary" onclick="removeAllModal()">Effacer</button>
+                        <div class="insertmodaldetail d-flex align-items-center" style="gap: 0.5rem;">
+                            <button type="button" class="btn btn-primary" onclick="removeAllModal()" id="removeAllCountry">Supprimer tout</button>
+                            <button type="button" id="GeneralInfoUpdate" class="btn btn-success">Valider la modification</button>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="card-footer" id="modif_footer" hidden>
-                <button type="button" id="GeneralInfoUpdate" class="btn btn-success"  style="margin-top: 20px;float:right;">Modifier</button>
+                
             </div>
         {% endif %}
         
@@ -109,9 +117,9 @@
             
     </div>
 
-    <div class="card col-md-10 h-auto" style="height:auto;width:40rem; margin:70px 120px 0 20px;">
-        <div class="card-header">
-        <h2 class="card-title">File Protocol</h2>
+    <div class="card col-md-10 h-auto px-0" style="height:auto;width:40rem; margin:70px 0 0 20px; box-shadow: none; border-radius: 8px; display: none;">
+        <div class="card-header-file-protocol">
+        <h2 class="card-title"><strong  style="font-size: 16px;">File Protocol</strong></h2>
         <h4 class="card-description"></h4>
         </div>
 
@@ -204,6 +212,7 @@
             
         
     </div>
+</div>
 
 <div class="modal fade" id="SavingFileModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">

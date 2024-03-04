@@ -927,12 +927,14 @@ def reduce_fee(request) :
     from AmadeusDecoder.utilities.ServiceFeesDecreaseRequest import ServiceFeesDecreaseRequest
     context = {}
     if request.method == 'POST' and request.POST.get('pnrId') and request.POST.get('feeId'):
+        print("hey")
         pnrId = request.POST.get('pnrId')
         feeId = request.POST.get('feeId')
         feeAmount = request.POST.get('feeAmount')
         feeOriginAmount = request.POST.get('feeOriginAmount')
         choiceType = request.POST.get('choiceType')
         motif = request.POST.get('motif')
+        userId = request.POST.get('userId')
 
         # Code à vérifier car changement radical dans le processus de demande de diminution de frais de service
         if pnrId is not None and feeId is not None:
@@ -951,17 +953,37 @@ def reduce_fee(request) :
                 context['date_creation'] = date_creation
             else:
                 try :
-                    subject, message = ServiceFeesDecreaseRequest().inquiry_formatting(choiceType, request, feeId, pnrId, feeOriginAmount, feeAmount, motif)
+                    pnr = Pnr.objects.get(pk=pnrId)
+                    fee = Fee.objects.get(pk = feeId)
+                    user = User.objects.get(pk=userId)
+                    reduce_fee_request = ReducePnrFeeRequest(pnr=pnr,fee=fee,status=1,origin_amount=feeOriginAmount,amount=feeAmount,motif=motif,user=user)
+                    reduce_fee_request.save()
+
+                    all_ticket_related_fees = Fee.objects.filter(pnr__id=fee.pnr.id).all()
+                    for temp_related_ticket in all_ticket_related_fees:
+                        temp_related_ticket.cost = feeAmount
+                        temp_related_ticket.total = feeAmount
+                        temp_related_ticket.old_cost = feeOriginAmount
+                        temp_related_ticket.save()
+
+                    # get current total
+                    initial_total = 0
+                    invoice_detail_obj = InvoiceDetails().get_invoice_detail_by_pnr(pnr)
+                    initial_total = invoice_detail_obj.total
+
+                    # save fee update history
+                    History().fee_history(fee, user, feeOriginAmount, feeAmount, initial_total)
+                    # subject, message = ServiceFeesDecreaseRequest().inquiry_formatting(choiceType, request, feeId, pnrId, feeOriginAmount, feeAmount, motif)
                     
-                    context['status'] = 1 
-                    context['message'] = "Demande envoyée avec succès."
+                    context['status'] = 1
+                    context['message'] = "Demande acceptée avec succès."
                     
-                    Sending.send_email_request(
-                        FEE_REQUEST_SENDER['address'],
-                        FEE_REQUEST_RECIPIENT,
-                        subject,
-                        message
-                    )
+                    # Sending.send_email_request(
+                    #     FEE_REQUEST_SENDER['address'],
+                    #     FEE_REQUEST_RECIPIENT,
+                    #     subject,
+                    #     message
+                    # )
                 except Exception as e :
                     context['status'] = 0
                     context['message'] = "ERREUR: %s " % str(e)

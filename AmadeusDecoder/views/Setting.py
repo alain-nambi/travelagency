@@ -9,18 +9,12 @@ from django.conf import settings
 from django.db.models import Q
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-import pytz
 from AmadeusDecoder.models.configuration.Configuration import Configuration, Config
 from AmadeusDecoder.utilities.ConfigReader import ConfigReader
-from AmadeusDecoder.utilities.ZenithParser import ZenithParser
 import AmadeusDecoder.utilities.configuration_data as configs
 
 @login_required(login_url='index')
 def setting(request):
-    from AmadeusDecoder.utilities.MailNotificationParser import MailNotification
-    utc_timezone = pytz.utc
-    now = datetime.now()
-    MailNotification.fee_decrease_request(now)
 
     ConfigReader().load_config()
     context = {'state':"true",'state_file_protocol':"true",'configs':configs,'env':settings.ENVIRONMENT}
@@ -567,29 +561,29 @@ def test_parsing_txt(request):
 
     return JsonResponse(context, safe=False)
 
-def test_parsing_pdf(request):
-    if 'file' in request.FILES:
-        uploaded_file = request.FILES['file']
+# def test_parsing_pdf(request):
+#     if 'file' in request.FILES:
+#         uploaded_file = request.FILES['file']
 
-        with open('EmailFetcher/utilities/attachments_dir/' + uploaded_file.name, 'wb') as destination_file:
-            for chunk in uploaded_file.chunks():
-                destination_file.write(chunk)
+#         with open('EmailFetcher/utilities/attachments_dir/' + uploaded_file.name, 'wb') as destination_file:
+#             for chunk in uploaded_file.chunks():
+#                 destination_file.write(chunk)
 
-        temp = ZenithParser()
-        attachement_folder = 'test@test.com'
-        temp.set_path('EmailFetcher//utilities//attachments_dir//' + attachement_folder + '//' + uploaded_file.name)
-        temp.set_email_date(None)
-        temp.set_main_txt_path('EmailFetcher//utilities//attachments_dir//' + attachement_folder + '//' + attachement_folder + '.txt')
+#         temp = ZenithParser()
+#         attachement_folder = 'test@test.com'
+#         temp.set_path('EmailFetcher//utilities//attachments_dir//' + attachement_folder + '//' + uploaded_file.name)
+#         temp.set_email_date(None)
+#         temp.set_main_txt_path('EmailFetcher//utilities//attachments_dir//' + attachement_folder + '//' + attachement_folder + '.txt')
         
-        content = temp.read_file()
-        for line in content:
-            print(line)
+#         content = temp.read_file()
+#         for line in content:
+#             print(line)
 
-        temp.parse_pnr(temp.get_email_date())
-        temp.get_creator_emitter()
+#         temp.parse_pnr(temp.get_email_date())
+#         temp.get_creator_emitter()
 
-        context = {'status':200}
+#         context = {'status':200}
 
-    return JsonResponse(context, safe=False)
+#     return JsonResponse(context, safe=False)
 
  

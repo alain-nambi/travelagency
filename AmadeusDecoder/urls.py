@@ -98,7 +98,7 @@ urlpatterns = [
     path('setting/emd-parsing-create',emd_parsing_create,name='emd_parsing_create'),
     path('setting/emd-statues-update',emd_statues_update,name='emd_statues_update'),
     path('setting/test-parsing',test_parsing,name='test_parsing'),
-    path('setting/test-parsing-pdf',test_parsing_pdf,name='test_parsing_pdf'),
+    # path('setting/test-parsing-pdf',test_parsing_pdf,name='test_parsing_pdf'),
 
     
 ]

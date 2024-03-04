@@ -3,6 +3,7 @@ Created on 27 Aug 2022
 
 @author: Famenontsoa, Ra-Sam
 '''
+import datetime
 from django.db import models
 from AmadeusDecoder.models.BaseModel import BaseModel
 
@@ -161,7 +162,7 @@ class ReducePnrFeeRequest(models.Model, BaseModel):
 
     origin_amount = models.DecimalField(max_digits=13, decimal_places=4, default=0.0)
     amount = models.DecimalField(max_digits=13, decimal_places=4, default=0.0)
-    system_creation_date = models.DateTimeField()
+    system_creation_date = models.DateTimeField(auto_now=True)
     status = models.IntegerField(default=0) # 0: non traité, 1: accepté, 2: réfusé, 3: montant modifié
     token = models.CharField(max_length=100)
     motif = models.TextField(max_length=800)

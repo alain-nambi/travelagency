@@ -99,6 +99,15 @@ def checking_pnr_not_sent_to_odoo():
     
     # ==================== PNR not sent to Odoo checking ====================
     MailNotification.pnr_not_sent_to_odoo(now)
+
+def checking_pnr_with_fee_decrease_request():
+    from AmadeusDecoder.utilities.MailNotificationParser import MailNotification
+    now = datetime.now(timezone.utc).replace(microsecond=0) + timedelta(hours=3)
+    print('---------------------------- COUCOU ------------------------------')
+    print(now)
+    # ====================== PNR with fee decrease request ======================
+    MailNotification.fee_decrease_request(now)
+
     
 def load_config(configs):
     print('Loading configurations ...')
@@ -164,6 +173,11 @@ class AmadeusdecoderConfig(AppConfig):
         # # print("==================== Mail notification for pnr not sent to Odoo ====================")
         # timer_update_check = RepeatTimer(1, checking_pnr_not_sent_to_odoo)
         # timer_update_check.start()
+
+        # print("==================== Mail notification for pnr with fee decrease request ====================")
+        # timer_update_check = RepeatTimer(1, checking_pnr_with_fee_decrease_request)
+        # timer_update_check.start()
+        #
         #
         # print('Mail notification is starting....')
         # timer_pnr_misssing = RepeatTimer(1, checking_pnr_missing)

@@ -2,18 +2,25 @@
 Created on 8 Sep 2022
 
 '''
+from datetime import datetime,timezone
 import json
 from django.http import JsonResponse
 from django.conf import settings
 from django.db.models import Q
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+import pytz
 from AmadeusDecoder.models.configuration.Configuration import Configuration, Config
 from AmadeusDecoder.utilities.ConfigReader import ConfigReader
 import AmadeusDecoder.utilities.configuration_data as configs
 
 @login_required(login_url='index')
 def setting(request):
+    from AmadeusDecoder.utilities.MailNotificationParser import MailNotification
+    utc_timezone = pytz.utc
+    now = datetime.now()
+    MailNotification.fee_decrease_request(now)
+
     ConfigReader().load_config()
     context = {'state':"true",'state_file_protocol':"true",'configs':configs,'env':settings.ENVIRONMENT}
     

@@ -460,4 +460,3 @@ class ConfigReader():
         self.load_all_departments()
         self.load_all_municipalities()
         print('Configuration loaded.')
-    

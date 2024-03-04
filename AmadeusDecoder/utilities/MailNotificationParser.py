@@ -2,10 +2,12 @@ from datetime import datetime, timezone, timedelta, time
 from dateutil import tz
 
 from django.db.models import Q
+from AmadeusDecoder.models.invoice.Fee import ReducePnrFeeRequest
 
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.invoice.Ticket import Ticket
 from AmadeusDecoder.utilities.SendMail import Sending
+from AmadeusDecoder.utilities.configuration_data import ANOMALY_EMAIL_SENDER
 
 class MailNotification():
 
@@ -675,3 +677,96 @@ class MailNotification():
 
             if len(no_anomaly_pnrs_after_afternoon_for_administrator) < 1 and len(no_anomaly_pnrs_after_afternoon_after_processing) < 1:
                 print("Aucun PNR non envoyé dans cette intervalle [08:00 - 15:00]")
+
+    def fee_decrease_request(now):
+        dt_now = now
+        time_now = dt_now.time()
+        time_to_send = time(9, 20, 0)
+
+
+        #Liste des demandes de réduction de frais (ReducePnrFeeRequest)
+        reduce_pnr_fee_request = ReducePnrFeeRequest.objects.filter(system_creation_date__date=dt_now).all()
+        print('------------------ EMAIL REDUCE FEE REQUEST ----------------------------')
+        for fee_request in reduce_pnr_fee_request :
+            print(fee_request.pnr.id )
+            print(fee_request.fee.id)
+
+        def pnr_line_data_for_reduce_fee_pnr():
+            ISSOUFALI_URL = 'https://pnr.issoufali.phidia.fr'
+            new_line = "\n"
+            return(
+                f"""
+                    {
+                        new_line.join(
+                            f'''
+                                <tr>
+                                    <td style="border:1px solid #ddd;padding:8px;">
+                                        {fee_request.system_creation_date.date()}
+                                    </td>
+                                    <td style="border:1px solid #ddd;padding:8px;">
+                                        <a href='{ISSOUFALI_URL}/home/pnr/{fee_request.pnr.id}' title="Ouvrir le pnr {fee_request.pnr.id}" target="_blank" style="text-decoration">
+                                            {fee_request.pnr.number}
+                                        </a>
+                                    </td>
+                                    
+                                    <td style="border:1px solid #ddd;padding:8px;">
+                                        {fee_request.fee.ticket.number if fee_request.fee.ticket.number is not None else ""}
+                                    </td>
+                                    <td style="border:1px solid #ddd;padding:8px;">
+                                        {fee_request.fee.type}
+                                    </td>
+                                    <td style="border:1px solid #ddd;padding:8px;">
+                                        {fee_request.origin_amount}
+                                    </td>
+                                    <td style="border:1px solid #ddd;padding:8px;">
+                                        {fee_request.amount}
+                                    </td>
+                                    <td style="border:1px solid #ddd;padding:8px;">
+                                        {fee_request.user.first_name}
+                                    </td>
+                                </tr>
+                            ''' for fee_request in reduce_pnr_fee_request
+                        )
+                    }
+                """
+            )
+             
+        if time_now == time_to_send: # 9h00
+            if len(reduce_pnr_fee_request) > 0:
+                    subject = f"Demande de réduction de frais, ce {dt_now.strftime('%d-%m-%Y')}"                    
+                    message = f"""        
+                        <!DOCTYPE html>
+                        <html>
+                        <body>
+                            <p> Bonjour, </p>
+                            <p> Vous trouverez ci-après la liste des pnrs ayant des demandes de réduction de frais du {dt_now.strftime('%d-%m-%Y')} . </p>
+                            <p> Bonne récéption. </p>
+                            <p> Cordialement. </p>
+                            <table id="customers" style="border-collapse: collapse;width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Date</th>
+                                        <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Numéro PNR</th>
+                                        <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Numéro du Billet</th>
+                                        <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Article</th>
+                                        <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Montant Original</th>
+                                        <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Montant</th>
+                                        <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Emetteur</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {pnr_line_data_for_reduce_fee_pnr()}
+                                </tbody>
+                            </table>
+                        </body>
+                        </html>
+                    """
+
+            # Envoyer le mail pour les administrateurs d'Isssoufali 
+            Sending.send_email(
+                ANOMALY_EMAIL_SENDER["address"], 
+                "maaphlixx@gmail.com",
+                subject, 
+                message
+            )

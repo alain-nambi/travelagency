@@ -2,10 +2,10 @@
     
     <div class="card col-md-5 px-0" style="width: 38rem; margin:0 0 0 10px; box-shadow: none; border-radius: 8px;">
         <div class="card-header-company-info d-flex align-items-center justify-content-between">
-            <h1 class="card-title"><strong  style="font-size: 16px;">Compagnie Informations</strong></h1>
+            <h1 class="card-title"><strong  style="font-size: 16px;">Company Information</strong></h1>
             <button class="bg-transparent btn-update-general-info" onclick="updateGeneralInfo()">
                 <i class="fa fa-pencil" aria-hidden="true"></i>
-                <span>Modifier</span>
+                <span>Update</span>
             </button>
         </div>
         
@@ -46,7 +46,7 @@
                 <hr style="margin-top: 6px; margin-bottom: 6px;">
 
                 <div class="row">
-                    <label class="col-form-label col-4" >Pays Régional</label >
+                    <label class="col-form-label col-4" >Regional Countries</label >
                     <div class="col-8">
                         <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
                             <td>
@@ -68,8 +68,8 @@
                             </ul>
                         </div>
                         <div class="insertmodaldetail d-flex align-items-center" style="gap: 0.5rem;">
-                            <button type="button" class="btn btn-primary" onclick="removeAllModal()" id="removeAllCountry">Supprimer tout</button>
-                            <button type="button" id="GeneralInfoUpdate" class="btn btn-success">Valider la modification</button>
+                            <button type="button" class="btn btn-primary" onclick="removeAllModal()" id="removeAllCountry">Remove All</button>
+                            <button type="button" id="GeneralInfoUpdate" class="btn btn-success">Validate the change</button>
                         </div>
                     </div>
                 </div>
@@ -107,12 +107,12 @@
                         </ul>
                     </div>
                     <div class="multiInsertdetail">
-                        <button type="button" class="btn btn-primary removaAllButton" >Effacer</button>
+                        <button type="button" class="btn btn-primary removaAllButton" >Remove</button>
                     </div>
                 </div>
             </div>
              <div class="card-footer" {% if state != "false" %}hidden{% endif %}>
-                <button type="button" onclick="CreateCompany()" class="btn btn-success" style="margin-top: 20px;float:right;">Enregistrer</button>
+                <button type="button" onclick="CreateCompany()" class="btn btn-success" style="margin-top: 20px;float:right;">Save</button>
             </div>
             
     </div>
@@ -206,7 +206,7 @@
                 </div>
             </div>
             <div class="card-footer" id="">
-                <button type="button" onclick="CreateOdooLink()" class="btn btn-success" style="margin-top: 20px;float:right;">Enregistrer</button>
+                <button type="button" onclick="CreateOdooLink()" class="btn btn-success" style="margin-top: 20px;float:right;">Save</button>
             </div>
         {% endif %}
             
@@ -274,8 +274,8 @@
 
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
-        <button type="button" class="btn btn-success" id="buttonUpdateSavingFile">Modifier</button>
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-success" id="buttonUpdateSavingFile">Update</button>
       </div>
     </div>
   </div>
@@ -311,8 +311,8 @@
 
         </div>
         <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
-        <button type="button" class="btn btn-success" onclick="UpdateMultiInput()">Modifier</button>
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-success" onclick="UpdateMultiInput()">Update</button>
         </div>
     </div>
     </div>

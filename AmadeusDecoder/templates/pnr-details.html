@@ -104,13 +104,26 @@
 										</div>
 										<div class="col-md-2">
 										{% if pnr.state == 1 %}
-										<p class="text-danger mb-0 mx-2"><u><i class="fa fa-exclamation-triangle text-danger"></i>
-												Envoi de mail pnr manquants</u></p>
+											<button 
+												type="button" 
+												class="btn btn-danger " 
+												title="Envoi de mail pnr manquants"
+											>
+												<span><p class="text-danger mb-0 mx-2"><i class="fa fa-exclamation-triangle text-danger"></i>
+													Envoi de mail pnr manquants</p></span>
+											</button>
+										
 										{% endif %}
 										{% if pnr.state == 2 %}
-										<p class="text-warning mb-0 mx-2"><u><i
-													class="fa fa-exclamation-triangle text-warning"></i> Envoi de mail
-												tarification billet manquants</u></p>
+											<button 
+												type="button" 
+												class="btn btn-danger " 
+												title="Envoi de mail pnr manquants">
+												<span><p class="mb-0 mx-2"><i
+													class="fa fa-exclamation-triangle "></i> Envoi de mail
+												tarification billet manquants</p></span>
+											</button>
+										
 										{% endif %}
 										</div>
 										<div id="pnr_id" data-id="{{pnr.id}}" hidden></div>

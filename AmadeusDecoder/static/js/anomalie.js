@@ -292,8 +292,14 @@ $(document).ready(function () {
                 var taxe = $('#taxe').val();
                 var user_id = $('#user_id').val();
                 var passenger_id = $('#selectPassenger').val();
-                const segment = document.querySelector('#selectSegment').getSelectedOptions();
+                var segment ;
 
+                if($('#selectSegment').is(":hidden") ){
+                    segment = [];
+                }
+                else{
+                    segment = document.querySelector('#selectSegment').getSelectedOptions();
+                }
 
                 var type = $('#selectType').val();
                 var fee;

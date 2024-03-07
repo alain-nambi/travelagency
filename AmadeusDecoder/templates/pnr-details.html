@@ -662,6 +662,7 @@
 												<th width="10%">Référence</th>
 												<th width="2%"></th>
 												<th width="2%"></th>
+												<th width="2%"></th>
 											</tr>
 										</thead>
 										<tbody id="table-ticket-fees-body">
@@ -752,6 +753,12 @@
 														{{ "Remboursement"}}
 													{% endif %}
 												</td>
+												<td>
+													<button id="deleteticket" class="btn btn-danger px-2 py-1" type="button" data-toggle="modal" 
+															data-target="#modalRemoveTicket" data-ticket-number="{{ticket.number}}" data-ticket-id="{{ticket.id}}">
+														<i class="fa-solid fa-trash"></i>
+													</button>
+												</td>
 												<td>{{ '' }}</td>
 										
 												<td class="checkbox">
@@ -825,6 +832,7 @@
 															{% else %}
 																{{ '' }}
 															{% endif %}
+														<td></td>
 														<td></td>
 														<td></td>
 														{% if other_fees_orders or temp_other_fee.is_invoiced.is_invoiced %}
@@ -903,6 +911,7 @@
 													{% endif %}
 												</td>
 												<td>{{ticket.emitter.username}}</td>
+												<td>{{ '' }}</td>
 												<td>{{ '' }}</td>
 												<td>{{ '' }}</td>
 												<td class="checkbox">
@@ -988,6 +997,8 @@
 														{{ '' }}
 													{% endif %}
 												</td>
+												<td></td>
+												<td></td>
 												<td></td>
 												<td>
 													<!---- only if other_fee is not already invoiced that yan can remove it ----->
@@ -1098,6 +1109,7 @@
 														{{ '' }}
 													{% endif %}
 												</td>
+												<td>{{ '' }}</td>
 												<td>{{ '' }}</td>
 												<td>{{ '' }}</td>
 												{% if other_fees_fees_orders is not None or fee.is_invoiced %}
@@ -2276,6 +2288,31 @@
 				{% endif %}
 			</div>
 		{% endwith %}
+	</div>
+</div>
+
+<div class="modal fade show" id="modalRemoveTicket" style="display: none;" aria-modal="true" role="dialog">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Suppression du Ticket</h4>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">×</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<span>
+					Voulez-vous vraiment supprimer le ticket
+					<span id="ticketNumber"></span> ?
+				</span>
+				<input type="hidden" id="ticketId" />
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+				<button type="button" class="btn btn-danger" id="deletTicketModalConfirmation" data-dismiss="modal">Supprimer
+				</button>
+			</div>
+		</div>
 	</div>
 </div>
 

@@ -2113,7 +2113,7 @@ def unorder_pnr(request):
                     Fee.objects.filter(id=passenger_invoice.fee_id).update(is_invoiced=False)
                     
                 if passenger_invoice.other_fee_id:
-                    OthersFee.objects.filter(id=passenger_invoice.other_fee_if).update(is_invoiced=False)
+                    OthersFee.objects.filter(id=passenger_invoice.other_fee_id).update(is_invoiced=False)
 
                 if passenger_invoice.ticket_id or passenger_invoice.other_fee_id or passenger_invoice.fee_id:
                     invoices_canceled = InvoicesCanceled(pnr_id=pnr.id,invoice_number=invoice_number,motif=motif,ticket_id=passenger_invoice.ticket_id, other_fee_id = passenger_invoice.other_fee_id,user_id=user_id, fee_id=passenger_invoice.fee_id) 

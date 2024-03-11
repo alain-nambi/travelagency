@@ -3,7 +3,7 @@ Created on 29 Sep 2022
 
 @author: Famenontsoa
 '''
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from django import template
 from django.db.models import Q
 import json
@@ -1758,3 +1758,7 @@ def get_check_passenger_missing(pnr_id, client_id):
     return count_passenger_missing
 
 
+
+@register.filter(name="add_hours_plus_three")
+def set_add_hours_plus_three(date):
+    return date + timedelta(hours=3)

@@ -520,37 +520,45 @@ class PnrOnlyParser():
         compare_dates (function): comparer la date de l'opération et la date du vol
         """
 
-        # Cast date to string 
-        date_operation = str(date_operation)
+        try:
+            # Cast date to string 
+            date_operation = str(date_operation)
 
-        # Extract the year from the operation date
-        year_operation = int(date_operation.split("-")[0])
-        
-        # Transform date strings to the desired format
-        date_operation = self.transform_date(date_operation)
-        
-        # Define the date format for comparison
-        date_format = "%d%b"
-        
-        if date_segment_flight != "29FEB":
-            # Convert date strings to datetime objects for comparison
-            date_operation = datetime.strptime(date_operation, date_format)
-            date_segment_flight = datetime.strptime(date_segment_flight, date_format)
+            # Extract the year from the operation date
+            year_operation = int(date_operation.split("-")[0])
             
-            # Extract the month from the datetime objects
-            number_month_operation = date_operation.month
-            number_month_segment_flight = date_segment_flight.month
-    
-            # Compare months
-            if number_month_operation <= number_month_segment_flight:
-                return year_operation
+            # Define the date format for comparison
+            date_format_operation = "%Y-%m-%d"
+            date_format_segment_flight = "%d%b"
+            
+            
+            # ity code ity de mety hisy onana @ 2028 indray
+            if date_segment_flight != "29FEB":
+                # Show log usefull if an errors occured
+                print(f"Date operation : {date_operation}")
+                print(f"Date segment flight : {date_segment_flight}")
+
+                # Convert date strings to datetime objects for comparison
+                date_operation = datetime.strptime(date_operation, date_format_operation)
+                date_segment_flight = datetime.strptime(date_segment_flight, date_format_segment_flight)
+                
+                # Extract the month from the datetime objects
+                number_month_operation = date_operation.month
+                number_month_segment_flight = date_segment_flight.month
+
+                # Compare months
+                if number_month_operation <= number_month_segment_flight:
+                    return year_operation
+                else:
+                    return year_operation + 1
             else:
-                return year_operation + 1
-        else:
-            # Handle the case where the flight date is "29FEB"
-            while not self.is_leap_year(year_operation):
-                year_operation += 1
-            return year_operation
+                # Handle the case where the flight date is "29FEB"
+                while not self.is_leap_year(year_operation):
+                    year_operation += 1
+                return year_operation
+        except ValueError as e:
+            print("Erreur lors de la comparaison des dates :", e)
+            return datetime.datetime.now().year
 
     
     # get all flight segments
@@ -631,6 +639,7 @@ class PnrOnlyParser():
 
                         print("CORRECT YEAR OF OPERATION")
                         correct_year_of_operation = self.compare_dates(date_operation=pnr.gds_creation_date, date_segment_flight=flight_info[departure_time_index])
+                        print(correct_year_of_operation)
 
                         departure_time = datetime.strptime(flight_info[departure_time_index] + str(correct_year_of_operation) + ' ' + departure[0:2] + ':' + departure[2:] + ':00', '%d%b%Y %H:%M:%S')
                         # sometimes, landing time has a '+' attribute in order to show that some days has to be added from the departure date

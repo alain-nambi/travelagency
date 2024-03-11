@@ -529,6 +529,25 @@ class PnrCostParser():
                                     temp_ticket.is_no_adc = True
                                 if ticket.transport_cost == 0 and ticket.total > 0:
                                     temp_ticket.is_prime = True
+                                print("_______ TST fare not matching ________")
+                                # PBDZDI : TST fare not matching
+                                # We always set total as the real cost
+                                # Here we have a total greater than 0 so, we update the transport cost to equal to total
+                                if ticket.total > 0 and ticket.transport_cost == 0 and ticket.tax == 0:
+                                    temp_ticket.transport_cost = temp_ticket.total
+                                
+                                print("TST Checking...")  
+                                print(f"{temp_ticket} {temp_ticket.transport_cost} {temp_ticket.tax} {temp_ticket.total}")
+                                print(f"{ticket.transport_cost} {ticket.tax} {ticket.total}")  
+                                
+                                # 01 Mars 2024
+                                # TMEX5V : TST fare not matching transport cost is greater that big total
+                                # vérifier si le total du ticket est égal à zéro et que soit le coût de transport, soit la taxe, soit la somme du coût de transport et de la taxe est supérieure au total du ticket
+                                if ticket.total == 0 and (ticket.transport_cost >= 0 or ticket.tax >= 0 or ticket.transport_cost + ticket.tax > ticket.total):
+                                    temp_ticket.transport_cost = 0
+                                    temp_ticket.tax = 0
+                                    temp_ticket.total = 0
+                                
                                 # special agency processing
                                 # if temp_ticket.issuing_agency is not None:
                                 #     if temp_ticket.issuing_agency.code in SPECIAL_AGENCY_CODE:

@@ -30,6 +30,10 @@ from time import sleep
 import html2text
 from imapclient import IMAPClient, SEEN
 
+# print("IMAP Client is set to MAXLINE = 1000000")
+# # Add this line before creating the EmailListener instance
+# IMAPClient._MAXLINE = 1000000  # Increase the maximum line length for debugging
+
 # Imports from this package
 from .helpers import (
     calc_timeout,

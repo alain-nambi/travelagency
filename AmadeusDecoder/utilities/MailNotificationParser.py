@@ -657,6 +657,7 @@ class MailNotification():
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Suivi par</th>
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Status</th>
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Type</th>
+                                    <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Motif</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -685,7 +686,7 @@ class MailNotification():
 
 
         #Liste des demandes de réduction de frais (ReducePnrFeeRequest)
-        reduce_pnr_fee_request = ReducePnrFeeRequest.objects.filter(system_creation_date__date=dt_now).all()
+        reduce_pnr_fee_request = ReducePnrFeeRequest.objects.filter(system_creation_date__date=dt_now, status=1).all()
         # print('------------------ EMAIL REDUCE FEE REQUEST ----------------------------')
         # print(time_now)
         # print(time_to_send)
@@ -726,6 +727,9 @@ class MailNotification():
                                     <td style="border:1px solid #ddd;padding:8px;">
                                         {fee_request.user.first_name}
                                     </td>
+                                    <td style="border:1px solid #ddd;padding:8px;">
+                                        {fee_request.motif}
+                                    </td>
                                 </tr>
                             ''' for fee_request in reduce_pnr_fee_request
                         )
@@ -747,6 +751,7 @@ class MailNotification():
             "olyviahasina.razakamanantsoa@outlook.fr",
             "maphieSarobidy@outlook.fr",
             "alainnambi@gmail.com",
+            "naval@phidia.onmicrosoft.com",
         ]
         
         other_users_mail = [
@@ -820,8 +825,7 @@ class MailNotification():
                 # Envoyer le mail pour les administrateurs d'Isssoufali 
                 Sending.send_email(
                     ANOMALY_EMAIL_SENDER["address"], 
-                    # administrator_users_mail + mgbi_users_mail,
-                    ["alainnambi@gmail.com"],
+                    administrator_users_mail + mgbi_users_mail,
                     subject, 
                     message
                 )

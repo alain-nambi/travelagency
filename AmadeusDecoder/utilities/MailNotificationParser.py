@@ -681,7 +681,7 @@ class MailNotification():
     def fee_decrease_request(now):
         dt_now = now
         time_now = dt_now.time()
-        time_to_send = time(10, 20, 2)
+        time_to_send = time(10, 10, 2)
 
 
         #Liste des demandes de réduction de frais (ReducePnrFeeRequest)
@@ -712,16 +712,16 @@ class MailNotification():
                                     </td>
                                     
                                     <td style="border:1px solid #ddd;padding:8px;">
-                                        {fee_request.fee.ticket.number if fee_request.fee.ticket.number is not None else ""}
+                                        {fee_request.fee.ticket.number if fee_request.fee.ticket is not None else fee_request.fee.other_fee.designation}
                                     </td>
                                     <td style="border:1px solid #ddd;padding:8px;">
                                         {fee_request.fee.type}
                                     </td>
                                     <td style="border:1px solid #ddd;padding:8px;">
-                                        {fee_request.origin_amount}
+                                        {round(fee_request.origin_amount,2)}
                                     </td>
                                     <td style="border:1px solid #ddd;padding:8px;">
-                                        {fee_request.amount}
+                                        {round(fee_request.amount,2)}
                                     </td>
                                     <td style="border:1px solid #ddd;padding:8px;">
                                         {fee_request.user.first_name}

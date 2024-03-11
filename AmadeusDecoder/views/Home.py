@@ -957,25 +957,33 @@ def reduce_fee(request) :
                     pnr = Pnr.objects.get(pk=pnrId)
                     fee = Fee.objects.get(pk = feeId)
                     user = User.objects.get(pk=userId)
-                    reduce_fee_request = ReducePnrFeeRequest(pnr=pnr,fee=fee,status=1,origin_amount=feeOriginAmount,amount=feeAmount,motif=motif,user=user)
-                    reduce_fee_request.save()
-
-                    all_ticket_related_fees = Fee.objects.filter(pnr__id=fee.pnr.id).all()
-                    for temp_related_ticket in all_ticket_related_fees:
-                        temp_related_ticket.cost = feeAmount
-                        temp_related_ticket.total = feeAmount
-                        temp_related_ticket.old_cost = feeOriginAmount
-                        temp_related_ticket.save()
-
                     
                     # get current total
                     initial_total = 0
                     invoice_detail_obj = InvoiceDetails().get_invoice_detail_by_pnr(pnr)
                     initial_total = invoice_detail_obj.total
+                    
+                    
+                    if choiceType == 'one':
+                        reduce_fee_request = ReducePnrFeeRequest(pnr=pnr,fee=fee,status=1,origin_amount=feeOriginAmount,amount=feeAmount,motif=motif,user=user)
+                        reduce_fee_request.save()
+                        fee.cost = feeAmount
+                        fee.total = feeAmount
+                        fee.save()
+                        # save fee update history
+                        History().fee_history(fee, user, feeOriginAmount, feeAmount, initial_total)
 
-                    # save fee update history
-                    History().fee_history(fee, user, feeOriginAmount, feeAmount, initial_total)
-                    # subject, message = ServiceFeesDecreaseRequest().inquiry_formatting(choiceType, request, feeId, pnrId, feeOriginAmount, feeAmount, motif)
+                    elif choiceType == 'all':
+                        all_ticket_related_fees = Fee.objects.filter(pnr__id=fee.pnr.id, is_invoiced=False).all()
+                        for temp_related_ticket in all_ticket_related_fees:
+                            reduce_fee_request = ReducePnrFeeRequest(pnr=pnr,fee=temp_related_ticket,status=1,origin_amount=temp_related_ticket.cost,amount=feeAmount,motif=motif,user=user)
+                            reduce_fee_request.save()
+                            # save fee update history
+                            History().fee_history(temp_related_ticket, user, temp_related_ticket.cost, feeAmount, initial_total)
+                            temp_related_ticket.cost = feeAmount
+                            temp_related_ticket.total = feeAmount
+                            temp_related_ticket.save()
+                    
 
                     context['status'] = 1 
                     context['message'] = "Demande acceptée avec succès."

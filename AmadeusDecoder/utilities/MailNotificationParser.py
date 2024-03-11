@@ -712,16 +712,16 @@ class MailNotification():
                                     </td>
                                     
                                     <td style="border:1px solid #ddd;padding:8px;">
-                                        {fee_request.fee.ticket.number if fee_request.fee.ticket.number is not None else ""}
+                                        {fee_request.fee.ticket.number if fee_request.fee.ticket is not None else fee_request.fee.other_fee.designation}
                                     </td>
                                     <td style="border:1px solid #ddd;padding:8px;">
                                         {fee_request.fee.type}
                                     </td>
                                     <td style="border:1px solid #ddd;padding:8px;">
-                                        {fee_request.origin_amount}
+                                        {round(fee_request.origin_amount,2)}
                                     </td>
                                     <td style="border:1px solid #ddd;padding:8px;">
-                                        {fee_request.amount}
+                                        {round(fee_request.amount,2)}
                                     </td>
                                     <td style="border:1px solid #ddd;padding:8px;">
                                         {fee_request.user.first_name}

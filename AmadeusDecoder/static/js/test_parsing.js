@@ -14,10 +14,9 @@ $(document).ready(function () {
     });
 
     $(document).on('click', '#fileUploadButton', function() {
-        console.log("click!!!!");
+        var type = $('#SelectTypeParsing').val();
         const fileInput = $('#fileInput')[0];  
         const file = fileInput.files[0];
-        console.log(file);
 
 
         // Create a FormData object and append the file and CSRF token
@@ -25,23 +24,45 @@ $(document).ready(function () {
         formData.append('file', file);
         formData.append('csrfmiddlewaretoken', csrftoken);
 
-        $.ajax({
-            type: "POST",
-            url: "/setting/test-parsing-pdf",
-            data: formData,
-            contentType: false,  // Set content type to false for FormData
-            processData: false,  // Prevent jQuery from processing the data
-            success: function (data) {
-                if (data.status == 200) {
-                    toastr.success('File uploaded');
-                    location.reload();
-                } else {
-                    toastr.error('coucou',data.error);
+        if (type == "ewa") {
+            $.ajax({
+                type: "POST",
+                url: "/setting/test-parsing-zenith",
+                data: formData,
+                contentType: false,  // Set content type to false for FormData
+                processData: false,  // Prevent jQuery from processing the data
+                success: function (data) {
+                    if (data.status == 200) {
+                        toastr.success('File uploaded');
+                        location.reload();
+                    } else {
+                        toastr.error('coucou',data.error);
+                    }
+                },
+                error: function (error) {
+                    console.error('Error:', error);
                 }
-            },
-            error: function (error) {
-                console.error('Error:', error);
-            }
-        });
+            });
+        }
+        if (type == "rd") {
+            $.ajax({
+                type: "POST",
+                url: "/setting/test-parsing-zenith-receipt",
+                data: formData,
+                contentType: false,  // Set content type to false for FormData
+                processData: false,  // Prevent jQuery from processing the data
+                success: function (data) {
+                    if (data.status == 200) {
+                        toastr.success('File uploaded');
+                        location.reload();
+                    } else {
+                        toastr.error('coucou',data.error);
+                    }
+                },
+                error: function (error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
     });
 });

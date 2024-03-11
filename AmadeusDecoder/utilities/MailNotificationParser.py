@@ -769,7 +769,7 @@ class MailNotification():
                 # Envoyer le mail pour les administrateurs d'Isssoufali 
                 Sending.send_email(
                     ANOMALY_EMAIL_SENDER["address"], 
-                    "maaphlixx@gmail.com",
+                    ["maaphlixx@gmail.com"],
                     subject, 
                     message
                 )

@@ -98,7 +98,8 @@ urlpatterns = [
     path('setting/emd-parsing-create',emd_parsing_create,name='emd_parsing_create'),
     path('setting/emd-statues-update',emd_statues_update,name='emd_statues_update'),
     path('setting/test-parsing',test_parsing,name='test_parsing'),
-    path('setting/test-parsing-pdf',test_parsing_pdf,name='test_parsing_pdf'),
+    path('setting/test-parsing-zenith',test_parsing_zenith,name='test_parsing_zenith'),
+    path('setting/test-parsing-zenith-receipt',test_parsing_zenith_receipt,name='test_parsing_zenith_receipt'),
     path('home/ticket-delete',ticket_delete,name='ticket_delete'),
     
 ]

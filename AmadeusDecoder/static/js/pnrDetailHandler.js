@@ -82,6 +82,7 @@ ServiceFeesInput.forEach((inputFees, index) => {
         if (currentCost >= cost && user_id != 13 && user_id != 22 && user_id != 15 && role_id != 1) {
                 inputFees.value = inputCurrentCost;
                 $('#modal-dmdfrs').modal();
+                $('#user_id').val(user_id);
                 $('.fee-request').val(cost.toFixed(2));
                 $('.fee-total').text(inputCurrentCost);
                 $('#fee-id-request').val(fee_id);
@@ -397,7 +398,7 @@ reduceFeeRequest.addEventListener("click", (e) => {
   fee_origin_amount = $("#fee-origin-cost").val();
   choice_type = $("input[name=fee-decrease-application]:checked").val();
   motif = $("#feeReduceMotif").val();
-
+  user_id = $('#user_id').val();
   // $("#modal-dmdfrs").modal("hide");
   $(".loadings").show("fade");
   $(".spinner-wrappers").show();
@@ -410,6 +411,7 @@ reduceFeeRequest.addEventListener("click", (e) => {
     data: {
       csrfmiddlewaretoken: csrftoken,
       pnrId: pnrIdNew,
+      userId:user_id,
       feeId: fee_id,
       feeAmount: fee_amount,
       feeOriginAmount: fee_origin_amount,

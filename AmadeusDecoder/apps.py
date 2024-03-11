@@ -135,10 +135,10 @@ class AmadeusdecoderConfig(AppConfig):
         os.environ['CMDLINERUNNER_RUN_ONCE'] = 'True'
         
         # import AmadeusDecoder.utilities.configuration_data as configs
-        #
+        
         # load_configs = Thread(target=load_config, args=(configs, ))
         # load_configs.start()
-        #
+        
         # sleep(2)
         
         # print(configs.FEE_REQUEST_RESPONSE_RECIPIENT)
@@ -164,6 +164,8 @@ class AmadeusdecoderConfig(AppConfig):
         # # print("==================== Mail notification for pnr not sent to Odoo ====================")
         # timer_update_check = RepeatTimer(1, checking_pnr_not_sent_to_odoo)
         # timer_update_check.start()
+
+        #
         #
         # print('Mail notification is starting....')
         # timer_pnr_misssing = RepeatTimer(1, checking_pnr_missing)

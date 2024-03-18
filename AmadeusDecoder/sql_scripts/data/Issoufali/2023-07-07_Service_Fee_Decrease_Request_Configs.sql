@@ -5,6 +5,5 @@ insert into t_configuration(environment, name, to_be_applied_on, value_name, dat
 ('all', 'Fee Request Tools', 'Fee', 'Fee decrease request response sender', null, ARRAY['feerequest.issoufali.pnr@outlook.com'], null, null, now(), now(), true),
 ('all', 'Fee Request Tools', 'Fee', 'Fee request request response recipient', null, ARRAY[
 	'pp@phidia.onmicrosoft.com', 
-	'mihaja@phidia.onmicrosoft.com', 
 	'tahina@phidia.onmicrosoft.com'
 ], null, null, now(), now(), true);

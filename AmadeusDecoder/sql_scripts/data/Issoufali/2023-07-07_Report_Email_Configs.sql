@@ -25,9 +25,9 @@ values -- fee history report local recipients
             'phpr974@gmail.com',
             'pp@phidia.onmicrosoft.com',
             'alain@phidia.onmicrosoft.com',
-            'anjaranaivo464@gmail.com',
+            'maphiesarobidy@outlook.fr',
+            'naval@phidia.onmicrosoft.com',
             'olyviahasina.razakamanantsoa@outlook.fr',
-            'mathieu@phidia.onmicrosoft.com',
             'tahina@phidia.onmicrosoft.com'
         ],
         null,
@@ -44,9 +44,9 @@ values -- fee history report local recipients
         null,
         ARRAY [
             'alain@phidia.onmicrosoft.com',
-            'anjaranaivo464@gmail.com',
+            'maphiesarobidy@outlook.fr',
+            'naval@phidia.onmicrosoft.com',
             'olyviahasina.razakamanantsoa@outlook.fr',
-            'mathieu@phidia.onmicrosoft.com',
             'tahina@phidia.onmicrosoft.com'
         ],
         null,

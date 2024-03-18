@@ -61,13 +61,14 @@ def comment(request):
 
     Sending.send_email(
         "anomalie.issoufali.pnr@gmail.com",
-        ["nasolo@phidia.onmicrosoft.com",
-        "pp@phidia.onmicrosoft.com",
-        "tahina@phidia.onmicrosoft.com",
-        "alain@phidia.onmicrosoft.com",
-        "anjaranaivo464@gmail.com",
-        "olyviahasina.razakamanantsoa@outlook.fr",
-        "mathieu@phidia.onmicrosoft.com"],
+        [
+            "pp@phidia.onmicrosoft.com",
+            "tahina@phidia.onmicrosoft.com",
+            "alain@phidia.onmicrosoft.com",
+            "maphiesarobidy@outlook.fr",
+            "naval@phidia.onmicrosoft.com",
+            "olyviahasina.razakamanantsoa@outlook.fr",
+        ],
          subject,
          message
     )
@@ -137,12 +138,12 @@ def comment_detail(request, comment_id):
 
             Sending.send_email(
                 "anomalie.issoufali.pnr@gmail.com",
-                [comments.user_id.email,
-                    "nasolo@phidia.onmicrosoft.com",
+                [   
+                    comments.user_id.email,
+                    "maphiesarobidy@outlook.fr",
+                    "naval@phidia.onmicrosoft.com",
                     "alain@phidia.onmicrosoft.com",
-                    "anjaranaivo464@gmail.com",
                     "olyviahasina.razakamanantsoa@outlook.fr",
-                    "mathieu@phidia.onmicrosoft.com",
                     "pp@phidia.onmicrosoft.com",
                     "tahina@phidia.onmicrosoft.com"
                 ],
@@ -203,13 +204,14 @@ def get_pnr_not_fetched(request):
 
             Sending.send_email_pnr_not_fetched(
                 "anomalie.issoufali.pnr@gmail.com",
-                ["nasolo@phidia.onmicrosoft.com",
-                "alain@phidia.onmicrosoft.com",
-                "anjaranaivo464@gmail.com",
-                "olyviahasina.razakamanantsoa@outlook.fr",
-                "mathieu@phidia.onmicrosoft.com",
-                "pp@phidia.onmicrosoft.com",
-                "tahina@phidia.onmicrosoft.com"],
+                [
+                    "maphiesarobidy@outlook.fr",
+                    "naval@phidia.onmicrosoft.com",
+                    "alain@phidia.onmicrosoft.com",
+                    "olyviahasina.razakamanantsoa@outlook.fr",
+                    "pp@phidia.onmicrosoft.com",
+                    "tahina@phidia.onmicrosoft.com"
+                ],
                 subject,
                 message
             )

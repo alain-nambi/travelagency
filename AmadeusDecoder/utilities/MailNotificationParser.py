@@ -682,7 +682,7 @@ class MailNotification():
     def fee_decrease_request(now):
         dt_now = now
         time_now = dt_now.time()
-        time_to_send = time(23, 59, 59)
+        time_to_send = time(23, 0, 0)
 
 
         #Liste des demandes de réduction de frais (ReducePnrFeeRequest)
@@ -812,6 +812,7 @@ class MailNotification():
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Montant Original</th>
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Montant demandé</th>
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Agent demandeur</th>
+                                    <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Motif</th>
                                 </tr>
                             </thead>
                             <tbody>

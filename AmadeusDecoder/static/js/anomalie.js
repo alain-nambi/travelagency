@@ -30,8 +30,10 @@ $(document).ready(function () {
     $('#ticket_number').on('input', function () {
         ticket = $('#ticket_number').val();
         var inputValue = $(this).val();
-        var sanitizedValue = inputValue.replace(/[^0-9-]/g, '');
-        $(this).val(sanitizedValue);
+
+        // Seulement pour les remboursements à remonter
+        // var sanitizedValue = inputValue.replace(/[^0-9-]/g, '');
+        // $(this).val(sanitizedValue);
 
         $('#comment-ticket').attr("disabled", true);
 
@@ -136,8 +138,9 @@ $(document).ready(function () {
                 // Le format est correct, ne rien faire
             } else {
                 // Le format est incorrect, nettoyer la valeur
-                var sanitizedValue = inputValue.replace(/[^0-9,.]/g, '');
-                $(this).val(sanitizedValue);
+                // à décommenter lorsque les remboursements sont remontées
+                // var sanitizedValue = inputValue.replace(/[^0-9,.]/g, '');
+                // $(this).val(sanitizedValue);
             }
         });        
         

@@ -46,9 +46,9 @@
                     <div>
                         <select class="form-control col-md-3" id="SelectTypeParsing" >
                             <option value="">Que voulez-vous tester?</option>
-                            <option value="pnr">PNR</option>
-                            <option value="tkt">TKT</option>
-                            <option value="tst">TST</option>
+                            <option value="data">PNR</option>
+                            <option value="data">TKT</option>
+                            <option value="data">TST</option>
                             <option value="ewa">Zénith/EWA</option>
                             <option value="rd">Reçu dossier</option>
 
@@ -57,18 +57,25 @@
 
                     <div class="row col-md-8" style="margin-top:20px;" id="input_file" hidden>
                         <input type="file" id="fileInput" name="file" class="form-control col-md-7" style="padding:2px;" />
-                        <button type = "button" id="fileUploadButton" class="btn btn-success" style="margin-left:10px;">Tester</button>
+                        <button type = "button" id="fileUploadButton" class="btn btn-success" style="margin-left:10px;">Upload</button>
                     </div>
     
                     <div class="row col-md-8" style="margin-top:20px;" id="textarea" hidden>
-                        <textarea type="text" name="file" class="form-control z-depth-1 col-md-7"  rows="7" style="padding:2px; " ></textarea>
-                        <button type = "button" class="btn btn-success h-25" style="margin:119px 0 0 10px;">Tester</button>
+                        <textarea type="text"  id="data" class="form-control z-depth-1 col-md-7"  rows="7" style="padding:2px; " ></textarea>
+                        <button type = "button" class="btn btn-success h-25" id="TestTextButton" style="margin:119px 0 0 10px;">Test</button>
+                        <button type = "button" class="btn btn-primary h-25" id="NewTest" style="margin:119px 0 0 10px;" hidden>New Test</button>
+
                     </div>
 
-                    <div class="w-100 " style="background-color:black;height:200px;margin-top:20px;" id="console" hidden>
-                        <div style="padding:10px;">
-                            <h4 style="color:red">Erreur !!!!</h4>
-                        </div>
+                    <div>
+                      <div id="text_content" class="w-100" style="overflow:auto;"></div>
+
+                      <div id="pdf_image" class="w-100" style="overflow:auto;"></div>                      
+                      <button type = "button" id="fileTestButton" class="btn btn-success" style="margin-left:10px;" hidden>Test</button>
+                    </div>
+
+                    <div class="w-100 h-auto" style="background-color:black;height:200px;margin-top:20px;color:white;padding:20px;" id="console" hidden>
+                        
                     </div>
                 </div>
 

@@ -19,7 +19,7 @@ from AmadeusDecoder.models.invoice.Ticket import Ticket
 from datetime import date, timedelta
 from django.utils import timezone
 
-from django.core.mail import send_mail
+from AmadeusDecoder.utilities.SendMail import Sending
 from django.shortcuts import render
 
 from django.db.models import Q
@@ -62,18 +62,18 @@ def comment(request):
                     </html>
                 """.format(comment_value, pnr_element.number, user_element.username)
 
-    Sending.send_email(
-        "anomalie.issoufali.pnr@gmail.com",
-        ["nasolo@phidia.onmicrosoft.com",
-        "pp@phidia.onmicrosoft.com",
-        "tahina@phidia.onmicrosoft.com",
-        "alain@phidia.onmicrosoft.com",
-        "anjaranaivo464@gmail.com",
-        "olyviahasina.razakamanantsoa@outlook.fr",
-        "mathieu@phidia.onmicrosoft.com"],
-         subject,
-         message
-    )
+    # Sending.send_email(
+    #     "anomalie.issoufali.pnr@gmail.com",
+    #     ["nasolo@phidia.onmicrosoft.com",
+    #     "pp@phidia.onmicrosoft.com",
+    #     "tahina@phidia.onmicrosoft.com",
+    #     "alain@phidia.onmicrosoft.com",
+    #     "anjaranaivo464@gmail.com",
+    #     "olyviahasina.razakamanantsoa@outlook.fr",
+    #     "mathieu@phidia.onmicrosoft.com"],
+    #      subject,
+    #      message
+    # )
 
     return JsonResponse({'comment': 'Data successfully sent to database'})
 
@@ -167,8 +167,35 @@ def update_comment_state(request):
             comment = Comment.objects.filter(pk=int(comment_id))
             comment.update(state=True)
 
+            #   Réponse automatique
+            comment_response = "Votre demande a été traité. Merci"
+            comments = Comment.objects.get(pk=int(comment_id))
+            user_id = User.objects.get(pk=int(request.user.id))
+            pnr_id = Pnr.objects.get(pk=int(comments.pnr_id.id))
+            response = Response(pnr_id=pnr_id, user_id=user_id, response=comment_response)
+            response.save()
+
+            # Send email
+            email_response(request, pnr_id)
+
     context['comment'] = list(comment.values())
     return JsonResponse(context)
+
+def email_response(request, pnr):
+    from AmadeusDecoder.utilities.configuration_data import ANOMALY_EMAIL_SENDER
+
+    if request.method == 'POST':
+        pnr = Pnr.objects.get(pk=int(pnr.id))
+        subject = f"Réponse pour l'anomalie"                    
+        message = f"Bonjour, votre demande par rapport au PNR {pnr.number} a été traité.\nCordialement,"
+
+        # Envoyer le mail pour les administrateurs d'Isssoufali 
+        Sending.send_email(
+            ANOMALY_EMAIL_SENDER["address"], 
+            ["maaphlixx@gmail.com"],
+            subject, 
+            message
+        )
 
 @login_required(login_url='index')
 def get_pnr_not_fetched(request):

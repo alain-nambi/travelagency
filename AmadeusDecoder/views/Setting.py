@@ -2,10 +2,12 @@
 Created on 8 Sep 2022
 
 '''
+from base64 import b64encode
 from datetime import datetime,timezone
 import json
+import os
 import traceback
-from django.http import JsonResponse
+from django.http import FileResponse, JsonResponse
 from django.conf import settings
 from django.db.models import Q
 from django.shortcuts import render
@@ -565,44 +567,53 @@ def test_parsing_txt(request):
 
     return JsonResponse(context, safe=False)
 
-def test_parsing_zenith(request):
+def test_parsing_upload_file(request):
+    import fitz
+    import base64
     if 'file' in request.FILES:
         try:
+            context={'status':200}
             uploaded_file = request.FILES['file']
             uploaded_file_name = (uploaded_file.name).replace(' ','')
             with open('EmailFetcher/utilities/attachments_dir/test@test.com/' + uploaded_file_name, 'wb') as destination_file:
                 for chunk in uploaded_file.chunks():
                     destination_file.write(chunk)
 
-            temp = ZenithParser()
-            attachement_folder = 'test@test.com'
-            temp.set_path('EmailFetcher//utilities//attachments_dir//' + attachement_folder + '//' + uploaded_file_name)
-            temp.set_email_date(None)
-            temp.set_main_txt_path('EmailFetcher//utilities//attachments_dir//' + attachement_folder + '//' + attachement_folder + '.txt')
+            pdf_image = fitz.open('EmailFetcher/utilities/attachments_dir/test@test.com/' + uploaded_file_name)
+            # Récupérer le nombre de pages du PDF
+            num_pages = pdf_image.page_count
+            # Créer une liste pour stocker les images
+            images = []
+            for page_number in range(num_pages):
+                # Charger la page
+                page = pdf_image.load_page(page_number)
+                # Obtenir une représentation en bytes de l'image (vous pouvez choisir un format d'image approprié)
+                image_bytes = page.get_pixmap().tobytes()
+                
+                # Convertir les bytes en base64
+                image_base64 = base64.b64encode(image_bytes).decode('utf-8')
+
+                images.append(image_base64)
+            pdf_image.close()
+            context['pdf_image'] = json.dumps(images)
             
-            content = temp.read_file()
-            for line in content:
-                print(line)
-
-            temp.parse_pnr(temp.get_email_date())
-            temp.get_creator_emitter()
-
-            context = {'status':200}
         except:
+            context['status':1]
             trace_str = traceback.format_exc()
-            context = {'erreur':trace_str}
+            print(trace_str)
 
     return JsonResponse(context, safe=False)
 
-def test_parsing_zenith_receipt(request):
-    if 'file' in request.FILES:
-        try:
-            uploaded_file = request.FILES['file']
-            uploaded_file_name = (uploaded_file.name).replace(' ','')
-            with open('EmailFetcher/utilities/attachments_dir/test@test.com/' + uploaded_file_name, 'wb') as destination_file:
-                for chunk in uploaded_file.chunks():
-                    destination_file.write(chunk)
 
+def test_parsing_zenith(request):
+    import fitz
+    import base64
+    if request.method == 'POST':
+        context = {'status':200,'error':''}
+        uploaded_file_name = request.POST.get('uploaded_file_name')
+        uploaded_file_name = uploaded_file_name.replace(' ','')
+        try:
+            
             temp = ZenithParser()
             attachement_folder = 'test@test.com'
             temp.set_path('EmailFetcher//utilities//attachments_dir//' + attachement_folder + '//' + uploaded_file_name)
@@ -615,98 +626,127 @@ def test_parsing_zenith_receipt(request):
 
             temp.parse_pnr(temp.get_email_date())
             temp.get_creator_emitter()
-
-            context = {'status':200}
+            
+            
         except:
             trace_str = traceback.format_exc()
             print(trace_str)
-            context = {'erreur':trace_str}
+            context['status'] = 10
+            context['error'] = trace_str
 
-    return JsonResponse(context, safe=False)
+
+        return JsonResponse(context, safe=False)
 
 def test_parsing_text(request):
     import os
+    data = request.POST.get('data')
+    context={'status':200, 'message':"Pas d'Erreur",'error':''}
 
-    if 'file' in request.FILES:
-        try:
-            uploaded_file = request.FILES['file']
-            uploaded_file_name = (uploaded_file.name).replace(' ','')
-            with open('EmailFetcher/utilities/attachments_dir/test@test.com/' + uploaded_file_name, 'wb') as destination_file:
-                for chunk in uploaded_file.chunks():
-                    destination_file.write(chunk)
+    try: 
 
-    
-            temp = AmadeusParser() 
-            file = '0_fnd@amadeus.com'
-            # file = 12656_famenontsoa@outlook.com'
-            temp.set_path(os.getcwd() + '/EmailFetcher/utilities/attachments_dir/' + file + '/' + file.removeprefix('VK8PP7_Fixed/') + '.txt')
+        temp = AmadeusParser() 
+        file = '0_fnd@amadeus.com'
+        chemin = os.getcwd() + '/EmailFetcher/utilities/attachments_dir/' + file 
 
-            contents = temp.read_file()
-            needed_content = temp.needed_content(contents)
-            normalize_file = temp.normalize_file(needed_content)
+        with open(chemin,'r') as fichier:
+            lines = fichier.readlines()
 
-            # temp.parse_tst(needed_content)
-            # print(temp.get_tst_related_pnr(needed_content))
-            temp.set_email_date(None)
-            if len(contents) > 0:
+        with open(chemin,'w') as fichier:
+            fichier.writelines(lines[:8 -1])
+            fichier.writelines(data)
+
+        temp.set_path(os.getcwd() + '/EmailFetcher/utilities/attachments_dir/' + file )
+
+        contents = temp.read_file()
+        needed_content = temp.needed_content(contents)
+        normalize_file = temp.normalize_file(needed_content)
+
+        temp.set_email_date(None)
+        if len(contents) > 0:
+        
             
-                
-                if contents[0].startswith('AGY'): # TJQ
-                    try:
-                        temp.parse_tjq(needed_content)
-                    except:
-                        print('File (TJQ) with error: ' + str(file))
-                        traceback.print_exc()
-                else:
-                    for j in range(len(contents)):
-                        if contents[j].startswith('RPP'):
-                            temp.set_is_archived(True)
-                            continue
-                        if contents[j].startswith('RP') and not contents[j].startswith('RPP'):
-                            try:
-                                temp.parse_pnr(contents[j:], needed_content, temp.get_email_date())
-                                break
-                            except:
-                                print('File (PNR) with error: ' + file)
-                                traceback.print_exc()
-                        if contents[j].startswith('EMD'):
-                            try:
-                                print('Needed content ', needed_content)
-                                print('Needed content 2 ', temp.needed_content(contents[j:]))
-                                temp.parse_emd(temp.needed_content(contents[j:]), temp.get_email_date())
-                                break
-                            except:
-                                print('File (EMD) with error: ' + file)
-                                traceback.print_exc()
-                        if contents[j].startswith('TKT'):
-                            try:
-                                temp.parse_ticket(temp.needed_content(contents[j:]), temp.get_email_date())
-                                break
-                            except:
-                                print('File (Ticket) with error: ' + file)
-                                traceback.print_exc()
-                        if contents[j].startswith('TST'):
-                            try:
-                                temp.parse_tst(temp.needed_content(contents[j:]))
-                                break
-                            except:
-                                print('File (TST) with error: ' + file)
-                                traceback.print_exc()
-                        if contents[j].startswith('FEE MODIFY REQUEST'):
-                            try:
-                                temp.sf_decrease_request_update(temp.needed_content(contents[j:]))
-                                break
-                            except:
-                                print('File (REQUEST) with error: ' + file)
-                                traceback.print_exc()
-                        if contents[j].startswith('VOTRE NUMERO DE DOSSIER'):
-                            try:
-                                needed_content = contents[j:]
-                                temp.parse_not_issued_zenith(needed_content)
-                                break
-                            except:
-                                print('File (EWA) with error: ' + file)
-                                traceback.print_exc()
-        except:
-            trace_str = traceback.format_exc()
-            context = {'erreur':trace_str}
+            if contents[0].startswith('AGY'): # TJQ
+                try:
+                    temp.parse_tjq(needed_content)
+                except:
+                    print('File (TJQ) with error: ' + str(file))
+                    traceback.print_exc()
+                    context['error'] = traceback.format_exc()
+                    context['status'] = 1
+                    context['message'] = 'File (TJQ) with error: ' + str(file)
+            else:
+                for j in range(len(contents)):
+                    if contents[j].startswith('RPP'):
+                        temp.set_is_archived(True)
+                        continue
+                    if contents[j].startswith('RP') and not contents[j].startswith('RPP'):
+                        try:
+                            temp.parse_pnr(contents[j:], needed_content, temp.get_email_date())
+                            break
+                        except:
+                            print('File (PNR) with error: ' + file)
+                            traceback.print_exc()
+                            context['error'] = traceback.format_exc()
+                            context['status'] = 1
+                            context['message'] = 'File (PNR) with error: ' + file
+                    if contents[j].startswith('EMD'):
+                        try:
+                            print('Needed content ', needed_content)
+                            print('Needed content 2 ', temp.needed_content(contents[j:]))
+                            temp.parse_emd(temp.needed_content(contents[j:]), temp.get_email_date())
+                            break
+                        except:
+                            print('File (EMD) with error: ' + file)
+                            traceback.print_exc()
+                            context['error'] = traceback.format_exc()
+                            context['status'] = 1
+                            context['message'] = 'File (EMD) with error: ' + file
+                    if contents[j].startswith('TKT'):
+                        try:
+                            temp.parse_ticket(temp.needed_content(contents[j:]), temp.get_email_date())
+                            break
+                        except:
+                            print('File (Ticket) with error: ' + file)
+                            traceback.print_exc()
+                            context['error'] = traceback.format_exc()
+                            context['status'] = 1
+                            context['message'] = 'File (Ticket) with error: ' + file
+                    if contents[j].startswith('TST'):
+                        try:
+                            temp.parse_tst(temp.needed_content(contents[j:]))
+                            break
+                        except:
+                            print('File (TST) with error: ' + file)
+                            traceback.print_exc()
+                            context['error'] = traceback.format_exc()
+                            context['status'] = 1
+                            context['message'] = 'File (TST) with error: ' + file
+                    if contents[j].startswith('FEE MODIFY REQUEST'):
+                        try:
+                            temp.sf_decrease_request_update(temp.needed_content(contents[j:]))
+                            break
+                        except:
+                            print('File (REQUEST) with error: ' + file)
+                            traceback.print_exc()
+                            context['error'] = traceback.format_exc()
+                            context['status'] = 1
+                            context['message'] = 'File (REQUEST) with error: ' + file
+                    if contents[j].startswith('VOTRE NUMERO DE DOSSIER'):
+                        try:
+                            needed_content = contents[j:]
+                            temp.parse_not_issued_zenith(needed_content)
+                            break
+                        except:
+                            print('File (EWA) with error: ' + file)
+                            traceback.print_exc()
+                            context['error'] = traceback.format_exc()
+                            context['status'] = 1
+                            context['message'] = 'File (EWA) with error: ' + file
+        context['content'] = data
+        return JsonResponse(context, safe=False)
+            
+    except:
+        context['error'] = traceback.format_exc()
+        return JsonResponse(context, safe=False)
+
+

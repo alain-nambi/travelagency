@@ -81,6 +81,7 @@ const updateStateDetail = (event, commentId)=> {
             event.target.classList.remove('btn-danger');
             event.target.classList.add('btn-success');
             event.target.textContent = 'Traitée';
+            location.reload();
         },
         error: (response) =>{
             console.log(response);

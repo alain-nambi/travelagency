@@ -400,7 +400,7 @@ def update_ticket(request):
             ticket.tax = anomalie.infos.get('taxe')
             ticket.total = float(anomalie.infos.get('montant')) + float(anomalie.infos.get('taxe'))
             ticket.ticket_status = 1
-            ticket.emitter = issuing_user
+            ticket.emitter = None
             ticket.issuing_date = datetime.now()
             ticket.save()
            
@@ -415,7 +415,7 @@ def update_ticket(request):
             ticket.passenger_id=anomalie.infos.get('passenger_id')
             ticket.ticket_type=anomalie.infos.get('ticket_type')
             ticket.is_subjected_to_fees=anomalie.infos.get('fee')
-            ticket.emitter=issuing_user
+            ticket.emitter=None
             ticket.issuing_date=datetime.now()
             ticket.save()
             

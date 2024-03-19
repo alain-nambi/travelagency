@@ -174,9 +174,11 @@
 												{% for child in pnr.children_pnr %}
 													<span>{{ child }}</span>
 												{% endfor %}
+												{% for parent in pnr.parent_pnr %}
+													<span>{{ parent }}</span>
+												{% endfor %}
 											</p>
 											{% endif %}
-											
 										</div>
 										<div class="col-md-3 px-2">
 											<p class="details-p mb-0"><span class="details-span text-primary">Date d'émission</span> 

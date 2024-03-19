@@ -119,6 +119,15 @@ def send_fee_update_list():
     # while True:
     #     schedule.run_pending()
     #     time.sleep(1)
+    
+# Fonction that send fee decrease report everyday at 6am o'clock
+def checking_pnr_with_fee_decrease_request():
+    from AmadeusDecoder.utilities.MailNotificationParser import MailNotification
+    now = datetime.now(timezone.utc).replace(microsecond=0) + timedelta(hours=3)
+    # print('---------------------------- COUCOU ------------------------------')
+    # print(now)
+    # ====================== PNR with fee decrease request ======================
+    MailNotification.fee_decrease_request(now)
 
 def fetch_email():
     try:
@@ -223,9 +232,13 @@ class EmailfetcherConfig(AppConfig):
         # timer = RepeatTimer(60, pnr_unissued_opc_checking)  
         # timer.start()
         
-        # print('Product synchronisation is starting')
-        # timer_synchro = RepeatTimer(5, running_product_synhcro)
-        # timer_synchro.start()
+        print("📢 ==================== Mail notification for pnr with fee decrease request ====================")
+        timer_update_check = RepeatTimer(1, checking_pnr_with_fee_decrease_request)
+        timer_update_check.start()
+        
+        print('Product synchronisation is starting')
+        timer_synchro = RepeatTimer(5, running_product_synhcro)
+        timer_synchro.start()
 
         # from AmadeusDecoder.utilities.FtpConnection import download_file
         # dest_dir = '/export/products'

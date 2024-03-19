@@ -103,28 +103,28 @@
 											{% endif %}
 										</div>
 										<div class="col-md-2">
-										{% if pnr.state == 1 %}
-											<button 
-												type="button" 
-												class="btn btn-danger " 
-												title="Envoi de mail pnr manquants"
-											>
-												<span><p class="mb-0 mx-2"><i class="fa fa-exclamation-triangle"></i>
-													Envoi de mail pnr manquants</p></span>
-											</button>
-										
-										{% endif %}
-										{% if pnr.state == 2 %}
-											<button 
-												type="button" 
-												class="btn btn-danger " 
-												title="Envoi de mail pnr manquants">
-												<span><p class="mb-0 mx-2"><i
-													class="fa fa-exclamation-triangle "></i> Envoi de mail
-												tarification billet manquants</p></span>
-											</button>
-										
-										{% endif %}
+											{% if pnr.state == 1 %}
+												<button 
+													type="button" 
+													class="btn btn-danger " 
+													title="Envoi de mail pnr manquants"
+												>
+													<span><p class="mb-0 mx-2"><i class="fa fa-exclamation-triangle"></i>
+														Envoi de mail pnr manquants</p></span>
+												</button>
+											
+											{% endif %}
+											{% if pnr.state == 2 %}
+												<button 
+													type="button" 
+													class="btn btn-danger " 
+													title="Envoi de mail pnr manquants">
+													<span><p class="mb-0 mx-2"><i
+														class="fa fa-exclamation-triangle "></i> Envoi de mail
+													tarification billet manquants</p></span>
+												</button>
+											
+											{% endif %}
 										</div>
 										<div id="pnr_id" data-id="{{pnr.id}}" hidden></div>
 										<div class="col-md-2 pl-0 d-flex justify-content-center">
@@ -173,6 +173,9 @@
 											<p class="details-p mb-0"><span class="details-span text-primary">PNR associés (SPLIT)</span> 
 												{% for child in pnr.children_pnr %}
 													<span>{{ child }}</span>
+												{% endfor %}
+												{% for parent in pnr.parent_pnr %}
+													<span>{{ parent }}</span>
 												{% endfor %}
 											</p>
 											{% endif %}

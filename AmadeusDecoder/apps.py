@@ -178,6 +178,7 @@ class AmadeusdecoderConfig(AppConfig):
         # timer_update_check = RepeatTimer(1, checking_pnr_with_fee_decrease_request)
         # timer_update_check.start()
         #
+        #
         # print('Mail notification is starting....')
         # timer_pnr_misssing = RepeatTimer(1, checking_pnr_missing)
         # timer_pnr_misssing.start()

@@ -399,7 +399,10 @@ reduceFeeRequest.addEventListener("click", (e) => {
   choice_type = $("input[name=fee-decrease-application]:checked").val();
   motif = $("#feeReduceMotif").val();
   user_id = $('#user_id').val();
+<<<<<<< HEAD
 
+=======
+>>>>>>> 77eecb842a1ae8e16aa6499b345232e15a528bf4
   // $("#modal-dmdfrs").modal("hide");
   $(".loadings").show("fade");
   $(".spinner-wrappers").show();
@@ -413,6 +416,7 @@ reduceFeeRequest.addEventListener("click", (e) => {
       csrfmiddlewaretoken: csrftoken,
       userId: user_id,
       pnrId: pnrIdNew,
+      userId:user_id,
       feeId: fee_id,
       feeAmount: fee_amount,
       feeOriginAmount: fee_origin_amount,
@@ -1414,9 +1418,22 @@ $(document).ready(function () {
 
 // Afficher le modal de confirmation de suppression de ticket non commandé
 $(document).ready(function () {
+<<<<<<< HEAD
   $('#deleteticket').click(function () {
     $('#ticketNumber').text($(this).data('ticket-number'));
     $('#ticketId').val($(this).data('ticket-id'));
+=======
+  $('.deleteticket').click(function () {
+    // if the ticket is of type TKT
+    $('#ticketNumber').text($(this).data('ticket-number'));
+    $('#ticketId').val($(this).data('ticket-id'));
+    $('#ticketTable').val($(this).data('ticket-table'));
+    // if the ticket is of type EMD
+    if ($(this).data('ticket-designation')) {
+      $('#ticketNumber').text($(this).data('ticket-designation'));
+    }
+    
+>>>>>>> 77eecb842a1ae8e16aa6499b345232e15a528bf4
   });
 });
 
@@ -1424,12 +1441,23 @@ $(document).ready(function () {
 $(document).ready(function(){
   $('#deletTicketModalConfirmation').click(function () {
     var ticketId = $('#ticketId').val();
+<<<<<<< HEAD
+=======
+    var ticketTable = $('#ticketTable').val();
+    var ticketNumber = $('#ticketNumber').val();
+
+>>>>>>> 77eecb842a1ae8e16aa6499b345232e15a528bf4
     $.ajax({
       type: "POST",
       url: "/home/ticket-delete",
       dataType: "json",
       data: {
           ticketId: ticketId,
+<<<<<<< HEAD
+=======
+          ticketNumber: ticketNumber,
+          ticketTable: ticketTable,
+>>>>>>> 77eecb842a1ae8e16aa6499b345232e15a528bf4
           csrfmiddlewaretoken: csrftoken,
       },
       success: function (data) {

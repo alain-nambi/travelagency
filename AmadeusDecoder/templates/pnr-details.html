@@ -755,9 +755,9 @@
 												</td>
 												{% if user.role_id == 1 %}
 													<td>
-														{% if not ticket.is_invoiced  %}
-															<button id="deleteticket" class="btn btn-danger px-2 py-1" type="button" data-toggle="modal" 
-																	data-target="#modalRemoveTicket" data-ticket-number="{{ticket.number}}" data-ticket-id="{{ticket.id}}">
+														{% if not ticket.is_invoiced  %} 
+															<button class="btn btn-warning px-2 py-1 deleteticket" title='Annuler le ticket' type="button" data-toggle="modal" 
+																	data-target="#modalRemoveTicket" data-ticket-table="ticket" data-ticket-number="{{ticket.number}}" data-ticket-id="{{ticket.id}}">
 																<i class="fa-solid fa-trash"></i>
 															</button>
 														{% endif %}
@@ -838,7 +838,17 @@
 																{{ '' }}
 															{% endif %}
 														<td></td>
-														{% if user.role_id == 1 %}<td></td>{% endif %}
+														{% if user.role_id == 1 %}
+															<td>
+																{% if not ticket.is_invoiced  %} 
+																	<button class="btn btn-warning px-2 py-1 deleteticket" title='Annuler le ticket' type="button" data-toggle="modal" 
+																			data-target="#modalRemoveTicket" data-ticket-table="ticket" data-ticket-number="{{ticket.number}}" data-ticket-id="{{ticket.id}}">
+																		<i class="fa-solid fa-trash"></i>
+																	</button>
+																{% endif %}
+																
+															</td>
+														{% endif %}
 														<td></td>
 														
 														{% if other_fees_orders or temp_other_fee.is_invoiced.is_invoiced %}
@@ -918,7 +928,8 @@
 												</td>
 												<td>{{ticket.emitter.username}}</td>
 												<td>{{ '' }}</td>
-												{% if user.role_id == 1 %}<td>{{ '' }}</td>{% endif %}
+												{% if user.role_id == 1 %}<td></td>{% endif %}
+
 												<td>{{ '' }}</td>
 												<td class="checkbox">
 													{% if fee_not_ordered or fee.is_invoiced %}
@@ -1004,7 +1015,18 @@
 													{% endif %}
 												</td>
 												<td></td>
-												{% if user.id == 1 %}<td></td>{% endif %}
+												{% if user.role_id == 1 %}
+													<td>
+														{% if not other_fee.is_invoiced  %}
+															<button class="btn btn-warning px-2 py-1 deleteticket" title='Annuler le ticket' type="button" data-toggle="modal" 
+																	data-target="#modalRemoveTicket" data-ticket-table="other_fee" data-ticket-number="{{other_fee.number}}" data-ticket-designation="{{other_fee.designation}}" data-ticket-id="{{other_fee.id}}">
+																<i class="fa-solid fa-trash"></i>
+															</button>
+														{% endif %}
+														
+													</td>
+												{% endif %}
+
 												<td>
 													<!-- only if other_fee is not already invoiced that yan can remove it -->
 													
@@ -1115,8 +1137,8 @@
 													{% endif %}
 												</td>
 												<td>{{ '' }}</td>
-												{% if user.id == 1 %}<td>{{ '' }}</td>{% endif %}
-												
+												{% if user.role_id == 1 %}<td></td>{% endif %}
+
 												<td>{{ '' }}</td>
 												{% if other_fees_fees_orders is not None or fee.is_invoiced %}
 												<td class="checkbox"><input type="checkbox" class="to-hide-when-cancel p-checkbox checkto{{other_fee.id}} other-fee-fee-checkbox" id="passagers-check checkbox-line-below" data-amount-total= "{{ fee.total|floatformat:'2' }}" data-commune-id = "{{other_fee.id}}" data-type="fee" checked hidden></td>
@@ -2096,7 +2118,7 @@
 					<input type="text" class="form-control fee-request" id="fee-amount-request">
 					<input type="hidden" class="form-control" id="fee-origin-cost" name="fee-origin-cost">
 					<input type="hidden" class="form-control" id="fee-id-request" name="fee-id-request">
-					<input type='hidden' class="form-control" id="user_id"  ></input>
+					<input type='hidden' class="form-control" id="user_id"></input>
 					<div class="input-group-append">
 						<div class="input-group-text">
 							<span class="fas fa-euro"></span>
@@ -2312,6 +2334,7 @@
 					<span id="ticketNumber"></span> ?
 				</span>
 				<input type="hidden" id="ticketId" />
+				<input type="hidden" id="ticketTable" />
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>

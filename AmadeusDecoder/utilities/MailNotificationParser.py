@@ -681,7 +681,11 @@ class MailNotification():
     def fee_decrease_request(now):
         dt_now = now
         time_now = dt_now.time()
+<<<<<<< HEAD
         time_to_send = time(10, 10, 2)
+=======
+        time_to_send = time(10, 20, 2)
+>>>>>>> 77eecb842a1ae8e16aa6499b345232e15a528bf4
 
 
         #Liste des demandes de réduction de frais (ReducePnrFeeRequest)
@@ -732,6 +736,61 @@ class MailNotification():
                     }
                 """
             )
+<<<<<<< HEAD
+=======
+        administrator_users_mail = [
+            "lamia@agences-issoufali.com",
+            "asmakalfane@agences-issoufali.com",
+            "missoufali@agences-issoufali.com",
+            "issoufali.a@gmail.com",
+        ]
+        
+        mgbi_users_mail = [
+            "phpr974@gmail.com",
+            "pp@phidia.onmicrosoft.com",
+            "nasolo@phidia.onmicrosoft.com",
+            "tahina@phidia.onmicrosoft.com",
+            "alain@phidia.onmicrosoft.com",
+            "anjaranaivo464@gmail.com",
+            "olyviahasina.razakamanantsoa@outlook.fr",
+            "mathieu@phidia.onmicrosoft.com",
+        ]
+        
+        other_users_mail = [
+            "stephanie@agences-issoufali.com",
+            "fahar@agences-issoufali.com",
+            "samir@agences-issoufali.com",
+            "oulfate@agences-issoufali.com",
+            "mraati@agences-issoufali.com",
+            "fouadi@agences-issoufali.com",
+            "roihamina@agences-issoufali.com",
+            "mouniati@agences-issoufali.com",
+            "sylvia@agences-issoufali.com",
+            "anziza@agences-issoufali.com",
+            "sejours@agences-issoufali.com",
+            "sarmada@agences-issoufali.com",
+            "lola@agences-issoufali.com",
+            "farida@agences-issoufali.com",
+            "goula@agences-issoufali.com",
+            "saouda@agences-issoufali.com",
+            "riziki@agences-issoufali.com",
+            "karim@agences-issoufali.com",
+            "josianenovou@agences-issoufali.com",
+            "anaissa@agences-issoufali.com",
+            "hassanati@agences-issoufali.com",
+            "saidmaoulida@agences-issoufali.com",
+            "madjid@agences-issoufali.com",
+            "sity@agences-issoufali.com",
+            "koro@agences-issoufali.com",
+            "issoufali.pnr@outlook.com",
+            "danielbehava2@agences-issoufali.com",
+            "david.domitin@agences-issoufali.com",
+            "eric@agences-issoufali.com",
+            "taanli@agences-issoufali.com",
+            "shoulaya@agences-issoufali.com",
+        ]
+        
+>>>>>>> 77eecb842a1ae8e16aa6499b345232e15a528bf4
              
         if time_now == time_to_send: # 9h00
             print("C'EST L'HEURE D'ENVOYER L'EMAIL")
@@ -769,8 +828,16 @@ class MailNotification():
                 # Envoyer le mail pour les administrateurs d'Isssoufali 
                 Sending.send_email(
                     ANOMALY_EMAIL_SENDER["address"], 
+<<<<<<< HEAD
                     ["maaphlixx@gmail.com"],
                     subject, 
                     message
                 )
                 print('EMAIL ENVOYE')
+=======
+                    # administrator_users_mail + other_users_mail + mgbi_users_mail,
+                    subject, 
+                    message
+                )
+                print('EMAIL ENVOYE')
+>>>>>>> 77eecb842a1ae8e16aa6499b345232e15a528bf4

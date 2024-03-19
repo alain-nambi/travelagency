@@ -168,6 +168,15 @@
 													</span>
 												{% endwith %}
 											</p>
+
+											{% if pnr.children_pnr is not None or pnr.parent_pnr is not None %}
+											<p class="details-p mb-0"><span class="details-span text-primary">PNR associés (SPLIT)</span> 
+												{% for child in pnr.children_pnr %}
+													<span>{{ child }}</span>
+												{% endfor %}
+											</p>
+											{% endif %}
+											
 										</div>
 										<div class="col-md-3 px-2">
 											<p class="details-p mb-0"><span class="details-span text-primary">Date d'émission</span> 

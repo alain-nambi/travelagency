@@ -2242,4 +2242,13 @@ def unordered_pnr_research(request):
         
 def liste_commandes(request):
     return render(request,'commandes_modal.html') 
-        
+
+# Supprimer les tickets non commandés
+def ticket_delete(request):
+    if request.method == 'POST':
+        ticketId = request.POST.get('ticketId')
+
+        ticket = Ticket.objects.get(pk=ticketId)
+        ticket.ticket_status = 0
+        ticket.save()
+        return JsonResponse({'status':'ok'})

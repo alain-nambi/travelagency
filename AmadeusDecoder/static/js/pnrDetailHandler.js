@@ -1410,3 +1410,36 @@ $(document).ready(function () {
     }
   });
 });
+
+// Afficher le modal de confirmation de suppression de ticket non commandé
+$(document).ready(function () {
+  $('#deleteticket').click(function () {
+    $('#ticketNumber').text($(this).data('ticket-number'));
+    $('#ticketId').val($(this).data('ticket-id'));
+  });
+});
+
+//Supprimer le ticket non commandé
+$(document).ready(function(){
+  $('#deletTicketModalConfirmation').click(function () {
+    var ticketId = $('#ticketId').val();
+    $.ajax({
+      type: "POST",
+      url: "/home/ticket-delete",
+      dataType: "json",
+      data: {
+          ticketId: ticketId,
+          csrfmiddlewaretoken: csrftoken,
+      },
+      success: function (data) {
+          if (data.status == 'ok') {
+              toastr.success('Ticket supprimé');
+                  location.reload();
+          } 
+          if (data.status == 'error') {
+              toastr.error(data.error)
+          }
+      },
+    });
+  });
+});

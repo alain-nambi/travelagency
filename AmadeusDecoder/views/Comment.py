@@ -61,13 +61,14 @@ def comment(request):
 
     Sending.send_email(
         "anomalie.issoufali.pnr@gmail.com",
-        ["nasolo@phidia.onmicrosoft.com",
-        "pp@phidia.onmicrosoft.com",
-        "tahina@phidia.onmicrosoft.com",
-        "alain@phidia.onmicrosoft.com",
-        "anjaranaivo464@gmail.com",
-        "olyviahasina.razakamanantsoa@outlook.fr",
-        "mathieu@phidia.onmicrosoft.com"],
+        [
+            "pp@phidia.onmicrosoft.com",
+            "tahina@phidia.onmicrosoft.com",
+            "alain@phidia.onmicrosoft.com",
+            "maphiesarobidy@outlook.fr",
+            "naval@phidia.onmicrosoft.com",
+            "olyviahasina.razakamanantsoa@outlook.fr",
+        ],
          subject,
          message
     )
@@ -137,12 +138,12 @@ def comment_detail(request, comment_id):
 
             Sending.send_email(
                 "anomalie.issoufali.pnr@gmail.com",
-                [comments.user_id.email,
-                    "nasolo@phidia.onmicrosoft.com",
+                [   
+                    comments.user_id.email,
+                    "maphiesarobidy@outlook.fr",
+                    "naval@phidia.onmicrosoft.com",
                     "alain@phidia.onmicrosoft.com",
-                    "anjaranaivo464@gmail.com",
                     "olyviahasina.razakamanantsoa@outlook.fr",
-                    "mathieu@phidia.onmicrosoft.com",
                     "pp@phidia.onmicrosoft.com",
                     "tahina@phidia.onmicrosoft.com"
                 ],
@@ -203,13 +204,14 @@ def get_pnr_not_fetched(request):
 
             Sending.send_email_pnr_not_fetched(
                 "anomalie.issoufali.pnr@gmail.com",
-                ["nasolo@phidia.onmicrosoft.com",
-                "alain@phidia.onmicrosoft.com",
-                "anjaranaivo464@gmail.com",
-                "olyviahasina.razakamanantsoa@outlook.fr",
-                "mathieu@phidia.onmicrosoft.com",
-                "pp@phidia.onmicrosoft.com",
-                "tahina@phidia.onmicrosoft.com"],
+                [
+                    "maphiesarobidy@outlook.fr",
+                    "naval@phidia.onmicrosoft.com",
+                    "alain@phidia.onmicrosoft.com",
+                    "olyviahasina.razakamanantsoa@outlook.fr",
+                    "pp@phidia.onmicrosoft.com",
+                    "tahina@phidia.onmicrosoft.com"
+                ],
                 subject,
                 message
             )
@@ -323,7 +325,12 @@ def save_ticket_anomalie(request):
             pnr = Pnr.objects.filter(id=pnr_id).first()
                 
             user_id = new_tickets[0]['user_id']
-            user = User.objects.filter(id= user_id).first()
+
+            user_copying= UserCopying.objects.filter(document=pnr.number).last()
+            if user_copying is not None:
+                issuing_user = User.objects.get(pk=user_copying.user_id.id)
+            else:
+                issuing_user = None
             
             info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "passenger_id":passenger_id, "segment": segments, "ticket_status":1, 'ticket_type':ticket_type, 'fee': str(new_tickets[0]['fee']).capitalize()} # ticket_status : 0 ticket existant , 1 ticket non existant
         
@@ -350,7 +357,7 @@ def save_ticket_anomalie(request):
             )
         
             
-        anomalie = Anomalie(pnr=pnr, categorie='Billet non remonté', infos=info, issuing_user = user, creation_date=timezone.now())
+        anomalie = Anomalie(pnr=pnr, categorie='Billet non remonté', infos=info, issuing_user = issuing_user, creation_date=timezone.now())
         anomalie.save()   
         anomalie_id = anomalie.id
         response_data = {'status':'ok','anomalie_id':anomalie_id}
@@ -400,7 +407,7 @@ def update_ticket(request):
             ticket.tax = anomalie.infos.get('taxe')
             ticket.total = float(anomalie.infos.get('montant')) + float(anomalie.infos.get('taxe'))
             ticket.ticket_status = 1
-            ticket.emitter = issuing_user
+            ticket.emitter = None
             ticket.issuing_date = datetime.now()
             ticket.save()
            
@@ -415,7 +422,7 @@ def update_ticket(request):
             ticket.passenger_id=anomalie.infos.get('passenger_id')
             ticket.ticket_type=anomalie.infos.get('ticket_type')
             ticket.is_subjected_to_fees=anomalie.infos.get('fee')
-            ticket.emitter=issuing_user
+            ticket.emitter=None
             ticket.issuing_date=datetime.now()
             ticket.save()
             
@@ -436,7 +443,6 @@ def update_ticket(request):
         
         anomalie.status = 1
         anomalie.response_date = timezone.now()
-        anomalie.admin_id = request.user
         anomalie.save()
    
         return JsonResponse('ok', safe=False)

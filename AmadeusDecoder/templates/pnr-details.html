@@ -103,15 +103,28 @@
 											{% endif %}
 										</div>
 										<div class="col-md-2">
-										{% if pnr.state == 1 %}
-										<p class="text-danger mb-0 mx-2"><u><i class="fa fa-exclamation-triangle text-danger"></i>
-												Envoi de mail pnr manquants</u></p>
-										{% endif %}
-										{% if pnr.state == 2 %}
-										<p class="text-warning mb-0 mx-2"><u><i
-													class="fa fa-exclamation-triangle text-warning"></i> Envoi de mail
-												tarification billet manquants</u></p>
-										{% endif %}
+											{% if pnr.state == 1 %}
+												<button 
+													type="button" 
+													class="btn btn-danger " 
+													title="Envoi de mail pnr manquants"
+												>
+													<span><p class="mb-0 mx-2"><i class="fa fa-exclamation-triangle"></i>
+														Envoi de mail pnr manquants</p></span>
+												</button>
+											
+											{% endif %}
+											{% if pnr.state == 2 %}
+												<button 
+													type="button" 
+													class="btn btn-danger " 
+													title="Envoi de mail pnr manquants">
+													<span><p class="mb-0 mx-2"><i
+														class="fa fa-exclamation-triangle "></i> Envoi de mail
+													tarification billet manquants</p></span>
+												</button>
+											
+											{% endif %}
 										</div>
 										<div id="pnr_id" data-id="{{pnr.id}}" hidden></div>
 										<div class="col-md-2 pl-0 d-flex justify-content-center">
@@ -155,6 +168,25 @@
 													</span>
 												{% endwith %}
 											</p>
+
+											{% if pnr.children_pnr or pnr.parent_pnr %}
+												<p class="details-p mb-0">
+													<span 
+														class="details-span text-primary" 
+														title="Vous trouverez les autres billets dans le(s) PNR associé(s)"
+														style="cursor: pointer;"
+													>PNR associés : </span> 
+													{% for child in pnr.children_pnr %}
+														<span class="children-pnr-span">{{ child }},</span>
+													{% endfor %}
+													{% for parent in pnr.parent_pnr %}
+														<span class="parent-pnr-span">{{ parent }}</span>
+														{% if not forloop.last %} {{ ", " }}{% endif %}
+													{% endfor %}
+												</p>
+											{% endif %}
+
+
 										</div>
 										<div class="col-md-3 px-2">
 											<p class="details-p mb-0"><span class="details-span text-primary">Date d'émission</span> 
@@ -639,6 +671,7 @@
 												<th>Numéro de commande</th>
 												<th>Emetteur </th>
 												<th width="10%">Référence</th>
+												{% if user.role_id == 1 %}<th width="2%"></th>{% endif %}
 												<th width="2%"></th>
 												<th width="2%"></th>
 											</tr>
@@ -731,6 +764,17 @@
 														{{ "Remboursement"}}
 													{% endif %}
 												</td>
+												{% if user.id == 58 or user.id == 42 %}
+													<td>
+														{% if not ticket.is_invoiced  %} 
+															<button class="btn btn-warning px-2 py-1 deleteticket" title='Annuler le ticket' type="button" data-toggle="modal" 
+																	data-target="#modalRemoveTicket" data-ticket-table="ticket" data-ticket-number="{{ticket.number}}" data-ticket-id="{{ticket.id}}">
+																<i class="fa-solid fa-trash"></i>
+															</button>
+														{% endif %}
+														
+													</td>
+												{% endif %}
 												<td>{{ '' }}</td>
 										
 												<td class="checkbox">
@@ -805,6 +849,17 @@
 																{{ '' }}
 															{% endif %}
 														<td></td>
+														{% if user.role_id == 1 %}
+															<td>
+																{% if not ticket.is_invoiced  %} 
+																	<button class="btn btn-warning px-2 py-1 deleteticket" title='Annuler le ticket' type="button" data-toggle="modal" 
+																			data-target="#modalRemoveTicket" data-ticket-table="ticket" data-ticket-number="{{ticket.number}}" data-ticket-id="{{ticket.id}}">
+																		<i class="fa-solid fa-trash"></i>
+																	</button>
+																{% endif %}
+																
+															</td>
+														{% endif %}
 														<td></td>
 														{% if other_fees_orders or temp_other_fee.is_invoiced.is_invoiced %}
 														<td class="checkbox"><input type="checkbox" class="to-hide-when-cancel other-fees-check p-checkbox other-fees-checkboxes check{{ temp_other_fee.id }} checkbox-line-below" id="passagers-check" data-other-fees-id = "{{temp_other_fee.id}}" data-id="{{ temp_other_fee.id }}" data-commune-id = "{{temp_other_fee.id}}" data-amount-total="{{ temp_other_fee.total|floatformat:'2' }}" data-type="other-fee" checked hidden></td>
@@ -883,6 +938,8 @@
 												</td>
 												<td>{{ticket.emitter.username}}</td>
 												<td>{{ '' }}</td>
+												{% if user.role_id == 1 %}<td></td>{% endif %}
+
 												<td>{{ '' }}</td>
 												<td class="checkbox">
 													{% if fee_not_ordered or fee.is_invoiced %}
@@ -968,6 +1025,18 @@
 													{% endif %}
 												</td>
 												<td></td>
+												{% if user.role_id == 1 %}
+													<td>
+														{% if not other_fee.is_invoiced  %}
+															<button class="btn btn-warning px-2 py-1 deleteticket" title='Annuler le ticket' type="button" data-toggle="modal" 
+																	data-target="#modalRemoveTicket" data-ticket-table="other_fee" data-ticket-number="{{other_fee.number}}" data-ticket-designation="{{other_fee.designation}}" data-ticket-id="{{other_fee.id}}">
+																<i class="fa-solid fa-trash"></i>
+															</button>
+														{% endif %}
+														
+													</td>
+												{% endif %}
+
 												<td>
 													<!---- only if other_fee is not already invoiced that yan can remove it ----->
 													
@@ -1078,6 +1147,8 @@
 													{% endif %}
 												</td>
 												<td>{{ '' }}</td>
+												{% if user.role_id == 1 %}<td></td>{% endif %}
+
 												<td>{{ '' }}</td>
 												{% if other_fees_fees_orders is not None or fee.is_invoiced %}
 												<td class="checkbox"><input type="checkbox" class="to-hide-when-cancel p-checkbox checkto{{other_fee.id}} other-fee-fee-checkbox" id="passagers-check checkbox-line-below" data-amount-total= "{{ fee.total|floatformat:'2' }}" data-commune-id = "{{other_fee.id}}" data-type="fee" checked hidden></td>
@@ -1387,7 +1458,7 @@
 									</select>
 								</div>
 								<div>
-									<label for="selectSegment" class="col-form-label">Segment</label>
+									<label for="selectSegment" id="SegmentLabel" class="col-form-label">Segment</label>
 									<br>
 									<select id="selectSegment" multiple name="native-select" placeholder="Segment" data-search="false" data-silent-initial-value-set="true" >	
 									</select>
@@ -2255,6 +2326,32 @@
 				{% endif %}
 			</div>
 		{% endwith %}
+	</div>
+</div>
+
+<div class="modal fade show" id="modalRemoveTicket" style="display: none;" aria-modal="true" role="dialog">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Annuler billet (voidé ou remonté par erreur)</h4>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">×</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<span>
+					Voulez-vous vraiment annuler le billet
+					<span id="ticketNumber"></span> ?
+				</span>
+				<input type="hidden" id="ticketId" />
+				<input type="hidden" id="ticketTable" />
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+				<button type="button" class="btn btn-danger" id="deletTicketModalConfirmation" data-dismiss="modal">Confirmer
+				</button>
+			</div>
+		</div>
 	</div>
 </div>
 

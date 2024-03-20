@@ -2118,7 +2118,8 @@ def remove_other_fee_service(request):
             return JsonResponse(context, safe=False)
 
         return JsonResponse({'status': 'not_found'})
-    
+
+# décommander  un PNR
 @login_required(login_url="index")
 def unorder_pnr(request):
     if request.method == 'POST':
@@ -2136,18 +2137,23 @@ def unorder_pnr(request):
         
         if passenger_invoices:
             for passenger_invoice in passenger_invoices:
+                # delete the corresponding passenger invoice if it exist
                 PassengerInvoice.objects.filter(id=passenger_invoice.id).delete()
                 
                 if passenger_invoice.ticket_id:
+                    #  delete the corresponding ticket if it exist
                     Ticket.objects.filter(id=passenger_invoice.ticket_id).update(is_invoiced=False)
                 
                 if passenger_invoice.fee_id:
+                    #  delete the corresponding fee if it exist
                     Fee.objects.filter(id=passenger_invoice.fee_id).update(is_invoiced=False)
                     
                 if passenger_invoice.other_fee_id:
-                    OthersFee.objects.filter(id=passenger_invoice.other_fee_if).update(is_invoiced=False)
+                    # delete the corresponding other fee if it exist
+                    OthersFee.objects.filter(id=passenger_invoice.other_fee_id).update(is_invoiced=False)
 
                 if passenger_invoice.ticket_id or passenger_invoice.other_fee_id or passenger_invoice.fee_id:
+                    # save in the InvoicesCanceled
                     invoices_canceled = InvoicesCanceled(pnr_id=pnr.id,invoice_number=invoice_number,motif=motif,ticket_id=passenger_invoice.ticket_id, other_fee_id = passenger_invoice.other_fee_id,user_id=user_id, fee_id=passenger_invoice.fee_id) 
                     invoices_canceled.save()
                 
@@ -2242,4 +2248,61 @@ def unordered_pnr_research(request):
         
 def liste_commandes(request):
     return render(request,'commandes_modal.html') 
+
+# Supprimer les tickets non commandés
+def ticket_delete(request):
+    if request.method == 'POST':
+        ticketId = request.POST.get('ticketId')
+        ticketTable = request.POST.get('ticketTable')
+        ticketNumber = request.POST.get('ticketNumber')
+
+        print('------------------------------------------------------')
+        print(ticketId)
         
+        # for ticket
+        if ticketTable == 'ticket':
+            ticket = Ticket.objects.get(pk=ticketId)
+            ticket.ticket_status = 0
+            ticket.save()
+
+            # Verify in PassengerInvoice
+            passengers_invoice = PassengerInvoice.objects.filter(ticket_id = ticketId)
+            # delete the corresponding passenger invoice
+            if passengers_invoice is not None:
+                for passenger_invoice in passengers_invoice:
+                    print('PASSENGER INVOICE VAR')
+                    passenger_invoice.delete()
+                
+            # get the corresponding fee
+            fees = Fee.objects.filter(ticket_id=ticketId)
+            # delete the corresponding passenger invoice
+            if fees is not None:
+                for fee in fees:
+                    print('FEE VAR')
+                    passenger_invoice_fee = PassengerInvoice.objects.filter(fee_id=fee.id)
+                    passenger_invoice_fee.delete()
+
+
+        # for other fees
+        else:
+            other_fee = OthersFee.objects.get(pk=ticketId)
+            other_fee.other_fee_status = 0
+            other_fee.save()
+
+            passengers_invoice = PassengerInvoice.objects.filter(other_fee_id=ticketId)
+            if passengers_invoice is not None:
+                for passenger_invoice in passengers_invoice:
+                    # delete the corresponding passenger invoice
+                    passenger_invoice.delete()
+
+            # get its corresponding fee
+            fees = Fee.objects.filter(other_fee_id=ticketId)
+            if fees is not None:
+                for fee in fees:
+                    # delete its corresponding passenger invoice
+                    print('FEE VAR')
+                    passenger_invoice_fee = PassengerInvoice.objects.filter(fee_id=fee.id)
+                    passenger_invoice_fee.delete()
+
+
+        return JsonResponse({'status':'ok'})

@@ -169,16 +169,24 @@
 												{% endwith %}
 											</p>
 
-											{% if pnr.children_pnr is not None or pnr.parent_pnr is not None %}
-											<p class="details-p mb-0"><span class="details-span text-primary">PNR associés (SPLIT)</span> 
-												{% for child in pnr.children_pnr %}
-													<span>{{ child }}</span>
-												{% endfor %}
-												{% for parent in pnr.parent_pnr %}
-													<span>{{ parent }}</span>
-												{% endfor %}
-											</p>
+											{% if pnr.children_pnr or pnr.parent_pnr %}
+												<p class="details-p mb-0">
+													<span 
+														class="details-span text-primary" 
+														title="Vous trouverez les autres billets dans le(s) PNR associé(s)"
+														style="cursor: pointer;"
+													>PNR associés : </span> 
+													{% for child in pnr.children_pnr %}
+														<span class="children-pnr-span">{{ child }},</span>
+													{% endfor %}
+													{% for parent in pnr.parent_pnr %}
+														<span class="parent-pnr-span">{{ parent }}</span>
+														{% if not forloop.last %} {{ ", " }}{% endif %}
+													{% endfor %}
+												</p>
 											{% endif %}
+
+
 										</div>
 										<div class="col-md-3 px-2">
 											<p class="details-p mb-0"><span class="details-span text-primary">Date d'émission</span> 
@@ -756,7 +764,7 @@
 														{{ "Remboursement"}}
 													{% endif %}
 												</td>
-												{% if user.role_id == 1 %}
+												{% if user.id == 58 or user.id == 42 %}
 													<td>
 														{% if not ticket.is_invoiced  %} 
 															<button class="btn btn-warning px-2 py-1 deleteticket" title='Annuler le ticket' type="button" data-toggle="modal" 
@@ -2325,14 +2333,14 @@
 	<div class="modal-dialog modal-md">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title">Suppression du Ticket</h4>
+				<h4 class="modal-title">Annuler billet (voidé ou remonté par erreur)</h4>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">×</span>
 				</button>
 			</div>
 			<div class="modal-body">
 				<span>
-					Voulez-vous vraiment supprimer le ticket
+					Voulez-vous vraiment annuler le billet
 					<span id="ticketNumber"></span> ?
 				</span>
 				<input type="hidden" id="ticketId" />
@@ -2340,7 +2348,7 @@
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
-				<button type="button" class="btn btn-danger" id="deletTicketModalConfirmation" data-dismiss="modal">Supprimer
+				<button type="button" class="btn btn-danger" id="deletTicketModalConfirmation" data-dismiss="modal">Confirmer
 				</button>
 			</div>
 		</div>

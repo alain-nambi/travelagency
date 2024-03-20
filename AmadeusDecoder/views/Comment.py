@@ -323,7 +323,12 @@ def save_ticket_anomalie(request):
             pnr = Pnr.objects.filter(id=pnr_id).first()
                 
             user_id = new_tickets[0]['user_id']
-            user = User.objects.filter(id= user_id).first()
+
+            user_copying= UserCopying.objects.filter(document=pnr.number).last()
+            if user_copying is not None:
+                issuing_user = User.objects.get(pk=user_copying.user_id.id)
+            else:
+                issuing_user = None
             
             info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "passenger_id":passenger_id, "segment": segments, "ticket_status":1, 'ticket_type':ticket_type, 'fee': str(new_tickets[0]['fee']).capitalize()} # ticket_status : 0 ticket existant , 1 ticket non existant
         
@@ -350,7 +355,7 @@ def save_ticket_anomalie(request):
             )
         
             
-        anomalie = Anomalie(pnr=pnr, categorie='Billet non remonté', infos=info, issuing_user = user, creation_date=timezone.now())
+        anomalie = Anomalie(pnr=pnr, categorie='Billet non remonté', infos=info, issuing_user = issuing_user, creation_date=timezone.now())
         anomalie.save()   
         anomalie_id = anomalie.id
         response_data = {'status':'ok','anomalie_id':anomalie_id}
@@ -436,7 +441,6 @@ def update_ticket(request):
         
         anomalie.status = 1
         anomalie.response_date = timezone.now()
-        anomalie.admin_id = request.user
         anomalie.save()
    
         return JsonResponse('ok', safe=False)

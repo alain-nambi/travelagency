@@ -102,5 +102,6 @@ urlpatterns = [
     path('setting/test-parsing-text',test_parsing_text,name='test_parsing_text'),
     path('home/ticket-delete',ticket_delete,name='ticket_delete'),
     path('setting/test-parsing-upload-file',test_parsing_upload_file,name='test_parsing_upload_file'),
+    path('comment/reply-comment',reply_comment,name='reply_comment'),
     
 ]

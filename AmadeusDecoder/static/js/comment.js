@@ -89,3 +89,54 @@ const updateStateDetail = (event, commentId)=> {
     });
 };
 
+$(document).ready(function(){
+    $('#commentButton').on('click',function(){
+        $('#comment_id').val($(this).data('comment-id'));
+        $("#modalResponseConfirmation").modal('show');
+    });
+})
+
+function comment_reply(state){
+    var comment_id = $('#comment-id').val();
+    var commentButton = document.getElementById('commentButton');
+
+    // without automatic response
+    // Update the comment state
+    if (state == 0) {
+        $.ajax({
+            type: 'POST',
+            url: 'update-comment-state/',
+            dataType : 'json',
+            data: {
+                comment_id : comment_id,
+                csrfmiddlewaretoken: csrftoken
+            },
+            success: (response) =>{
+                console.log(response);
+                commentButton.classList.remove('btn-danger');
+                commentButton.classList.add('btn-success');
+                commentButton.textContent = 'Traitée';
+            },
+            error: (response) =>{
+                console.log(response);
+            }
+
+        })
+        
+    }
+    // with automatic response but without automatic email
+    if (state == 1) {
+        $.ajax({
+            type: 'POST',
+            url: 'comment/reply-comment/',
+            dataType : 'json',
+            data : {
+                
+            }
+        })
+    }
+    // with automatic response and email
+    if (state == 2) {
+        
+    }
+}

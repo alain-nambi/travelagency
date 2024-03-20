@@ -138,20 +138,20 @@ def comment_detail(request, comment_id):
                         </html>
                     """.format(comments.comment, comments.pnr_id.number, comments.user_id.username, comment_response)
 
-            Sending.send_email(
-                "anomalie.issoufali.pnr@gmail.com",
-                [comments.user_id.email,
-                    "nasolo@phidia.onmicrosoft.com",
-                    "alain@phidia.onmicrosoft.com",
-                    "anjaranaivo464@gmail.com",
-                    "olyviahasina.razakamanantsoa@outlook.fr",
-                    "mathieu@phidia.onmicrosoft.com",
-                    "pp@phidia.onmicrosoft.com",
-                    "tahina@phidia.onmicrosoft.com"
-                ],
-                subject,
-                message
-            )
+            # Sending.send_email(
+            #     "anomalie.issoufali.pnr@gmail.com",
+            #     [comments.user_id.email,
+            #         "nasolo@phidia.onmicrosoft.com",
+            #         "alain@phidia.onmicrosoft.com",
+            #         "anjaranaivo464@gmail.com",
+            #         "olyviahasina.razakamanantsoa@outlook.fr",
+            #         "mathieu@phidia.onmicrosoft.com",
+            #         "pp@phidia.onmicrosoft.com",
+            #         "tahina@phidia.onmicrosoft.com"
+            #     ],
+            #     subject,
+            #     message
+            # )
             return redirect('comment-list')
     context['responses'] = Response.objects.filter(pnr_id=int(comments.pnr_id.id))
 
@@ -167,19 +167,31 @@ def update_comment_state(request):
             comment = Comment.objects.filter(pk=int(comment_id))
             comment.update(state=True)
 
-            #   Réponse automatique
-            comment_response = "Votre demande a été traité. Merci"
-            comments = Comment.objects.get(pk=int(comment_id))
-            user_id = User.objects.get(pk=int(request.user.id))
-            pnr_id = Pnr.objects.get(pk=int(comments.pnr_id.id))
-            response = Response(pnr_id=pnr_id, user_id=user_id, response=comment_response)
-            response.save()
+    context['comment'] = list(comment.values())
+    return JsonResponse(context)
 
+def reply_comment(request):
+    if request.method == 'POST':
+        comment_id = request.POST.get('comment_id')
+        state = request.POST.get('state')
+
+        # reply automatic with email automatic
+
+        comment_response = "Votre demande a été traité. Merci"
+        comments = Comment.objects.get(pk=int(comment_id))
+        user_id = User.objects.get(pk=int(request.user.id))
+        pnr_id = Pnr.objects.get(pk=int(comments.pnr_id.id))
+        response = Response(pnr_id=pnr_id, user_id=user_id, response=comment_response)
+        response.save()
+
+
+        # reply automatic without email 
+        if state == 2:
             # Send email
             email_response(request, pnr_id)
 
-    context['comment'] = list(comment.values())
-    return JsonResponse(context)
+        update_comment_state(request)
+
 
 def email_response(request, pnr):
     from AmadeusDecoder.utilities.configuration_data import ANOMALY_EMAIL_SENDER

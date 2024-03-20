@@ -1418,11 +1418,6 @@ $(document).ready(function () {
 
 // Afficher le modal de confirmation de suppression de ticket non commandé
 $(document).ready(function () {
-<<<<<<< HEAD
-  $('#deleteticket').click(function () {
-    $('#ticketNumber').text($(this).data('ticket-number'));
-    $('#ticketId').val($(this).data('ticket-id'));
-=======
   $('.deleteticket').click(function () {
     // if the ticket is of type TKT
     $('#ticketNumber').text($(this).data('ticket-number'));
@@ -1433,7 +1428,6 @@ $(document).ready(function () {
       $('#ticketNumber').text($(this).data('ticket-designation'));
     }
     
->>>>>>> 77eecb842a1ae8e16aa6499b345232e15a528bf4
   });
 });
 
@@ -1441,23 +1435,17 @@ $(document).ready(function () {
 $(document).ready(function(){
   $('#deletTicketModalConfirmation').click(function () {
     var ticketId = $('#ticketId').val();
-<<<<<<< HEAD
-=======
     var ticketTable = $('#ticketTable').val();
     var ticketNumber = $('#ticketNumber').val();
 
->>>>>>> 77eecb842a1ae8e16aa6499b345232e15a528bf4
     $.ajax({
       type: "POST",
       url: "/home/ticket-delete",
       dataType: "json",
       data: {
           ticketId: ticketId,
-<<<<<<< HEAD
-=======
           ticketNumber: ticketNumber,
           ticketTable: ticketTable,
->>>>>>> 77eecb842a1ae8e16aa6499b345232e15a528bf4
           csrfmiddlewaretoken: csrftoken,
       },
       success: function (data) {

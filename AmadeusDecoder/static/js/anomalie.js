@@ -213,6 +213,10 @@ $(document).ready(function () {
                                     console.log('Error......');
                                 }
                                 let segments = data.context.segments;
+                                if (segments.length ==0){
+                                    $('#SegmentLabel').hide();
+                                    $('#selectSegment').hide();
+                                }
                                 if (segments.length > 0) {
                                     const segment_options = segments.map((segment) => {
                                         return {

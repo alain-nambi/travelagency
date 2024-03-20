@@ -49,7 +49,6 @@ class Anomalie(models.Model):
     categorie = models.CharField(max_length=100,null=True)
     infos = HStoreField(null=False)
     creation_date = models.DateTimeField(null=False)
-    issuing_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='issuing_user', null=True)
-    admin = models.ForeignKey(User, on_delete=models.CASCADE, related_name='admin', null=True)
+    issuing_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='issuing_user', null=False)
     status = models.IntegerField(default=0)
     response_date = models.DateTimeField(null=True)

@@ -171,43 +171,47 @@ def update_comment_state(request):
     return JsonResponse(context)
 
 def reply_comment(request):
+    context = {}
     if request.method == 'POST':
         comment_id = request.POST.get('comment_id')
         state = request.POST.get('state')
+        print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+        print(state)
 
         # reply automatic with email automatic
 
         comment_response = "Votre demande a été traité. Merci"
         comments = Comment.objects.get(pk=int(comment_id))
         user_id = User.objects.get(pk=int(request.user.id))
-        pnr_id = Pnr.objects.get(pk=int(comments.pnr_id.id))
-        response = Response(pnr_id=pnr_id, user_id=user_id, response=comment_response)
+        pnr = Pnr.objects.get(pk=int(comments.pnr_id.id))
+        response = Response(pnr_id=pnr, user_id=user_id, response=comment_response)
         response.save()
 
 
         # reply automatic without email 
-        if state == 2:
+        if state == '1':
             # Send email
-            email_response(request, pnr_id)
+            print('SEND EMAIL ------------------------------')
 
-        update_comment_state(request)
+            from AmadeusDecoder.utilities.configuration_data import ANOMALY_EMAIL_SENDER
 
+            subject = f"Réponse pour l'anomalie"                    
+            message = f"Bonjour, votre demande par rapport au PNR {pnr.number} a été traité.\nCordialement,"
 
-def email_response(request, pnr):
-    from AmadeusDecoder.utilities.configuration_data import ANOMALY_EMAIL_SENDER
+            # Envoyer le mail pour les administrateurs d'Isssoufali 
+            Sending.send_email(
+                ANOMALY_EMAIL_SENDER["address"], 
+                ["maaphlixx@gmail.com"],
+                subject, 
+                message
+            )
 
-    if request.method == 'POST':
-        pnr = Pnr.objects.get(pk=int(pnr.id))
-        subject = f"Réponse pour l'anomalie"                    
-        message = f"Bonjour, votre demande par rapport au PNR {pnr.number} a été traité.\nCordialement,"
+        comment_id = request.POST.get('comment_id')
+        comment = Comment.objects.filter(pk=int(comment_id))
+        comment.update(state=True)
 
-        # Envoyer le mail pour les administrateurs d'Isssoufali 
-        Sending.send_email(
-            ANOMALY_EMAIL_SENDER["address"], 
-            ["maaphlixx@gmail.com"],
-            subject, 
-            message
-        )
+    context['comment'] = list(comment.values())
+    return JsonResponse(context)
 
 @login_required(login_url='index')
 def get_pnr_not_fetched(request):

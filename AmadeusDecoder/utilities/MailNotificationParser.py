@@ -321,7 +321,7 @@ class MailNotification():
                 f"""
                     {
                         new_line.join(
-                            f"""
+                            f'''
                                 <tr>
                                     <td style="border:1px solid #ddd;padding:8px;">
                                         <a href="{ISSOUFALI_URL}/home/pnr/{pnr.id}" title="Ouvrir le pnr {pnr.id}" target="_blank">
@@ -344,7 +344,7 @@ class MailNotification():
                                         {pnr.type}
                                     </td>
                                 </tr>
-                            """ for pnr in no_anomaly_pnrs_before_afternoon_for_administrator
+                            ''' for pnr in no_anomaly_pnrs_before_afternoon_for_administrator
                         )
                     }
                 """
@@ -357,7 +357,7 @@ class MailNotification():
                 f"""
                     {
                         new_line.join(
-                            f"""
+                            f'''
                                 <tr>
                                     <td style="border:1px solid #ddd;padding:8px;">
                                         <a href="{ISSOUFALI_URL}/home/pnr/{pnr.id}" title="Ouvrir le pnr {pnr.id}" target="_blank">
@@ -380,7 +380,7 @@ class MailNotification():
                                         {pnr.type}
                                     </td>
                                 </tr>
-                            """ for pnr in no_anomaly_pnrs_after_afternoon_for_administrator
+                            ''' for pnr in no_anomaly_pnrs_after_afternoon_for_administrator
                         )
                     }
                 """
@@ -392,7 +392,7 @@ class MailNotification():
                 f"""
                     {
                         new_line.join(
-                            f"""
+                            f'''
                                 <tr>
                                     <td style="border:1px solid #ddd;padding:8px;">
                                         <a href="{ISSOUFALI_URL}/home/pnr/{pnr.id}" title="Ouvrir le pnr {pnr.id}" target="_blank">
@@ -415,7 +415,7 @@ class MailNotification():
                                         {pnr.type}
                                     </td>
                                 </tr>
-                            """ for pnr in no_anomaly_pnrs_before_afternoon_after_processing
+                            ''' for pnr in no_anomaly_pnrs_before_afternoon_after_processing
                         )
                     }
                 """
@@ -427,7 +427,7 @@ class MailNotification():
                 f"""
                     {
                         new_line.join(
-                            f"""
+                            f'''
                                 <tr>
                                     <td style="border:1px solid #ddd;padding:8px;">
                                         <a href="{ISSOUFALI_URL}/home/pnr/{pnr.id}" title="Ouvrir le pnr {pnr.id}" target="_blank" style="text-decoration">
@@ -450,7 +450,7 @@ class MailNotification():
                                         {pnr.type}
                                     </td>
                                 </tr>
-                            """ for pnr in no_anomaly_pnrs_after_afternoon_after_processing
+                            ''' for pnr in no_anomaly_pnrs_after_afternoon_after_processing
                         )
                     }
                 """
@@ -517,7 +517,7 @@ class MailNotification():
             print("\n")
             
             if len(no_anomaly_pnrs_before_afternoon_after_processing) > 0:
-                subject = f"PNR non envoyé dans Odoo entre 08h et 12h, ce {dt_now.strftime("%d-%m-%Y")}"                    
+                subject = f'PNR non envoyé dans Odoo entre 08h et 12h, ce {dt_now.strftime("%d-%m-%Y")}'                    
                 message = f"""        
                     <!DOCTYPE html>
                     <html>
@@ -554,7 +554,7 @@ class MailNotification():
                 )
             
             if len(no_anomaly_pnrs_before_afternoon_for_administrator) > 0:
-                subject = f"PNR non envoyé dans Odoo pour les directions entre 08h et 12h, ce {dt_now.strftime("%d-%m-%Y")}"                    
+                subject = f'PNR non envoyé dans Odoo pour les directions entre 08h et 12h, ce {dt_now.strftime("%d-%m-%Y")}'                   
                 message = f"""        
                     <!DOCTYPE html>
                     <html>
@@ -602,7 +602,7 @@ class MailNotification():
             print("\n")
             
             if len(no_anomaly_pnrs_after_afternoon_after_processing) > 0:
-                subject = f"PNR non envoyé dans Odoo entre 08h et 15h, ce {dt_now.strftime("%d-%m-%Y")}"                
+                subject = f'PNR non envoyé dans Odoo entre 08h et 15h, ce {dt_now.strftime("%d-%m-%Y")}'                
                 message = f"""        
                     <!DOCTYPE html>
                     <html>
@@ -639,7 +639,7 @@ class MailNotification():
                 )
                 
             if len(no_anomaly_pnrs_after_afternoon_for_administrator) > 0:
-                subject = f"PNR non envoyé dans Odoo pour les directions entre 08h et 15h, ce {dt_now.strftime("%d-%m-%Y")}"                
+                subject = f'PNR non envoyé dans Odoo pour les directions entre 08h et 15h, ce {dt_now.strftime("%d-%m-%Y")}'                
                 message = f"""        
                     <!DOCTYPE html>
                     <html>
@@ -683,10 +683,15 @@ class MailNotification():
         dt_now = now
         time_now = dt_now.time()
         time_to_send = time(23, 0, 0)
-
+        
+        # Calculate the date of yesterday
+        # dt_yesterday = dt_now - timedelta(days=1)
+        # print(dt_yesterday)
 
         #Liste des demandes de réduction de frais (ReducePnrFeeRequest)
         reduce_pnr_fee_request = ReducePnrFeeRequest.objects.filter(system_creation_date__date=dt_now, status=1).all()
+        
+        # reduce_pnr_fee_request = ReducePnrFeeRequest.objects.filter(system_creation_date__date=dt_yesterday, status=1).all()
         # print('------------------ EMAIL REDUCE FEE REQUEST ----------------------------')
         # print(time_now)
         # print(time_to_send)
@@ -701,7 +706,7 @@ class MailNotification():
                 f"""
                     {
                         new_line.join(
-                            f"""
+                            f'''
                                 <tr>
                                     <td style="border:1px solid #ddd;padding:8px;">
                                         {fee_request.system_creation_date.date()}
@@ -731,7 +736,7 @@ class MailNotification():
                                         {fee_request.motif}
                                     </td>
                                 </tr>
-                            """ for fee_request in reduce_pnr_fee_request
+                            ''' for fee_request in reduce_pnr_fee_request
                         )
                     }
                 """
@@ -792,7 +797,7 @@ class MailNotification():
         if time_now == time_to_send: # 18:00
             print("📢 Sending mail for fee decrease request...")
             if len(reduce_pnr_fee_request) > 0:
-                subject = f"Demande de réduction de frais, ce {dt_now.strftime("%d-%m-%Y")}"                    
+                subject = f'Demande de réduction de frais, ce {dt_now.strftime("%d-%m-%Y")}'                   
                 message = f"""        
                     <!DOCTYPE html>
                     <html>

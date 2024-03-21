@@ -214,9 +214,9 @@ class EmailfetcherConfig(AppConfig):
             repeat_timer_for_pnr_upload_notification = 60 * 180
             pnr_upload_repeat_timer(repeat_timer_for_pnr_upload_notification)
         
-        print("==================== Mail notification for pnr not sent to Odoo ====================")
-        timer_update_check = RepeatTimer(1, checking_pnr_not_sent_to_odoo)
-        timer_update_check.start()
+        # print("==================== Mail notification for pnr not sent to Odoo ====================")
+        # timer_update_check = RepeatTimer(1, checking_pnr_not_sent_to_odoo)
+        # timer_update_check.start()
         
         print('Mail notification is starting....')
         timer_pnr_misssing = RepeatTimer(1, checking_pnr_missing)
@@ -236,9 +236,9 @@ class EmailfetcherConfig(AppConfig):
         timer_update_check = RepeatTimer(1, checking_pnr_with_fee_decrease_request)
         timer_update_check.start()
         
-        print('Product synchronisation is starting')
-        timer_synchro = RepeatTimer(5, running_product_synhcro)
-        timer_synchro.start()
+        # print('Product synchronisation is starting')
+        # timer_synchro = RepeatTimer(5, running_product_synhcro)
+        # timer_synchro.start()
 
         # from AmadeusDecoder.utilities.FtpConnection import download_file
         # dest_dir = '/export/products'

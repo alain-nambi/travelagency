@@ -233,6 +233,55 @@ class Pnr(models.Model, BaseModel):
         else:
             print("No passenger invoiced")
             return None
+        
+    def attach_ticket_to_first_passenger_segment(self):
+        """
+        Function: attach_ticket_to_first_passenger_segment
+        Description: This function is responsible for attaching tickets to the first passenger and available segments.
+                    It is applicable only for Passenger Name Records (PNRs) with a single passenger.
+        Parameters: self (instance): Instance of the class containing the function
+        Returns: None
+        """
+        
+        # Import necessary models
+        from AmadeusDecoder.models.pnr.PnrPassenger import PnrPassenger
+        from AmadeusDecoder.models.pnrelements.PnrAirSegments import PnrAirSegments
+        from AmadeusDecoder.models.invoice.Ticket import Ticket
+        from AmadeusDecoder.models.invoice.TicketPassengerSegment import TicketPassengerSegment
+        
+        passenger_instance = PnrPassenger.objects.filter(pnr_id=self.id).all()
+        ticket_obj = Ticket.objects.filter(pnr_id=self.id, passenger=None).all()
+        pnr_segment_obj = PnrAirSegments.objects.filter(pnr_id=self.id).first()
+        
+        # Check if PNR has only one passenger relation
+        if passenger_instance.exists() and len(passenger_instance) == 1:
+            print("==> One passenger <==")      
+            if ticket_obj.exists():
+                # Get all ticket ids by only set id as required column
+                ticket_ids = list(ticket_obj.values_list('id', flat=True))
+                
+                # Fetch existing TicketPassengerSegment objects for these tickets
+                ticket_segment_obj = TicketPassengerSegment.objects.filter(ticket_id__in=ticket_ids)
+                
+                # Iterate through each ticket
+                for ticket_id in ticket_ids:
+                    if pnr_segment_obj:
+                        existing_ticket_segment = ticket_segment_obj.filter(segment=pnr_segment_obj, ticket_id=ticket_id).exists()
+                        if not existing_ticket_segment:
+                            # If TicketPassengerSegment does not exist, create a new one
+                            ticket_segment = TicketPassengerSegment(
+                                segment=pnr_segment_obj,
+                                ticket_id=ticket_id,
+                                fare=0,
+                                tax=0,
+                                total=0
+                            )
+                            ticket_segment.save()
+                    
+                # Update the passenger attribute for all tickets
+                for ticket in ticket_obj:
+                    ticket.passenger = passenger_instance.first().passenger
+                    ticket.save()
 
     
     def __str__(self):

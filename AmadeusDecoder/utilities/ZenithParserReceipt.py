@@ -1218,9 +1218,9 @@ class ZenithParserReceipt():
             # as payment method is here an EMD, the cost will be the last element of the part
             next_index = -2
             try:
-                new_emd.transport_cost = -1 * decimal.Decimal("".join(part[next_index+1].split(" ")[0:2]).replace(',','.'))
+                new_emd.transport_cost = -1 * decimal.Decimal("".join(part[next_index+1].split(" ")[0:2]).replace(',','.').replace('EUR', ''))
                 transport_cost = -1 * new_emd.transport_cost
-                new_emd.total = -1 * decimal.Decimal("".join(part[next_index+1].split(" ")[0:2]).replace(',','.'))
+                new_emd.total = -1 * decimal.Decimal("".join(part[next_index+1].split(" ")[0:2]).replace(',','.').replace('EUR', ''))
             except:
                 pass
             

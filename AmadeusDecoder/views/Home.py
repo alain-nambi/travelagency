@@ -1394,7 +1394,10 @@ def get_order(request, pnr_id):
                         
                         for segment in segments_parts:
                             for part in segment:
-                                if part.segment.segment_type == 'Flight' :
+                                # print("DEBUGGING SEGMENT PART")
+                                # print(part)
+                                # print(part.segment)
+                                if part.segment and part.segment.segment_type is not None and part.segment.segment_type == 'Flight':
                                     _segment = {
                                         'Name': part.segment.segmentorder,
                                         'Fly': '%s %s' % (part.segment.servicecarrier.iata, part.segment.flightno),
@@ -1723,7 +1726,7 @@ def get_quotation(request, pnr_id):
                     segment_dates = []
                     if segments_parts is not None:
                         for part in segments_parts:
-                            if part.segment.segment_type == 'Flight' :
+                            if part.segment and part.segment.segment_type is not None and part.segment.segment_type == 'Flight':
                                 _segment = {
                                     'Name': part.segment.segmentorder,
                                     'Fly': '%s %s' % (part.segment.servicecarrier.iata, part.segment.flightno),

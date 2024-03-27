@@ -193,7 +193,7 @@ values -- PNR source
             'maphiesarobidy@outlook.fr',
             'naval@phidia.onmicrosoft.com',
             'alain@phidia.onmicrosoft.com',
-            'tahina@phidia.onmicrosoft.com',
+            'tahina@phidia.onmicrosoft.com'
         ],
         null,
         now(),

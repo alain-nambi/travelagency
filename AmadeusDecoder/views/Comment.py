@@ -327,6 +327,7 @@ def save_ticket_anomalie(request):
             user_id = new_tickets[0]['user_id']
 
             user_copying= UserCopying.objects.filter(document=pnr.number).last()
+            issuing_user = None
             if user_copying is not None:
                 issuing_user = User.objects.get(pk=user_copying.user_id.id)
             else:
@@ -355,7 +356,14 @@ def save_ticket_anomalie(request):
                     'status': 'error'
                 }
             )
-        
+            
+        user_copying= UserCopying.objects.filter(document=pnr.number).last()
+        issuing_user = None
+        if user_copying is not None:
+            issuing_user = User.objects.get(pk=user_copying.user_id.id)
+        else:
+            issuing_user = None
+    
             
         anomalie = Anomalie(pnr=pnr, categorie='Billet non remonté', infos=info, issuing_user = issuing_user, creation_date=timezone.now())
         anomalie.save()   

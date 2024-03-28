@@ -399,10 +399,6 @@ reduceFeeRequest.addEventListener("click", (e) => {
   choice_type = $("input[name=fee-decrease-application]:checked").val();
   motif = $("#feeReduceMotif").val();
   user_id = $('#user_id').val();
-<<<<<<< HEAD
-
-=======
->>>>>>> 77eecb842a1ae8e16aa6499b345232e15a528bf4
   // $("#modal-dmdfrs").modal("hide");
   $(".loadings").show("fade");
   $(".spinner-wrappers").show();
@@ -1457,6 +1453,28 @@ $(document).ready(function(){
               toastr.error(data.error)
           }
       },
+    });
+  });
+});
+
+$(document).ready(function() {
+  $('#ExcelUpload').click(function(){
+    console.log("excel upload");
+    pnr_id = $('#pnr_id').val();
+    $.ajax({
+      type: "POST",
+      url: "/pnr/to/excel",
+      dataType: "json",
+      data: {
+          pnrId : pnr_id,
+          csrfmiddlewaretoken: csrftoken,
+      },
+      success: function (response) {
+        location.href = response.file_url;
+      },
+      error: function(error){
+        console.log(error);
+      }
     });
   });
 });

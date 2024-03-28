@@ -48,7 +48,7 @@
                       </thead>
                       <tbody>
                         {% for user in page_obj %}
-                        <tr>
+                        <tr onclick="location.href='{% url 'user_details' user.id %}'" style="cursor:pointer;">
                           <td>{{ user.name }}</td>
                           <td>{{ user.first_name }}</td>
                           <td>{{ user.username }}</td>

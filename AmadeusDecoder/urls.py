@@ -4,7 +4,7 @@ from . import views
 from .views import home
 from .views.Dashboard import dashboard
 from .views.Manage_customers import customers, create_customer, modify_customer_info, modify_customer_in_passenger_invoice, delete_customer
-from .views.Manage_users import users, register
+from .views.Manage_users import *
 from .views.Account import account
 from .views.Tools import *
 from .views.Setting import *
@@ -103,5 +103,7 @@ urlpatterns = [
     path('home/ticket-delete',ticket_delete,name='ticket_delete'),
     path('setting/test-parsing-upload-file',test_parsing_upload_file,name='test_parsing_upload_file'),
     path('comment/reply-comment',reply_comment,name='reply_comment'),
-    
+    path('pnr/to/excel',pnr_to_excel, name='pnr_to_excel'),
+    path('user/details/<int:user_id>/',user_details,name='user_details'),
+    path('user/archive',archive_user, name="archive_user"),
 ]

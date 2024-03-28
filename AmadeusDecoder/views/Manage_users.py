@@ -48,4 +48,22 @@ def register(request):
     
     return render(request,'add-user.html', context)
 
+@login_required(login_url='index')
+def user_details(request,user_id):
+    context={}
+    user = User.objects.get(pk=user_id)
+    roles = Role.objects.all()
 
+    context['user'] = user
+    context['roles'] = roles
+    return render(request,'user-details.html',context)
+
+@login_required(login_url='index')
+def archive_user(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('user')
+        connected_user_id = request.get('connected_user')
+        password = request.POST.get('password')
+
+        connected_user = User.objects.get(pk= connected_user_id)
+        if connected_user.

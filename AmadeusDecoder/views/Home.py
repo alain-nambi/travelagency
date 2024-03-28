@@ -2306,3 +2306,53 @@ def ticket_delete(request):
 
 
         return JsonResponse({'status':'ok'})
+
+
+
+def export_films_excel(response, films):
+    wb = xlwt.Workbook(encoding='utf-8')
+    ws = wb.add_sheet('Filmes')
+
+    row_num = 0
+    columns = ['Id', 'Nome', 'Descrição', 'Gostaria de Assistir']
+
+    for col_num in range(len(columns)):
+        ws.write(row_num, col_num, columns[col_num])
+
+    row_num = 1
+    for film in films:
+        ws.write(row_num, 0, film.id)
+        ws.write(row_num, 1, film.name)
+        ws.write(row_num, 2, film.description)
+        ws.write(row_num, 3,
+            'Gostaria' if film.would_like is True else 'Assistido')
+        row_num += 1
+    wb.save(response)
+
+def pnr_to_excel(request):
+    import xlsxwriter
+    from django.http import HttpResponse
+
+    data = [
+        ['Nom', 'Âge', 'Ville'],
+        ['Alice', 25, 'Paris'],
+        ['Bob', 30, 'Londres'],
+        ['Charlie', 35, 'New York']
+    ]
+
+    # Création d'un nouveau classeur Excel et d'une feuille de calcul
+    output = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    output['Content-Disposition'] = 'attachment; filename="export.xlsx"'
+    workbook = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet()
+
+    # Écrire les données dans la feuille de calcul
+    for row_num, row_data in enumerate(data):
+        for col_num, col_data in enumerate(row_data):
+            worksheet.write(row_num, col_num, col_data)
+
+    # Fermer le classeur Excel
+    workbook.close()
+
+
+    return output

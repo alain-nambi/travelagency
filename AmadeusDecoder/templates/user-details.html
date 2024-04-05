@@ -19,11 +19,23 @@
     <div class="container-fluid">
       <div class="row ">
         <div class="col-12">
-          <div class="card card-primary card-tabs">
+          <div class="card {% if not user.is_active %} card-warning {% endif %} card-primary card-tabs">
             <div class="card-header p-0 pt-1">
                 <div class="col text-right" style="margin-bottom:1rem;">
+                  {% if user.is_active%}
                     <a class="btn btn-danger " title='Archiver {{user.name}}' type="button" data-toggle="modal" 
-                        data-target="#modalArchive" data-user-name="{{user.name}}" data-user-first-name="{{user.first_name}}" data-user="{{user.id}}" data-connected-user="{{request.user.id}}" id="archive_user" ><b>Archiver</b></a>
+                      data-target="#modalArchive" data-user-name="{{user.name}}" data-user-first-name="{{user.first_name}}" 
+                      data-action="archive" data-user="{{user.id}}" data-connected-user="{{request.user.id}}" id="archive_user" >
+                      <b>Archiver</b>
+                    </a>
+                  {% else %}
+                  <a class="btn btn-danger " title='Réactiver {{user.name}}' type="button" data-toggle="modal" 
+                    data-target="#modalArchive" data-user-name="{{user.name}}" data-user-first-name="{{user.first_name}}" 
+                    data-action="reactive" data-user="{{user.id}}" data-connected-user="{{request.user.id}}" id="reactive_user" >
+                    <b>Réactiver</b>
+                  </a>
+                  {% endif %}
+                    
                 </div>
                 
                 <div class="col text-center align-items-center">
@@ -36,6 +48,7 @@
             <div class="card-body">
                 <div class="card card-primary card-outline px-4 w-50">
                     <div class="box-body box-profile">
+                      <input type="hidden" id="user_id" value="{{user.id}}" />
                       
                       <ul class="list-group list-group-unbordered">
                         <li class="list-group-item">
@@ -67,7 +80,7 @@
                             <a class="btn btn-dark " data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample" id="UpdatePwdButton"><b>Modifier le mot de passe</b></a>
                             <a class="btn btn-danger" hidden id="Cancel_update_info"><b>Annuler</b></a>
                             <a class="btn btn-dark " id="update_info"><b>Modifier le profil</b></a>
-                            <a class="btn btn-success" hidden id="confirm_update_info"  data-toggle="modal" data-target="#modalConfirmUpdate" data-action="update_info" data-connected-user="{{request.user.id}}"><b>Confirmer</b></a>
+                            <a class="btn btn-success" hidden id="confirm_update_info"  data-toggle="modal" data-target="#modalConfirmUpdate" data-action="update_info" data-user="{{user.id}}" data-connected-user="{{request.user.id}}"><b>Confirmer</b></a>
                         </div>
                       
                 
@@ -78,7 +91,7 @@
                             <input type="password" class="form-control" id="current-password" placeholder="" name="current-password">
                             <span class="fas fa-eye" id="show-current-password" style="cursor: pointer;"></span>
                             <div class="input-group-append">
-                              <div class="input-group-text">
+                              <div class="input-group-text" >
                                 <span class="fas fa-lock"></span>
                               </div>
                             </div>
@@ -95,7 +108,7 @@
                           </div>
                           <div class="row" style="display:flex; justify-content: space-between;">
                             <button type="button" class="btn btn-danger md-block" onclick="closeCollapse()">Annuler</button>
-                            <button type="button" class="btn btn-success md-block">Confirmer</button>
+                            <button type="button" class="btn btn-success md-block" id="ConfirmNewPassword" data-toggle="modal" data-target="#modalConfirmUpdate" data-action="update_password" data-user="{{user.id}}" data-connected-user="{{request.user.id}}">Confirmer</button>
                           </div>
                           
                         </div>
@@ -104,6 +117,10 @@
         
                   </div>
             </div>
+
+            <a class="btn btn-primary"  href="{% url 'users' %}" style="width:100px;margin:0 0 10px 10px;" title='Retour' type="button"  id="reactive_user" >
+              <b>Retour</b>
+            </a>
             <!-- /.card -->
           </div>
         </div>
@@ -115,14 +132,14 @@
 	<div class="modal-dialog modal-md">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title">Archiver un utilisateur</h4>
+				<h4 class="modal-title" id="modalTitle"></h4>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">×</span>
 				</button>
 			</div>
 			<div class="modal-body">
 				<span>
-					Voulez-vous vraiment archiver 
+					Voulez-vous vraiment  
 					<span id="user_name" style="color:#007bff;"></span> ?
 				</span>
 				

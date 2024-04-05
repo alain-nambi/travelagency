@@ -36,27 +36,98 @@
               <div class="tab-content" id="custom-tabs-one-tabContent">
                 <div class="tab-pane fade active show" id="list_users" role="tabpanel"
                   aria-labelledby="custom-tabs-one-home-tab">
+                  <div class="row">
+                    <div class="input-group input-group float-sm-left mt-1 mb-1" style="width: 150px;">
+                      <input type="text" name="table_search" id="input-user" class="form-control form-control-sm"
+                        placeholder="Recherche">
+                        <div 
+                            id="spinnerLoadingSearch" 
+                            class="spinner-border" 
+                            role="status" 
+                            style="width: 14px; height: 14px; position: absolute; right: 48px; bottom: 6px; z-index: 9999"
+                            title="Recherche en cours"
+                          >
+                            <span class="sr-only">Loading...</span>
+                          </div>
+                      <div class="input-group-append">
+                        <button type="submit" id="user-research" class="btn btn-default py-0">
+                          <i class="fas fa-search"></i>
+                        </button>
+                      </div>
+                    </div>
+
+                    <button type="submit" class="d-flex align-items-center mt-1 mb-1 px-2 py-0" id="buttonMenuFilter" cy-data="button-menu-filter" style="margin-left:2rem;">
+                      <i class="fa fa-filter mr-2 open-button-filter"></i>
+                      <span>Filtre</span>
+                    </button>
+                    <div class="wrapper-menu-filter" style="margin-top:4rem;margin-left:14rem;">
+                      <div class="content">
+                        <ul class="filter-menu">
+                          <!-- Add pnr filter -->
+                          <li class="list list-one mb-1">
+                            <div class="filter-menu list">
+                              <i class="fa fa-eye"></i>
+                              <span>Rôle</span>
+                            </div>
+                            <i class="fa-solid fa-angle-right"></i>
+                          </li>
+                          <li class="list list-five bg-danger justify-content-center " id="NoFilter">
+                            <div class="filter-menu list">
+                              <i class="fas fa-close" style="padding-left: 1px !important; font-size: 14px !important"></i>
+                              <span>Aucun</span>
+                            </div>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div class="pnr-menu absolute" style="margin-left:14rem;margin-top:4rem;">
+                      <div class="content">
+                        <ul class="filter-menu">
+                          {% for role in roles %}
+                              <li class=" list-two mb-1" onclick="ShowUserByType({{role.id}})" >
+                                <div class="filter-menu list" >
+                                  <i class="fa fa-check"></i>
+                                  <span>{{role.name}}</span>
+                                </div>
+                              </li>
+                          {% endfor %}
+                            
+                            
+                        </ul>
+                      </div>
+                    </div>
+
+                  </div>
+
                   <div class="table-adapted-to-screen-height card-body table-responsive p-0">
-                    <table class="table table-bordered table-head-fixed text-nowrap all-customer">
+                    <table class="table table-bordered table-head-fixed text-nowrap " id="all-user" style="margin-top:1rem;">
                       <thead class="bg-info">
                         <tr>
                           <th>Nom</th>
                           <th>Prénom(s)</th>
                           <th>Nom d'utilisateur</th>
                           <th>Email</th>
+                          <th>Rôle</th>
+
                         </tr>
                       </thead>
                       <tbody>
                         {% for user in page_obj %}
-                        <tr onclick="location.href='{% url 'user_details' user.id %}'" style="cursor:pointer;">
+                        <tr class="user-list" onclick="location.href='{% url 'user_details' user.id %}'" style="cursor:pointer;" >
                           <td>{{ user.name }}</td>
                           <td>{{ user.first_name }}</td>
                           <td>{{ user.username }}</td>
                           <td>{{ user.email }}</td>
+                          <td>{{ user.role.name }}</td>
                         </tr>
                         {% endfor %}
 
                       </tbody>
+                    </table>
+
+                    <table class="table table-bordered table-head-fixed table-hover text-nowrap" id="all-user-after-search" style="margin-top:1rem;">
+              
                     </table>
                   </div>
                 </div>
@@ -72,7 +143,7 @@
                       <tbody>
                         {% for role in roles %}
                         <tr>
-                          <td>{{ role.id }}</td>
+                          <td>{{ role.level }}</td>
                           <td>{{ role.name }}</td>
                         </tr>
                         {% endfor %}

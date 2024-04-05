@@ -106,4 +106,11 @@ urlpatterns = [
     path('pnr/to/excel',pnr_to_excel, name='pnr_to_excel'),
     path('user/details/<int:user_id>/',user_details,name='user_details'),
     path('user/archive',archive_user, name="archive_user"),
+    path('user/reactive',reactive_user, name="reactive_user"),
+    path('user/UpdatePassword',update_password, name='update_password'),
+    path('user/updateInfo',update_info,name='update_info'),
+    path('home/user-research', user_research, name= 'user_research'),
+    path('home/user-filter', user_filter, name= 'user_filter'),
+    
+
 ]

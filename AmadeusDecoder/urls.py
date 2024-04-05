@@ -1,11 +1,12 @@
 from django.urls import path
+
+from AmadeusDecoder.views.Account import account
 from . import views
 
 from .views import home
 from .views.Dashboard import dashboard
 from .views.Manage_customers import customers, create_customer, modify_customer_info, modify_customer_in_passenger_invoice, delete_customer
-from .views.Manage_users import users, register
-from .views.Account import account
+from .views.Manage_users import *
 from .views.Tools import *
 from .views.Setting import setting
 from .views.Login import *
@@ -69,8 +70,15 @@ urlpatterns = [
     path('home/get-passenger-and-segment-By-Id', getPassengerAndSegmentById, name='getPassengerAndSegmentById'),
     path('home/anomaly-details/<int:pnr_id>', anomaly_details, name='anomaly_details'),
     path('home/liste-commandes', liste_commandes, name='liste_commandes'),
-    path('home/refuse-anomaly', refuse_anomaly, name='refuse_anomaly'),
+    path('home/refuse-anomaly', refuse_anomaly, name='refuse_anomaly'), 
     path('home/drop-anomaly',drop_anomaly, name='drop_anomaly'),
     path('home/update-anomaly', updateAnomaly, name='update_anomaly'),
     path('home/ticket-delete',ticket_delete,name='ticket_delete'),
+    path('user/details/<int:user_id>/',user_details,name='user_details'),
+    path('user/archive',archive_user, name="archive_user"),
+    path('user/reactive',reactive_user, name="reactive_user"),
+    path('user/UpdatePassword',update_password, name='update_password'),
+    path('user/updateInfo',update_info,name='update_info'),
+    path('home/user-research', user_research, name= 'user_research'),
+    path('home/user-filter', user_filter, name= 'user_filter'),
 ]

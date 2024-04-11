@@ -629,6 +629,11 @@ def pnr_details(request, pnr_id):
     
     # update ticket status to ticket_status=1 when ticket is present in passenger_invoice table
     pnr_detail.update_ticket_status_present_in_passenger_invoice()
+    
+    # This function is responsible for attaching tickets to the first passenger and available segments.
+    # It is applicable only for Passenger Name Records (PNRs) with a single passenger.
+    pnr_detail.attach_ticket_to_first_passenger_segment()
+    
     context['pnr'] = pnr_detail
     context['passengers'] = pnr_detail.passengers.filter(passenger__passenger_status=1).all().order_by('id')
     context['contacts'] = pnr_detail.contacts.all()

@@ -331,7 +331,9 @@ def save_ticket_anomalie(request):
             if user_copying is not None:
                 issuing_user = User.objects.get(pk=user_copying.user_id.id)
             else:
-                issuing_user = None
+                issuing_user = pnr.agent
+                
+            # print(f"user_copying 1 : {issuing_user}")
             
             info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "passenger_id":passenger_id, "segment": segments, "ticket_status":1, 'ticket_type':ticket_type, 'fee': str(new_tickets[0]['fee']).capitalize()} # ticket_status : 0 ticket existant , 1 ticket non existant
         
@@ -362,7 +364,9 @@ def save_ticket_anomalie(request):
         if user_copying is not None:
             issuing_user = User.objects.get(pk=user_copying.user_id.id)
         else:
-            issuing_user = None
+            issuing_user = pnr.agent
+            
+        # print(f"user_copying 2 : {issuing_user}")
     
             
         anomalie = Anomalie(pnr=pnr, categorie='Billet non remonté', infos=info, issuing_user = issuing_user, creation_date=timezone.now())
@@ -407,7 +411,7 @@ def update_ticket(request):
         anomalie_id = request.POST.get('anomalie_id')
 
         anomalie = Anomalie.objects.get(pk=anomalie_id)
-        issuing_user = anomalie.issuing_user
+        issuing_user = anomalie.issuing_user or anomalie.pnr.agent
         ticket = Ticket.objects.filter(number=anomalie.infos.get('ticket_number')).first()
         
         if ticket is not None:

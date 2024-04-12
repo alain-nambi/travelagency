@@ -774,6 +774,8 @@
 														{% endif %}
 														
 													</td>
+												{% else %}
+													<td>{{ '' }}</td>
 												{% endif %}
 												<td>{{ '' }}</td>
 										
@@ -781,7 +783,7 @@
 													{% if ticket_not_ordered or ticket_cancel_void_status or ticket.is_invoiced%}
 														<input type="checkbox" class="to-hide-when-cancel passagers-check checkto{{ticket.passenger.id}} ticket-checkbox-passenger checkbox-line-below" id="passagers-check" data-ticket-id = "{{ticket.id}}" data-id="{{ passenger.id }}" data-ticket-status = "1" data-commune-id = "{{ticket.id}}" data-amount-total="{{ ticket.total|floatformat:'2' }}" data-type="ticket" checked hidden>
 													{% else %}
-														<input type="checkbox" class="to-hide-when-cancel passagers-check checkto{{ticket.passenger.id}} ticket-checkbox-passenger checkbox-line-below" id="passagers-check" data-ticket-id = "{{ticket.id}}" data-id="{{ passenger.id }}" data-ticket-status = "0" data-commune-id = "{{ticket.id}}" data-amount-total="{{ ticket.total|floatformat:'2' }}" data-type="ticket" checked disabled>
+														<input type="checkbox" class="to-hide-when-cancel passagers-check user_id4555 checkto{{ticket.passenger.id}} ticket-checkbox-passenger checkbox-line-below" id="passagers-check" data-ticket-id = "{{ticket.id}}" data-id="{{ passenger.id }}" data-ticket-status = "0" data-commune-id = "{{ticket.id}}" data-amount-total="{{ ticket.total|floatformat:'2' }}" data-type="ticket" checked disabled>
 													{% endif %}
 												</td>
 											</tr>
@@ -1035,6 +1037,8 @@
 														{% endif %}
 														
 													</td>
+												{% else %}
+													<td> {{ '' }} </td>	 
 												{% endif %}
 
 												<td>

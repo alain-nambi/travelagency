@@ -277,9 +277,15 @@ $(document).ready(function () {
                         csrfmiddlewaretoken: csrftoken,
                     },
                     success: function (data) {
-
+                        console.log(data);
                         if (data.status == 'ok') {
-                            accept_anomaly(data.anomalie_id)
+                            if(data.accept == true){
+                                accept_anomaly(data.anomalie_id)
+                            }
+                            else{
+                                toastr.success('Demande envoyée avec succes')
+                            }
+                            
                             $('#modal-constat').hide();
                             setTimeout(() => {
                                 location.reload();
@@ -296,7 +302,14 @@ $(document).ready(function () {
                 var taxe = $('#taxe').val();
                 var user_id = $('#user_id').val();
                 var passenger_id = $('#selectPassenger').val();
-                let segment = [];
+                var segment ;
+
+                if($('#selectSegment').is(":hidden") ){
+                    segment = [];
+                }
+                else{
+                    segment = document.querySelector('#selectSegment').getSelectedOptions();
+                }
 
                 try {
                     if (document.querySelector('#selectSegment').getSelectedOptions()) {
@@ -342,9 +355,14 @@ $(document).ready(function () {
                         csrfmiddlewaretoken: csrftoken,
                     },
                     success: function (data) {
-                        
+                        console.log(data);
                         if (data.status == 'ok') {
-                            accept_anomaly(data.anomalie_id)
+                            if(data.accept == true){
+                                accept_anomaly(data.anomalie_id)
+                            }
+                            else{
+                                toastr.success('Demande envoyée avec succes')
+                            }
                             $('#modal-constat').hide();
                             setTimeout(() => {
                                 location.reload();

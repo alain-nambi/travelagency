@@ -383,8 +383,6 @@ def save_ticket_anomalie(request):
             
             info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "ticket_status":0} # ticket_status : 0 ticket existant , 1 ticket non existant
             
-            
-            
         if montant_hors_taxe == "" or taxe == "":
             return JsonResponse(
                 {
@@ -394,14 +392,6 @@ def save_ticket_anomalie(request):
             )
         
         user = User.objects.filter(id= user_id).first()
-
-        # get last user_id in the table user_copying
-        last_user_copying= UserCopying.objects.filter(document=pnr.number).last()
-        
-        if last_user_copying is not None:
-            user_copying = User.objects.get(pk=last_user_copying.user_id.id)
-            new_user_copying = UserCopying(document=pnr.number,user_id=user_copying)
-            new_user_copying.save()
 
         anomalie = Anomalie(pnr=pnr, categorie='Billet non remonté', infos=info, issuing_user = user, creation_date=timezone.now())
         anomalie.save()   
@@ -453,6 +443,7 @@ def update_ticket(request):
         anomalie = Anomalie.objects.get(pk=anomalie_id)
         issuing_user = anomalie.issuing_user
         ticket = Ticket.objects.filter(number=anomalie.infos.get('ticket_number')).first()
+        pnr = Pnr.objects.get(pk=anomalie.pnr_id)
         
         if ticket is not None:
             # update the existing ticket
@@ -493,8 +484,12 @@ def update_ticket(request):
                     ticket_passenger = TicketPassengerSegment(ticket=ticket,segment=segment)
                     ticket_passenger.save()
 
-        user_copying = UserCopying(document=anomalie.pnr.number, user_id=issuing_user)
-        user_copying.save()
+        last_user_copying= UserCopying.objects.filter(document=pnr.number).last()
+        
+        if last_user_copying is not None:
+            user_copying = User.objects.get(pk=last_user_copying.user_id.id)
+            new_user_copying = UserCopying(document=pnr.number,user_id=user_copying)
+            new_user_copying.save()
         
         anomalie.status = 1
         anomalie.response_date = timezone.now()

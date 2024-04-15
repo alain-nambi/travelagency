@@ -278,7 +278,7 @@ $(document).ready(function () {
                     success: function (data) {
                         console.log(data);
                         if (data.status == 'ok') {
-                            if(data.accept){
+                            if(data.accept == true){
                                 accept_anomaly(data.anomalie_id)
                             }
                             else{
@@ -356,7 +356,7 @@ $(document).ready(function () {
                     success: function (data) {
                         console.log(data);
                         if (data.status == 'ok') {
-                            if(data.accept){
+                            if(data.accept == true){
                                 accept_anomaly(data.anomalie_id)
                             }
                             else{

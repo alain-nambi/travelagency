@@ -630,15 +630,17 @@ old -->
         <div class="d-none d-sm-block">
           <strong class="text-center">© 2023 <a href="https://phidia.fr">Phidia</a>.</strong> Tous droits réservés.
           <b>Version</b> 1.6.12
+          <input type="hidden" value="{{pnr.id}}" id="layout_pnr_id">
         </div>
 
         <button 
             type="button" 
-            class="btn btn-warning mr-2" id='ExcelUpload'
+            class="btn btn-warning mr-2" id='ExcelUpload' onclick="location.href='{% url 'pnr_to_excel' pnr.id %}'"
             style="padding: 0.1rem 0.5rem !important">
             <i class="fa fa-upload text-white" data-toggle="tooltip" data-placement="top"  title="Exporter en CSV"></i>
             <span class="text-white">To Excel</span>
-          </button>
+        </button>
+
 
         {% with pnr|pnr_comment_state as pnr_comment_state %} 
           <!-- -1: pas d'anomalie, 0: non traitée, 1: traitée -->

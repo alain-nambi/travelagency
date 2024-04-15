@@ -4626,6 +4626,32 @@ $.ajax({
   }
 });
 
-
+$(document).ready(function() {
+  $('#ExcelUploadPnrList').click(function(){
+    console.log("excel upload");
+    pnr_id = $('#pnr_list').val();
+    console.log(pnr_id);
+    pnr_id.forEach(element => {
+      console.log(element);
+    });
+    console.log(pnr_id);
+    $.ajax({
+      type: "POST",
+      url: "/pnr/list/to/excel",
+      dataType: "json",
+      data: {
+          pnr_list : pnr_list,
+          csrfmiddlewaretoken: csrftoken,
+      },
+      success: function (response) {
+        console.log("Success: ", response);
+            
+      },
+      error: function(error){
+        console.log(error);
+      }
+    });
+  });
+});
 
 

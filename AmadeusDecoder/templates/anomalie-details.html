@@ -81,7 +81,6 @@
 
                                             {% if anomalie.status == 1 %}
                                                 <h6>Traitée le {{ anomalie.response_date }}</h6>
-                                                <h6>par {{anomalie.admin_id.username}}</h6>
                                                 <button class="btn btn-success py-0" name="anomaly_state" >Traitée</button>
                                                 <button class="btn btn-danger py-0" name="anomaly_state" id="drop-anomaly" onclick="drop_anomaly('{{anomalie.id}}')" ><i class="fa fa-trash-can" title="Supprimer" style="font-size: 15px; margin-top:5px;"></i></button>
                                             {% endif %}

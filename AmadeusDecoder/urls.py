@@ -103,7 +103,8 @@ urlpatterns = [
     path('home/ticket-delete',ticket_delete,name='ticket_delete'),
     path('setting/test-parsing-upload-file',test_parsing_upload_file,name='test_parsing_upload_file'),
     path('comment/reply-comment',reply_comment,name='reply_comment'),
-    path('pnr/to/excel',pnr_to_excel, name='pnr_to_excel'),
+    path('pnr/to/excel/<int:pnr_id>/',pnr_to_excel, name='pnr_to_excel'),
+    path('pnr/list/to/excel/',pnr_list_to_excel, name='pnr_list_to_excel'),
     path('user/details/<int:user_id>/',user_details,name='user_details'),
     path('user/archive',archive_user, name="archive_user"),
     path('user/reactive',reactive_user, name="reactive_user"),
@@ -111,6 +112,5 @@ urlpatterns = [
     path('user/updateInfo',update_info,name='update_info'),
     path('home/user-research', user_research, name= 'user_research'),
     path('home/user-filter', user_filter, name= 'user_filter'),
-    
 
 ]

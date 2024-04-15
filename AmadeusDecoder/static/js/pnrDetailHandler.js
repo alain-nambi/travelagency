@@ -1457,24 +1457,3 @@ $(document).ready(function(){
   });
 });
 
-$(document).ready(function() {
-  $('#ExcelUpload').click(function(){
-    console.log("excel upload");
-    pnr_id = $('#pnr_id').val();
-    $.ajax({
-      type: "POST",
-      url: "/pnr/to/excel",
-      dataType: "json",
-      data: {
-          pnrId : pnr_id,
-          csrfmiddlewaretoken: csrftoken,
-      },
-      success: function (response) {
-        location.href = response.file_url;
-      },
-      error: function(error){
-        console.log(error);
-      }
-    });
-  });
-});

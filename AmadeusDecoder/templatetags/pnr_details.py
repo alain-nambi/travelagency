@@ -1762,3 +1762,9 @@ def get_check_passenger_missing(pnr_id, client_id):
 @register.filter(name="add_hours_plus_three")
 def set_add_hours_plus_three(date):
     return date + timedelta(hours=3)
+
+# get all the undisplayed tickets
+@register.filter(name="get_undisplayed_tickets")
+def get_undisplayed_tickets(pnr_id):
+    tickets = Ticket.objects.filter(pnr_id=pnr_id).filter( (Q(ticket_status=0) | Q(ticket_status=3))).all()
+    return tickets

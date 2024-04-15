@@ -278,7 +278,13 @@ $(document).ready(function () {
                     success: function (data) {
                         console.log(data);
                         if (data.status == 'ok') {
-                            accept_anomaly(data.anomalie_id)
+                            if(data.accept){
+                                accept_anomaly(data.anomalie_id)
+                            }
+                            else{
+                                toastr.success('Demande envoyée avec succes')
+                            }
+                            
                             $('#modal-constat').hide();
                             setTimeout(() => {
                                 location.reload();
@@ -350,7 +356,12 @@ $(document).ready(function () {
                     success: function (data) {
                         console.log(data);
                         if (data.status == 'ok') {
-                            accept_anomaly(data.anomalie_id)
+                            if(data.accept){
+                                accept_anomaly(data.anomalie_id)
+                            }
+                            else{
+                                toastr.success('Demande envoyée avec succes')
+                            }
                             $('#modal-constat').hide();
                             setTimeout(() => {
                                 location.reload();

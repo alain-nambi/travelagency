@@ -1408,7 +1408,7 @@
 			</div>
 				<div class="modal-body">
 					
-					{% if user.role_id == 1 %}
+					{% if user.role_id == 1 or pnr.is_archived%}
 					<div style="margin-bottom:5px;">
 						<button class="btn btn-info" id="comment-ticket" enabled>Billet non remonté</button>
 					</div>
@@ -2347,5 +2347,6 @@
 		</div>
 	</div>
 </div>
+
 
 {% endblock content %}

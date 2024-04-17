@@ -112,5 +112,6 @@ urlpatterns = [
     path('user/updateInfo',update_info,name='update_info'),
     path('home/user-research', user_research, name= 'user_research'),
     path('home/user-filter', user_filter, name= 'user_filter'),
+    path('stat/',graph_view, name='graph_view'),
 
 ]

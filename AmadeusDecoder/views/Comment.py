@@ -295,17 +295,17 @@ def verif_ticket(request):
         ticket = Ticket.objects.filter(number=ticket_number).first()
         
         verif = 'False'
-
-        if ticket.pnr_id == pnr_id:
-            if ticket is not None and ticket.is_no_adc == False:
-                verif='True'
-            if ticket is not None and ticket.is_no_adc == True and ticket.total != 0:
-                verif= 'is_no_adc'
-            if ticket is not None and ticket.is_no_adc == True and ticket.total == 0:
-                verif= 'is_no_adc'
-        else:
-            # ticket existant mais pour un autre pnr
-            verif = 'pnr'
+        if ticket is not None:
+            if ticket.pnr_id == pnr_id:
+                if ticket.is_no_adc == False:
+                    verif='True'
+                if ticket.is_no_adc == True and ticket.total != 0:
+                    verif= 'is_no_adc'
+                if ticket.is_no_adc == True and ticket.total == 0:
+                    verif= 'is_no_adc'
+            else:
+                # ticket existant mais pour un autre pnr
+                verif = 'pnr'
 
         
     return JsonResponse({'verif': verif})

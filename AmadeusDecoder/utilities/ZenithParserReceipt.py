@@ -1218,11 +1218,19 @@ class ZenithParserReceipt():
             # as payment method is here an EMD, the cost will be the last element of the part
             next_index = -2
             try:
-                new_emd.transport_cost = -1 * decimal.Decimal(part[next_index+1].split(' ')[0].replace(',','.'))
+                new_emd.transport_cost = -1 * decimal.Decimal("".join(part[next_index+1].split(" ")[0:2]).replace(',','.').replace('EUR', ''))
                 transport_cost = -1 * new_emd.transport_cost
-                new_emd.total = -1 * decimal.Decimal(part[next_index+1].split(' ')[0].replace(',','.'))
+                new_emd.total = -1 * decimal.Decimal("".join(part[next_index+1].split(" ")[0:2]).replace(',','.').replace('EUR', ''))
             except:
                 pass
+            
+            
+            print("########################################")
+            print("# PROCESSING TO CREDIT NOTE FOR ZENITH #")
+            print(f"> Transport cost : {new_emd.transport_cost}")
+            print(f">          Total : {new_emd.total}")                   
+            print("########################################\n") 
+            
 
             is_created_by_us = self.check_part_emitter(part)
             

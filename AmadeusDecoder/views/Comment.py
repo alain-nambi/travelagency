@@ -249,32 +249,63 @@ def get_pnr_not_fetched(request):
 
             Sending.send_email_pnr_not_fetched(
                 "anomalie.issoufali.pnr@gmail.com",
-                ["nasolo@phidia.onmicrosoft.com",
-                "alain@phidia.onmicrosoft.com",
-                "anjaranaivo464@gmail.com",
-                "olyviahasina.razakamanantsoa@outlook.fr",
-                "mathieu@phidia.onmicrosoft.com",
-                "pp@phidia.onmicrosoft.com",
-                "tahina@phidia.onmicrosoft.com"],
+                [
+                    "maphiesarobidy@outlook.fr",
+                    "naval@phidia.onmicrosoft.com",
+                    "alain@phidia.onmicrosoft.com",
+                    "olyviahasina.razakamanantsoa@outlook.fr",
+                    "pp@phidia.onmicrosoft.com",
+                    "tahina@phidia.onmicrosoft.com"
+                ],
                 subject,
                 message
             )
     return JsonResponse({})
 
 # ----------------- anomalie: réponse automatique -----------------
+
+@login_required(login_url='index')
+def get_unshowed_tickets(request):
+    context = {}
+    if request.method == 'POST':
+        pnr_id = request.POST.get('pnr_id')
+        tickets_query = Ticket.objects.filter(pnr_id= pnr_id).filter((Q(transport_cost=0) & Q(tax=0) & Q(total=0)) | Q(is_no_adc=True)).all()
+        tickets= []
+        for ticket in tickets_query:
+            ticket_data = {
+                'ticket_id' : ticket.id,
+                'pnr_id' : ticket.pnr_id,
+                'number' : ticket.number,
+                'transport_cost' : ticket.transport_cost,
+                'taxe' : ticket.tax,
+                'total' : ticket.total
+            }
+            tickets.append(ticket_data)
+        context['tickets'] = tickets
+        context['status'] = 200
+    return JsonResponse(context)
+
+
 @login_required(login_url='index')
 def verif_ticket(request):
     if request.method == 'POST':
         ticket_number = request.POST.get('ticket_number')
+        pnr_id = request.POST.get('pnr_id')
+
         ticket = Ticket.objects.filter(number=ticket_number).first()
-        verif = 'False'
         
-        if ticket is not None and ticket.is_no_adc == False:
-            verif='True'
-        if ticket is not None and ticket.is_no_adc == True and ticket.total != 0:
-            verif= 'is_no_adc'
-        if ticket is not None and ticket.is_no_adc == True and ticket.total == 0:
-            verif= 'is_no_adc'
+        verif = 'False'
+
+        if ticket.pnr_id == pnr_id:
+            if ticket is not None and ticket.is_no_adc == False:
+                verif='True'
+            if ticket is not None and ticket.is_no_adc == True and ticket.total != 0:
+                verif= 'is_no_adc'
+            if ticket is not None and ticket.is_no_adc == True and ticket.total == 0:
+                verif= 'is_no_adc'
+        else:
+            # ticket existant mais pour un autre pnr
+            verif = 'pnr'
 
         
     return JsonResponse({'verif': verif})
@@ -404,7 +435,7 @@ def save_ticket_anomalie(request):
             response_data['accept'] = False
 
         return JsonResponse(response_data,safe=False)
-    
+ 
 
 @login_required(login_url='index')
 def get_all_anomalies(request):

@@ -634,11 +634,16 @@ def pnr_details(request, pnr_id):
     
     # update ticket status to ticket_status=1 when ticket is present in passenger_invoice table
     pnr_detail.update_ticket_status_present_in_passenger_invoice()
+    
+    # This function is responsible for attaching tickets to the first passenger and available segments.
+    # It is applicable only for Passenger Name Records (PNRs) with a single passenger.
+    pnr_detail.attach_ticket_to_first_passenger_segment()
+    
     context['pnr'] = pnr_detail
     context['passengers'] = pnr_detail.passengers.filter(passenger__passenger_status=1).all().order_by('id')
     context['contacts'] = pnr_detail.contacts.all()
     context['air_segments'] = pnr_detail.segments.filter(segment_type='Flight', air_segment_status=1).all().order_by('segmentorder')
-    context['tickets'] = pnr_detail.tickets.filter(Q(ticket_status=1) | Q(is_invoiced=True)).filter(Q(total__gt=0) | Q(is_no_adc=True) | (Q(is_refund=True) & Q(total__lt=0))).all().order_by('passenger_id')
+    context['tickets'] = pnr_detail.tickets.filter(Q(ticket_status=1) | Q(is_invoiced=True)).filter(Q(total__gt=0) | Q(is_no_adc=True) | (Q(is_refund=True) & Q(total__lt=0))).all().order_by('number')
     # context['tickets'] = pnr_detail.tickets.filter().all()
     context['other_fees'] = pnr_detail.others_fees.filter((Q(other_fee_status=1) & Q(ticket=None)) | Q(is_invoiced=True)).all()
     # context['clients'] = Client.objects.all().order_by('intitule')
@@ -1395,7 +1400,10 @@ def get_order(request, pnr_id):
                         
                         for segment in segments_parts:
                             for part in segment:
-                                if part.segment.segment_type == 'Flight' :
+                                # print("DEBUGGING SEGMENT PART")
+                                # print(part)
+                                # print(part.segment)
+                                if part.segment and part.segment.segment_type is not None and part.segment.segment_type == 'Flight':
                                     _segment = {
                                         'Name': part.segment.segmentorder,
                                         'Fly': '%s %s' % (part.segment.servicecarrier.iata, part.segment.flightno),
@@ -1724,7 +1732,7 @@ def get_quotation(request, pnr_id):
                     segment_dates = []
                     if segments_parts is not None:
                         for part in segments_parts:
-                            if part.segment.segment_type == 'Flight' :
+                            if part.segment and part.segment.segment_type is not None and part.segment.segment_type == 'Flight':
                                 _segment = {
                                     'Name': part.segment.segmentorder,
                                     'Fly': '%s %s' % (part.segment.servicecarrier.iata, part.segment.flightno),

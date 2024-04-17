@@ -272,13 +272,13 @@ input#fee-cost::placeholder {
 
 .sticky-tr-table {
 	position: sticky;
-	top: 11.25rem;
+	top: 9.4rem;
 	z-index: 190;
 }
 
 .fixed-header {
 	position: fixed;
-	top: 8.4rem;
+	top: 6.4rem;
 	left: 0;
 	width: 100%;
 	background: white;
@@ -1572,5 +1572,5 @@ button[cy-data="span-date-range"]:hover {
 }
 
 #pnrManagementMenu {
-	margin-top: 5.15rem !important;
+	margin-top: 4rem !important;
 }

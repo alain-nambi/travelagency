@@ -89,8 +89,10 @@ def notify_direction(pnrs):
     others = [
             'missoufali@agences-issoufali.com',
             'pp@phidia.onmicrosoft.com'
-            'tahina@phidia.onmicrosoft.com',
-            'nasolo@phidia.onmicrosoft.com',
+            'maphiesarobidy@outlook.fr',
+            'naval@phidia.onmicrosoft.com',
+            'alain@phidia.onmicrosoft.com',
+            'tahina@phidia.onmicrosoft.com'
             ]
 
     for item in others:

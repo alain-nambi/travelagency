@@ -169,16 +169,24 @@
 												{% endwith %}
 											</p>
 
-											{% if pnr.children_pnr is not None or pnr.parent_pnr is not None %}
-											<p class="details-p mb-0"><span class="details-span text-primary">PNR associés (SPLIT)</span> 
-												{% for child in pnr.children_pnr %}
-													<span>{{ child }}</span>
-												{% endfor %}
-												{% for parent in pnr.parent_pnr %}
-													<span>{{ parent }}</span>
-												{% endfor %}
-											</p>
+											{% if pnr.children_pnr or pnr.parent_pnr %}
+												<p class="details-p mb-0">
+													<span 
+														class="details-span text-primary" 
+														title="Vous trouverez les autres billets dans le(s) PNR associé(s)"
+														style="cursor: pointer;"
+													>PNR associés : </span> 
+													{% for child in pnr.children_pnr %}
+														<span class="children-pnr-span">{{ child }},</span>
+													{% endfor %}
+													{% for parent in pnr.parent_pnr %}
+														<span class="parent-pnr-span">{{ parent }}</span>
+														{% if not forloop.last %} {{ ", " }}{% endif %}
+													{% endfor %}
+												</p>
 											{% endif %}
+
+
 										</div>
 										<div class="col-md-3 px-2">
 											<p class="details-p mb-0"><span class="details-span text-primary">Date d'émission</span> 
@@ -756,7 +764,7 @@
 														{{ "Remboursement"}}
 													{% endif %}
 												</td>
-												{% if user.role_id == 1 %}
+												{% if user.id == 58 or user.id == 42 %}
 													<td>
 														{% if not ticket.is_invoiced  %} 
 															<button class="btn btn-warning px-2 py-1 deleteticket" title='Annuler le ticket' type="button" data-toggle="modal" 
@@ -766,6 +774,8 @@
 														{% endif %}
 														
 													</td>
+												{% else %}
+													<td>{{ '' }}</td>
 												{% endif %}
 												<td>{{ '' }}</td>
 										
@@ -773,7 +783,7 @@
 													{% if ticket_not_ordered or ticket_cancel_void_status or ticket.is_invoiced%}
 														<input type="checkbox" class="to-hide-when-cancel passagers-check checkto{{ticket.passenger.id}} ticket-checkbox-passenger checkbox-line-below" id="passagers-check" data-ticket-id = "{{ticket.id}}" data-id="{{ passenger.id }}" data-ticket-status = "1" data-commune-id = "{{ticket.id}}" data-amount-total="{{ ticket.total|floatformat:'2' }}" data-type="ticket" checked hidden>
 													{% else %}
-														<input type="checkbox" class="to-hide-when-cancel passagers-check checkto{{ticket.passenger.id}} ticket-checkbox-passenger checkbox-line-below" id="passagers-check" data-ticket-id = "{{ticket.id}}" data-id="{{ passenger.id }}" data-ticket-status = "0" data-commune-id = "{{ticket.id}}" data-amount-total="{{ ticket.total|floatformat:'2' }}" data-type="ticket" checked disabled>
+														<input type="checkbox" class="to-hide-when-cancel passagers-check user_id4555 checkto{{ticket.passenger.id}} ticket-checkbox-passenger checkbox-line-below" id="passagers-check" data-ticket-id = "{{ticket.id}}" data-id="{{ passenger.id }}" data-ticket-status = "0" data-commune-id = "{{ticket.id}}" data-amount-total="{{ ticket.total|floatformat:'2' }}" data-type="ticket" checked disabled>
 													{% endif %}
 												</td>
 											</tr>
@@ -1018,7 +1028,7 @@
 													{% endif %}
 												</td>
 												<td></td>
-												{% if user.role_id == 1 %}
+												{% if user.id == 58 or user.id == 42 %}
 													<td>
 														{% if not other_fee.is_invoiced  %}
 															<button class="btn btn-warning px-2 py-1 deleteticket" title='Annuler le ticket' type="button" data-toggle="modal" 
@@ -1028,6 +1038,8 @@
 														{% endif %}
 														
 													</td>
+												{% else %}
+													<td> {{ '' }} </td>	 
 												{% endif %}
 
 												<td>
@@ -1417,12 +1429,17 @@
 					<div>
 						<div id="comment-ticket-form">
 							{% csrf_token %}
-							<div id='ticket-input'>
+							<div id='list-ticket' ></div>
+
+							<div id='ticket_input' hidden>
 								<label for="ticket_number" class="col-form-label">Numero du Billet:</label>
 								<input type='text' maxlength='16' name="ticket_number" class="form-control" id="ticket_number">
 								<input type='hidden' name="pnr_id" value="{{pnr.id}}" class="form-control" id="pnr-id" >
 								
 							</div>
+
+							
+
 							<div id='info'>
 								<label for="montant_hors_taxe" class="col-form-label">Montant Hors Taxe</label>
 								<input type='number' name="montant_hors_taxe" class="form-control" id="montant_hors_taxe">
@@ -1440,11 +1457,13 @@
 										<option value='EMD'>EMD</option>
 									</select>
 								</div>
-								<div>
-									<label id="fee">
-										<input type="checkbox" id="feecheckbox" name="fee" >frais de service
+								<div class="form-check" id="fee">
+									<input class="form-check-input" type="checkbox" value=""  id="feecheckbox">
+									<label class="form-check-label" for="flexCheckDefault">
+										frais de service
 									</label>
-								</div>
+								  </div>
+								
 								<div>
 									<label for="selectPassenger" class="col-form-label">Passenger</label>
 									<select id="selectPassenger" class="form-control form-control">
@@ -1458,8 +1477,12 @@
 								</div>
 								
 							</div>
+							<div>
+								<button class="btn btn-danger" id="comment-ticket-cancel-button" style="margin-top:5px;" >Annuler</button>
+								<button class="btn btn-success" id="comment-ticket-next-button" style="margin-top:5px;" disabled>Suivant</button>
+							</div>
 
-							<button class="btn btn-success" id="comment-ticket-next-button" style="margin-top:5px;" disabled>Suivant</button>
+							
 							    
 						</div>
 
@@ -2326,14 +2349,14 @@
 	<div class="modal-dialog modal-md">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title">Suppression du Ticket</h4>
+				<h4 class="modal-title">Annuler billet (voidé ou remonté par erreur)</h4>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">×</span>
 				</button>
 			</div>
 			<div class="modal-body">
 				<span>
-					Voulez-vous vraiment supprimer le ticket
+					Voulez-vous vraiment annuler le billet
 					<span id="ticketNumber"></span> ?
 				</span>
 				<input type="hidden" id="ticketId" />
@@ -2341,7 +2364,7 @@
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
-				<button type="button" class="btn btn-danger" id="deletTicketModalConfirmation" data-dismiss="modal">Supprimer
+				<button type="button" class="btn btn-danger" id="deletTicketModalConfirmation" data-dismiss="modal">Confirmer
 				</button>
 			</div>
 		</div>

@@ -19,22 +19,22 @@ class MailNotification():
                 tickets = pnr.tickets.filter(state=2).all()
                 tickets_passenger_segment = []
                 for ticket in tickets :
-                    res = ''
+                    res = ""
                     if ticket.passenger.order is not None :
                         res += ticket.passenger.order
                     else :
-                        passengers = ''
+                        passengers = ""
                         for ticket_passenger_tst in ticket.ticket_tst_parts.all():
-                            passengers += ticket_passenger_tst.passenger.order + '-'
+                            passengers += ticket_passenger_tst.passenger.order + "-"
                         res += passengers[:-1]
 
-                    segments = ''
-                    for passengerSegment in ticket.ticket_parts.all().order_by('segment__id'):
-                        segments += passengerSegment.segment.segmentorder + '-'
+                    segments = ""
+                    for passengerSegment in ticket.ticket_parts.all().order_by("segment__id"):
+                        segments += passengerSegment.segment.segmentorder + "-"
                     for ssrs in  ticket.ticket_ssrs.all():
-                        segments += ssrs.ssr.order_line + '-'
+                        segments += ssrs.ssr.order_line + "-"
 
-                    res += '/'
+                    res += "/"
                     res += segments[:-1]
 
                     tickets_passenger_segment.append(res)
@@ -53,17 +53,17 @@ class MailNotification():
                                     Bonjour,
                                 </p>
                                 <p>
-                                    Le mail de tarification pour le PNR: {pnr} n'a pas encore été envoyé,
+                                    Le mail de tarification pour le PNR: {pnr} n"a pas encore été envoyé,
                                     Les billets et segments concernés: {segment},
                                     Date de création du PNR: {date}
                                 </p>
                                 <p> Cordialement, </p>
                             </body>
                             </html>
-                        """.format(pnr=pnr.number, segment=tickets_passenger_segment, date=pnr.system_creation_date.strftime('%d-%m-%Y %H-%M-%S'))
+                        """.format(pnr=pnr.number, segment=tickets_passenger_segment, date=pnr.system_creation_date.strftime("%d-%m-%Y %H-%M-%S"))
 
                 if pnr.agent is not None:
-                    recipients = [pnr.agent.email, "nasolo@phidia.onmicrosoft.com"]
+                    recipients = [pnr.agent.email, "maphiesarobidy@outlook.fr", "naval@phidia.onmicrosoft.com", "alain@phidia.onmicrosoft.com"]
 
                 Sending.send_email(
                         "issoufali.pnr@outlook.com",
@@ -77,7 +77,7 @@ class MailNotification():
         if pnr_missing.exists():
             for pnr in pnr_missing:
                 message = ""
-                recipient = ''
+                recipient = ""
                 subject = "Application Gestion PNR - PNR manquantes"
                 message += """
                             <!DOCTYPE html>
@@ -96,10 +96,10 @@ class MailNotification():
                                 <p> Cordialement, </p>
                             </body>
                             </html>
-                        """.format(pnr=pnr.number, date=pnr.system_creation_date.strftime('%d-%m-%Y %H-%M-%S'))
+                        """.format(pnr=pnr.number, date=pnr.system_creation_date.strftime("%d-%m-%Y %H-%M-%S"))
 
                 if pnr.agent_id is not None:
-                    recipient = [pnr.agent_id.email, "nasolo@phidia.onmicrosoft.com", "tahina@phidia.onmicrosoft.com", "nasolo@phidia.onmicrosoft.com"]
+                    recipient = [pnr.agent_id.email, "nasolo@phidia.onmicrosoft.com", "tahina@phidia.onmicrosoft.com", "maphiesarobidy@outlook.fr", "naval@phidia.onmicrosoft.com", "alain@phidia.onmicrosoft.com"]
                 Sending.send_email(
                         "issoufali.pnr@outlook.com",
                         recipient,
@@ -116,13 +116,13 @@ class MailNotification():
             # We filter pnr with creation date greater than or equal to datetime_before_minutes
             pnr_upload = Pnr.objects.filter(system_creation_date__gte=datetime_before_minutes)   
             
-            # Get time from datetime python's class
+            # Get time from datetime python"s class
             time_now = now.time() 
             start_date = time(8, 15) # => 08:15:00
             end_date = time(17, 15)  # => 17:15:00
             
-            date = datetime_before_minutes.strftime('%d-%m-%Y')
-            hours = datetime_before_minutes.strftime('%H:%M:%S')
+            date = datetime_before_minutes.strftime("%d-%m-%Y")
+            hours = datetime_before_minutes.strftime("%H:%M:%S")
 
             print(f"NOW: {time_now}, START_DATE: {start_date}, END_DATE: {end_date}, DATE: {date}, HOURS: {hours}")
             
@@ -141,11 +141,11 @@ class MailNotification():
                                         Bonjour,
                                     </p>
                                     <p>
-                                        Aucun PNR n'a été remonté dans l'application entre {hours} et {time_now}.
+                                        Aucun PNR n"a été remonté dans l"application entre {hours} et {time_now}.
                                     </p>
                                     <p>
                                         <strong>
-                                            <u>Date d'envoi</u>:
+                                            <u>Date d"envoi</u>:
                                         </strong>
                                         {date}
                                     </p>
@@ -161,10 +161,10 @@ class MailNotification():
                                 "pp@phidia.onmicrosoft.com",
                                 "tahina@phidia.onmicrosoft.com",
                                 "alain@phidia.onmicrosoft.com",
-                                "anjaranaivo464@gmail.com",
+                                "maphiesarobidy@outlook.fr",
+                                "naval@phidia.onmicrosoft.com",
+                                "alain@phidia.onmicrosoft.com",
                                 "olyviahasina.razakamanantsoa@outlook.fr",
-                                "mathieu@phidia.onmicrosoft.com",
-                                "nasolo@phidia.onmicrosoft.com",
                             ],
                             subject,
                             message
@@ -175,7 +175,7 @@ class MailNotification():
                 else:
                     print(f"📢 Pnr is already up to date on {date}, {time_now}")
             else:
-                print('📢 The time is outside of working hours')
+                print("📢 The time is outside of working hours")
         
         try:
             if now.weekday() in [0, 1, 2, 3, 4]: # [Lundi, Mardi, Mercredi, Jeudi, Vendredi]
@@ -252,11 +252,11 @@ class MailNotification():
         no_anomaly_pnr_ids_before_afternoon = []
         no_anomaly_pnr_ids_after_afternoon = []
 
-        # Parcourir chaque PNR qui n'a pas été envoyé à Odoo avant midi
+        # Parcourir chaque PNR qui n"a pas été envoyé à Odoo avant midi
         for pnr in pnr_not_sent_to_odoo_before_afternoon:
             comments = Comment.objects.filter(pnr_id_id=pnr.id)
             
-            # Vérifier si un commentaire a l'état False
+            # Vérifier si un commentaire a l"état False
             if any(comment.state is False for comment in comments):
                 anomaly_pnr_ids.append(pnr.number)
             else:
@@ -266,7 +266,7 @@ class MailNotification():
         for pnr in pnr_not_sent_to_odoo_after_afternoon:
             comments = Comment.objects.filter(pnr_id_id=pnr.id)
             
-            # Vérifier si un commentaire a l'état False
+            # Vérifier si un commentaire a l"état False
             if any(comment.state is False for comment in comments):
                 anomaly_pnr_ids.append(pnr.number)
             else:
@@ -291,7 +291,7 @@ class MailNotification():
             no_anomaly_pnrs_after_afternoon.append(Pnr.objects.get(id=pnr_id))
             
             
-        administrator_username = ['Anissa', 'Asma', 'Lamia', 'Moïse ISSOUFALI']
+        administrator_username = ["Anissa", "Asma", "Lamia", "Moïse ISSOUFALI"]
         
         no_anomaly_pnrs_before_afternoon_for_administrator = []
         no_anomaly_pnrs_after_afternoon_for_administrator = []
@@ -312,7 +312,7 @@ class MailNotification():
                 no_anomaly_pnrs_after_afternoon_for_administrator.append(pnr)
         
         
-        ISSOUFALI_URL = 'https://pnr.issoufali.phidia.fr'
+        ISSOUFALI_URL = "https://pnr.issoufali.phidia.fr"
         
         # Parcourir les pnrs non envoyés avant-midi dans Odoo pour les administrateurs
         def pnr_line_data_for_pnr_not_sent_to_odoo_before_afternoon_for_administrator():
@@ -324,7 +324,7 @@ class MailNotification():
                             f'''
                                 <tr>
                                     <td style="border:1px solid #ddd;padding:8px;">
-                                        <a href='{ISSOUFALI_URL}/home/pnr/{pnr.id}' title="Ouvrir le pnr {pnr.id}" target="_blank">
+                                        <a href="{ISSOUFALI_URL}/home/pnr/{pnr.id}" title="Ouvrir le pnr {pnr.id}" target="_blank">
                                         {pnr.number}
                                         </a>
                                     </td>
@@ -360,7 +360,7 @@ class MailNotification():
                             f'''
                                 <tr>
                                     <td style="border:1px solid #ddd;padding:8px;">
-                                        <a href='{ISSOUFALI_URL}/home/pnr/{pnr.id}' title="Ouvrir le pnr {pnr.id}" target="_blank">
+                                        <a href="{ISSOUFALI_URL}/home/pnr/{pnr.id}" title="Ouvrir le pnr {pnr.id}" target="_blank">
                                         {pnr.number}
                                         </a>
                                     </td>
@@ -395,7 +395,7 @@ class MailNotification():
                             f'''
                                 <tr>
                                     <td style="border:1px solid #ddd;padding:8px;">
-                                        <a href='{ISSOUFALI_URL}/home/pnr/{pnr.id}' title="Ouvrir le pnr {pnr.id}" target="_blank">
+                                        <a href="{ISSOUFALI_URL}/home/pnr/{pnr.id}" title="Ouvrir le pnr {pnr.id}" target="_blank">
                                         {pnr.number}
                                         </a>
                                     </td>
@@ -430,7 +430,7 @@ class MailNotification():
                             f'''
                                 <tr>
                                     <td style="border:1px solid #ddd;padding:8px;">
-                                        <a href='{ISSOUFALI_URL}/home/pnr/{pnr.id}' title="Ouvrir le pnr {pnr.id}" target="_blank" style="text-decoration">
+                                        <a href="{ISSOUFALI_URL}/home/pnr/{pnr.id}" title="Ouvrir le pnr {pnr.id}" target="_blank" style="text-decoration">
                                             {pnr.number}
                                         </a>
                                     </td>
@@ -466,12 +466,12 @@ class MailNotification():
         mgbi_users_mail = [
             "phpr974@gmail.com",
             "pp@phidia.onmicrosoft.com",
-            "nasolo@phidia.onmicrosoft.com",
             "tahina@phidia.onmicrosoft.com",
             "alain@phidia.onmicrosoft.com",
-            "anjaranaivo464@gmail.com",
             "olyviahasina.razakamanantsoa@outlook.fr",
-            "mathieu@phidia.onmicrosoft.com",
+            "maphiesarobidy@outlook.fr",
+            "naval@phidia.onmicrosoft.com",
+            "alain@phidia.onmicrosoft.com",
         ]
         
         other_users_mail = [
@@ -517,13 +517,13 @@ class MailNotification():
             print("\n")
             
             if len(no_anomaly_pnrs_before_afternoon_after_processing) > 0:
-                subject = f"PNR non envoyé dans Odoo entre 08h et 12h, ce {dt_now.strftime('%d-%m-%Y')}"                    
+                subject = f'PNR non envoyé dans Odoo entre 08h et 12h, ce {dt_now.strftime("%d-%m-%Y")}'                    
                 message = f"""        
                     <!DOCTYPE html>
                     <html>
                     <body>
                         <p> Bonjour, </p>
-                        <p> Vous trouverez ci-après la liste des pnrs sans anomalies qui ne sont pas envoyés dans Odoo le {dt_now.strftime('%d-%m-%Y')} entre 08h00 et 12h00. </p>
+                        <p> Vous trouverez ci-après la liste des pnrs sans anomalies qui ne sont pas envoyés dans Odoo le {dt_now.strftime("%d-%m-%Y")} entre 08h00 et 12h00. </p>
                         <p> Bonne récéption. </p>
                         <p> Cordialement. </p>
                         <table id="customers" style="border-collapse: collapse;width: 100%;">
@@ -531,7 +531,7 @@ class MailNotification():
                                 <tr>
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Numéro PNR</th>
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Date de création</th>
-                                    <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Date d'émission</th>
+                                    <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Date d"émission</th>
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Suivi par</th>
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Status</th>
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Type</th>
@@ -545,7 +545,7 @@ class MailNotification():
                     </html>
                 """
                 
-                # Envoyer le mail pour toutes les utilisateurs d'Isssoufali 
+                # Envoyer le mail pour toutes les utilisateurs d"Isssoufali 
                 Sending.send_email(
                     "alain@phidia.onmicrosoft.com", 
                     # administrator_users_mail + other_users_mail + mgbi_users_mail,  
@@ -554,13 +554,13 @@ class MailNotification():
                 )
             
             if len(no_anomaly_pnrs_before_afternoon_for_administrator) > 0:
-                subject = f"PNR non envoyé dans Odoo pour les directions entre 08h et 12h, ce {dt_now.strftime('%d-%m-%Y')}"                    
+                subject = f'PNR non envoyé dans Odoo pour les directions entre 08h et 12h, ce {dt_now.strftime("%d-%m-%Y")}'                   
                 message = f"""        
                     <!DOCTYPE html>
                     <html>
                     <body>
                         <p> Bonjour, </p>
-                        <p> Vous trouverez ci-après la liste des pnrs sans anomalies qui ne sont pas envoyés dans Odoo le {dt_now.strftime('%d-%m-%Y')} entre 08h00 et 12h00. </p>
+                        <p> Vous trouverez ci-après la liste des pnrs sans anomalies qui ne sont pas envoyés dans Odoo le {dt_now.strftime("%d-%m-%Y")} entre 08h00 et 12h00. </p>
                         <p> Bonne récéption. </p>
                         <p> Cordialement. </p>
                         <table id="customers" style="border-collapse: collapse;width: 100%;">
@@ -568,7 +568,7 @@ class MailNotification():
                                 <tr>
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Numéro PNR</th>
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Date de création</th>
-                                    <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Date d'émission</th>
+                                    <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Date d"émission</th>
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Suivi par</th>
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Status</th>
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Type</th>
@@ -582,7 +582,7 @@ class MailNotification():
                     </html>
                 """
                 
-                # Envoyer le mail pour les administrateurs d'Isssoufali 
+                # Envoyer le mail pour les administrateurs d"Isssoufali 
                 Sending.send_email(
                     "alain@phidia.onmicrosoft.com", 
                     # administrator_users_mail + mgbi_users_mail,  
@@ -602,13 +602,13 @@ class MailNotification():
             print("\n")
             
             if len(no_anomaly_pnrs_after_afternoon_after_processing) > 0:
-                subject = f"PNR non envoyé dans Odoo entre 08h et 15h, ce {dt_now.strftime('%d-%m-%Y')}"                
+                subject = f'PNR non envoyé dans Odoo entre 08h et 15h, ce {dt_now.strftime("%d-%m-%Y")}'                
                 message = f"""        
                     <!DOCTYPE html>
                     <html>
                     <body>
                         <p> Bonjour, </p>
-                        <p> Vous trouverez ci-après la liste des pnrs sans anomalies et qui ne sont pas envoyés dans Odoo le  {dt_now.strftime('%d-%m-%Y')} entre 08h00 et 15h00. </p>
+                        <p> Vous trouverez ci-après la liste des pnrs sans anomalies et qui ne sont pas envoyés dans Odoo le  {dt_now.strftime("%d-%m-%Y")} entre 08h00 et 15h00. </p>
                         <p> Bonne récéption. </p>
                         <p> Cordialement. </p>
                         <table id="customers" style="border-collapse: collapse;width: 100%;">
@@ -616,7 +616,7 @@ class MailNotification():
                                 <tr>
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Numéro PNR</th>
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Date de création</th>
-                                    <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Date d'émission</th>
+                                    <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Date d"émission</th>
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Suivi par</th>
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Status</th>
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Type</th>
@@ -630,7 +630,7 @@ class MailNotification():
                     </html>
                 """           
                     
-                # Envoyer le mail pour toutes les utilisateurs d'Isssoufali 
+                # Envoyer le mail pour toutes les utilisateurs d"Isssoufali 
                 Sending.send_email(
                     "alain@phidia.onmicrosoft.com", 
                     # administrator_users_mail + other_users_mail + mgbi_users_mail,
@@ -639,13 +639,13 @@ class MailNotification():
                 )
                 
             if len(no_anomaly_pnrs_after_afternoon_for_administrator) > 0:
-                subject = f"PNR non envoyé dans Odoo pour les directions entre 08h et 15h, ce {dt_now.strftime('%d-%m-%Y')}"                
+                subject = f'PNR non envoyé dans Odoo pour les directions entre 08h et 15h, ce {dt_now.strftime("%d-%m-%Y")}'                
                 message = f"""        
                     <!DOCTYPE html>
                     <html>
                     <body>
                         <p> Bonjour, </p>
-                        <p> Vous trouverez ci-après la liste des pnrs sans anomalies qui ne sont pas envoyés dans Odoo le  {dt_now.strftime('%d-%m-%Y')} entre 08h00 et 15h00. </p>
+                        <p> Vous trouverez ci-après la liste des pnrs sans anomalies qui ne sont pas envoyés dans Odoo le  {dt_now.strftime("%d-%m-%Y")} entre 08h00 et 15h00. </p>
                         <p> Bonne récéption. </p>
                         <p> Cordialement. </p>
                         <table id="customers" style="border-collapse: collapse;width: 100%;">
@@ -653,7 +653,7 @@ class MailNotification():
                                 <tr>
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Numéro PNR</th>
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Date de création</th>
-                                    <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Date d'émission</th>
+                                    <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Date d"émission</th>
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Suivi par</th>
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Status</th>
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Type</th>
@@ -667,7 +667,7 @@ class MailNotification():
                     </html>
                 """        
                     
-                # Envoyer le mail pour les administrateurs d'Isssoufali 
+                # Envoyer le mail pour les administrateurs d"Isssoufali 
                 Sending.send_email(
                     "alain@phidia.onmicrosoft.com", 
                     # administrator_users_mail + mgbi_users_mail,  
@@ -694,7 +694,7 @@ class MailNotification():
             print(fee_request.fee.id)
 
         def pnr_line_data_for_reduce_fee_pnr():
-            ISSOUFALI_URL = 'https://pnr.issoufali.phidia.fr'
+            ISSOUFALI_URL = "https://pnr.issoufali.phidia.fr"
             new_line = "\n"
             return(
                 f"""
@@ -706,7 +706,7 @@ class MailNotification():
                                         {fee_request.system_creation_date.date()}
                                     </td>
                                     <td style="border:1px solid #ddd;padding:8px;">
-                                        <a href='{ISSOUFALI_URL}/home/pnr/{fee_request.pnr.id}' title="Ouvrir le pnr {fee_request.pnr.id}" target="_blank" style="text-decoration">
+                                        <a href="{ISSOUFALI_URL}/home/pnr/{fee_request.pnr.id}" title="Ouvrir le pnr {fee_request.pnr.id}" target="_blank" style="text-decoration">
                                             {fee_request.pnr.number}
                                         </a>
                                     </td>
@@ -736,13 +736,13 @@ class MailNotification():
         if time_now == time_to_send: # 9h00
             print("C'EST L'HEURE D'ENVOYER L'EMAIL")
             if len(reduce_pnr_fee_request) > 0:
-                subject = f"Demande de réduction de frais, ce {dt_now.strftime('%d-%m-%Y')}"                    
+                subject = f'Demande de réduction de frais, ce {dt_now.strftime("%d-%m-%Y")}'                   
                 message = f"""        
                     <!DOCTYPE html>
                     <html>
                     <body>
                         <p> Bonjour, </p>
-                        <p> Vous trouverez ci-après la liste des pnrs ayant des demandes de réduction de frais du {dt_now.strftime('%d-%m-%Y')} . </p>
+                        <p> Vous trouverez ci-après la liste des pnrs ayant des demandes de réduction de frais du {dt_now.strftime("%d-%m-%Y")} . </p>
                         <p> Bonne récéption. </p>
                         <p> Cordialement. </p>
                         <table id="customers" style="border-collapse: collapse;width: 100%;">
@@ -766,7 +766,7 @@ class MailNotification():
                     </html>
                 """
 
-                # Envoyer le mail pour les administrateurs d'Isssoufali 
+                # Envoyer le mail pour les administrateurs d"Isssoufali 
                 Sending.send_email(
                     ANOMALY_EMAIL_SENDER["address"], 
                     ["maaphlixx@gmail.com"],

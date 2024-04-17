@@ -113,5 +113,5 @@ urlpatterns = [
     path('home/user-research', user_research, name= 'user_research'),
     path('home/user-filter', user_filter, name= 'user_filter'),
     path('stat/',graph_view, name='graph_view'),
-
+    path('comment/get-unshowed-tickets',get_unshowed_tickets, name='get_unshowed_tickets'),
 ]

@@ -42,10 +42,9 @@ values -- PNR source
         'Global',
         'Email sending error notification recipients',
         ARRAY [
-            'nasolo@phidia.onmicrosoft.com',
             'olyviahasina.razakamanantsoa@outlook.fr',
-            'anjaranaivo464@gmail.com',
-            'mathieu@phidia.onmicrosoft.com',
+            'maphiesarobidy@outlook.fr',
+            'naval@phidia.onmicrosoft.com',
             'alain@phidia.onmicrosoft.com',
             'tahina@phidia.onmicrosoft.com',
             'pp@phidia.onmicrosoft.com'
@@ -61,10 +60,10 @@ values -- PNR source
         'Global',
         'Email sending error notification recipients',
         ARRAY [
-            'nasolo@phidia.onmicrosoft.com',
+            'tahina@phidia.onmicrosoft.com',
             'olyviahasina.razakamanantsoa@outlook.fr',
-            'anjaranaivo464@gmail.com',
-            'mathieu@phidia.onmicrosoft.com',
+            'maphiesarobidy@outlook.fr',
+            'naval@phidia.onmicrosoft.com',
             'alain@phidia.onmicrosoft.com'
         ],
         null,
@@ -174,8 +173,8 @@ values -- PNR source
             'superviseur@agences-issoufali.com',
             'pp@phidia.onmicrosoft.com',
             'olyviahasina.razakamanantsoa@outlook.fr',
-            'anjaranaivo464@gmail.com',
-            'mathieu@phidia.onmicrosoft.com',
+            'maphiesarobidy@outlook.fr',
+            'naval@phidia.onmicrosoft.com',
             'alain@phidia.onmicrosoft.com',
             'tahina@phidia.onmicrosoft.com'
         ],
@@ -191,11 +190,10 @@ values -- PNR source
         'Fee request recipient',
         ARRAY [
             'olyviahasina.razakamanantsoa@outlook.fr',
-            'anjaranaivo464@gmail.com',
-            'mathieu@phidia.onmicrosoft.com',
+            'maphiesarobidy@outlook.fr',
+            'naval@phidia.onmicrosoft.com',
             'alain@phidia.onmicrosoft.com',
-            'tahina@phidia.onmicrosoft.com',
-            'famenontsoa@outlook.com'
+            'tahina@phidia.onmicrosoft.com'
         ],
         null,
         now(),
@@ -232,10 +230,9 @@ values -- PNR source
         'Global',
         'PNR parsing error notification recipients',
         ARRAY [
-            'nasolo@phidia.onmicrosoft.com',
             'olyviahasina.razakamanantsoa@outlook.fr',
-            'anjaranaivo464@gmail.com',
-            'mathieu@phidia.onmicrosoft.com',
+            'maphiesarobidy@outlook.fr',
+            'naval@phidia.onmicrosoft.com',
             'alain@phidia.onmicrosoft.com',
             'tahina@phidia.onmicrosoft.com',
             'pp@phidia.onmicrosoft.com'
@@ -251,10 +248,9 @@ values -- PNR source
         'Global',
         'PNR parsing error notification recipients',
         ARRAY [
-            'nasolo@phidia.onmicrosoft.com',
             'olyviahasina.razakamanantsoa@outlook.fr',
-            'anjaranaivo464@gmail.com',
-            'mathieu@phidia.onmicrosoft.com',
+            'maphiesarobidy@outlook.fr',
+            'naval@phidia.onmicrosoft.com',
             'alain@phidia.onmicrosoft.com',
             'tahina@phidia.onmicrosoft.com'
         ],

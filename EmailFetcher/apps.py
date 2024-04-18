@@ -227,7 +227,7 @@ class EmailfetcherConfig(AppConfig):
         repeat_timer_for_pnr_upload_notification = 0
         
         # Delete all files in attachments every 5 minutes 
-        task_schedule = RepeatTimer(5 * 10, delete_all_files_in_attachments_dir)
+        task_schedule = RepeatTimer(5 * 60, delete_all_files_in_attachments_dir)
         task_schedule.start()
         
         def pnr_upload_repeat_timer(repeat_timer_for_pnr_upload_notification):

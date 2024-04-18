@@ -671,7 +671,7 @@
 												<th>Numéro de commande</th>
 												<th>Emetteur </th>
 												<th width="10%">Référence</th>
-												{% if user.role_id == 1 %}<th width="2%"></th>{% endif %}
+												<th width="2%"></th>
 												<th width="2%"></th>
 												<th width="2%"></th>
 											</tr>
@@ -940,8 +940,7 @@
 												</td>
 												<td>{{ticket.emitter.username}}</td>
 												<td>{{ '' }}</td>
-												{% if user.role_id == 1 %}<td></td>{% endif %}
-
+												<td>{{ '' }}</td>
 												<td>{{ '' }}</td>
 												<td class="checkbox">
 													{% if fee_not_ordered or fee.is_invoiced %}

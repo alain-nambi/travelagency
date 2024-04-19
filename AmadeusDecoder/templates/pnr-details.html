@@ -2359,8 +2359,13 @@
 					Voulez-vous vraiment annuler le billet
 					<span id="ticketNumber"></span> ?
 				</span>
+				<div class="form-group">
+					<label for="exampleInputEmail1">Motif</label>
+					<input type="text" class="form-control" id="ticket_motif" placeholder="..." required>
+				</div>
 				<input type="hidden" id="ticketId" />
 				<input type="hidden" id="ticketTable" />
+				<input type='hidden' id="user_id" value="{{ user.id }}" ></input>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>

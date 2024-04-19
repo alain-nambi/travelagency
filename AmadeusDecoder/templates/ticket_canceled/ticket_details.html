@@ -1,0 +1,175 @@
+{% extends "layout-all-pnr.html" %}
+{% load ticket_segments %}
+{% load pnr_details %} 
+{% load pnr_comments %}
+{% load history %}
+{% block content %}
+<!-- Main content -->
+<div class="content-wrapper">
+  <section class="content">
+    <div class="container-fluid">
+        <div class="row ">
+            <div class="col-12">
+                <div class="card card-primary card-outline content-all-pnr h-100" id="pnrManagementMenu">
+                    <!-- /.card-header -->
+                    <div class="card-header justify-content-between py-0">
+                        <div class="card-header p-0 " style="margin:20px 0 20px 0;">
+                            <h5 style='margin-left:10px;'>PNR: <a href="{% url 'pnr_details' pnr.id %}" style="font-size: 1.25rem;"> {{ pnr.number }}</a>
+                                
+                            </h5>
+                        </div>
+                    </div>
+                    <div class="card-body p-0" id="showTableForAllPnr">
+                        
+                        <div class="col-md-12 px-2">
+                            
+                            <div class="table-responsive" style="height: calc(80vh - 20rem); overflow-x:auto;margin-top:2rem;">
+                                <table class="table table-bordered table-head-fixed text-nowrap ticket" id="table-ticket-fees">
+                                    <thead class="bg-info">
+                                        <tr>
+                                            <th>Type</th>
+                                            <th width="15%">Article</th>
+                                            <th>Passager(s)/Trajet</th>
+                                            <th width="5%">Transport</th>
+                                            <th width="5%">Taxe</th>
+                                            <th width="5%">Total</th>
+                                            <th width="8%">Passager/Segment(s)</th>
+                                            <th>Date d'émission</th>
+                                            <th>Emetteur </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="table-ticket-fees-body">
+                                        {% for ticket_canceled in tickets_canceled %}
+                                            {% if ticket_canceled.ticket %}
+                                                <tr >
+                                                    <td>
+                                                        <span class="type" style="font-size: 12px !important">
+                                                            {% if ticket_canceled.ticket.ticket_type == 'EMD' or ticket_canceled.ticket.ticket_type == 'TKT' %}
+                                                                {{ ticket_canceled.ticket.ticket_type }}
+                                                            {% elif ticket_canceled.ticket.ticket_type == 'CREDIT_NOTE' %}
+                                                                {{ 'Avoir' }}
+                                                            {% endif %}
+                                                        </span>
+                                                    </td>
+                                                    <td><span class="billet">{{ ticket_canceled.ticket }}</span></td>
+                                                    <td>
+                                                        {% if ticket_canceled.ticket.ticket_type == 'EMD' and pnr.type == 'EWA' %}
+                                                            {% if ticket_canceled.ticket.ticket_description is not None %}
+                                                                {{ ticket_canceled.ticket.ticket_description }}
+                                                            {% endif %}
+                                                        {% endif %}
+                                                        {% if ticket_canceled.ticket.passenger is not None %}
+                                                            {{ ticket_canceled.ticket.passenger }}
+                                                        {% else %}
+                                                            {{ ticket_canceled.ticket.id|tst_passenger }}
+                                                        {% endif %}
+                                                        <br>{{ ticket_canceled.ticket.id|route }}
+                                                    </td>
+                                                    <td><span class="montant">{{ ticket_canceled.ticket.transport_cost|floatformat:'2' }}</span>
+                                                    </td>
+                                                    <td><span class="montant">{{ ticket_canceled.ticket.tax|floatformat:'2' }}</span></td>
+                                                    <td><span class="montant ticket_canceled.ticket" value="{{ ticket_canceled.ticket.total|floatformat:'2' }}">{{ ticket_canceled.ticket.total|floatformat:'2' }}</span></td>
+                                                    <td>
+                                                        {% if ticket_canceled.ticket.passenger is None %}
+                                                        <div class="d-flex justify-content-center align-items-center">
+                                                            <span 
+                                                                class="tooltips empty-passenger" 
+                                                                tooltip="" 
+                                                                tooltip-position="bottom"
+                                                                tooltip-type="danger"
+                                                                data-ticket_canceled.ticket-number="{{ ticket_canceled.ticket.number }}"
+                                                            >
+                                                                <i class="fa fa-envelopes-bulk text-danger"></i>
+                                                            </span>
+                                                        </div>
+                                                            
+                                                        {% else %}
+                                                            {% if ticket_canceled.ticket.passenger.order is not None %}
+                                                                {{ ticket_canceled.ticket.passenger.order }}
+                                                            {% else %}
+                                                                {{ ticket_canceled.ticket.id|tst_passenger }}
+                                                            {% endif %}
+                                                    /{{ ticket_canceled.ticket.id|segment }}
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        {% if ticket_canceled.ticket.issuing_date is not None %}
+                                                            {{ ticket_canceled.ticket.issuing_date|date:"d/m/y" }}
+                                                        {% else %}
+                                                            {{ '' }}
+                                                        {% endif %}
+                                                    </td>
+                                                    
+                                                    <td>{{ticket_canceled.ticket.emitter.username}}</td>
+                                                    
+                                                
+                                                </tr>
+                                            {% else %}
+                                            <tr >
+                                                <td><span class="type" style="font-size: 12px;">{{ ticket_canceled.other_fee.fee_type }}</span></td>
+                                                <td><span class="billet">{{ ticket_canceled.other_fee.designation }}</span></td>
+                                                {% if ticket_canceled.other_fee|ancillary_passenger is not None %}
+                                                <td>
+                                                    {{ ticket_canceled.other_fee|ancillary_passenger }}
+                                                </td>
+                                                {% else %}
+                                                <td> </td>
+                                                {% endif %}
+                                                <td><span class="montant">{{ ticket_canceled.other_fee.cost|floatformat:'2' }}</span>
+                                                </td>
+                                                <td><span class="montant">{{ ticket_canceled.other_fee.tax|floatformat:'2' }}</span></td>
+                                                <td><span class="montant ticket" value="{{ ticket_canceled.other_fee.total|floatformat:'2' }}">{{ ticket_canceled.other_fee.total|floatformat:'2' }}</span></td>
+                                                {% if ticket_canceled.other_fee|ancillary_passenger_segment != '' %}
+                                                <td>
+                                                    {{ ticket_canceled.other_fee|ancillary_passenger_segment }}
+                                                </td>
+                                                {% else %}
+                                                <td>
+                                                    {% if ticket_canceled.other_fee.passenger_segment is not None %}
+                                                        {{ ticket_canceled.other_fee.passenger_segment }}
+                                                    {% endif %}
+                                                </td>
+                                                {% endif %}
+                                                <td>
+                                                    {% if ticket_canceled.other_fee.creation_date is not None %}
+                                                        {{ ticket_canceled.other_fee.creation_date|date:"d/m/y" }}
+                                                    {% else %}
+                                                        {{ 'Non émis' }}
+                                                    {% endif %}
+                                                </td>
+                                                
+                                                <td>
+                                                    {% if temp_other_fee.emitter %}
+                                                        {{temp_other_fee.emitter.username}}
+                                                    {% elif temp_other_fee.issuing_agent_name %}
+                                                        {{temp_other_fee.issuing_agent_name}}
+                                                    {% else %}
+                                                        {{ '' }}
+                                                    {% endif %}
+                                                </td>
+                                                
+                                                
+                                            </tr>
+                                            {% endif %}
+                                       
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <a class="btn btn-outline-primary"  href="{% url 'get_all_canceled_ticket' %}" style="width:100px;margin:0 0 10px 10px;" title='Retour' type="button"  id="reactive_user" >
+                            <b>Retour</b>
+                        </a>
+                    </div>
+
+                    
+            
+                </div>
+            </div>
+        </div>
+    </div>
+  </section>
+</div>
+
+{% endblock content %}

@@ -152,12 +152,12 @@ class AmadeusdecoderConfig(AppConfig):
         
         # sleep(2)
         
-        load_configs = Thread(target=load_config, args=(configs, ))
-        load_configs.start()
+        # load_configs = Thread(target=load_config, args=(configs, ))
+        # load_configs.start()
         
-        sleep(2)
+        # sleep(2)
         
-        print(configs.FEE_REQUEST_RESPONSE_RECIPIENT)
+        # print(configs.FEE_REQUEST_RESPONSE_RECIPIENT)
         
         now = datetime.now()
         repeat_timer_for_pnr_upload_notification = 0

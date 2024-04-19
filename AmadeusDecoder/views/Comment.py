@@ -11,10 +11,10 @@ from AmadeusDecoder.models.pnr.Passenger import Passenger
 
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.pnrelements.PnrAirSegments import PnrAirSegments 
-from AmadeusDecoder.models.utilities.Comments import Anomalie, Comment, Response, NotFetched
+from AmadeusDecoder.models.utilities.Comments import Anomalie, CategorieAnomalie, Comment, Response, NotFetched
 from AmadeusDecoder.models.user.Users import User, UserCopying
 from AmadeusDecoder.utilities.SendMail import Sending
-from AmadeusDecoder.models.invoice.Ticket import Ticket
+from AmadeusDecoder.models.invoice.Ticket import Ticket, TicketCanceled
 
 from datetime import date, timedelta
 from django.utils import timezone
@@ -424,7 +424,8 @@ def save_ticket_anomalie(request):
         
         user = User.objects.filter(id= user_id).first()
 
-        anomalie = Anomalie(pnr=pnr, categorie='Billet non remonté', infos=info, issuing_user = user, creation_date=timezone.now())
+        categorie = CategorieAnomalie.objects.get(pk=1)
+        anomalie = Anomalie(pnr=pnr, categorie=categorie, infos=info, issuing_user = user, creation_date=timezone.now())
         anomalie.save()   
         anomalie_id = anomalie.id
         response_data = {'status':'ok','anomalie_id':anomalie_id}
@@ -598,8 +599,156 @@ def updateAnomaly(request):
             issuing_user = None
             info = {"ticket_number": bnr_number, "montant": bnr_transport_cost, "taxe": bnr_taxe, "ticket_status": 1, 'ticket_type':bnr_type, 'fee': str(bnr_fee).capitalize()} # ticket_status : 0 ticket existant , 1 ticket non existant
 
-        anomalie = Anomalie(pnr=bnr_pnr, categorie='Billet non remonté pnr archivé', infos=info, issuing_user = issuing_user, creation_date=timezone.now())
+        categorie = CategorieAnomalie.objects.get(pk=2)
+        anomalie = Anomalie(pnr=bnr_pnr, categorie=categorie, infos=info, issuing_user = issuing_user, creation_date=timezone.now())
         anomalie.save()   
         anomalie_id = anomalie.id
         context['status'] = 200
         return JsonResponse(context)
+    
+# ------------------ Add Anomalie Categorie ----------------------
+
+@login_required(login_url='index')
+def add_anomaly_category(request):
+    context = {}
+
+    if request.method == 'POST':
+        try:
+            category_name = request.POST.get('category_name')
+            category = CategorieAnomalie(name=category_name)
+            category.save()
+            context['status'] = 200
+        except:
+            context['status'] = 100
+
+    return JsonResponse(context)
+
+# --------------------- Canceled ticket -----------------------------------------------------------
+
+@login_required(login_url='index')
+def get_all_canceled_ticket(request):
+    tickets = TicketCanceled.objects.all()
+    context = {'tickets':tickets}
+    issuing_users= []
+
+    tickets_issuing_users = TicketCanceled.objects.all().distinct('issuing_user')      
+    print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+    for tickets_user in tickets_issuing_users:
+        print(tickets_user.issuing_user) 
+        issuing_users.append(tickets_user.issuing_user)
+    
+    pnr_count = tickets.count()
+    
+    context['tickets'] = tickets
+    object_list = context['tickets']
+    row_num = request.GET.get('paginate_by', 20) or 20
+    page_num = request.GET.get('page', 1)
+    paginator = Paginator(object_list, row_num)
+    try:
+        page_obj = paginator.page(page_num)
+    except PageNotAnInteger: 
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+    context = {'page_obj': page_obj, 'row_num': row_num, 'pnr_count' : pnr_count,'issuing_users':issuing_users}
+
+    return render(request,'ticket_canceled/ticket_canceled.html',context)
+
+@login_required(login_url='index')
+def get_canceled_ticket_detail(request,pnr_id):
+    tickets_canceled = TicketCanceled.objects.filter(pnr__id=pnr_id).all()
+    pnr = Pnr.objects.get(pk=pnr_id)
+    context={'tickets_canceled' : tickets_canceled,'pnr':pnr}
+
+    return render(request,'ticket_canceled/ticket_details.html',context)
+
+@login_required(login_url="index")
+def canceled_ticket_research(request):
+    context = {}
+    
+    if request.method == 'POST' and request.POST.get('ticket_research'):
+        print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+        search_results = []
+        
+        ticket_research = request.POST.get('ticket_research')
+        print(ticket_research)
+        pnr_results = TicketCanceled.objects.all().filter(Q(pnr__number__icontains=ticket_research) | Q(ticket__number__icontains=ticket_research)| Q(other_fee__designation__icontains=ticket_research) )
+        
+        if pnr_results.exists():
+            for p1 in pnr_results :
+                search_results.append(p1)
+        print(search_results)
+          
+        
+        results = []
+        for canceled_ticket in search_results:
+            
+            values = {}
+            values['pnr_id'] = canceled_ticket.pnr.id
+            values['pnr_number'] = canceled_ticket.pnr.number
+            if canceled_ticket.ticket:
+                values['ticket_number'] = canceled_ticket.ticket.number
+            else:
+                values['other_fee'] = canceled_ticket.other_fee.designation
+            values['motif'] = canceled_ticket.motif
+            values['date'] = canceled_ticket.date
+            values['issuing_user'] = canceled_ticket.issuing_user.username
+            results.append(values)
+        ticket_count = len(results)
+        
+        context = {'results' : results, 'ticket_count' :  ticket_count}
+    return JsonResponse(context)
+  
+@login_required(login_url='index')
+def canceled_ticket_filter(request):
+    context ={}
+    search_results = []
+    if request.method == 'POST':
+        try:
+            print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+            filtre = request.POST.get('filter')
+            data_search = request.POST.get('data_search')
+            print(filtre)
+            print(data_search)
+
+            if filtre == 'motif':
+                canceled_tickets = TicketCanceled.objects.filter(motif__icontains=data_search).all()
+
+            if filtre == 'date':
+                canceled_tickets = TicketCanceled.objects.filter(date=data_search).all()
+
+            if filtre == 'creator':
+                canceled_tickets = TicketCanceled.objects.filter(issuing_user__id=data_search).all()
+
+            if canceled_tickets.exists():
+                print(canceled_tickets)
+                for ticket in canceled_tickets :
+                    search_results.append(ticket)
+          
+        
+                results = []
+                for canceled_ticket in search_results:
+                    
+                    values = {}
+                    values['pnr_id'] = canceled_ticket.pnr.id
+                    values['pnr_number'] = canceled_ticket.pnr.number
+                    if canceled_ticket.ticket:
+                        values['ticket_number'] = canceled_ticket.ticket.number
+                    else:
+                        values['other_fee'] = canceled_ticket.other_fee.designation
+                    values['motif'] = canceled_ticket.motif
+                    values['date'] = canceled_ticket.date
+                    values['issuing_user'] = canceled_ticket.issuing_user.username
+                    results.append(values)
+
+                context['status'] = 200
+                context['results'] = results
+            else:
+                context['status'] = 404
+                context['message'] = 'Aucun résultat trouvé.'
+        except:
+            context['status'] = 100
+            context['message'] = "Une erreur s'est produite."
+
+
+    return JsonResponse(context)

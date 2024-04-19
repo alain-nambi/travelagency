@@ -104,7 +104,7 @@ urlpatterns = [
     path('setting/test-parsing-upload-file',test_parsing_upload_file,name='test_parsing_upload_file'),
     path('comment/reply-comment',reply_comment,name='reply_comment'),
     path('pnr/to/excel/<int:pnr_id>/',pnr_to_excel, name='pnr_to_excel'),
-    path('pnr/list/to/excel/',pnr_list_to_excel, name='pnr_list_to_excel'),
+    path('pnr/list/to/excel',pnr_list_to_excel, name='pnr_list_to_excel'),
     path('user/details/<int:user_id>/',user_details,name='user_details'),
     path('user/archive',archive_user, name="archive_user"),
     path('user/reactive',reactive_user, name="reactive_user"),
@@ -114,4 +114,10 @@ urlpatterns = [
     path('home/user-filter', user_filter, name= 'user_filter'),
     path('stat/',graph_view, name='graph_view'),
     path('comment/get-unshowed-tickets',get_unshowed_tickets, name='get_unshowed_tickets'),
+    path('anomaly/add-category',add_anomaly_category,name="add_anomaly_category"),
+    path('anomaly/all-canceled-ticket',get_all_canceled_ticket,name="get_all_canceled_ticket"),
+    path('anomaly/canceled-ticket-detail/<int:pnr_id>',get_canceled_ticket_detail,name="get_canceled_ticket_detail"),
+    path('home/canceled-ticket-research', canceled_ticket_research, name= 'canceled_ticket_research'),
+    path('home/canceled-ticket-filter', canceled_ticket_filter, name= 'canceled_ticket_filter'),
+
 ]

@@ -26,13 +26,21 @@
                 </div>
               </div>
               {% anomaly_state as anomaly_state %}
-              <div class="d-flex justify-content-end mt-4" style="gap: 2rem; margin-right: 4rem !important">
+              <div class="row d-flex" style="justify-content:space-between !important;">
+                <div class="d-flex mt-4" style="gap: 2rem; margin-left: 4rem !important">
+                  <a class="btn btn-outline-success" data-toggle="modal" data-target="#modalCategory" ><i class="fas fa-plus"></i>
+                    Ajouter une catégorie
+                  </a>
+                </div>
                 
-                  <span class="px-2 py-1 bg-green">Traitée : {{anomaly_state.false}} </span>
-                  <span class="px-2 py-1 bg-red">Non traitée : {{anomaly_state.true}} </span>
-                
+                <div class="d-flex mt-4" style="gap: 2rem; margin-right: 4rem !important; float:right !important;">
+                  
+                    <span class="px-2 py-1 bg-green">Traitée : {{anomaly_state.false}} </span>
+                    <span class="px-2 py-1 bg-red">Non traitée : {{anomaly_state.true}} </span>
+                  
+                </div>
               </div>
-
+              
               <div class="card-body">
                 <form method='POST' action=''>
                   {% csrf_token %}
@@ -51,7 +59,7 @@
                             {% for anomalie in page_obj %}
                               <tr class="constat-class" onclick="location.href='{% url 'anomaly_details' anomalie.pnr_id %}'" style="cursor: pointer;">
 
-                                    <td>{{anomalie.pnr.id }}</td>
+                                    <td>{{anomalie.pnr.number }}</td>
                                     <td>{{anomalie.categorie}}</td>
                                     <td>{{anomalie.creation_date| correct_datetime}}</td>
                                     <td>{{anomalie.issuing_user.username}}</td>
@@ -79,80 +87,30 @@
         </div>
     </section>
 
-<div class="modal fade" id="show-details" style="display: none;" aria-hidden="true">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h4 class="modal-title">Details de l'anomalie</h4>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">×</span>
-				</button>
-			</div>
-			<div class="modal-body">
-        <div class="mb-2">
-          <input type="hidden" id="modal-anomalie_id" />
-          <input type="hidden" id="modal-passenger_id" />
-          <input type="hidden" id="modal-pnr_id" />
-
-					<label class="form-label mb-0">Categorie: </label>
-					<p id="modal-categorie"></p>
-				</div>
-        <div class="mb-2">
-					<label class="form-label mb-0">Signalée par: </label>
-					<p id="modal-user"></p>
-				</div>
-				<div class="mb-2">
-					<label class="form-label mb-0">Numéro PNR: </label>
-					<p id="modal-pnr_number"></p>
-				</div>
-        <div class="mb-2" >
-					<label class="form-label mb-0">Numéro du Billet : </label>
-					<p id="modal-ticket_number"></p>
-				</div>
-        <div class="mb-2" id="modal-div-type">
-					<label class="form-label mb-0">Type du Billet : </label>
-					<p id="modal-ticket_type"></p>
-				</div>
-
-        <label style="margin-bottom:10px;" id='modal-fee' class="form-label mb-0">Est soumis à des frais de service </label>
-
-        <div class="mb-2">
-					<label class="form-label mb-0">Montant Hors Taxe: </label>
-					<p id="modal-montant"></p>
-				</div>
-
-        <div class="mb-2">
-					<label class="form-label mb-0">Taxe: </label>
-					<p id="modal-taxe"></p>
-				</div>
-
-        <div class="mb-2" id="modal-p-name">
-					<label class="form-label mb-0">Passenger Name: </label>
-					<p id="modal-passenger-name"></p>
-				</div>
-
-        <div class="mb-2" id="modal-p-surname">
-					<label class="form-label mb-0">Passenger Surname: </label>
-					<p id="modal-passenger-surname"></p>
-				</div>
-
-        <div class="mb-2" id="modal-div-segment">
-					<label class="form-label mb-0">Segment: </label>
-					<p id="modal-segment"></p>
-				</div>
-
-
-
-			</div>
-			<div class="modal-footer">        
-        <button type="button" class="btn btn-success" id="accept-anomaly">Accepter</button>
-				<button type="button" class="btn btn-danger" data-dismiss="modal">Fermer</button>
-
-			</div>
-		</div>
-
-	</div>
-</div>
-
+    <div class="modal fade show" id="modalCategory" style="display: none;" aria-modal="true" role="dialog">
+      <div class="modal-dialog modal-md">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" >Ajouter une Categorie</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="exampleInputEmail1">Nom</label>
+              <input type="text" class="form-control" id="category_name" placeholder="...">
+            </div>
+            
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+            <button type="button" class="btn btn-success" id="addCategory" >Ajouter
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
   </div>
 {% endblock content %}

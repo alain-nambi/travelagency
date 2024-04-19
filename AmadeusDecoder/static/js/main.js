@@ -4629,18 +4629,14 @@ $.ajax({
 $(document).ready(function() {
   $('#ExcelUploadPnrList').click(function(){
     console.log("excel upload");
-    pnr_id = $('#pnr_list').val();
-    console.log(pnr_id);
-    pnr_id.forEach(element => {
-      console.log(element);
-    });
-    console.log(pnr_id);
+    const pnr_list = JSON.parse(localStorage.getItem('pnrIds'));
+    console.log(pnr_list);
     $.ajax({
       type: "POST",
       url: "/pnr/list/to/excel",
       dataType: "json",
       data: {
-          pnr_list : pnr_list,
+          pnr_list : JSON.stringify(pnr_list),
           csrfmiddlewaretoken: csrftoken,
       },
       success: function (response) {

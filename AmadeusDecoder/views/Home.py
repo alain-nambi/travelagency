@@ -24,7 +24,7 @@ from AmadeusDecoder.models.pnr.PnrPassenger import PnrPassenger
 from AmadeusDecoder.models.user.Users import User, UserCopying
 from AmadeusDecoder.models.invoice.Clients import Client
 from AmadeusDecoder.models.utilities.Comments import Comment, Response
-from AmadeusDecoder.models.invoice.Ticket import Ticket
+from AmadeusDecoder.models.invoice.Ticket import Ticket, TicketCanceled
 from AmadeusDecoder.models.invoice.Fee import Fee, ReducePnrFeeRequest, OthersFee
 from AmadeusDecoder.models.invoice.Invoice import Invoice, InvoicesCanceled
 from AmadeusDecoder.models.invoice.InvoiceDetails import InvoiceDetails
@@ -41,6 +41,7 @@ import traceback
 
 from openpyxl import Workbook
 from openpyxl.styles import *
+from django.shortcuts import redirect
 
 import decimal
 
@@ -51,6 +52,8 @@ import AmadeusDecoder.utilities.configuration_data as configs
 
 FEE_REQUEST_SENDER = configs.FEE_REQUEST_SENDER
 FEE_REQUEST_RECIPIENT = configs.FEE_REQUEST_RECIPIENT
+
+
 
 @login_required(login_url='index')
 def home(request): 
@@ -2155,15 +2158,15 @@ def unorder_pnr(request):
                 PassengerInvoice.objects.filter(id=passenger_invoice.id).delete()
                 
                 if passenger_invoice.ticket_id:
-                    #  delete the corresponding ticket if it exist
+                    #  Change the staus od is_invoiced of the corresponding ticket if it exist to falser
                     Ticket.objects.filter(id=passenger_invoice.ticket_id).update(is_invoiced=False)
                 
                 if passenger_invoice.fee_id:
-                    #  delete the corresponding fee if it exist
+                    #  Change the staus od is_invoiced of the corresponding fee if it exist to falser
                     Fee.objects.filter(id=passenger_invoice.fee_id).update(is_invoiced=False)
                     
                 if passenger_invoice.other_fee_id:
-                    # delete the corresponding other fee if it exist
+                    # Change the staus od is_invoiced of the corresponding other fee if it exist to falser
                     OthersFee.objects.filter(id=passenger_invoice.other_fee_id).update(is_invoiced=False)
 
                 if passenger_invoice.ticket_id or passenger_invoice.other_fee_id or passenger_invoice.fee_id:
@@ -2268,9 +2271,12 @@ def ticket_delete(request):
         ticketId = request.POST.get('ticketId')
         ticketTable = request.POST.get('ticketTable')
         ticketNumber = request.POST.get('ticketNumber')
+        connected_user_id = request.POST.get('connected_user_id')
+        motif = request.POST.get('motif')
 
-        print('------------------------------------------------------')
-        print(ticketId)
+
+        connected_user = User.objects.get(pk=connected_user_id)
+
         
         # for ticket
         if ticketTable == 'ticket':
@@ -2295,6 +2301,10 @@ def ticket_delete(request):
                     passenger_invoice_fee = PassengerInvoice.objects.filter(fee_id=fee.id)
                     passenger_invoice_fee.delete()
 
+            # save it in the ticketCanceled table
+            ticket_canceled = TicketCanceled(ticket=ticket,issuing_user=connected_user,motif=motif,pnr=ticket.pnr)
+            ticket_canceled.save()
+
 
         # for other fees
         else:
@@ -2316,6 +2326,10 @@ def ticket_delete(request):
                     print('FEE VAR')
                     passenger_invoice_fee = PassengerInvoice.objects.filter(fee_id=fee.id)
                     passenger_invoice_fee.delete()
+            
+            # save it in the ticketCanceled table
+            ticket_canceled = TicketCanceled(other_fee=other_fee,issuing_user=connected_user,motif=motif,pnr=other_fee.pnr)
+            ticket_canceled.save()
 
 
         return JsonResponse({'status':'ok'})
@@ -2565,7 +2579,25 @@ def get_opc(segment, ssr):
 def pnr_list_to_excel(request):
     if request.method == 'POST':
         pnr_list = request.POST.get('pnr_list')
-        print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
-        print(pnr_list)
-        for pnr in pnr_list:
-            print(pnr)
+
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',)
+        response['Content-Disposition'] = 'attachment; filename="' + 'PNR details' +'.xlsx"'
+        workbook = Workbook()
+
+        worksheet = workbook.active
+
+        worksheet.merge_cells('A1:M1')
+
+        first_cell = worksheet['A1']
+        first_cell.value = "Liste de PNR "
+        first_cell.fill = PatternFill("solid", fgColor="246ba1")
+        first_cell.font = Font(bold=True, color="F7F6FA")
+        first_cell.alignment = Alignment(horizontal="center", vertical="center")
+
+        worksheet.title = 'PNR liste'
+
+        columns = ['Numéro','Passagers','Client','Date de création',"Date d'émission",'Montant','Statut','OPC','Type','Créateur','Emetteur','Agence','Code']
+        row_nums = 3
+
+        
+        

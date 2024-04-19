@@ -38,7 +38,15 @@ class NotFetched(models.Model):
     follower = models.ForeignKey(User, on_delete=models.CASCADE)
     date_creation = models.DateTimeField(auto_now=True)
     
+class CategorieAnomalie(models.Model):
+    class Meta:
+        db_table = 't_categorie_anomalie'
 
+    name = models.CharField(max_length=100, null=False)
+
+    def __str__(self) :
+        return '{}'.format(self.name)
+    
 class Anomalie(models.Model):
     
     class Meta:
@@ -46,9 +54,10 @@ class Anomalie(models.Model):
         ordering = ['-creation_date']
         
     pnr = models.ForeignKey(Pnr, on_delete=models.CASCADE)
-    categorie = models.CharField(max_length=100,null=True)
+    categorie = models.ForeignKey(CategorieAnomalie, on_delete=models.CASCADE)
     infos = HStoreField(null=False)
     creation_date = models.DateTimeField(null=False)
-    issuing_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='issuing_user', null=False)
+    issuing_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='issuing_user', null=True)
     status = models.IntegerField(default=0)
     response_date = models.DateTimeField(null=True)
+

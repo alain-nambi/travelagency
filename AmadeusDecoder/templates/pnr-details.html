@@ -66,6 +66,18 @@
 									<div class="row mb-0 px-2 py-0">
 										<div class="col-md-2">
 											<h4 class="text-primary mx-0 mb-0">Détail du PNR</h4>
+											{% if pnr.is_archived %}
+												<div 
+													class="btn btn-warning px-2 py-0" 
+													onmouseover="this.style.backgroundColor='#ffc107'" 
+													onmouseout="this.style.backgroundColor='#ffc107'" 
+													style="border: none; cursor: help;"
+													title="? Des billets archivées peuvent ne pas être présent dans ce PNR"
+												>
+													<i class="fa fa-warning"></i>
+													<span>PNR archivé</span>
+												</div>
+											{% endif %}
 										</div>
 										<div class="col-md-4">
 											{% if pnr.status_value == 0 %}

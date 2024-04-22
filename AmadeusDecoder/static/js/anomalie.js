@@ -102,6 +102,8 @@ function get_unshowed_ticket(pnr_id,container){
                 new_ticket_button.innerHTML = 'Nouveau Billet';
                 new_ticket_button.style.margin = '20px 10px 10px 0';
                 new_ticket_button.addEventListener("click", function(){
+                    // Don't allow to modify ticket number
+                    $('#ticket_number').removeAttr('disabled')
                     showTicketInput();
                     $('#ticket_number').val('');
                     $('#comment-ticket-next-button').show();
@@ -131,8 +133,8 @@ $(document).ready(function () {
         var inputValue = $(this).val();
 
         // Seulement pour les remboursements à remonter
-        // var sanitizedValue = inputValue.replace(/[^0-9-]/g, '');
-        // $(this).val(sanitizedValue);
+        var sanitizedValue = inputValue.replace(/[^0-9-]/g, '');
+        $(this).val(sanitizedValue);
 
         $('#comment-ticket').attr("disabled", true);
 
@@ -238,8 +240,8 @@ $(document).ready(function () {
             } else {
                 // Le format est incorrect, nettoyer la valeur
                 // à décommenter lorsque les remboursements sont remontées
-                // var sanitizedValue = inputValue.replace(/[^0-9,.]/g, '');
-                // $(this).val(sanitizedValue);
+                var sanitizedValue = inputValue.replace(/[^0-9,.]/g, '');
+                $(this).val(sanitizedValue);
             }
         });        
         
@@ -262,6 +264,20 @@ $(document).ready(function () {
         if ($('#info').is(':hidden')) {
             var ticketNumber = $("#ticket_number").val();
 
+            let index = ticketNumber.indexOf('-');
+
+            console.log(ticketNumber.length);
+
+            if (index !== -1) {
+                if (!/^\d+$/.test(ticketNumber[index + 1]) || ticketNumber.length < 16) {
+                    ticketNumber = ticketNumber.slice(0, 13)
+                    $("#ticket_number").val(ticketNumber)
+                }
+            }
+
+            console.log("Modified Ticket Number");
+            console.log(ticketNumber);
+
             $.ajax({
                 type: "POST",
                 url: "/home/verif/ticket",
@@ -275,12 +291,20 @@ $(document).ready(function () {
                     let result = data.verif;
 
                     if (result === 'True') { // if ticket exists
+                        // Don't allow to modify ticket number
+                        $('#ticket_number').attr('disabled', true)
                         showInfoSection();
                     } if (result === 'is_no_adc'){
                         toastr.info('Ticket Is no adc')
                     } 
                     if(result === 'pnr'){
-                        toastr.error("Billet d'un autre PNR")
+                        toastr.info("Billet d'un autre PNR")
+                    }
+                    if (result === 'ticket_already_exist') {
+                        toastr.info('Ce billet est déja remonté sur ce PNR courant')
+                    }
+                    if (result.exist === true) {
+                        toastr.info(`Ce billet est déja présent dans le PNR ${result.pnr}`)
                     }
                     if (result === 'False') { // if ticket does not exist
                         $.ajax({
@@ -350,6 +374,8 @@ $(document).ready(function () {
                                 } else {
                                     console.log('Error......');
                                 }
+                                // Don't allow to modify ticket number
+                                $('#ticket_number').attr('disabled', true)
                                 showInfoSection();
                                 showOtherInfoSection();
                                 showCancelButton();
@@ -359,7 +385,7 @@ $(document).ready(function () {
                 },
             });
         }
-            //Saving Anomalie
+        //Saving Anomalie
         else {
 
             if ($("#other_info").is(':hidden')) { // if ticket exists

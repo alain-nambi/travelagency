@@ -258,9 +258,17 @@ def verif_ticket(request):
                     verif= 'is_no_adc'
                 if ticket.is_no_adc == True and ticket.total == 0:
                     verif= 'is_no_adc'
-            else:
+            elif ticket.pnr_id == pnr_id and ticket.total > 0:
+                verif = 'ticket_already_exist'
                 # ticket existant mais pour un autre pnr
-                verif = 'pnr'
+            else:
+                if ticket.pnr_id:
+                    verif = {
+                        'exist': True,
+                        'pnr': ticket.pnr.number,
+                    }
+                else: 
+                    verif = 'pnr'
 
         
     return JsonResponse({'verif': verif})
@@ -384,7 +392,7 @@ def save_ticket_anomalie(request):
         anomalie_id = anomalie.id
         response_data = {'status':'ok','anomalie_id':anomalie_id}
 
-        if user.role.id == 1:
+        if user.role.id in [1, 2]:
             response_data['accept'] = True
         else:
             response_data['accept'] = False

@@ -662,6 +662,26 @@ def get_canceled_ticket_detail(request,pnr_id):
 
     return render(request,'ticket_canceled/ticket_details.html',context)
 
+# ------------ transform a list of queryset to table specialy for the canceled ticket search
+@login_required(login_url="index")
+def get_data_ticket_from_query_set(request,search_results):
+    results = []
+    for canceled_ticket in search_results:
+        
+        values = {}
+        values['pnr_id'] = canceled_ticket.pnr.id
+        values['pnr_number'] = canceled_ticket.pnr.number
+        if canceled_ticket.ticket:
+            values['ticket_number'] = canceled_ticket.ticket.number
+        else:
+            values['other_fee'] = canceled_ticket.other_fee.designation
+        values['motif'] = canceled_ticket.motif
+        values['date'] = canceled_ticket.date
+        values['issuing_user'] = canceled_ticket.issuing_user.username
+        results.append(values)
+    return results
+    
+# ------------------ recherche simple ------------------------------------------------
 @login_required(login_url="index")
 def canceled_ticket_research(request):
     context = {}
@@ -679,38 +699,23 @@ def canceled_ticket_research(request):
                 search_results.append(p1)
         print(search_results)
           
+        results = get_data_ticket_from_query_set(request,search_results)
         
-        results = []
-        for canceled_ticket in search_results:
-            
-            values = {}
-            values['pnr_id'] = canceled_ticket.pnr.id
-            values['pnr_number'] = canceled_ticket.pnr.number
-            if canceled_ticket.ticket:
-                values['ticket_number'] = canceled_ticket.ticket.number
-            else:
-                values['other_fee'] = canceled_ticket.other_fee.designation
-            values['motif'] = canceled_ticket.motif
-            values['date'] = canceled_ticket.date
-            values['issuing_user'] = canceled_ticket.issuing_user.username
-            results.append(values)
         ticket_count = len(results)
         
         context = {'results' : results, 'ticket_count' :  ticket_count}
     return JsonResponse(context)
   
+#-----------------------  filtre ( motif, date d'annulation, créateur) --------------------------------------------
 @login_required(login_url='index')
 def canceled_ticket_filter(request):
     context ={}
     search_results = []
     if request.method == 'POST':
         try:
-            print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+            
             filtre = request.POST.get('filter')
             data_search = request.POST.get('data_search')
-            print(filtre)
-            print(data_search)
-
             if filtre == 'motif':
                 canceled_tickets = TicketCanceled.objects.filter(motif__icontains=data_search).all()
 
@@ -724,23 +729,8 @@ def canceled_ticket_filter(request):
                 print(canceled_tickets)
                 for ticket in canceled_tickets :
                     search_results.append(ticket)
-          
         
-                results = []
-                for canceled_ticket in search_results:
-                    
-                    values = {}
-                    values['pnr_id'] = canceled_ticket.pnr.id
-                    values['pnr_number'] = canceled_ticket.pnr.number
-                    if canceled_ticket.ticket:
-                        values['ticket_number'] = canceled_ticket.ticket.number
-                    else:
-                        values['other_fee'] = canceled_ticket.other_fee.designation
-                    values['motif'] = canceled_ticket.motif
-                    values['date'] = canceled_ticket.date
-                    values['issuing_user'] = canceled_ticket.issuing_user.username
-                    results.append(values)
-
+                results = get_data_ticket_from_query_set(request,search_results)
                 context['status'] = 200
                 context['results'] = results
             else:
@@ -752,3 +742,82 @@ def canceled_ticket_filter(request):
 
 
     return JsonResponse(context)
+
+# --------------------------- recherche multi-critère (date, motif, créateur) ------------------------------------------
+@login_required(login_url='index')
+def canceled_ticket_advanced_search(request):
+    context ={}
+    search_results = []
+    if request.method == 'POST':
+        try:
+            print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+            date = request.POST.get('date')
+            motif = request.POST.get('motif')
+            createur = request.POST.get('createur')
+
+            print('motif : ', motif)
+            print('date : ', date)
+            print('createur : ', createur)
+
+
+            filter_conditions = {}
+
+            # Ajouter les conditions de filtre pour les variables non-None
+            if date is not None and date != "":
+                filter_conditions['date'] = date
+                print('date is not none')
+            if motif is not None and motif != "":
+                filter_conditions['motif__icontains'] = motif
+                print('motif is not none')
+            if createur is not None and createur != "":
+                filter_conditions['issuing_user__id'] = createur
+                print('createur is not none')
+
+            # Créer un objet Q pour combiner les conditions de filtre
+            query_filter = Q(**filter_conditions)
+
+            # Exécuter la requête avec les conditions de filtre
+            canceled_tickets = TicketCanceled.objects.filter(query_filter).all()
+                
+
+            if canceled_tickets.exists():
+                print(canceled_tickets)
+                for ticket in canceled_tickets :
+                    search_results.append(ticket)
+                    print(ticket)
+        
+                results = get_data_ticket_from_query_set(request,search_results)
+                context['status'] = 200
+                context['results'] = results
+            else:
+                context['status'] = 404
+                context['message'] = 'Aucun résultat trouvé.'
+        except:
+            context['status'] = 100
+            context['message'] = "Une erreur s'est produite."
+
+
+    return JsonResponse(context)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

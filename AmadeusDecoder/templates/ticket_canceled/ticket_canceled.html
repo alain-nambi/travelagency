@@ -10,7 +10,7 @@
           <div class="card card-primary card-outline content-all-pnr" id="pnrManagementMenu">
             <!-- /.card-header -->
             <div class="card-header justify-content-between py-0">
-              <div class="row align-items-center">
+              <div class="row align-items-center" style="margin:10px 0 10px 0;">
                 <div class="col-md-2 float-left">
                 <h4 class="text-primary title-all-pnr mt-1 mb-0">Billets annulés</h4>
                 </div>
@@ -140,6 +140,12 @@
                         </button>
                       </div>
                     </div>
+
+                    <div class="col-md-4 mt-1 mb-1" style="margin-left:50px;">
+                      <button class="btn btn-outline-primary btn-sm" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                        Recherche avancée
+                      </button>
+                    </div>
                 
                     
                   </div>
@@ -147,6 +153,51 @@
               </div>
             </div>
             <div class="card-body p-0" id="showTableForAllPnr">
+
+                  <div class="collapse flex-row-reverse" id="collapseExample">
+                      <div class="row" style="margin: 20px 0 0 90px;">
+                        <div class="col-md-4">
+                          <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">Date d'annulation</label>
+                            </div>
+                            <input type="date" class="form-control" id="cancellationDateInput" aria-describedby="basic-addon3">
+                          </div>
+                        </div>
+                        
+                        <div class="col-md-3">
+                          <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">Motif</label>
+                            </div>
+                            <input type="text" class="form-control" id="MotifInput" aria-describedby="basic-addon3">
+                          </div>
+                        </div>
+                        
+                        <div class="col-md-3">
+                          <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text" for="inputGroupSelect01">Créateur</label>
+                            </div>
+                            <select class="custom-select" id="CreatorSelector">
+                              <option></option>
+                              {% for user in issuing_users %}
+                                <option value={{user.id}}>{{user.username}}</option>
+                              {% endfor %}
+                              
+                            </select>
+                          </div>
+                        </div>
+
+                        <div class="col-md-2">
+                          <button class="btn btn-success" type="button" id="CanceledTicketAdvancedSearch">
+                            Rechercher
+                          </button>
+                        </div>
+                      </div>
+                      
+                  </div>
+
               <table class="table table-bordered table-head-fixed table-hover text-nowrap" id="all-canceled-ticket" style="margin-top:2rem;">
                 <thead id="thead-all-pnr">
 

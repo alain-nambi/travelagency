@@ -119,5 +119,6 @@ urlpatterns = [
     path('anomaly/canceled-ticket-detail/<int:pnr_id>',get_canceled_ticket_detail,name="get_canceled_ticket_detail"),
     path('home/canceled-ticket-research', canceled_ticket_research, name= 'canceled_ticket_research'),
     path('home/canceled-ticket-filter', canceled_ticket_filter, name= 'canceled_ticket_filter'),
+    path('home/canceled-ticket-advanced-research', canceled_ticket_advanced_search, name= 'canceled_ticket_advanced_search'),
 
 ]

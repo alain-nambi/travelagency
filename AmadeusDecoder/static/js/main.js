@@ -4627,27 +4627,57 @@ $.ajax({
 });
 
 $(document).ready(function() {
-  $('#ExcelUploadPnrList').click(function(){
-    console.log("excel upload");
-    const pnr_list = JSON.parse(localStorage.getItem('pnrIds'));
-    console.log(pnr_list);
+  ExcelUploadPnrList.addEventListener("click", async () => {
+    // Récupérer les données depuis le stockage local avec la clé "pnrIds"
+    const data = localStorage.getItem("pnrIds");
+
+    // Convertir les données JSON en objet JavaScript
+    const pnr_list = JSON.parse(data);
+
+    // Envoyer les données au serveur via une requête AJAX
     $.ajax({
-      type: "POST",
-      url: "/pnr/list/to/excel",
-      dataType: "json",
+      type: 'POST',
+      url: '/pnr/list/to/excel',
+      dataType: 'json',
       data: {
-          pnr_list : JSON.stringify(pnr_list),
-          csrfmiddlewaretoken: csrftoken,
+        pnr_list: JSON.stringify(pnr_list),
+        csrfmiddlewaretoken: csrftoken
       },
-      success: function (response) {
-        console.log("Success: ", response);
-            
-      },
-      error: function(error){
-        console.log(error);
+      success: async function(data) {
+        const XLSX = await import("https://cdn.sheetjs.com/xlsx-0.19.2/package/xlsx.mjs");
+
+        const workbook = XLSX.utils.book_new();
+
+        // Créer une feuille de calcul vide
+        const worksheet = XLSX.utils.aoa_to_sheet([]);
+
+        // Ajouter les en-têtes de colonne
+        const header = ["Numéro", "Passagerd", "Client","Date de création","Date d'émission","Montant","Statut","OPC","Type","Créateur","Emetteur","Agence","Code"];
+        XLSX.utils.sheet_add_aoa(worksheet, [header]);
+
+        // Ajouter les données
+        data.results.forEach((pnr, index) => {
+          const rowIndex = index + 1; // Décalage pour inclure les en-têtes
+          Object.keys(pnr).forEach((key, columnIndex) => {
+            XLSX.utils.sheet_add_aoa(worksheet, [[pnr[key]]], { origin: { r: rowIndex, c: columnIndex } });
+          });
+        });
+
+        // Ajouter la feuille au classeur
+        XLSX.utils.book_append_sheet(workbook, worksheet, "PNR List");
+
+        // Écrire le classeur dans un fichier
+        XLSX.writeFile(workbook, "PNR_List.xlsx", { compression: true });
       }
     });
   });
 });
+
+
+
+
+
+
+
 
 

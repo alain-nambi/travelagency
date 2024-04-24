@@ -5,13 +5,114 @@ $('#other_info').hide();
 $('#info').hide();
 $('#Erreur').hide();
 $('#fee').hide();
+$('#comment-ticket-cancel-button').hide();
 
-$('#comment-ticket').on('click', function (e) {
+$('#comment-ticket').on('click', ()=> {
+    // lister les billet non affichés dans la page pnr-detail
+    var container = document.getElementById("list-ticket");
+    var pnrIdDiv = document.getElementById("pnr_id");
+    var pnr_id = pnrIdDiv.getAttribute("data-id");
+    get_unshowed_ticket(pnr_id,container)
+    $('#comment-ticket-next-button').hide();
     $('#comment-form').hide();
-    $('#comment-ticket-form').show();
-    VerifTicketLength()
-    $('#ticket_number').val("")
+    $('#comment-ticket').hide();  
 })
+
+function createButton(container, ticketNumber) {
+    // Créer un bouton correspondant à un billet
+    var button = document.createElement("button");
+    button.className = 'btn btn-info';
+    button.innerHTML = ticketNumber;
+    button.style.margin = '20px 10px 10px 0';
+    
+
+    button.addEventListener("click", function () {
+        // Afficher les champs numero du billet, montant hors taxe et taxe
+
+        showTicketInput();
+
+        $('#info').show();
+        $('#comment-ticket-next-button').show();
+
+        $('#ticket_number').val(ticketNumber);
+        // Afficher le bouton annuler
+        $('#comment-ticket-cancel-button').show();
+        
+        var Boutton = $('#comment-ticket-next-button');
+        Boutton.prop('disabled', false);
+        
+    });
+    container.appendChild(button);
+}
+
+// Hide ticket input
+function hideTicketInput(){
+    var ticket_input = document.querySelector('#ticket_input');
+    ticket_input.hidden = true;
+}
+
+// show ticket input
+function showTicketInput(){
+    var ticket_input = document.querySelector('#ticket_input');
+    ticket_input.hidden = false;
+}
+
+// Hide InfoSection
+function hideInfoSection() {
+    $('#info').hide();
+}
+
+// Show Cancel Button
+function showCancelButton(){
+    $('#comment-ticket-cancel-button').show();
+}
+
+// Fonction pour montrer la section d'autres informations
+function hideOtherInfoSection() {
+    $('#other_info').hide();
+}
+
+function get_unshowed_ticket(pnr_id,container){
+    $.ajax({
+        type: "POST",
+        url: "/comment/get-unshowed-tickets",
+        dataType: 'json',
+        data : {
+            pnr_id : pnr_id,
+            csrfmiddlewaretoken : csrftoken
+        },
+        success : function(data){
+            if(data.status = 200){
+                $('#comment-ticket-form').show();
+
+                // Ajouter un titre au modal
+                var title = document.createElement("h3");
+                title.innerHTML = "Billets non remonté";
+                title.style.margin = '10px 0 0 0';
+                container.appendChild(title);
+
+                // créer les boutons correspondants au billets
+                data.tickets.forEach((ticket)=>{
+                    createButton(container,ticket.number)
+                })
+
+                // Ajouter un bouton pour un nouveau billet
+                var new_ticket_button = document.createElement("button");
+                new_ticket_button.className = 'btn btn-success';
+                new_ticket_button.innerHTML = 'Nouveau Billet';
+                new_ticket_button.style.margin = '20px 10px 10px 0';
+                new_ticket_button.addEventListener("click", function(){
+                    // Don't allow to modify ticket number
+                    $('#ticket_number').removeAttr('disabled')
+                    showTicketInput();
+                    $('#ticket_number').val('');
+                    $('#comment-ticket-next-button').show();
+                });
+                container.appendChild(new_ticket_button);
+            }
+        },
+    });
+}
 
 // ---------------------- verif ticket Value
 $(document).ready(function () {
@@ -32,8 +133,8 @@ $(document).ready(function () {
         var inputValue = $(this).val();
 
         // Seulement pour les remboursements à remonter
-        // var sanitizedValue = inputValue.replace(/[^0-9-]/g, '');
-        // $(this).val(sanitizedValue);
+        var sanitizedValue = inputValue.replace(/[^0-9-]/g, '');
+        $(this).val(sanitizedValue);
 
         $('#comment-ticket').attr("disabled", true);
 
@@ -41,7 +142,7 @@ $(document).ready(function () {
     });
 
     $('#modal-constat').on('shown.bs.modal', function () {
-        VerifTicketValue();
+        // VerifTicketValue();
     });
 
     $('#comment-ticket-next-button').on('click', function () {
@@ -139,8 +240,8 @@ $(document).ready(function () {
             } else {
                 // Le format est incorrect, nettoyer la valeur
                 // à décommenter lorsque les remboursements sont remontées
-                // var sanitizedValue = inputValue.replace(/[^0-9,.]/g, '');
-                // $(this).val(sanitizedValue);
+                var sanitizedValue = inputValue.replace(/[^0-9,.]/g, '');
+                $(this).val(sanitizedValue);
             }
         });        
         
@@ -163,22 +264,48 @@ $(document).ready(function () {
         if ($('#info').is(':hidden')) {
             var ticketNumber = $("#ticket_number").val();
 
+            let index = ticketNumber.indexOf('-');
+
+            console.log(ticketNumber.length);
+
+            if (index !== -1) {
+                if (!/^\d+$/.test(ticketNumber[index + 1]) || ticketNumber.length < 16) {
+                    ticketNumber = ticketNumber.slice(0, 13)
+                    $("#ticket_number").val(ticketNumber)
+                }
+            }
+
+            console.log("Modified Ticket Number");
+            console.log(ticketNumber);
+
             $.ajax({
                 type: "POST",
                 url: "/home/verif/ticket",
                 dataType: "json",
                 data: {
                     ticket_number: ticketNumber,
+                    pnr_id:pnr_id,
                     csrfmiddlewaretoken: csrftoken,
                 },
                 success: function (data) {
                     let result = data.verif;
 
                     if (result === 'True') { // if ticket exists
+                        // Don't allow to modify ticket number
+                        $('#ticket_number').attr('disabled', true)
                         showInfoSection();
                     } if (result === 'is_no_adc'){
-                        toastr.error('Ticket Is no adc')
+                        toastr.info('Ticket Is no adc')
                     } 
+                    if(result === 'pnr'){
+                        toastr.info("Billet d'un autre PNR")
+                    }
+                    if (result === 'ticket_already_exist') {
+                        toastr.info('Ce billet est déja remonté sur ce PNR courant')
+                    }
+                    if (result.exist === true) {
+                        toastr.info(`Ce billet est déja présent dans le PNR ${result.pnr}`)
+                    }
                     if (result === 'False') { // if ticket does not exist
                         $.ajax({
                             type: "POST",
@@ -247,15 +374,18 @@ $(document).ready(function () {
                                 } else {
                                     console.log('Error......');
                                 }
+                                // Don't allow to modify ticket number
+                                $('#ticket_number').attr('disabled', true)
                                 showInfoSection();
                                 showOtherInfoSection();
+                                showCancelButton();
                             }
                         });
                     }
                 },
             });
         }
-            //Saving Anomalie
+        //Saving Anomalie
         else {
 
             if ($("#other_info").is(':hidden')) { // if ticket exists
@@ -277,9 +407,15 @@ $(document).ready(function () {
                         csrfmiddlewaretoken: csrftoken,
                     },
                     success: function (data) {
-
+                        console.log(data);
                         if (data.status == 'ok') {
-                            accept_anomaly(data.anomalie_id)
+                            if(data.accept == true){
+                                accept_anomaly(data.anomalie_id)
+                            }
+                            else{
+                                toastr.success('Demande envoyée avec succes')
+                            }
+                            
                             $('#modal-constat').hide();
                             setTimeout(() => {
                                 location.reload();
@@ -296,7 +432,14 @@ $(document).ready(function () {
                 var taxe = $('#taxe').val();
                 var user_id = $('#user_id').val();
                 var passenger_id = $('#selectPassenger').val();
-                let segment = [];
+                var segment ;
+
+                if($('#selectSegment').is(":hidden") ){
+                    segment = [];
+                }
+                else{
+                    segment = document.querySelector('#selectSegment').getSelectedOptions();
+                }
 
                 try {
                     if (document.querySelector('#selectSegment').getSelectedOptions()) {
@@ -342,9 +485,14 @@ $(document).ready(function () {
                         csrfmiddlewaretoken: csrftoken,
                     },
                     success: function (data) {
-                        
+                        console.log(data);
                         if (data.status == 'ok') {
-                            accept_anomaly(data.anomalie_id)
+                            if(data.accept == true){
+                                accept_anomaly(data.anomalie_id)
+                            }
+                            else{
+                                toastr.success('Demande envoyée avec succes')
+                            }
                             $('#modal-constat').hide();
                             setTimeout(() => {
                                 location.reload();
@@ -368,6 +516,20 @@ $(document).ready(function () {
         function showOtherInfoSection() {
             $('#other_info').show();
         }
+
+        
+    });
+
+    
+
+    $('#comment-ticket-cancel-button').on('click', function (){
+        hideTicketInput();
+        hideInfoSection();
+        hideOtherInfoSection();
+        $('#comment-ticket-cancel-button').hide();
+        $('#comment-ticket-next-button').hide();
+        var Boutton = $('#comment-ticket-next-button');
+        Boutton.prop('disabled', true);
     });
 });
 

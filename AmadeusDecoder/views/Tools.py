@@ -10,12 +10,73 @@ import time
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+
 import requests
 from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
 from AmadeusDecoder.models.pnr.Pnr import Pnr
+from AmadeusDecoder.models.invoice.Ticket import Ticket
+from AmadeusDecoder.models.invoice.Fee import Fee, OthersFee
 
 from AmadeusDecoder.utilities.ProductImportParser import ProductParser, CustomerParser
 from AmadeusDecoder.models.configuration.Configuration import Configuration
+from AmadeusDecoder.models.invoice.CancelSaleOrder import CancelSaleOrder
+
+@csrf_exempt
+def cancel_order_sale_from_odoo(request):
+    if request.method == 'POST':
+        pnr_number = request.POST.get('pnr_number')
+        invoice_number = request.POST.get('invoice_number')
+        agent = request.POST.get('agent')
+        client = request.POST.get('client')
+        
+        if pnr_number is not None and invoice_number is not None:
+            try:
+                pnr = Pnr.objects.get(number=pnr_number)
+                passenger_invoices = PassengerInvoice.objects.filter(pnr_id=pnr.id, invoice_number=invoice_number).all()
+                
+                if passenger_invoices:
+                    for passenger_invoice in passenger_invoices:
+                        # Supprimer la facture passager correspondante si elle existe
+                        PassengerInvoice.objects.filter(id=passenger_invoice.id).delete()
+                        
+                        if passenger_invoice.ticket_id:
+                            # Supprimer le billet correspondant s'il existe
+                            Ticket.objects.filter(id=passenger_invoice.ticket_id).update(is_invoiced=False)
+                        
+                        if passenger_invoice.fee_id:
+                            # Supprimer les frais correspondants s'ils existent
+                            Fee.objects.filter(id=passenger_invoice.fee_id).update(is_invoiced=False)
+                            
+                        if passenger_invoice.other_fee_id:
+                            # Supprimer les autres frais correspondants s'ils existent
+                            OthersFee.objects.filter(id=passenger_invoice.other_fee_id).update(is_invoiced=False)
+                            
+                    
+                        print("HELLO")
+                        print(passenger_invoice.client, passenger_invoice.ticket, passenger_invoice.fee)    
+                        
+                        cancel_sale_order = CancelSaleOrder(
+                                                pnr=pnr,
+                                                client=passenger_invoice.client,
+                                                agent=agent,
+                                                ticket=passenger_invoice.ticket,
+                                                fee=passenger_invoice.fee,
+                                                other_fee=passenger_invoice.other_fee,
+                                                invoice_number=invoice_number
+                                            )
+                        
+                        cancel_sale_order.save()                            
+                    
+                    return JsonResponse({'status': 'ok', 'message': f'PNR {pnr_number} a été décommandé sur gestion PNR'}, status=200)
+            except Pnr.DoesNotExist:
+                return JsonResponse({'message': 'Numéro de PNR introuvable'}, status=404)
+            except PassengerInvoice.DoesNotExist:
+                return JsonResponse({'message': 'Numéro de facture introuvable'}, status=404)
+        else:
+            return JsonResponse({'message': 'Numéro de PNR ou de facture non fourni'}, status=400)
+    else:
+        return JsonResponse({'message': 'Seules les requêtes POST sont autorisées'}, status=405)
 
 @login_required(login_url='index')
 def tools(request):  

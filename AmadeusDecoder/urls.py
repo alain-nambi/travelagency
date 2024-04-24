@@ -59,6 +59,7 @@ urlpatterns = [
     path('home/get-all-products/', get_all_products, name='get_all_products'),
     path('home/get-invoice-number-to-uncommand/<str:numeroPnr>', get_invoice_number, name='get_invoice_number'),
     path('home/unorder-pnr',unorder_pnr, name='unorder_pnr'),
+    path('home/cancel-order-sale-from-odoo/', cancel_order_sale_from_odoo, name='cancel_order_sale_from_odoo'),
     path('home/get-all-pnr-unordered',get_all_pnr_unordered, name='get_all_pnr_unordered'),
     path('home/unordered-pnr-research', unordered_pnr_research, name= 'unordered_pnr_research'),
     path('home/verif/ticket', verif_ticket, name= 'verif_ticket'),

@@ -34,7 +34,7 @@ from django.db.models.functions import Lower, ExtractYear
 from openpyxl import Workbook
 from openpyxl.styles import *
 import decimal
-
+from datetime import datetime, timedelta
 
 @login_required(login_url='index')
 def tools(request):  
@@ -580,6 +580,10 @@ def graph_view(request):
     context['all_data'] = get_destination_by_month(request)
     context['all_data_origin'] = get_origin_by_month(request)
     context['all_data_airline'] = get_stat_airlines(request)
+    total_pnr_for_week = get_total_pnr_for_week()
+    context['all_pnr_count'] = total_pnr_for_week['all_pnr_count']
+    context['last_week_pnr_count'] = total_pnr_for_week['last_week_pnr_count']
+
     
     return render(request, 'stat.html', context)  
 
@@ -686,3 +690,41 @@ def get_passenger_by_age(request):
     
 
     return data
+
+# get all the date of the week of a specific date
+def get_all_date_of_the_week(date):
+    
+    # Calculer le début et la fin de la semaine
+    debut_semaine = date - timedelta(days=date.weekday())
+    # fin_semaine = debut_semaine + timedelta(days=6)
+
+    # Afficher les dates de tous les jours de la semaine
+    dates_semaine = [debut_semaine + timedelta(days=i) for i in range(7)]
+
+    return dates_semaine
+
+
+# get the total of pnr for the week and the week before 
+def get_total_pnr_for_week():
+    context = {}
+    aujourdhui = datetime.today().date()
+    all_week_date = [date.strftime('%Y-%m-%d') for date in get_all_date_of_the_week(aujourdhui)]
+
+    last_week = aujourdhui - timedelta(days=(aujourdhui.weekday() + 6))
+    print('last_week : ', last_week)
+    all_last_week_date = [date.strftime('%Y-%m-%d') for date in get_all_date_of_the_week(last_week)]
+
+
+    print('this week : ', all_week_date)
+    print('last week all date: ', all_last_week_date)
+
+    all_pnr_count = Pnr.objects.filter(system_creation_date__date__in=all_week_date).count()
+    last_week_pnr_count = Pnr.objects.filter(system_creation_date__date__in=all_last_week_date).count()
+
+    context['all_pnr_count'] = all_pnr_count
+    context['last_week_pnr_count'] = last_week_pnr_count
+
+    return context
+
+    
+

@@ -703,7 +703,7 @@ def canceled_ticket_research(request):
         
         ticket_count = len(results)
         
-        context = {'results' : results, 'ticket_count' :  ticket_count}
+        context = {'results' : results, 'ticket_count' :  ticket_count, 'searchTitle' : ticket_research}
     return JsonResponse(context)
   
 #-----------------------  filtre ( motif, date d'annulation, créateur) --------------------------------------------
@@ -716,14 +716,18 @@ def canceled_ticket_filter(request):
             
             filtre = request.POST.get('filter')
             data_search = request.POST.get('data_search')
+            title = ""
             if filtre == 'motif':
                 canceled_tickets = TicketCanceled.objects.filter(motif__icontains=data_search).all()
+                title += " motif - "+data_search
 
             if filtre == 'date':
                 canceled_tickets = TicketCanceled.objects.filter(date=data_search).all()
+                title += " date - "+data_search
 
             if filtre == 'creator':
                 canceled_tickets = TicketCanceled.objects.filter(issuing_user__id=data_search).all()
+                title += " créateur - "+ User.objects.get(pk=data_search).username
 
             if canceled_tickets.exists():
                 print(canceled_tickets)
@@ -733,6 +737,7 @@ def canceled_ticket_filter(request):
                 results = get_data_ticket_from_query_set(request,search_results)
                 context['status'] = 200
                 context['results'] = results
+                context['searchTitle'] = title
             else:
                 context['status'] = 404
                 context['message'] = 'Aucun résultat trouvé.'
@@ -761,17 +766,18 @@ def canceled_ticket_advanced_search(request):
 
 
             filter_conditions = {}
+            title = ""
 
             # Ajouter les conditions de filtre pour les variables non-None
             if date is not None and date != "":
                 filter_conditions['date'] = date
-                print('date is not none')
+                title = " date - "+ date
             if motif is not None and motif != "":
                 filter_conditions['motif__icontains'] = motif
-                print('motif is not none')
+                title += " motif - " + motif
             if createur is not None and createur != "":
                 filter_conditions['issuing_user__id'] = createur
-                print('createur is not none')
+                title += " créateur - "+ User.objects.get(pk=createur).username
 
             # Créer un objet Q pour combiner les conditions de filtre
             query_filter = Q(**filter_conditions)
@@ -789,6 +795,7 @@ def canceled_ticket_advanced_search(request):
                 results = get_data_ticket_from_query_set(request,search_results)
                 context['status'] = 200
                 context['results'] = results
+                context['searchTitle'] = title
             else:
                 context['status'] = 404
                 context['message'] = 'Aucun résultat trouvé.'

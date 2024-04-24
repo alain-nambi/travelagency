@@ -45,7 +45,7 @@
         {% with tst_config_length=tst_config|length %}
             {% if tst_state == "complet" or tst_config_length >= 10 %}
                 
-                {% for config in zenith_config|slice:'10:21' %}
+                
                     <div class="card " style="width: 38rem;height:auto; margin:0 120px 15px 20px;">
                         
                         <div class="card-header-tools-identifiant">
@@ -62,7 +62,7 @@
                                     <th scope="col" style="background: #fff !important;color: #000 !important;">Valeur</th>
                                 </tr>
                                 </thead>
-
+                                {% for config in zenith_config|slice:'10:21' %}
                                 <tbody>
                                     {% if config.value_name == "Itinerary header possible format" %}
                                         <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_of_array_value}}" style="cursor: pointer;" class="trModalInsert">
@@ -90,11 +90,12 @@
                                     {% endif %}
                                 
                                 </tbody>
+                                {% endfor %}
                             </table>
                         </div>
 
                     </div>
-                {% endfor %}
+                
             {% endif %}
         {% endwith %}
         
@@ -104,7 +105,7 @@
         {% with tst_config_length=tst_config|length %}
             {% if tst_state == "complet" or tst_config_length >= 20 %}
                 
-                {% for config in zenith_config|slice:'21:' %}
+                
                     <div class="card " style="width: 38rem;height:auto; margin:0 120px 15px 20px;">
                         
                         <div class="card-header-tools-identifiant">
@@ -121,7 +122,7 @@
                                     <th scope="col" style="background: #fff !important;color: #000 !important;">Valeur</th>
                                 </tr>
                                 </thead>
-
+                                {% for config in zenith_config|slice:'21:' %}
                                 <tbody>
                                     {% if config.value_name == "Itinerary header possible format" %}
                                         <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_of_array_value}}" style="cursor: pointer;" class="trModalInsert">
@@ -149,11 +150,12 @@
                                     {% endif %}
                                 
                                 </tbody>
+                                {% endfor %}
                             </table>
                         </div>
 
                     </div>
-                {% endfor %}
+                
             {% endif %}
         {% endwith %}
 

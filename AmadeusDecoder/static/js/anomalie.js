@@ -802,6 +802,18 @@ function searchCanceledTicketFunction() {
                 $("#all-canceled-ticket-after-search").html(html).trigger("update");
               },
             };
+
+            //  add a title
+            var content = document.querySelector('#SearchTitle');
+            var existingTitle = document.getElementById('titleSearch');
+            if (existingTitle) {
+                // Supprimer l'élément existant s'il est trouvé
+                content.removeChild(existingTitle);
+            }
+            var title = document.createElement("h4");
+            title.textContent = "Résultat de la recherche : "+ data.searchTitle;
+            title.id = "titleSearch";
+            content.appendChild(title);
   
             $("#pagination").pagination(options); // Initialisation de la pagination avec les options définies
   
@@ -906,6 +918,17 @@ function filterFunction(filter,data_search){
                         $("#all-canceled-ticket-after-search").html(html).trigger("update");
                     },
                     };
+
+                    var content = document.querySelector('#SearchTitle');
+                    var existingTitle = document.getElementById('titleSearch');
+                    if (existingTitle) {
+                        // Supprimer l'élément existant s'il est trouvé
+                        content.removeChild(existingTitle);
+                    }
+                    var title = document.createElement("h4");
+                    title.textContent = "Résultat de la recherche : "+ data.searchTitle;
+                    title.id = "titleSearch";
+                    content.appendChild(title);
         
                     $("#pagination").pagination(options); // Initialisation de la pagination avec les options définies
         
@@ -929,28 +952,34 @@ $('#buttonFilterByCancellationDate').on('click', () =>{
     filter = 'date'
     data_search = $('#cancelationDatInput').val();
     filterFunction(filter,data_search);
+    CloseCanceledTicketFilter();
 })
 
 $('#buttonFilterByMotif').on('click', () =>{
     filter = 'motif'
     data_search = $('#MotifFilterInput').val();
     filterFunction(filter,data_search);
+    CloseCanceledTicketFilter();
 })
 
 $('#buttonFilterByCreator').on('click', () =>{
     filter = 'creator'
     data_search = $('#FilterCreatorSelect').val();
     filterFunction(filter,data_search);
+    CloseCanceledTicketFilter();
 })
 
 // close filter
 $('#CloseCanceledTicketFilter').on('click', () => {
+    CloseCanceledTicketFilter();
+});
+
+function CloseCanceledTicketFilter(){
     $('.wrapper-menu-filter').hide();
     $('.pnr-menu').hide();
     $('.creator-group-menu ').hide();
     $('.date-range-menu').hide();
-
-});
+}
 
 // Recherche avancée billets annulés
 
@@ -1050,6 +1079,18 @@ function TicketAdvancedSearch(date,motif,createur){
                         $("#all-canceled-ticket-after-search").html(html).trigger("update");
                     },
                     };
+
+                    // Add a title
+                    var content = document.querySelector('#SearchTitle');
+                    var existingTitle = document.getElementById('titleSearch');
+                    if (existingTitle) {
+                        // Supprimer l'élément existant s'il est trouvé
+                        content.removeChild(existingTitle);
+                    }
+                    var title = document.createElement("h4");
+                    title.textContent = "Résultat de la recherche : "+ data.searchTitle;
+                    title.id = "titleSearch";
+                    content.appendChild(title);
         
                     $("#pagination").pagination(options); // Initialisation de la pagination avec les options définies
         

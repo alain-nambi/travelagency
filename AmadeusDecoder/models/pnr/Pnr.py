@@ -173,20 +173,43 @@ class Pnr(models.Model, BaseModel):
                 error_file.write('\n')
             print(e)
             
+    def update_agency_name(self, agency_name):
+        # Mettre à jour le nom de l'agence
+        pnr = Pnr.objects.get(pk=self.id)
+        pnr.agency_name = agency_name
+        pnr.save()
+        
+    def get_agency_name(self, issuing_office):
+        if issuing_office is not None:
+            # print(f"** {issuing_office} **")
+            agency_name = issuing_office.issuing_agency_name
+            # print(agency_name)
+            
+            if agency_name:
+                self.update_agency_name(agency_name)
+                return agency_name
+        return None
+            
     # get PNR issuing / creating office
     def get_pnr_office(self):
         try:
-            issuing_office_other_fee = OthersFee.objects.filter(Q(pnr=self) & (Q(other_fee_status=1) | Q(is_invoiced=True))).exclude(issuing_agency_name=None).last()
-            issuing_office_ticket= Ticket.objects.filter(Q(pnr=self) & (Q(ticket_status=1) | Q(is_invoiced=True))).exclude(issuing_agency_name=None).last()
-            if issuing_office_ticket is not None:
-                return issuing_office_ticket.issuing_agency_name
-            elif issuing_office_other_fee is not None:
-                return issuing_office_other_fee.issuing_agency_name
-            else:
-                if self.agency is not None:
-                    return self.agency.name
-                else:
-                    return self.agency_name
+            issuing_office_other_fee =  OthersFee.objects.filter(
+                                            Q(pnr=self) & (Q(other_fee_status=1) | Q(is_invoiced=True))
+                                        ).exclude(issuing_agency_name=None).exclude(issuing_agency_name__icontains='web').last()
+            
+            issuing_office_ticket = Ticket.objects.filter(
+                                        Q(pnr=self) & (Q(ticket_status=1) | Q(is_invoiced=True))
+                                    ).exclude(issuing_agency_name=None).exclude(issuing_agency_name__icontains='web').last()
+            
+            agency_name = self.get_agency_name(issuing_office_ticket)
+            if agency_name:
+                return agency_name
+
+            agency_name = self.get_agency_name(issuing_office_other_fee)
+            if agency_name:
+                return agency_name
+
+            return self.agency.name if self.agency else self.agency_name
         except Exception as e:
             with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
                 error_file.write('{}: \n'.format(datetime.datetime.now()))

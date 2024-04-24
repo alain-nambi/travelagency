@@ -287,3 +287,28 @@ class Pnr(models.Model, BaseModel):
     def __str__(self):
         return str(self.number) + ' {}{}{}'.format('(', 'Zenith' if self.type == 'EWA' else self.type, ')')
         
+class UnremountedPnr(models.Model):
+    class Meta:
+        db_table = 't_unremouted_pnr'
+        
+    number = models.CharField(max_length=100, null=False)
+    type = models.CharField(max_length=20, null=False)
+    emitter = models.ForeignKey(
+        'AmadeusDecoder.User',
+        on_delete=models.CASCADE,
+    )
+
+    creation_date = models.DateTimeField(null=True)
+    passengers_data = HStoreField(null=False)
+    segments_data = HStoreField(null=False)
+    tickets_data = HStoreField(null=False)
+    state = models.IntegerField(default=0) # 0 en attente - 1 validé - 2 annulé - 3 supprimé
+
+
+
+
+
+
+
+
+

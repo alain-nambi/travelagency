@@ -651,10 +651,103 @@
                   </div>
                   <div class="modal-body">
                     <form method='POST'>
-                      <div class="form-group">
-                        <label for="message-text" class="col-form-label">Numero PNR:</label>
-                        <input type='text' class="form-control" id="messagePnrNotUpdated" placeholder="Veuillez saisir le numero du PNR..."></input>
+                      <div id="simple_info">
+                        <div class="row" style="justify-content:space-between;">
+                          <div class="form-group col-md-5">
+                            <label for="message-text" class="col-form-label">Numero PNR:</label>
+                            <input type='text' class="form-control" id="messagePnrNotUpdated" placeholder="Veuillez saisir le numero du PNR..."></input>
+                          </div>
+                          <div class="form-group col-md-5 " >
+                            <label for="message-text" class="col-form-label">Type</label>
+                            <select id="selectType" class="form-control form-control select-type ">
+                              <option value='altea'>Altéa</option>
+                              <option value='zenith'>Zénith</option>
+                            </select>
+                          </div>
+                        </div>
+                        
+                        <div class="row">
+                          <div class="form-group col-md-10">
+                            <label for="message-text" class="col-form-label">Passager(s)</label>
+                            <select id="selectType" class="form-control form-control select-type">
+                              <option value='altea'>...</option>
+                            </select>
+                          </div>
+                          <div class="col-md-2" style="margin-top:40px;"><i class="fa fa-plus-circle " aria-hidden="true" style="font-size: 20px;color:#007bff"></i></div>
+                        </div>
                       </div>
+                        <div>
+                          <button type="button" class="btn btn-outline-primary" id="addTicketButton">Ajouter des billets</button>
+                          <button type="button" class="btn btn-outline-success float-right">Enregistrer</button>
+                        </div>
+                        
+                      <div id="ticket_data" hidden>
+
+                        <div class="row" style="justify-content:space-between;">
+                          <div class="form-group col-md-5">
+                            <label for="message-text" class="col-form-label">Numéro du Billet</label>
+                            <input type='number' class="form-control" id="messagePnrNotUpdated" ></input>
+                          </div>
+                          <div class="form-group col-md-5">
+                            <label for="message-text" class="col-form-label">Type</label>
+                            <select id="selectType" class="form-control form-control select-type ">
+                              <option value='altea'>TKT</option>
+                              <option value='zenith'>EMD</option>
+                            </select>
+                          </div>
+                          
+                          <input type='hidden' name="user_id" value="{{user.id}}" class="form-control" id="user_id" >
+                        </div>
+
+                        <div class="row" style="justify-content:space-between;">
+                          <div class="form-group col-md-5">
+                            <label for="message-text" class="col-form-label">Montant Hors Taxe</label>
+                            <input type='number' class="form-control" id="messagePnrNotUpdated" ></input>
+                          </div>
+                          <div class="form-group col-md-5">
+                            <label for="message-text" class="col-form-label">Taxe</label>
+                            <input type='number' class="form-control" id="messagePnrNotUpdated" ></input>
+                          </div>
+                          
+                          <input type='hidden' name="user_id" value="{{user.id}}" class="form-control" id="user_id" >
+                        </div>
+
+                        <div class="form-group col-md-10">
+                          <label for="message-text" class="col-form-label">Passager(s)</label>
+                          <select id="selectType" class="form-control form-control select-type">
+                            <option value='altea'>...</option>
+                          </select>
+                        </div>
+
+                      </div>
+
+        
+                      <div hidden>
+                        <div>
+                          <label for="taxe" class="col-form-label">Type du Billet</label>
+                          <select id="selectType" class="form-control form-control select-type">
+                            <option value='TKT'>TKT</option>
+                            <option value='EMD'>EMD</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label id="fee">
+                            <input type="checkbox" id="feecheckbox" name="fee" >frais de service
+                          </label>
+                        </div>
+                        <div>
+                          <label for="selectPassenger" class="col-form-label">Passenger</label>
+                          <select id="selectPassenger" class="form-control form-control">
+                          </select>
+                        </div>
+                        <div>
+                          <label for="selectSegment" id="SegmentLabel" class="col-form-label">Segment</label>
+                          <br>
+                          <select id="selectSegment" multiple name="native-select" placeholder="Segment" data-search="false" data-silent-initial-value-set="true" >	
+                          </select>
+                        </div>
+                        
+                      </div> 
                     </form>
                   </div>
                   <div class="modal-footer">

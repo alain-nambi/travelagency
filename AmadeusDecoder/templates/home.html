@@ -650,7 +650,6 @@
                     </button>
                   </div>
                   <div class="modal-body">
-                    <form method='POST'>
                       <div id="simple_info">
                         <div class="row" style="justify-content:space-between;">
                           <div class="form-group col-md-5">
@@ -666,31 +665,84 @@
                           </div>
                         </div>
                         
-                        <div class="row">
-                          <div class="form-group col-md-10">
-                            <label for="message-text" class="col-form-label">Passager(s)</label>
-                            <select id="selectType" class="form-control form-control select-type">
-                              <option value='altea'>...</option>
-                            </select>
-                          </div>
-                          <div class="col-md-2" style="margin-top:40px;"><i class="fa fa-plus-circle " aria-hidden="true" style="font-size: 20px;color:#007bff"></i></div>
-                        </div>
+                      <div class="" id="ticketList" hidden>
+                        <h4>Liste des billets</h4>
+                        <table class="table table-striped">
+                          <thead>
+                            <tr>
+                              <th scope="col">Type</th>
+                              <th scope="col">Numéro</th>
+                              <th scope="col">Montant</th>
+                              <th scope="col">Taxe</th>
+                              <th scope="col"></th>
+
+                            </tr>
+                          </thead>
+                          <tbody>
+                            
+                          </tbody>
+                        </table>
                       </div>
-                        <div>
-                          <button type="button" class="btn btn-outline-primary" id="addTicketButton">Ajouter des billets</button>
-                          <button type="button" class="btn btn-outline-success float-right">Enregistrer</button>
-                        </div>
                         
-                      <div id="ticket_data" hidden>
+                      </div>
+
+                      <div id="collapsePassengerData" class="collapse" >
+                        <div>
+                          <h4>Ajouter un Passager</h4><br>
+                        </div>
+                        <div class="row" style="justify-content:space-between;">
+                          <div class="form-group col-md-5">
+                            <label for="message-text" class="col-form-label">Nom</label>
+                            <input type='text' class="form-control" id="PassengerName" ></input>
+                          </div>
+                          <div class="form-group col-md-5">
+                            <label for="message-text" class="col-form-label">Prénom</label>  
+                            <input type='text' class="form-control" id="PassengerSurname" ></input>
+                          </div>
+                          
+                        </div>
 
                         <div class="row" style="justify-content:space-between;">
                           <div class="form-group col-md-5">
-                            <label for="message-text" class="col-form-label">Numéro du Billet</label>
-                            <input type='number' class="form-control" id="messagePnrNotUpdated" ></input>
+                            <label for="message-text" class="col-form-label">Désignation</label>
+                            <input type='text' class="form-control" id="PasengerDesignation" ></input>
                           </div>
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Type</label>
-                            <select id="selectType" class="form-control form-control select-type ">
+                            <select id="PassengerType" class="form-control form-control select-type ">
+                              <option value='altea'>Adulte</option>
+                              <option value='zenith'>Enfant</option>
+                            </select>
+                          </div>
+                        </div>
+                          
+                        <div class="row" style="justify-content:space-between;">
+                          <div class="form-group col-md-5">
+                            <label for="message-text" class="col-form-label">Passeport</label>
+                            <input type='text' class="form-control" id="Passeport" ></input>
+                          </div>
+                          <div class="form-group col-md-5">
+                            <label for="message-text" class="col-form-label">Ordre</label>  
+                            <input type='text' class="form-control" id="PassengerOrder" ></input>
+                          </div>
+                          
+                        </div>
+
+                      </div>
+                        
+                        
+                      <div id="collapseTicketData" class="collapse" >
+                        <div>
+                          <h4>Ajouter un billet</h4><br>
+                        </div>
+                        <div class="row" style="justify-content:space-between;">
+                          <div class="form-group col-md-5">
+                            <label for="message-text" class="col-form-label">Numéro du Billet</label>
+                            <input type='number' class="form-control" id="ticketNumber" ></input>
+                          </div>
+                          <div class="form-group col-md-5">
+                            <label for="message-text" class="col-form-label">Type</label>
+                            <select id="ticketType" class="form-control form-control select-type ">
                               <option value='altea'>TKT</option>
                               <option value='zenith'>EMD</option>
                             </select>
@@ -702,57 +754,130 @@
                         <div class="row" style="justify-content:space-between;">
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Montant Hors Taxe</label>
-                            <input type='number' class="form-control" id="messagePnrNotUpdated" ></input>
+                            <input type='number' class="form-control" id="ticketCost" ></input>
                           </div>
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Taxe</label>
-                            <input type='number' class="form-control" id="messagePnrNotUpdated" ></input>
+                            <input type='number' class="form-control" id="ticketTax" ></input>
                           </div>
                           
                           <input type='hidden' name="user_id" value="{{user.id}}" class="form-control" id="user_id" >
                         </div>
 
-                        <div class="form-group col-md-10">
-                          <label for="message-text" class="col-form-label">Passager(s)</label>
-                          <select id="selectType" class="form-control form-control select-type">
-                            <option value='altea'>...</option>
-                          </select>
+                        <div class="row">
+                          <div class="form-group col-md-10">
+                            <label for="message-text" class="col-form-label">Passager(s)</label>
+                            <select id="passengerSelect" class="form-control form-control select-type ">
+                              <option value='altea'>...</option>
+                            </select>
+                          
+                          </div>
+                          <div class="col-md-2" style="margin-top:40px;">
+                            <i class="fa fa-plus-circle" id="AddPassengerButton" aria-hidden="true" style="font-size: 20px;color:#007bff"  data-toggle="collapse" data-target="#collapsePassengerData" aria-expanded="false" aria-controls="collapsePassengerData"></i>
+                          </div>
                         </div>
 
+                        <div class="row" id="addSegmentButtonDiv" style="justify-content:space-between;margin-left:4px;" hidden>
+                          <button type="button" class="btn btn-outline-primary" id="addSegmentButton" data-toggle="collapse" data-target="#collapseSegmentData" aria-expanded="false" aria-controls="collapseSegmentData">Ajouter des Segments</button>  
+                        </div>
+
+                        <div class="row" id="SelectSegmentDiv" style="justify-content:space-between;" hidden>
+                          <div class="form-group col-md-10">
+                            <label for="message-text" class="col-form-label">Segment(s)</label>
+                            <select id="selectSegment" class="form-control form-control select-type">
+                              <option value='altea'>...</option>
+                            </select>
+                          </div>
+
+                          <div class="col-md-2" style="margin-top:40px;">
+                            <i class="fa fa-plus-circle" id="addMoreSegmentButton" aria-hidden="true" style="font-size: 20px;color:#007bff"  data-toggle="collapse" data-target="#collapseSegmentData" aria-expanded="false" aria-controls="collapseSegmentData"></i>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div id="collapseSegmentData" class="collapse" >
+                        <div>
+                          <h4>Ajouter un Segment</h4><br>
+                        </div>
+                        <div class="row" style="justify-content:space-between;">
+                          <div class="form-group col-md-5">
+                            <label for="message-text" class="col-form-label">Numéro de Vol</label>
+                            <input type='number' class="form-control" id="volNumber" ></input>
+                          </div>
+                          <div class="form-group col-md-5">
+                            <label for="message-text" class="col-form-label">Ordre</label>
+                            <input type='text' class="form-control" id="segmentOrder" ></input>
+                          </div>
+                          
+                        </div>
+
+                        <div class="row" style="justify-content:space-between;">
+                          <div class="form-group col-md-5">
+                            <label for="message-text" class="col-form-label">Date de départ</label>
+                            <input type='date' class="form-control" id="departureDate" ></input>
+                          </div>
+                          <div class="form-group col-md-5">
+                            <label for="message-text" class="col-form-label">Heure de départ</label>
+                            <input type='time' class="form-control" id="departureTime" ></input>
+                          </div>
+                        </div>
+
+                        <div class="row" style="justify-content:space-between;">
+                          <div class="form-group col-md-5">
+                            <label for="message-text" class="col-form-label">Date d'arrivée</label>
+                            <input type='date' class="form-control" id="arrivalDate" ></input>
+                          </div>
+                          <div class="form-group col-md-5">
+                            <label for="message-text" class="col-form-label">Heure d'arrivée</label>
+                            <input type='time' class="form-control" id="arrivalTime" ></input>
+                          </div>
+                        </div>
+
+                        <div class="row" style="justify-content:space-between;">
+                          <div class="form-group col-md-5">
+                            <label for="message-text" class="col-form-label">Origine</label>
+                            <select id="origin" class="form-control form-control select-type">
+                              {% for office in offices %}
+                                <option value='{{office.iata_code}}'>{{office.iata_code}}</option>
+                              {% endfor %}
+                              
+                            </select>
+                          </div>
+                          <div class="form-group col-md-5">
+                            <label for="message-text" class="col-form-label">Destination</label>
+                            <select id="destination" class="form-control form-control select-type">
+                              {% for office in offices %}
+                                <option value='{{office.iata_code}}'>{{office.iata_code}}</option>
+                              {% endfor %}
+                            </select>
+                          </div>
+                        </div>
+
+                        
                       </div>
 
         
-                      <div hidden>
-                        <div>
-                          <label for="taxe" class="col-form-label">Type du Billet</label>
-                          <select id="selectType" class="form-control form-control select-type">
-                            <option value='TKT'>TKT</option>
-                            <option value='EMD'>EMD</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label id="fee">
-                            <input type="checkbox" id="feecheckbox" name="fee" >frais de service
-                          </label>
-                        </div>
-                        <div>
-                          <label for="selectPassenger" class="col-form-label">Passenger</label>
-                          <select id="selectPassenger" class="form-control form-control">
-                          </select>
-                        </div>
-                        <div>
-                          <label for="selectSegment" id="SegmentLabel" class="col-form-label">Segment</label>
-                          <br>
-                          <select id="selectSegment" multiple name="native-select" placeholder="Segment" data-search="false" data-silent-initial-value-set="true" >	
-                          </select>
-                        </div>
-                        
-                      </div> 
-                    </form>
+                      
                   </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
-                    <button type="button" class="btn btn-success" id="buttonSendPnrNotUpdated">Envoyer</button>
+
+                  <div class="modal-footer" id="generalFooter" style="justify-content:space-between;">
+                    <button type="button" class="btn btn-outline-primary" id="addTicketButton" data-toggle="collapse" data-target="#collapseTicketData" aria-expanded="false" aria-controls="collapseTicketData">Ajouter des billets</button>
+                    <button type="button" class="btn btn-outline-success float-right" title="Enregistrer">Enregistrer</button>
+                  </div>
+
+                  <div class="modal-footer" id="ticketDataFooter" style="justify-content:space-between;" hidden>
+                    <button type="button" class="btn btn-danger" id="CancelAddTicketButton">Annuler</button>
+                    <button type="button" class="btn btn-success float-right" id="ConfirmAddTicketButton" title="Ajouer Un ticket">Ajouter</button>
+                  </div>
+
+                  <div class="modal-footer" id="PassengerDataFooter" style="justify-content:space-between;" hidden>
+                    <button type="button" class="btn btn-danger" id="CancelAddPassengerButton">Annuler</button>
+                    <button type="button" class="btn btn-success float-right" id="ConfirmAddPassengerButton" title="Ajouer Un Passager">Ajouter</button>
+                  </div>
+
+                  <div class="modal-footer" id="SegmentDataFooter" style="justify-content:space-between;" hidden>
+                    <button type="button" class="btn btn-danger" id="CancelAddSegmentButton">Annuler</button>
+                    <button type="button" class="btn btn-success float-right" id="ConfirmAddSegmentButton" title="Ajouer Un segment">Ajouter</button>
                   </div>
                 </div>
               </div>

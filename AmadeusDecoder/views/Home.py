@@ -21,6 +21,7 @@ from AmadeusDecoder.models.invoice.TicketPassengerSegment import OtherFeeSegment
 
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.pnr.PnrPassenger import PnrPassenger
+from AmadeusDecoder.models.pnrelements.Airport import Airport
 from AmadeusDecoder.models.user.Users import User, UserCopying
 from AmadeusDecoder.models.invoice.Clients import Client
 from AmadeusDecoder.models.utilities.Comments import Comment, Response
@@ -603,6 +604,8 @@ def home(request):
 
             print('no creator')
 
+        offices = Airport.objects.all()
+
         row_num = request.GET.get('paginate_by', 50) or 50
         page_num = request.GET.get('page', 1)
         paginator = Paginator(pnr_list, row_num)
@@ -616,7 +619,8 @@ def home(request):
             'page_obj': page_obj, 
             'row_num': row_num,
             'pnr_count': pnr_count,
-            'users': users
+            'users': users,
+            'offices': offices,
         }
         return render(request,'home.html', context)
 
@@ -2314,3 +2318,10 @@ def ticket_delete(request):
 
 
         return JsonResponse({'status':'ok'})
+
+
+# ------------------------- PNR non remonté -----------------------------------
+
+# @login_required(login_url='index')
+# def get_all_passager(request):
+    

@@ -2260,15 +2260,15 @@ def liste_commandes(request):
 # Check if PNR has been read
 def check_read_pnr(request):
     if request.method == 'POST':
-        pnr_list_to_check = request.POST.getlist('pnr_list_to_check[]')  # Utiliser getlist pour récupérer une liste
-        # print("PNR List To Check:", pnr_list_to_check)
+        pnr_list_to_check = request.POST.get('pnr_list_to_check')  # Utiliser getlist pour récupérer une liste
+        print("PNR List To Check:", pnr_list_to_check)
         
         if pnr_list_to_check:
             # Convertir la liste d'identifiants en entiers (si nécessaire)
-            pnr_ids = [int(pnr_id) for pnr_id in pnr_list_to_check]
+            pnr_id = int(pnr_list_to_check)
             
             # Filtrer les objets Pnr par la liste d'identifiants
-            pnr = Pnr.objects.filter(id__in=pnr_ids).values('id', 'is_read')
+            pnr = Pnr.objects.filter(id=pnr_id).values('id', 'is_read')
             
             # print("CHECKING READ PNR")
             # print(pnr)

@@ -9,13 +9,13 @@ function updatePNRStatus(pnrId, isRead) {
 }
 
 // Function to check PNR read status
-function checkIfPNRHasBeenRead(pnrList) {
+function checkIfPNRHasBeenRead(pnrIdSelected) {
     $.ajax({
         type: "POST",
         url: "/home/check-read-pnr/",
         dataType: "json",
         data: {
-            pnr_list_to_check: pnrList,
+            pnr_list_to_check: pnrIdSelected,
             csrfmiddlewaretoken: getCookies("csrftoken"),
         },
         success: (response) => {
@@ -32,34 +32,34 @@ function checkIfPNRHasBeenRead(pnrList) {
     });
 }
 
-// Initial call to check PNR read status
-const pnrList = JSON.parse(localStorage.getItem("pnrIds")) || []
 
-checkIfPNRHasBeenRead(pnrList);
+// Définir une fonction pour lancer le script
+function runScript() {
+    // Vérifier si l'URL actuelle correspond à "/home/"
+    if (window.location.pathname === "/home/") {
+        // Lancer le script pour vérifier le statut des PNR
+        let intervalID = setInterval(() => { 
+            console.log("Navigué vers /home/" + window.location.pathname);
+            const pnrIdSelected = JSON.parse(localStorage.getItem("pnrIdSelected"))
+            checkIfPNRHasBeenRead(pnrIdSelected);
+        }, 1000);
 
-// Initialize intervalID variable
-let intervalID;
+        setTimeout(() => {
+            clearInterval(intervalID);
+        }, 2000)
 
-// Function to start checking PNR read status periodically
-function startChecking(time) {
-    // Set interval to check PNR read status
-    intervalID = setInterval(() => {
-        checkIfPNRHasBeenRead(pnrList);
-    }, time);
+        // // Ajouter un écouteur d'événements pour l'événement popstate
+        // window.addEventListener('popstate', () => {
+        //     // Effacer l'intervalle lors de la navigation loin de "/home/"
+        //     clearInterval(intervalID);
+        // });
+    }
 }
 
-// Function to stop checking PNR read status
-function stopChecking() {
-    clearInterval(intervalID);
-}
+// Appeler la fonction pour lancer le script au chargement initial de la page
+runScript();
 
-// Check if URL is on "/home/" before executing the code
-if (window.location.pathname === "/home/") {
-    // Start checking PNR read status when window is active 
-    const time = 10000
-    startChecking(time);
-
-    // Stop checking PNR read status when window is inactive
-    window.addEventListener('focus', () => startChecking(time));
-    window.addEventListener('blur', stopChecking);
-}
+// Appeler à nouveau la fonction si l'utilisateur navigue vers "/home/" à partir d'une autre page
+window.addEventListener('popstate', () => {
+    runScript();
+});

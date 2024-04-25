@@ -44,6 +44,24 @@ $(document).ready(function(){
     else{
         AddSegmentButtonDiv.hidden = false;
     }
+
+    if('tickets' in sessionStorage){
+        let session_tickets = JSON.parse(sessionStorage.getItem('tickets'));
+        CreateTicketTable(session_tickets);
+    }
+
+    if('passengers' in sessionStorage){
+        let session_passengers = JSON.parse(sessionStorage.getItem('passengers'));
+        // Ajouter les passagers contenu dans session storage en tant qu'option de selectSegment
+        session_passengers.forEach(element => {
+            var option = document.createElement('option');
+            option.value = element['PassengerOrder']; // Définir la valeur de l'option
+            option.text = element['PassengerName'] +" " +element['PassengerSurname'];
+            passengerSelect.appendChild(option);
+        });
+    }
+
+
 })
 
 AddTicketButton.addEventListener('click', function(event){
@@ -227,6 +245,8 @@ ConfirmAddTicketButton.addEventListener('click', function(event){
         session_tickets.push(Ticket);
         sessionStorage.setItem('tickets', JSON.stringify(session_tickets));
 
+        CreateTicketTable(session_tickets);
+
     }
     else{
         var tickets = [];
@@ -234,5 +254,41 @@ ConfirmAddTicketButton.addEventListener('click', function(event){
         // Ajouter un passager au sessionStorage
         sessionStorage.setItem('tickets', JSON.stringify(tickets));
 
+        CreateTicketTable(tickets);
+
     }
+
+    
+    closeTicketSection();
 });
+
+function CreateTicketTable(session_tickets){
+    var html = `<table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Type</th>
+                        <th>Numéro</th> 
+                        <th>Montant</th> 
+                        <th>Taxe</th> 
+                        <th>Passager</th> 
+                        <th>Segment</th> 
+                      </tr>
+                    </thead>
+                    <tbody>`;
+        session_tickets.forEach(tickets => {
+            html += `<tr>
+                    <td>${tickets['ticketType']}</td>
+                    <td>${tickets['ticketNumber']}</td>
+                    <td>${tickets['ticketCost']}</td>
+                    <td>${tickets['ticketTax']}</td>
+                    <td>${tickets['ticketPassenger']}</td>
+                    <td>${tickets['ticketSegment']}</td>
+            </tr>`;
+        });
+
+        html += `</tbody>
+        </table>`;
+
+        $("#ticketTable").html(html);
+        ticketList.hidden= false;
+}

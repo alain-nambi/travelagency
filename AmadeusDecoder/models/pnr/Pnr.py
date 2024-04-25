@@ -174,10 +174,15 @@ class Pnr(models.Model, BaseModel):
             print(e)
             
     def update_agency_name(self, agency_name):
-        # Mettre à jour le nom de l'agence
-        pnr = Pnr.objects.get(pk=self.id)
-        pnr.agency_name = agency_name
-        pnr.save()
+        # Mise à jour du nom de l'agence pour les émissions de Zenith uniquement
+        try:
+            pnr = Pnr.objects.get(pk=self.id, type='EWA')
+            pnr.agency_name = agency_name
+            pnr.save()
+        except Pnr.DoesNotExist:
+            pass
+            # Gérer le cas où aucun PNR de type 'EWA' n'est trouvé
+            print("Aucun PNR de type 'EWA' n'a été trouvé pour cette instance.")
         
     def get_agency_name(self, issuing_office):
         if issuing_office is not None:
@@ -200,7 +205,7 @@ class Pnr(models.Model, BaseModel):
             issuing_office_ticket = Ticket.objects.filter(
                                         Q(pnr=self) & (Q(ticket_status=1) | Q(is_invoiced=True))
                                     ).exclude(issuing_agency_name=None).exclude(issuing_agency_name__icontains='web').last()
-            
+
             agency_name = self.get_agency_name(issuing_office_ticket)
             if agency_name:
                 return agency_name

@@ -19,7 +19,7 @@ from django.forms.models import model_to_dict
 from django.conf import settings
 from AmadeusDecoder.models.invoice.TicketPassengerSegment import OtherFeeSegment, TicketPassengerSegment
 
-from AmadeusDecoder.models.pnr.Pnr import Pnr
+from AmadeusDecoder.models.pnr.Pnr import Pnr, UnremountedPnr, unRemountedPnrPassenger, unRemountedPnrSegment, unRemountedTickets
 from AmadeusDecoder.models.pnr.PnrPassenger import PnrPassenger
 from AmadeusDecoder.models.pnrelements.Airport import Airport
 from AmadeusDecoder.models.user.Users import User, UserCopying
@@ -29,7 +29,7 @@ from AmadeusDecoder.models.invoice.Ticket import Ticket
 from AmadeusDecoder.models.invoice.Fee import Fee, ReducePnrFeeRequest, OthersFee
 from AmadeusDecoder.models.invoice.Invoice import Invoice, InvoicesCanceled
 from AmadeusDecoder.models.invoice.InvoiceDetails import InvoiceDetails
-from AmadeusDecoder.models.pnr.Passenger import Passenger
+from AmadeusDecoder.models.pnr.Passenger import Passenger, PassengerType
 from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
 from AmadeusDecoder.models.invoice.Fee import Product
 from AmadeusDecoder.models.pnrelements.PnrAirSegments import PnrAirSegments
@@ -305,6 +305,9 @@ def home(request):
             print("PNR COUNT")
             print(pnr_count)
 
+        offices = Airport.objects.all()
+        passengerType = PassengerType.objects.all()
+
         row_num = request.GET.get('paginate_by', 50) or 50
         page_num = request.GET.get('page', 1)
         paginator = Paginator(pnr_list, row_num)
@@ -318,7 +321,9 @@ def home(request):
             'page_obj': page_obj, 
             'row_num': row_num,
             'pnr_count': pnr_count,
-            'users': users
+            'users': users,
+            'passengerTypes': passengerTypes,
+            'offices' : offices
         }
         return render(request,'home.html', context)
 
@@ -421,6 +426,8 @@ def home(request):
         # Compute count of Pnrs in the list
         pnr_count = len(pnr_list)
 
+        offices = Airport.objects.all()
+        passengerTypes = PassengerType.objects.all()
 
         row_num = request.GET.get('paginate_by', 50) or 50
         page_num = request.GET.get('page', 1)
@@ -435,7 +442,9 @@ def home(request):
             'page_obj': page_obj, 
             'row_num': row_num,
             'pnr_count': pnr_count,
-            'users': users
+            'users': users,
+            'passengerTypes': passengerTypes,
+            'offices' : offices
         }
         return render(request,'home.html', context)
     else:
@@ -605,6 +614,7 @@ def home(request):
             print('no creator')
 
         offices = Airport.objects.all()
+        passengerTypes = PassengerType.objects.all()
 
         row_num = request.GET.get('paginate_by', 50) or 50
         page_num = request.GET.get('page', 1)
@@ -621,6 +631,7 @@ def home(request):
             'pnr_count': pnr_count,
             'users': users,
             'offices': offices,
+            'passengerTypes' : passengerTypes
         }
         return render(request,'home.html', context)
 
@@ -2322,6 +2333,52 @@ def ticket_delete(request):
 
 # ------------------------- PNR non remonté -----------------------------------
 
-# @login_required(login_url='index')
-# def get_all_passager(request):
-    
+# save pnr non remonte
+@login_required(login_url='index')
+def pnr_non_remonte(request):
+    context={}
+    try:
+        pnrNumber = request.POST.get('pnrNumber')
+        pnrType = request.POST.get('pnrType')
+        tickets = json.loads(request.POST.get('tickets'))
+        passengers = json.loads(request.POST.get('passengers'))
+        segments = json.loads(request.POST.get('segments'))
+        user_id = request.POST.get('user_id')
+        emitter = User.objects.get(pk=user_id)
+
+        # save unremounted pnr
+        unremounted_pnr = UnremountedPnr(number=pnrNumber,type=pnrType,emitter=emitter)
+        unremounted_pnr.save()
+
+        # save segment data
+        for segment in segments:
+
+            codeorg = Airport.objects.get(pk=segment['origin'])
+            codedest = Airport.objects.get(pk=segment['destination'])
+            
+            # combine departure/arrival date and time to create a datetime value
+            departuretime=datetime.combine(datetime.strptime(segment['departureDate'], "%Y-%m-%d").date(),datetime.strptime(segment['departureTime'], "%H:%M").time())
+            arrivaltime=datetime.combine(datetime.strptime(segment['arrivalDate'], "%Y-%m-%d").date(),datetime.strptime(segment['arrivalTime'], "%H:%M").time())
+
+            unremounted_pnr_segment = unRemountedPnrSegment(order=segment['order'],flightno=segment['flightNumber'],departuretime=departuretime,unremountedPnr=unremounted_pnr,arrivaltime=arrivaltime, codeorg=codeorg, codedest=codedest)
+            unremounted_pnr_segment.save()
+
+        # save passenger data
+        for passenger in passengers:
+            passenger_type = PassengerType.objects.get(pk=passenger['PassengerType'])
+            unremounted_pnr_passenger = unRemountedPnrPassenger(unremountedPnr=unremounted_pnr,name=passenger['PassengerName'],surname=passenger['PassengerSurname'], designation=passenger['PassengerDesignation'],type=passenger_type, passeport=passenger['Passeport'], order=passenger['PassengerOrder'])
+            unremounted_pnr_passenger.save()
+
+        # save ticket data
+        for ticket in tickets:
+            segment =  unRemountedPnrSegment.objects.get(order=ticket['ticketSegment'], unremountedPnr=unremounted_pnr)         
+            passenger = unRemountedPnrPassenger.objects.get(order=ticket['ticketPassenger'], unremountedPnr=unremounted_pnr)
+            unremounted_pnr_ticket = unRemountedTickets(unremountedPnr=unremounted_pnr,number=ticket['ticketNumber'],type=ticket['ticketType'],transport_cost=ticket['ticketCost'],tax=ticket['ticketTax'],passenger=passenger,segment=segment)
+            unremounted_pnr_ticket.save()
+
+        context['message'] = "Votre demande a été envoyée."
+    except(RuntimeError, TypeError, NameError) as e:
+        print(str(e))
+        context['message'] = str(e)
+    return JsonResponse(context)
+

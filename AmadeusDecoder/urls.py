@@ -73,4 +73,5 @@ urlpatterns = [
     path('home/drop-anomaly',drop_anomaly, name='drop_anomaly'),
     path('home/update-anomaly', updateAnomaly, name='update_anomaly'),
     path('home/ticket-delete',ticket_delete,name='ticket_delete'),
+    path('home/pnr-non-remonte',pnr_non_remonte,name='pnr_non_remonte'),
 ]

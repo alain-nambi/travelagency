@@ -654,11 +654,11 @@
                         <div class="row" style="justify-content:space-between;">
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Numero PNR:</label>
-                            <input type='text' class="form-control" id="messagePnrNotUpdated" placeholder="Veuillez saisir le numero du PNR..."></input>
+                            <input type='text' class="form-control" id="pnrNumber" placeholder="Veuillez saisir le numero du PNR..." required>
                           </div>
                           <div class="form-group col-md-5 " >
                             <label for="message-text" class="col-form-label">Type</label>
-                            <select id="selectType" class="form-control form-control select-type ">
+                            <select id="pnrType" class="form-control form-control select-type ">
                               <option value='altea'>Altéa</option>
                               <option value='zenith'>Zénith</option>
                             </select>
@@ -679,11 +679,11 @@
                         <div class="row" style="justify-content:space-between;">
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Nom</label>
-                            <input type='text' class="form-control" id="PassengerName" ></input>
+                            <input type='text' class="form-control" id="PassengerName" required>
                           </div>
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Prénom</label>  
-                            <input type='text' class="form-control" id="PassengerSurname" ></input>
+                            <input type='text' class="form-control" id="PassengerSurname">
                           </div>
                           
                         </div>
@@ -691,13 +691,14 @@
                         <div class="row" style="justify-content:space-between;">
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Désignation</label>
-                            <input type='text' class="form-control" id="PasengerDesignation" ></input>
+                            <input type='text' class="form-control" id="PassengerDesignation" >
                           </div>
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Type</label>
                             <select id="PassengerType" class="form-control form-control select-type ">
-                              <option value='altea'>Adulte</option>
-                              <option value='zenith'>Enfant</option>
+                              {% for type in passengerTypes %}
+                                <option value='{{type.id}}'>{{type.name}}</option>
+                              {% endfor %}
                             </select>
                           </div>
                         </div>
@@ -705,11 +706,11 @@
                         <div class="row" style="justify-content:space-between;">
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Passeport</label>
-                            <input type='text' class="form-control" id="Passeport" ></input>
+                            <input type='text' class="form-control" id="Passeport" >
                           </div>
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Ordre</label>  
-                            <input type='text' class="form-control" id="PassengerOrder" ></input>
+                            <input type='text' class="form-control" id="PassengerOrder" required>
                           </div>
                           
                         </div>
@@ -724,30 +725,30 @@
                         <div class="row" style="justify-content:space-between;">
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Numéro du Billet</label>
-                            <input type='number' class="form-control" id="ticketNumber" ></input>
+                            <input type='number' class="form-control" id="ticketNumber" required>
                           </div>
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Type</label>
                             <select id="ticketType" class="form-control form-control select-type ">
-                              <option value='TKT'>TKT</option>
-                              <option value='EMD'>EMD</option>
+                              <option value="TKT">TKT</option>
+                              <option value="EMD">EMD</option>
+
                             </select>
                           </div>
                           
-                          <input type='hidden' name="user_id" value="{{user.id}}" class="form-control" id="user_id" >
+                          <input type='hidden' name="user_id" value="{{request.user.id}}" class="form-control" id="user_id" >
                         </div>
 
                         <div class="row" style="justify-content:space-between;">
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Montant Hors Taxe</label>
-                            <input type='number' class="form-control" id="ticketCost" ></input>
+                            <input type='number' class="form-control" id="ticketCost" required>
                           </div>
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Taxe</label>
-                            <input type='number' class="form-control" id="ticketTax" ></input>
+                            <input type='number' class="form-control" id="ticketTax" required>
                           </div>
                           
-                          <input type='hidden' name="user_id" value="{{user.id}}" class="form-control" id="user_id" >
                         </div>
 
                         <div class="row">
@@ -788,11 +789,11 @@
                         <div class="row" style="justify-content:space-between;">
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Numéro de Vol</label>
-                            <input type='number' class="form-control" id="volNumber" ></input>
+                            <input type='number' class="form-control" id="flightNumber" >
                           </div>
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Ordre</label>
-                            <input type='text' class="form-control" id="segmentOrder" ></input>
+                            <input type='text' class="form-control" id="segmentOrder" >
                           </div>
                           
                         </div>
@@ -800,22 +801,22 @@
                         <div class="row" style="justify-content:space-between;">
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Date de départ</label>
-                            <input type='date' class="form-control" id="departureDate" ></input>
+                            <input type='date' class="form-control" id="departureDate" >
                           </div>
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Heure de départ</label>
-                            <input type='time' class="form-control" id="departureTime" ></input>
+                            <input type='time' class="form-control" id="departureTime" >
                           </div>
                         </div>
 
                         <div class="row" style="justify-content:space-between;">
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Date d'arrivée</label>
-                            <input type='date' class="form-control" id="arrivalDate" ></input>
+                            <input type='date' class="form-control" id="arrivalDate" >
                           </div>
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Heure d'arrivée</label>
-                            <input type='time' class="form-control" id="arrivalTime" ></input>
+                            <input type='time' class="form-control" id="arrivalTime" >
                           </div>
                         </div>
 
@@ -824,7 +825,7 @@
                             <label for="message-text" class="col-form-label">Origine</label>
                             <select id="origin" class="form-control form-control select-type">
                               {% for office in offices %}
-                                <option value='{{office.iata_code}}'>{{office.iata_code}}</option>
+                                <option value='{{office.id}}'>{{office.iata_code}}</option>
                               {% endfor %}
                               
                             </select>
@@ -833,7 +834,7 @@
                             <label for="message-text" class="col-form-label">Destination</label>
                             <select id="destination" class="form-control form-control select-type">
                               {% for office in offices %}
-                                <option value='{{office.iata_code}}'>{{office.iata_code}}</option>
+                                <option value='{{office.id}}'>{{office.iata_code}}</option>
                               {% endfor %}
                             </select>
                           </div>
@@ -848,7 +849,7 @@
 
                   <div class="modal-footer" id="generalFooter" style="justify-content:space-between;">
                     <button type="button" class="btn btn-outline-primary" id="addTicketButton" data-toggle="collapse" data-target="#collapseTicketData" aria-expanded="false" aria-controls="collapseTicketData">Ajouter des billets</button>
-                    <button type="button" class="btn btn-outline-success float-right" title="Enregistrer">Enregistrer</button>
+                    <button type="button" id="ConfirmAddPnrButton" class="btn btn-outline-success float-right" title="Enregistrer">Enregistrer</button>
                   </div>
 
                   <div class="modal-footer" id="ticketDataFooter" style="justify-content:space-between;" hidden>

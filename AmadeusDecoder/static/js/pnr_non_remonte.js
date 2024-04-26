@@ -25,7 +25,7 @@ const SegmentData = document.querySelector('#collapseSegmentData');
 const selectSegment = document.querySelector('#selectSegment');
 const SelectSegmentDiv = document.querySelector('#SelectSegmentDiv');
 
-
+const confirmAddPnrButton = document.querySelector('#ConfirmAddPnrButton');
 
 $(document).ready(function(){
     if('segments' in sessionStorage){
@@ -125,7 +125,7 @@ function closeSegmentSection(){
 }
 
 ConfirmAddSegmentButton.addEventListener('click', function(event){
-    var volNumber = $('#volNumber').val();
+    var flightNumber = $('#flightNumber').val();
     var order = $('#segmentOrder').val();
     var departureDate = $('#departureDate').val();
     var departureTime = $('#departureTime').val();
@@ -134,7 +134,7 @@ ConfirmAddSegmentButton.addEventListener('click', function(event){
     var origin = $('#origin').val();
     var destination = $('#destination').val();
 
-    var Segment = {"volNumber":volNumber,"order":order,"departureDate":departureDate,"departureTime":departureTime,"arrivalDate":arrivalDate,"arrivalTime":arrivalTime,"origin":origin,"destination":destination}
+    var Segment = {"flightNumber":flightNumber,"order":order,"departureDate":departureDate,"departureTime":departureTime,"arrivalDate":arrivalDate,"arrivalTime":arrivalTime,"origin":origin,"destination":destination}
     
     // Effacer tous les option de selectSegment s'il y en a
     if (!selectSegment.hidden) {
@@ -292,3 +292,52 @@ function CreateTicketTable(session_tickets){
         $("#ticketTable").html(html);
         ticketList.hidden= false;
 }
+
+confirmAddPnrButton.addEventListener('click', function(event){
+    var pnrNumber = $('#pnrNumber').val();
+    var pnrType = $('#pnrType').val();
+
+    var tickets = "";
+    var passengers = "";
+    var segments = "";
+    var user_id = $('#user_id').val();
+
+    if('tickets' in sessionStorage){
+        tickets = JSON.parse(sessionStorage.getItem('tickets'));
+    }
+
+    if('passengers' in sessionStorage){
+        passengers = JSON.parse(sessionStorage.getItem('passengers'));
+    }
+
+    if('segments' in sessionStorage){
+        segments = JSON.parse(sessionStorage.getItem('segments'));
+    }
+
+    $.ajax({
+        type: "POST",
+        url : "/home/pnr-non-remonte",
+        dataType : "json",
+        data : {
+            pnrNumber: pnrNumber,
+            pnrType: pnrType,
+            passengers: JSON.stringify(passengers),
+            segments: JSON.stringify(segments),
+            tickets: JSON.stringify(tickets),
+            user_id: user_id,
+            csrfmiddlewaretoken: csrftoken
+        },
+        success : (response) => {
+            toastr.success(response.message);
+
+            // Effacer le contenu du sessionStorage
+            sessionStorage.clear();
+            location.reload();
+
+        },
+        error : (response) =>{
+            toastr.error(response);
+        }
+    });
+
+});

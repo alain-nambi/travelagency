@@ -27,7 +27,18 @@ const SelectSegmentDiv = document.querySelector('#SelectSegmentDiv');
 
 const confirmAddPnrButton = document.querySelector('#ConfirmAddPnrButton');
 
+
+const pnrNumber = document.querySelector('#pnrNumber');
+const ticketNumber = document.querySelector('#ticketNumber');
+const ticketCost = document.querySelector('#ticketCost');
+const ticketTax = document.querySelector('#ticketTax');
+
+const flightNumber = document.querySelector('#flightNumber');
+const segmentOrder = document.querySelector('#segmentOrder');
+
 $(document).ready(function(){
+    //  check if there is segments data in the session storage
+    // if there is, fill the segment select with it
     if('segments' in sessionStorage){
         AddSegmentButton.hidden = true;
         SelectSegmentDiv.hidden = false;
@@ -45,11 +56,15 @@ $(document).ready(function(){
         AddSegmentButtonDiv.hidden = false;
     }
 
+    // check if there is tickets data in the session storage
+    // if there is, create the table to list the data
     if('tickets' in sessionStorage){
         let session_tickets = JSON.parse(sessionStorage.getItem('tickets'));
         CreateTicketTable(session_tickets);
     }
 
+    //  check if there is passengers data in the session storage
+    // if there is, fill the passenger select with it
     if('passengers' in sessionStorage){
         let session_passengers = JSON.parse(sessionStorage.getItem('passengers'));
         // Ajouter les passagers contenu dans session storage en tant qu'option de selectSegment
@@ -61,8 +76,61 @@ $(document).ready(function(){
         });
     }
 
+    
+
 
 })
+
+// Check PNR Number
+if(pnrNumber.value.trim() === ""){
+    confirmAddPnrButton.disabled = true;
+}
+
+pnrNumber.addEventListener('keyup', function(event){
+    if(pnrNumber.value.length == 6){
+        confirmAddPnrButton.disabled = false;
+    }
+    else{
+        confirmAddPnrButton.disabled = true;
+    }
+})
+
+// check Ticket number
+if(ticketNumber.value.trim() === ""){
+    ConfirmAddTicketButton.disabled = true;
+}
+if(ticketCost.value.trim() === ""){
+    ConfirmAddTicketButton.disabled = true;
+}
+if(ticketTax.value.trim() === ""){
+    ConfirmAddTicketButton.disabled = true;
+}
+
+ticketNumber.addEventListener('keyup', function(event){
+    if(ticketNumber.value.length == 16 || ticketNumber.value.length == 13){
+        ConfirmAddTicketButton.disabled = false;
+    }
+    else{
+        ConfirmAddTicketButton.disabled = true;
+    }
+})
+
+if(flightNumber.value.trim() === "" || segmentOrder.value.trim() ===""){
+    ConfirmAddSegmentButton.disabled = true;
+}
+else{
+    ConfirmAddSegmentButton.disabled = false;
+}
+
+flightNumber.addEventListener('keyup', function(event){
+    if(flightNumber.value.length >= 3 && segmentOrder.value.trim() !=""){
+        ConfirmAddSegmentButton.disabled = false;
+    }
+    else{
+        ConfirmAddSegmentButton.disabled = true;
+    }
+})
+
 
 AddTicketButton.addEventListener('click', function(event){
     generalFooter.hidden= true;
@@ -124,9 +192,9 @@ function closeSegmentSection(){
     ticketDataFooter.hidden = false;
 }
 
+// Add a new Segment on the Segment select and sock it in the session storage
 ConfirmAddSegmentButton.addEventListener('click', function(event){
-    var flightNumber = $('#flightNumber').val();
-    var order = $('#segmentOrder').val();
+    
     var departureDate = $('#departureDate').val();
     var departureTime = $('#departureTime').val();
     var arrivalDate = $('#arrivalDate').val();
@@ -146,7 +214,7 @@ ConfirmAddSegmentButton.addEventListener('click', function(event){
     }
 
     // verifier si une liste de segment se trouve dans session storage
-    if('segments' in sessionStorage){
+    if('passengers' in sessionStorage){
         console.log("it's in the session storage" );
         let session_segments = JSON.parse(sessionStorage.getItem('segments'));
         session_segments.push(Segment);
@@ -177,6 +245,7 @@ ConfirmAddSegmentButton.addEventListener('click', function(event){
     SelectSegmentDiv.hidden = false;
 });
 
+// Add a new Passenger on the passenger select and stock it in the session storage
 ConfirmAddPassengerButton.addEventListener('click', function(event){
     var PassengerName = $('#PassengerName').val();
     var PassengerSurname = $('#PassengerSurname').val();
@@ -228,11 +297,9 @@ ConfirmAddPassengerButton.addEventListener('click', function(event){
 
 });
 
+//  Add a new ticket and stock it in the session storage
 ConfirmAddTicketButton.addEventListener('click', function(event){
-    var ticketNumber = $('#ticketNumber').val();
-    var ticketType = $('#ticketType').val();
-    var ticketCost = $('#ticketCost').val();
-    var ticketTax = $('#ticketTax').val();
+
     var ticketPassenger = $('#passengerSelect').val();
     var ticketSegment = $('#selectSegment').val();
     
@@ -262,6 +329,7 @@ ConfirmAddTicketButton.addEventListener('click', function(event){
     closeTicketSection();
 });
 
+// Create the table who contains the list of all the added ticket
 function CreateTicketTable(session_tickets){
     var html = `<table class="table table-striped">
                     <thead>
@@ -293,8 +361,9 @@ function CreateTicketTable(session_tickets){
         ticketList.hidden= false;
 }
 
+// Save everything in the database
 confirmAddPnrButton.addEventListener('click', function(event){
-    var pnrNumber = $('#pnrNumber').val();
+    
     var pnrType = $('#pnrType').val();
 
     var tickets = "";

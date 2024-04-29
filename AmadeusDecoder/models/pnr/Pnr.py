@@ -282,6 +282,46 @@ class Pnr(models.Model, BaseModel):
                 for ticket in ticket_obj:
                     ticket.passenger = passenger_instance.first().passenger
                     ticket.save()
+                    
+    def rectify_fare_cost(self):
+        """
+        Function: rectify_fare_cost
+        Description: This function is responsible for updating the fare cost of a ticket or other fees to ensure they are correct.
+        """
+        # Retrieve tickets related to the PNR
+        tickets = Ticket.objects.filter(pnr_id=self.id, ticket_status=1)
+
+        # Iterate over each ticket to check and adjust costs if necessary
+        for ticket in tickets:
+            # Calculate the sum of transport cost and tax
+            transport_and_tax_sum = ticket.transport_cost + ticket.tax
+            
+            # Check if the sum equals the total cost of the ticket
+            if transport_and_tax_sum == ticket.total:
+                print(f"<Ticket cost correct {ticket.number}> HT {ticket.transport_cost} TAX: {ticket.tax} TOTAL: {ticket.total}")
+                continue
+            
+            # Check if total cost is greater than 0 and transport cost + tax not equal to total
+            if ticket.total > 0 and transport_and_tax_sum != ticket.total:
+                # Calculate the corrected transport cost
+                corrected_transport_cost = min(ticket.total - ticket.tax, ticket.total)
+
+                # If the corrected transport cost is negative, set it to 0
+                corrected_transport_cost = max(corrected_transport_cost, 0)
+
+                # Adjust the transport cost and tax accordingly
+                ticket.transport_cost = corrected_transport_cost
+                ticket.tax = ticket.total - corrected_transport_cost
+                
+                # Display a banner indicating the start of fare cost rectification
+                print(f"<Ticket cost rectification {ticket.number} {ticket.pnr}> HT {ticket.transport_cost} TAX: {ticket.tax} TOTAL: {ticket.total}")
+
+                # Save the modifications made to the ticket
+                ticket.save()
+                    
+        # # Display the tickets and other fees after rectification
+        # print(tickets)
+        # print(other_fees)
 
     
     def __str__(self):

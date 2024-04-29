@@ -1,249 +1,251 @@
 <div style="min-width: 46rem !important; max-width: 48rem !important">
   
-<div style="height: 14px !important" class="p-0 m-0 d-flex align-items-center justify-content-between text-info c-pnr mb-0">
-  <div>
-    <u style="font-size: 12px">PNR :</u>
-    <span id="pnr" class="text-sm"
-      >WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/RT</span
-    >
-    <input
-      class="text-sm"
-      type="text"
-      id="np"
-      title="Numéro PNR"
-      maxlength="6"
-      placeholder="N° PNR"
-      style="width: 70px; padding: 0; height: 14px !important"
-    />
-  </div>
-
-  <div class="mr-3">
-    <a title="Copier"
-      id="button-np"
-      class="text-info py-0"
-      onclick="copypnr()"
-    >
-      <i
-        class="fa fa-copy"
-        style="font-size: 12px; cursor: pointer;"
-      ></i
-      ></a
-    >
-  </div>
-</div>
-
-<!-- <div style="height: 14px !important" class="p-0 m-0 d-flex align-items-center justify-content-between text-info c-pnr mb-0">
-  <div>
-    <u style="font-size: 12px">Passagers groupés :</u>
-    <span id="groupedPassenger" class="text-sm"
-      >WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/RTN</span
-    >
-  </div>
-
-  <div class="mr-3">
-    <a title="Copier"
-      id="button-grouped-passenger"
-      class="text-info py-0"
-      onclick="copygrouped()"
-    >
-      <i
-        class="fa fa-copy"
-        style="font-size: 12px; cursor: pointer;"
-      ></i
-      ></a
-    >
-  </div>
-</div> -->
-
-<div style="height: 14px !important" class="p-0 m-0 d-flex align-items-center justify-content-between text-info c-pnr mb-0">
-  <div>
-    <u style="font-size: 12px; margin-bottom: 1px">Billets non émis :</u>
-    <span id="bne" class="text-sm"
-      >WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/TQT/T</span
-    ><span class="text-sm">[Numéro de la tarification]</span> {% comment %}
-    <input
-      type="text"
-      id="nt"
-      title="Numéro de la tarification"
-      maxlength="6"
-      placeholder="N° Tarif."
-      style="width: 70px; margin-bottom: 1px"
-    />
-    {% endcomment %}
-  </div>
-
-  <div class="mr-3">
-    <a title="Copier" id="button-nt" class="text-info py-0" onclick="copybne()">
-      <i
-        class="fa fa-copy"
-        style="font-size: 12px; cursor: pointer;"
-      ></i>
-      </a
-    >
-  </div>
-</div>
-
-<div style="height: 14px !important" class="p-0 m-0 d-flex align-items-center justify-content-between text-info c-pnr mb-0">
-  <div>
-    <u style="font-size: 12px; margin-bottom: 1px">Billets émis :</u>
-    <span id="be" class="text-sm">WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/TWD/L</span
-    ><span class="text-sm">[Numéro de la ligne du billet dans le PNR]</span> 
-    {% comment %}
-    <input
-      type="text"
-      id="nlbe"
-      title="Numéro de la ligne du billet dans le PNR"
-      maxlength="6"
-      placeholder="N° Bill."
-      style="width: 70px; margin-bottom: 1px"
-    />
-    {% endcomment %}
-  </div>
-
-  <div class="mr-3">
-    <a title="Copier"
-      id="button-nlbe"
-      class="text-info py-0"
-      onclick="copybe()"
-    >
-      <i
-        class="fa fa-copy"
-        style="font-size: 12px; cursor: pointer;"
-      ></i>
-      </a
-    >
-  </div>
-</div>
-
-<div style="height: 14px !important" class="p-0 m-0 d-flex align-items-center justify-content-between text-info c-pnr mb-0">
-  <div>
-    <u style="font-size: 12px; margin-bottom: 1px">Services émis :</u>
-    <span id="se" class="text-sm">WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/EWD/L</span
-    ><span class="text-sm">[Numéro de la ligne du billet dans le PNR]</span> 
-    {% comment %}
-    <input
-      type="text"
-      id="nlse"
-      title="Numéro de la ligne du billet dans le PNR"
-      maxlength="6"
-      placeholder="N° Bill."
-      style="width: 70px; margin-bottom: 1px"
-    />
-    {% endcomment %}
-  </div>
-
-  <div class="mr-3">
-    <a title="Copier"
-    id="button-nlse"
-    class="text-info py-0"
-    onclick="copyse()"
-  >
-    <i
-      class="fa fa-copy"
-      style="font-size: 12px; cursor: pointer;"
-    ></i>
-    </a
-  >
-  </div>
-</div>
-
-<div style="height: 14px !important" class="p-0 m-0 d-flex align-items-center justify-content-between text-info c-pnr mb-0">
-  <div>
-    <u style="font-size: 12px">PNR archivé :</u>
-    <span id="pnrArchived" class="text-sm"
-      >WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/RPP/RLC-</span
-    >
-    <input
-      class="text-sm"
-      type="text"
-      id="npArchived"
-      title="Numéro PNR"
-      maxlength="6"
-      placeholder="N° PNR"
-      style="width: 70px; padding: 0; height: 14px !important"
-    />
-  </div>
-
-  <div class="mr-3">
-    <a title="Copier"
-    id="button-np-archived"
-    class="text-info py-0"
-    onclick="copyarchivedpnr()"
-  >
-    <i
-      class="fa fa-copy"
-      style="font-size: 12px; cursor: pointer;"
-    ></i
-    >
-  </a>
-  </div>
-</div>
-
-<!-- <div style="height: 14px !important" class="p-0 m-0 d-flex align-items-center justify-content-between text-info c-pnr mb-0">
-  <div>
-    <u style="font-size: 12px">Historiques :</u>
-    <span id="pnrArchivedHistory" class="text-sm">RPP/TTH</span>
-  </div>
-
-  <div class="mr-3">
-    <a title="Copier"
-      id="button-np-archived-history"
-      class="text-info py-0"
-      onclick="copyarchivedpnrhistory()"
-    >
-      <i
-        class="fa fa-copy"
-        style="font-size: 12px; cursor: pointer;"
-      ></i
+  <div style="height: 14px !important" class="p-0 m-0 d-flex align-items-center justify-content-between text-info c-pnr mb-0">
+    <div>
+      <u style="font-size: 12px">PNR :</u>
+      <span id="pnr" class="text-sm"
+        >WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/RT</span
       >
-    </a>
-  </div>
-</div> -->
+      <input
+        class="text-sm"
+        type="text"
+        id="np"
+        title="Numéro PNR"
+        maxlength="6"
+        placeholder="N° PNR"
+        style="width: 70px; padding: 0; height: 14px !important"
+      />
+    </div>
 
-{% comment %}
-<div>
-  <p class="text-sm">
-    Après avoir vu la liste des historiques avec la commande
-    <button class="bg-info" onclick="copyarchivedpnrhistory()">RPP/TTH</button>.
-    <span class="text-sm"
-      >Vous pouvez maintenant envoyer le TST avec la commande suivante
-    </span>
-  </p>
-</div>
-{% endcomment %}
-
-<div style="height: 14px !important" class="p-0 m-0 d-flex align-items-center justify-content-between text-info c-pnr mb-0">
-  <div>
-    <u style="font-size: 12px">Billet archivé :</u>
-    <span id="pnrArchivedTicket" class="text-sm"
-      >WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/RPP/TST</span
-    >
-    <input
-      class="text-sm"
-      type="text"
-      id="npArchivedTicket"
-      title="Numéro de la ligne"
-      maxlength="2"
-      placeholder="N° de la ligne"
-      style="min-width: 30px; padding: 0; height: 13px !important"
-    />
-  </div>
-
-  <div class="mr-3 mb-2 mt-2">
-    <a title="Copier"
-      id="button-np-archived-ticket"
-      class="text-info py-0"
-      onclick="copyarchivedpnrticket()"
-    >
-      <i
-        class="fa fa-copy"
-        style="font-size: 12px; cursor: pointer;"
-      ></i
+    <div class="mr-3">
+      <a title="Copier"
+        id="button-np"
+        class="text-info py-0"
+        onclick="copypnr()"
       >
-    </a>
+        <i
+          class="fa fa-copy"
+          style="font-size: 12px; cursor: pointer;"
+        ></i
+        ></a
+      >
+    </div>
   </div>
 
-</div>
+  <!-- <div style="height: 14px !important" class="p-0 m-0 d-flex align-items-center justify-content-between text-info c-pnr mb-0">
+    <div>
+      <u style="font-size: 12px">Passagers groupés :</u>
+      <span id="groupedPassenger" class="text-sm"
+        >WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/RTN</span
+      >
+    </div>
+
+    <div class="mr-3">
+      <a title="Copier"
+        id="button-grouped-passenger"
+        class="text-info py-0"
+        onclick="copygrouped()"
+      >
+        <i
+          class="fa fa-copy"
+          style="font-size: 12px; cursor: pointer;"
+        ></i
+        ></a
+      >
+    </div>
+  </div> -->
+
+  <div style="height: 14px !important" class="p-0 m-0 d-flex align-items-center justify-content-between text-info c-pnr mb-0">
+    <div>
+      <u style="font-size: 12px; margin-bottom: 1px">Billets non émis :</u>
+      <span id="bne" class="text-sm"
+        >WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/TQT/T</span
+      ><span class="text-sm">[Numéro de la tarification]</span> {% comment %}
+      <input
+        type="text"
+        id="nt"
+        title="Numéro de la tarification"
+        maxlength="6"
+        placeholder="N° Tarif."
+        style="width: 70px; margin-bottom: 1px"
+      />
+      {% endcomment %}
+    </div>
+
+    <div class="mr-3">
+      <a title="Copier" id="button-nt" class="text-info py-0" onclick="copybne()">
+        <i
+          class="fa fa-copy"
+          style="font-size: 12px; cursor: pointer;"
+        ></i>
+        </a
+      >
+    </div>
+  </div>
+
+  <div style="height: 14px !important" class="p-0 m-0 d-flex align-items-center justify-content-between text-info c-pnr mb-0">
+    <div>
+      <u style="font-size: 12px; margin-bottom: 1px">Billets émis :</u>
+      <span id="be" class="text-sm">WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/TWD/L</span
+      ><span class="text-sm">[Numéro de la ligne du billet dans le PNR]</span> 
+      {% comment %}
+      <input
+        type="text"
+        id="nlbe"
+        title="Numéro de la ligne du billet dans le PNR"
+        maxlength="6"
+        placeholder="N° Bill."
+        style="width: 70px; margin-bottom: 1px"
+      />
+      {% endcomment %}
+    </div>
+
+    <div class="mr-3">
+      <a title="Copier"
+        id="button-nlbe"
+        class="text-info py-0"
+        onclick="copybe()"
+      >
+        <i
+          class="fa fa-copy"
+          style="font-size: 12px; cursor: pointer;"
+        ></i>
+        </a
+      >
+    </div>
+  </div>
+
+  <div class="other-commands-menu">
+    <div style="height: 14px !important" class="p-0 m-0 d-flex align-items-center justify-content-between text-info c-pnr mb-0">
+      <div>
+        <u style="font-size: 12px; margin-bottom: 1px">Services émis :</u>
+        <span id="se" class="text-sm">WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/EWD/L</span
+        ><span class="text-sm">[Numéro de la ligne du billet dans le PNR]</span> 
+        {% comment %}
+        <input
+          type="text"
+          id="nlse"
+          title="Numéro de la ligne du billet dans le PNR"
+          maxlength="6"
+          placeholder="N° Bill."
+          style="width: 70px; margin-bottom: 1px"
+        />
+        {% endcomment %}
+      </div>
+    
+      <div class="mr-3">
+        <a title="Copier"
+        id="button-nlse"
+        class="text-info py-0"
+        onclick="copyse()"
+      >
+        <i
+          class="fa fa-copy"
+          style="font-size: 12px; cursor: pointer;"
+        ></i>
+        </a
+      >
+      </div>
+    </div>
+    
+    <div style="height: 14px !important" class="p-0 m-0 d-flex align-items-center justify-content-between text-info c-pnr mb-0">
+      <div>
+        <u style="font-size: 12px">PNR archivé :</u>
+        <span id="pnrArchived" class="text-sm"
+          >WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/RPP/RLC-</span
+        >
+        <input
+          class="text-sm"
+          type="text"
+          id="npArchived"
+          title="Numéro PNR"
+          maxlength="6"
+          placeholder="N° PNR"
+          style="width: 70px; padding: 0; height: 14px !important"
+        />
+      </div>
+    
+      <div class="mr-3">
+        <a title="Copier"
+        id="button-np-archived"
+        class="text-info py-0"
+        onclick="copyarchivedpnr()"
+      >
+        <i
+          class="fa fa-copy"
+          style="font-size: 12px; cursor: pointer;"
+        ></i
+        >
+      </a>
+      </div>
+    </div>
+    
+    <!-- <div style="height: 14px !important" class="p-0 m-0 d-flex align-items-center justify-content-between text-info c-pnr mb-0">
+      <div>
+        <u style="font-size: 12px">Historiques :</u>
+        <span id="pnrArchivedHistory" class="text-sm">RPP/TTH</span>
+      </div>
+    
+      <div class="mr-3">
+        <a title="Copier"
+          id="button-np-archived-history"
+          class="text-info py-0"
+          onclick="copyarchivedpnrhistory()"
+        >
+          <i
+            class="fa fa-copy"
+            style="font-size: 12px; cursor: pointer;"
+          ></i
+          >
+        </a>
+      </div>
+    </div> -->
+    
+    {% comment %}
+    <div>
+      <p class="text-sm">
+        Après avoir vu la liste des historiques avec la commande
+        <button class="bg-info" onclick="copyarchivedpnrhistory()">RPP/TTH</button>.
+        <span class="text-sm"
+          >Vous pouvez maintenant envoyer le TST avec la commande suivante
+        </span>
+      </p>
+    </div>
+    {% endcomment %}
+    
+    <div style="height: 14px !important" class="p-0 m-0 d-flex align-items-center justify-content-between text-info c-pnr mb-0">
+      <div>
+        <u style="font-size: 12px">Billet archivé :</u>
+        <span id="pnrArchivedTicket" class="text-sm"
+          >WM/FWD/EML ISSOUFALI.PNR@GMAIL.COM/RPP/TST</span
+        >
+        <input
+          class="text-sm"
+          type="text"
+          id="npArchivedTicket"
+          title="Numéro de la ligne"
+          maxlength="2"
+          placeholder="N° de la ligne"
+          style="min-width: 30px; padding: 0; height: 13px !important"
+        />
+      </div>
+    
+      <div class="mr-3 mb-2 mt-2">
+        <a title="Copier"
+          id="button-np-archived-ticket"
+          class="text-info py-0"
+          onclick="copyarchivedpnrticket()"
+        >
+          <i
+            class="fa fa-copy"
+            style="font-size: 12px; cursor: pointer;"
+          ></i
+          >
+        </a>
+      </div>
+    
+    </div>
+  </div>
 <div>
 
 <script>

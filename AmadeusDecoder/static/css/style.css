@@ -192,7 +192,7 @@ input#fee-cost::placeholder {
 .sticky-tr-table {
 	position: sticky;
 	top: 9.4rem;
-	z-index: 190;
+	z-index: 10;
 }
 
 .fixed-header {

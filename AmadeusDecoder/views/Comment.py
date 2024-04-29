@@ -218,19 +218,57 @@ def get_pnr_not_fetched(request):
     return JsonResponse({})
 
 # ----------------- anomalie: réponse automatique -----------------
+
+@login_required(login_url='index')
+def get_unshowed_tickets(request):
+    context = {}
+    if request.method == 'POST':
+        pnr_id = request.POST.get('pnr_id')
+        tickets_query = Ticket.objects.filter(pnr_id= pnr_id).filter((Q(transport_cost=0) & Q(tax=0) & Q(total=0)) | Q(is_no_adc=True)).all()
+        tickets= []
+        for ticket in tickets_query:
+            ticket_data = {
+                'ticket_id' : ticket.id,
+                'pnr_id' : ticket.pnr_id,
+                'number' : ticket.number,
+                'transport_cost' : ticket.transport_cost,
+                'taxe' : ticket.tax,
+                'total' : ticket.total
+            }
+            tickets.append(ticket_data)
+        context['tickets'] = tickets
+        context['status'] = 200
+    return JsonResponse(context)
+
+
 @login_required(login_url='index')
 def verif_ticket(request):
     if request.method == 'POST':
         ticket_number = request.POST.get('ticket_number')
+        pnr_id = request.POST.get('pnr_id')
+
         ticket = Ticket.objects.filter(number=ticket_number).first()
-        verif = 'False'
         
-        if ticket is not None and ticket.is_no_adc == False:
-            verif='True'
-        if ticket is not None and ticket.is_no_adc == True and ticket.total != 0:
-            verif= 'is_no_adc'
-        if ticket is not None and ticket.is_no_adc == True and ticket.total == 0:
-            verif= 'is_no_adc'
+        verif = 'False'
+        if ticket is not None:
+            if ticket.pnr_id == pnr_id:
+                if ticket.is_no_adc == False:
+                    verif='True'
+                if ticket.is_no_adc == True and ticket.total != 0:
+                    verif= 'is_no_adc'
+                if ticket.is_no_adc == True and ticket.total == 0:
+                    verif= 'is_no_adc'
+            elif ticket.pnr_id == pnr_id and ticket.total > 0:
+                verif = 'ticket_already_exist'
+                # ticket existant mais pour un autre pnr
+            else:
+                if ticket.pnr_id:
+                    verif = {
+                        'exist': True,
+                        'pnr': ticket.pnr.number,
+                    }
+                else: 
+                    verif = 'pnr'
 
         
     return JsonResponse({'verif': verif})
@@ -298,20 +336,20 @@ def getPassengerAndSegmentById(request):
         except Passenger.DoesNotExist:
             return JsonResponse({'error': 'Passenger not found'}, status=404)
 
+# enregistrement de l'anomalie billet non remonté
 @login_required(login_url='index')
 def save_ticket_anomalie(request):
     if request.method == 'POST':
         if "listNewTicketAnomalyInfo" in request.POST:
             new_tickets = json.loads(request.POST.get("listNewTicketAnomalyInfo"))
-                                     
-            print(f"TICKET  : {new_tickets}")  
-        
-        
+
             ticket_number = new_tickets[0]['ticket_number']
             
+            # check number ticket length
             if len(ticket_number) > 17:
                 return JsonResponse({'error':'ticket number > 17 '})
         
+            # get all data
             montant_hors_taxe = new_tickets[0]['montant_hors_taxe']
             taxe = new_tickets[0]['taxe']
             pnr_id = new_tickets[0]['pnr_id']
@@ -325,15 +363,6 @@ def save_ticket_anomalie(request):
             pnr = Pnr.objects.filter(id=pnr_id).first()
                 
             user_id = new_tickets[0]['user_id']
-
-            user_copying= UserCopying.objects.filter(document=pnr.number).last()
-            issuing_user = None
-            if user_copying is not None:
-                issuing_user = User.objects.get(pk=user_copying.user_id.id)
-            else:
-                issuing_user = pnr.agent
-                
-            # print(f"user_copying 1 : {issuing_user}")
             
             info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "passenger_id":passenger_id, "segment": segments, "ticket_status":1, 'ticket_type':ticket_type, 'fee': str(new_tickets[0]['fee']).capitalize()} # ticket_status : 0 ticket existant , 1 ticket non existant
         
@@ -343,14 +372,11 @@ def save_ticket_anomalie(request):
             taxe = request.POST.get('taxe')
             pnr_id = request.POST.get('pnr_id')
             user_id = request.POST.get('user_id')
-            user = User.objects.filter(id= user_id).first()
-            
             
             pnr = Pnr.objects.filter(id=pnr_id).first()
             
             info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "ticket_status":0} # ticket_status : 0 ticket existant , 1 ticket non existant
             
-        
         if montant_hors_taxe == "" or taxe == "":
             return JsonResponse(
                 {
@@ -358,23 +384,24 @@ def save_ticket_anomalie(request):
                     'status': 'error'
                 }
             )
-            
-        user_copying= UserCopying.objects.filter(document=pnr.number).last()
-        issuing_user = None
-        if user_copying is not None:
-            issuing_user = User.objects.get(pk=user_copying.user_id.id)
-        else:
-            issuing_user = pnr.agent
-            
-        # print(f"user_copying 2 : {issuing_user}")
-    
-            
-        anomalie = Anomalie(pnr=pnr, categorie='Billet non remonté', infos=info, issuing_user = issuing_user, creation_date=timezone.now())
+        
+        user = User.objects.filter(id= user_id).first()
+
+        anomalie = Anomalie(pnr=pnr, categorie='Billet non remonté', infos=info, issuing_user = user, creation_date=timezone.now())
         anomalie.save()   
         anomalie_id = anomalie.id
         response_data = {'status':'ok','anomalie_id':anomalie_id}
+
+        # if user.role.id in [1, 2]:
+        #     response_data['accept'] = True
+        # else:
+        #     response_data['accept'] = False
+        
+        # Accepter les demandes pour les billets archivés pour toutes les utilisateurs
+        response_data['accept'] = True
+        
         return JsonResponse(response_data,safe=False)
-    
+
 
 @login_required(login_url='index')
 def get_all_anomalies(request):
@@ -411,10 +438,12 @@ def update_ticket(request):
         anomalie_id = request.POST.get('anomalie_id')
 
         anomalie = Anomalie.objects.get(pk=anomalie_id)
-        issuing_user = anomalie.issuing_user or anomalie.pnr.agent
+        issuing_user = anomalie.issuing_user
         ticket = Ticket.objects.filter(number=anomalie.infos.get('ticket_number')).first()
+        pnr = Pnr.objects.get(pk=anomalie.pnr_id)
         
         if ticket is not None:
+            # update the existing ticket
             ticket.transport_cost = anomalie.infos.get('montant')
             ticket.tax = anomalie.infos.get('taxe')
             ticket.total = float(anomalie.infos.get('montant')) + float(anomalie.infos.get('taxe'))
@@ -424,6 +453,7 @@ def update_ticket(request):
             ticket.save()
            
         else:
+            # Create a new ticket
             ticket = Ticket()
             ticket.transport_cost=anomalie.infos.get('montant')
             ticket.number=anomalie.infos.get('ticket_number')
@@ -438,6 +468,7 @@ def update_ticket(request):
             ticket.issuing_date=datetime.now()
             ticket.save()
             
+            # get the corresponding segment
             segment_id = ast.literal_eval(anomalie.infos.get('segment'))
             if segment_id != "":
                 if isinstance(segment_id, list):
@@ -450,8 +481,12 @@ def update_ticket(request):
                     ticket_passenger = TicketPassengerSegment(ticket=ticket,segment=segment)
                     ticket_passenger.save()
 
-        user_copying = UserCopying(document=anomalie.pnr.number, user_id=issuing_user)
-        user_copying.save()
+        last_user_copying= UserCopying.objects.filter(document=pnr.number).last()
+        
+        if last_user_copying is not None:
+            user_copying = User.objects.get(pk=last_user_copying.user_id.id)
+            new_user_copying = UserCopying(document=pnr.number,user_id=user_copying)
+            new_user_copying.save()
         
         anomalie.status = 1
         anomalie.response_date = timezone.now()
@@ -487,7 +522,7 @@ def updateAnomaly(request):
         montant = request.POST.get('montant')
         taxe = request.POST.get('taxe')
         anomaly_id = request.POST.get('anomaly_id')
-        print('-------------------AOMALY ----------------------------')
+        print('-------------------ANOMALY ----------------------------')
         print(montant)
         anomaly = Anomalie.objects.get(pk=anomaly_id)
         anomaly.infos['ticket_number'] = ticket

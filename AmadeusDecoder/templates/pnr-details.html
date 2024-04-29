@@ -66,6 +66,18 @@
 									<div class="row mb-0 px-2 py-0">
 										<div class="col-md-2">
 											<h4 class="text-primary mx-0 mb-0">Détail du PNR</h4>
+											{% if pnr.is_archived %}
+												<div 
+													class="btn btn-warning px-2 py-0" 
+													onmouseover="this.style.backgroundColor='#ffc107'" 
+													onmouseout="this.style.backgroundColor='#ffc107'" 
+													style="border: none; cursor: help;"
+													title="? Cliquer sur le bouton Signaler pour faire une demande si des billets sont manquants"
+												>
+													<i class="fa fa-warning"></i>
+													<span>PNR archivé</span>
+												</div>
+											{% endif %}
 										</div>
 										<div class="col-md-4">
 											{% if pnr.status_value == 0 %}
@@ -1427,7 +1439,7 @@
 			</div>
 				<div class="modal-body">
 					
-					{% if user.role_id == 1 %}
+					{% if user.role_id == 1 or pnr.is_archived%}
 					<div style="margin-bottom:5px;">
 						<button class="btn btn-info" id="comment-ticket" enabled>Billet non remonté</button>
 					</div>
@@ -1436,12 +1448,17 @@
 					<div>
 						<div id="comment-ticket-form">
 							{% csrf_token %}
-							<div id='ticket-input'>
+							<div id='list-ticket' ></div>
+
+							<div id='ticket_input' hidden>
 								<label for="ticket_number" class="col-form-label">Numero du Billet:</label>
 								<input type='text' maxlength='16' name="ticket_number" class="form-control" id="ticket_number">
 								<input type='hidden' name="pnr_id" value="{{pnr.id}}" class="form-control" id="pnr-id" >
 								
 							</div>
+
+							
+
 							<div id='info'>
 								<label for="montant_hors_taxe" class="col-form-label">Montant Hors Taxe</label>
 								<input type='number' name="montant_hors_taxe" class="form-control" id="montant_hors_taxe">
@@ -1459,11 +1476,13 @@
 										<option value='EMD'>EMD</option>
 									</select>
 								</div>
-								<div>
-									<label id="fee">
-										<input type="checkbox" id="feecheckbox" name="fee" >frais de service
+								<div class="form-check" id="fee">
+									<input class="form-check-input" type="checkbox" value=""  id="feecheckbox">
+									<label class="form-check-label" for="flexCheckDefault">
+										frais de service
 									</label>
-								</div>
+								  </div>
+								
 								<div>
 									<label for="selectPassenger" class="col-form-label">Passenger</label>
 									<select id="selectPassenger" class="form-control form-control">
@@ -1477,8 +1496,12 @@
 								</div>
 								
 							</div>
+							<div>
+								<button class="btn btn-success" id="comment-ticket-next-button" style="margin-top:5px;" disabled>Confirmer</button>
+								<button class="btn btn-danger" id="comment-ticket-cancel-button" style="margin-top:5px;" >Annuler</button>            
+							</div>
 
-							<button class="btn btn-success" id="comment-ticket-next-button" style="margin-top:5px;" disabled>Suivant</button>
+							
 							    
 						</div>
 

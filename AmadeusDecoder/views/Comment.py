@@ -9,7 +9,7 @@ from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
 from AmadeusDecoder.models.invoice.TicketPassengerSegment import TicketPassengerSegment
 from AmadeusDecoder.models.pnr.Passenger import Passenger, PassengerType
 
-from AmadeusDecoder.models.pnr.Pnr import Pnr, UnremountedPnr, unRemountedPnrPassenger, unRemountedPnrSegment, unRemountedTickets
+from AmadeusDecoder.models.pnr.Pnr import Pnr, UnremountedPnr, unRemountedPnrPassenger, unRemountedPnrSegment, unRemountedPnrTickets
 from AmadeusDecoder.models.pnrelements import Airport
 from AmadeusDecoder.models.pnrelements.PnrAirSegments import PnrAirSegments 
 from AmadeusDecoder.models.utilities.Comments import Anomalie, Comment, Response, NotFetched
@@ -541,7 +541,7 @@ def pnr_non_remonte(request):
         for ticket in tickets:
             segment =  unRemountedPnrSegment.objects.get(order=ticket['ticketSegment'], unremountedPnr=unremounted_pnr)         
             passenger = unRemountedPnrPassenger.objects.get(order=ticket['ticketPassenger'], unremountedPnr=unremounted_pnr)
-            unremounted_pnr_ticket = unRemountedTickets(unremountedPnr=unremounted_pnr,number=ticket['ticketNumber'],type=ticket['ticketType'],transport_cost=ticket['ticketCost'],tax=ticket['ticketTax'],passenger=passenger,segment=segment)
+            unremounted_pnr_ticket = unRemountedPnrTickets(unremountedPnr=unremounted_pnr,number=ticket['ticketNumber'],type=ticket['ticketType'],transport_cost=ticket['ticketCost'],tax=ticket['ticketTax'],passenger=passenger,segment=segment)
             unremounted_pnr_ticket.save()
 
         context['message'] = "Votre demande a été envoyée."
@@ -550,3 +550,40 @@ def pnr_non_remonte(request):
         context['message'] = str(e)
     return JsonResponse(context)
 
+@login_required(login_url='index')
+def all_unremounted_pnr(request):
+    UnremountedPnrList = UnremountedPnr.objects.all()
+
+    context = {}
+    context['unremounted_pnr'] = UnremountedPnrList
+    object_list = context['unremounted_pnr']
+    row_num = request.GET.get('paginate_by', 20) or 20
+    page_num = request.GET.get('page', 1)
+    paginator = Paginator(object_list, row_num)
+    try:
+        page_obj = paginator.page(page_num)
+    except PageNotAnInteger: 
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+        
+    context = {'page_obj': page_obj, 'row_num': row_num}
+    
+    return render(request,'pnr-non-remonte/list.html',context)
+
+@login_required(login_url='index')
+def unremounted_pnr_details(request,unremounted_pnr_id):
+    context = {}
+    print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+    unremountedPnr = UnremountedPnr.objects.get(pk=unremounted_pnr_id)
+    context['unremounted_pnr'] = unremountedPnr
+    tickets = unRemountedPnrTickets.objects.filter(unremountedPnr__id = unremountedPnr.id).all()
+    print(tickets)
+    passengers = unRemountedPnrPassenger.objects.filter(unremountedPnr__id= unremountedPnr.id).all()
+    segments = unRemountedPnrSegment.objects.filter(unremountedPnr__id= unremountedPnr.id).all()
+    context['tickets'] = tickets
+    context['passengers'] = passengers
+    context['segments'] = segments
+
+
+    return render(request,'pnr-non-remonte/details.html',context)

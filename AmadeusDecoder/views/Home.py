@@ -19,7 +19,7 @@ from django.forms.models import model_to_dict
 from django.conf import settings
 from AmadeusDecoder.models.invoice.TicketPassengerSegment import OtherFeeSegment, TicketPassengerSegment
 
-from AmadeusDecoder.models.pnr.Pnr import Pnr, UnremountedPnr, unRemountedPnrPassenger, unRemountedPnrSegment, unRemountedTickets
+from AmadeusDecoder.models.pnr.Pnr import Pnr, UnremountedPnr, unRemountedPnrPassenger, unRemountedPnrSegment, unRemountedPnrTickets
 from AmadeusDecoder.models.pnr.PnrPassenger import PnrPassenger
 from AmadeusDecoder.models.pnrelements.Airport import Airport
 from AmadeusDecoder.models.user.Users import User, UserCopying

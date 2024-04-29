@@ -343,7 +343,7 @@ class unRemountedPnrSegment(models.Model):
         related_name="destination_code"
     )
 
-class unRemountedTickets(models.Model):
+class unRemountedPnrTickets(models.Model):
     class Meta:
         db_table = 't_unremounted_pnr_ticket'
 
@@ -355,6 +355,7 @@ class unRemountedTickets(models.Model):
     type = models.CharField(max_length=5, null=True)
     transport_cost = models.DecimalField(max_digits=13, decimal_places=4, default=0)
     tax = models.DecimalField(max_digits=13, decimal_places=4, default=0)
+    fee = models.BooleanField(default=True)
 
     passenger = models.ForeignKey(
         'AmadeusDecoder.unRemountedPnrPassenger',

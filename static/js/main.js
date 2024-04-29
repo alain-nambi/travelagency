@@ -1069,13 +1069,14 @@ function toggleSidebar() {
 }
 if (localStorage.getItem("sidebar") === null) {
   sidebarIsOpen = openSidebarOnLoad;
-} else {
-  if (localStorage.getItem("sidebar") === "opened") {
-    sidebarIsOpen = true;
-  } else {
-    sidebarIsOpen = false;
-  }
-}
+} 
+// else {
+//   if (localStorage.getItem("sidebar") === "opened") {
+//     sidebarIsOpen = true;
+//   } else {
+//     sidebarIsOpen = false;
+//   }
+// }
 if (sidebarIsOpen) {
   $pushSelectors.removeClass("sidebar-collapse");
 }
@@ -1752,16 +1753,18 @@ function eraseCache() {
   window.location.reload();
 }
 
-//card-header sticky
-$(window).scroll(function () {
-  if ($(window).scrollTop() >= 80) {
-    $(".card-header").addClass("fixed-header");
-    $("#tr-all-pnr").addClass("sticky-tr-table");
-  } else {
-    $(".card-header").removeClass("fixed-header");
-    $("#tr-all-pnr").removeClass("sticky-tr-table");
-  }
-});
+$(".card-header").addClass("fixed-header");
+$("#tr-all-pnr").addClass("sticky-tr-table");
+
+// //card-header sticky
+// $(window).scroll(function () {
+//   // if ($(window).scrollTop() >= 80) {
+
+//   // } else {
+//   //   // $(".card-header").removeClass("fixed-header");
+//   //   $("#tr-all-pnr").removeClass("sticky-tr-table");
+//   // }
+// });
 
 //limit length comment and response
 $("#comment span").text(function (index, currentText) {

@@ -159,7 +159,16 @@
 									</div>
 									<div class="row mb-2 px-2 py-0">
 										<div class="col-md-3 px-2">
-											<p class="details-p mb-0"><span class="details-span text-primary">Agence</span> {% if pnr.agency is not None %} {{ pnr.agency }} {% elif pnr.agency is None and pnr.type == 'EWA' %} {{ pnr.agency_name }} {% endif %}</p>
+											<p class="details-p mb-0">
+												<span class="details-span text-primary">Agence</span> 
+												{% if pnr|pnr_office %}
+													{% if pnr|pnr_office|lower == 'web' %} 
+														{{ pnr|pnr_office }} (Reçu dossier)
+													{% else %}
+														{{ pnr|pnr_office }}
+													{% endif %}
+												{% endif %}
+											</p>
 											
 											
 											<p class="details-p mb-0">

@@ -563,8 +563,12 @@
                         {% endif %}
                       </td>
                       <td>
-                        {% if pnr|pnr_office is not None %}
-                          {{ pnr|pnr_office }}
+                        {% if pnr|pnr_office %}
+                          {% if pnr|pnr_office|lower == 'web' %} 
+                            {{ pnr|pnr_office }} (Reçu dossier)
+                          {% else %}
+                            {{ pnr|pnr_office }}
+                          {% endif %}
                         {% endif %}
                       </td>
                       <td>

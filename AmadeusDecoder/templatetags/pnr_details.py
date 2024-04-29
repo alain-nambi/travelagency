@@ -22,6 +22,17 @@ register = template.Library()
 
 AIRPORT_AGENCY_CODE = configs.AIRPORT_AGENCY_CODE
 
+@register.filter(name='pnr_office')
+def get_pnr_office(pnr):
+    try:   
+        # Make agency name uniformised     
+        agence_name_uniformised = ['GSA ISSOUFALI Dzaoudzi', 'GSA ISSOUFALI Jumbo Score', 'GSA ISSOUFALI Mamoudzou']
+        if str(pnr.get_pnr_office()).strip() in agence_name_uniformised:
+            return str(pnr.get_pnr_office()).strip().removeprefix("GSA ISSOUFALI")
+        return pnr.get_pnr_office()
+    except:
+        return None
+
 @register.filter(name='ticket_datetime_invoice_created')
 def get_ticket_datetime_invoice_created(pnr_id, ticket_id):
     from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice

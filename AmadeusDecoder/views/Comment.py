@@ -456,7 +456,7 @@ def get_all_anomalies(request):
         
     context = {'page_obj': page_obj, 'row_num': row_num}
     
-    return render(request,'anomalies-list.html',context)
+    return render(request,'anomalie/list.html',context)
 
 @login_required(login_url='index')
 def anomaly_details(request, pnr_id):
@@ -464,7 +464,7 @@ def anomaly_details(request, pnr_id):
     anomalie = Anomalie.objects.filter(pnr_id=pnr_id).exclude(status=3)
     context['anomalies'] = anomalie
     context['pnr_id'] = pnr_id
-    return render(request, 'anomalie-details.html', context)
+    return render(request, 'anomalie/details.html', context)
 
 # updating or saving ticket from anomalie 'Billet non remonté'
 @login_required(login_url='index')

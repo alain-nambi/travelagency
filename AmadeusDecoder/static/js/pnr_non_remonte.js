@@ -36,6 +36,9 @@ const ticketTax = document.querySelector('#ticketTax');
 const flightNumber = document.querySelector('#flightNumber');
 const segmentOrder = document.querySelector('#segmentOrder');
 
+const PassengerName = document.querySelector('#PassengerName');
+const PassengerOrder = document.querySelector('#PassengerOrder');
+
 $(document).ready(function(){
     //  check if there is segments data in the session storage
     // if there is, fill the segment select with it
@@ -115,11 +118,12 @@ ticketNumber.addEventListener('keyup', function(event){
     }
 })
 
+if(PassengerName.value.trim() === "" || PassengerOrder.value.trim() ===""){
+    ConfirmAddPassengerButton.disabled = true;
+}
+
 if(flightNumber.value.trim() === "" || segmentOrder.value.trim() ===""){
     ConfirmAddSegmentButton.disabled = true;
-}
-else{
-    ConfirmAddSegmentButton.disabled = false;
 }
 
 flightNumber.addEventListener('keyup', function(event){
@@ -128,6 +132,33 @@ flightNumber.addEventListener('keyup', function(event){
     }
     else{
         ConfirmAddSegmentButton.disabled = true;
+    }
+})
+
+segmentOrder.addEventListener('keyup', function(event){
+    if(flightNumber.value.length >= 3 && segmentOrder.value.trim() !=""){
+        ConfirmAddSegmentButton.disabled = false;
+    }
+    else{
+        ConfirmAddSegmentButton.disabled = true;
+    }
+})
+
+PassengerOrder.addEventListener('keyup', function(event){
+    if(PassengerOrder.value.trim() === ""){
+        ConfirmAddPassengerButton.disabled = true;
+    }
+    if(PassengerOrder.value.trim() != "" && PassengerName.value.trim() != ""){
+        ConfirmAddPassengerButton.disabled = false;
+    }
+})
+
+PassengerName.addEventListener('keyup', function(event){
+    if(PassengerName.value.trim() === ""){
+        ConfirmAddPassengerButton.disabled = true;
+    }
+    if(PassengerOrder.value.trim() != "" && PassengerName.value.trim() != ""){
+        ConfirmAddPassengerButton.disabled = false;
     }
 })
 

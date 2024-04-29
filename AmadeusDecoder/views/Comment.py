@@ -392,13 +392,16 @@ def save_ticket_anomalie(request):
         anomalie_id = anomalie.id
         response_data = {'status':'ok','anomalie_id':anomalie_id}
 
-        if user.role.id in [1, 2]:
-            response_data['accept'] = True
-        else:
-            response_data['accept'] = False
-
+        # if user.role.id in [1, 2]:
+        #     response_data['accept'] = True
+        # else:
+        #     response_data['accept'] = False
+        
+        # Accepter les demandes pour les billets archivés pour toutes les utilisateurs
+        response_data['accept'] = True
+        
         return JsonResponse(response_data,safe=False)
- 
+
 
 @login_required(login_url='index')
 def get_all_anomalies(request):
@@ -519,7 +522,7 @@ def updateAnomaly(request):
         montant = request.POST.get('montant')
         taxe = request.POST.get('taxe')
         anomaly_id = request.POST.get('anomaly_id')
-        print('-------------------AOMALY ----------------------------')
+        print('-------------------ANOMALY ----------------------------')
         print(montant)
         anomaly = Anomalie.objects.get(pk=anomaly_id)
         anomaly.infos['ticket_number'] = ticket

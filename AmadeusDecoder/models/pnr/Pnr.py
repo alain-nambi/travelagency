@@ -173,20 +173,48 @@ class Pnr(models.Model, BaseModel):
                 error_file.write('\n')
             print(e)
             
+    def update_agency_name(self, agency_name):
+        # Mise à jour du nom de l'agence pour les émissions de Zenith uniquement
+        try:
+            pnr = Pnr.objects.get(pk=self.id, type='EWA')
+            pnr.agency_name = agency_name
+            pnr.save()
+        except Pnr.DoesNotExist:
+            pass
+            # Gérer le cas où aucun PNR de type 'EWA' n'est trouvé
+            print("Aucun PNR de type 'EWA' n'a été trouvé pour cette instance.")
+        
+    def get_agency_name(self, issuing_office):
+        if issuing_office is not None:
+            # print(f"** {issuing_office} **")
+            agency_name = issuing_office.issuing_agency_name
+            # print(agency_name)
+            
+            if agency_name:
+                self.update_agency_name(agency_name)
+                return agency_name
+        return None
+            
     # get PNR issuing / creating office
     def get_pnr_office(self):
         try:
-            issuing_office_other_fee = OthersFee.objects.filter(Q(pnr=self) & (Q(other_fee_status=1) | Q(is_invoiced=True))).exclude(issuing_agency_name=None).last()
-            issuing_office_ticket= Ticket.objects.filter(Q(pnr=self) & (Q(ticket_status=1) | Q(is_invoiced=True))).exclude(issuing_agency_name=None).last()
-            if issuing_office_ticket is not None:
-                return issuing_office_ticket.issuing_agency_name
-            elif issuing_office_other_fee is not None:
-                return issuing_office_other_fee.issuing_agency_name
-            else:
-                if self.agency is not None:
-                    return self.agency.name
-                else:
-                    return self.agency_name
+            issuing_office_other_fee =  OthersFee.objects.filter(
+                                            Q(pnr=self) & (Q(other_fee_status=1) | Q(is_invoiced=True))
+                                        ).exclude(issuing_agency_name=None).exclude(issuing_agency_name__icontains='web').last()
+            
+            issuing_office_ticket = Ticket.objects.filter(
+                                        Q(pnr=self) & (Q(ticket_status=1) | Q(is_invoiced=True))
+                                    ).exclude(issuing_agency_name=None).exclude(issuing_agency_name__icontains='web').last()
+
+            agency_name = self.get_agency_name(issuing_office_ticket)
+            if agency_name:
+                return agency_name
+
+            agency_name = self.get_agency_name(issuing_office_other_fee)
+            if agency_name:
+                return agency_name
+
+            return self.agency.name if self.agency else self.agency_name
         except Exception as e:
             with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
                 error_file.write('{}: \n'.format(datetime.datetime.now()))
@@ -282,6 +310,46 @@ class Pnr(models.Model, BaseModel):
                 for ticket in ticket_obj:
                     ticket.passenger = passenger_instance.first().passenger
                     ticket.save()
+                    
+    def rectify_fare_cost(self):
+        """
+        Function: rectify_fare_cost
+        Description: This function is responsible for updating the fare cost of a ticket or other fees to ensure they are correct.
+        """
+        # Retrieve tickets related to the PNR
+        tickets = Ticket.objects.filter(pnr_id=self.id, ticket_status=1)
+
+        # Iterate over each ticket to check and adjust costs if necessary
+        for ticket in tickets:
+            # Calculate the sum of transport cost and tax
+            transport_and_tax_sum = ticket.transport_cost + ticket.tax
+            
+            # Check if the sum equals the total cost of the ticket
+            if transport_and_tax_sum == ticket.total:
+                print(f"<Ticket cost correct {ticket.number}> HT {ticket.transport_cost} TAX: {ticket.tax} TOTAL: {ticket.total}")
+                continue
+            
+            # Check if total cost is greater than 0 and transport cost + tax not equal to total
+            if ticket.total > 0 and transport_and_tax_sum != ticket.total:
+                # Calculate the corrected transport cost
+                corrected_transport_cost = min(ticket.total - ticket.tax, ticket.total)
+
+                # If the corrected transport cost is negative, set it to 0
+                corrected_transport_cost = max(corrected_transport_cost, 0)
+
+                # Adjust the transport cost and tax accordingly
+                ticket.transport_cost = corrected_transport_cost
+                ticket.tax = ticket.total - corrected_transport_cost
+                
+                # Display a banner indicating the start of fare cost rectification
+                print(f"<Ticket cost rectification {ticket.number} {ticket.pnr}> HT {ticket.transport_cost} TAX: {ticket.tax} TOTAL: {ticket.total}")
+
+                # Save the modifications made to the ticket
+                ticket.save()
+                    
+        # # Display the tickets and other fees after rectification
+        # print(tickets)
+        # print(other_fees)
 
     
     def __str__(self):

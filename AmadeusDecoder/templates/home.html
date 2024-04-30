@@ -332,7 +332,7 @@
                 </div>
               </div>
             </div>
-            <div class="card-body p-0" id="showTableForAllPnr">
+            <div class="card-body p-0" id="showTableForAllPnr" style="margin-top: 1.5rem;">
               <table class="table table-bordered table-head-fixed table-hover text-nowrap" id="all-pnr">
                 <thead id="thead-all-pnr">
                   <!-- <tr>
@@ -364,29 +364,29 @@
                     <th width="20%">Agence</th>
                   </tr> -->
                   <tr id="tr-all-pnr">
-                    <th>Numéro</th>
-                    <th>Passagers</th>
-                    <th>Client</th>
-                    <th class="pnr-creation-date" style="cursor: pointer;">
+                    <th data-resizable-column-id="numero">Numéro</th>
+                    <th data-resizable-column-id="passagers">Passagers</th>
+                    <th data-resizable-column-id="client">Client</th>
+                    <th data-resizable-column-id="date_creation" class="pnr-creation-date" style="cursor: pointer;">
                       <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
                         Date de création
                         <i class="fa fa-sm fa-solid" id="icon__pnrDateCreation"></i>
                       </div>
                     </th>
-                    <th class="pnr-issuing-date">Date d'émission</th>
-                    <th>Montant</th>
-                    <th>Statut</th>
-                    <th>OPC</th>
-                    <th>Type</th>
-                    <th class="pnr-creator-list">
+                    <th data-resizable-column-id="date_emission" class="pnr-issuing-date">Date d'émission</th>
+                    <th data-resizable-column-id="montant">Montant</th>
+                    <th data-resizable-column-id="status">Statut</th>
+                    <th data-resizable-column-id="opc">OPC</th>
+                    <th data-resizable-column-id="type">Type</th>
+                    <th data-resizable-column-id="createur" class="pnr-creator-list">
                       <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
                         Créateur
                         <i class="fa fa-sm fa-solid" id="icon__pnrCreator"></i>
                       </div>
                     </th>
-                    <th>Emetteur</th>
-                    <th>Agence</th>
-                    <th>Code</th>
+                    <th data-resizable-column-id="emetteur">Emetteur</th>
+                    <th data-resizable-column-id="agence">Agence</th>
+                    <th data-resizable-column-id="code">Code</th>
                   </tr>
                 </thead>
                   <!-- <tr class="tr-filter" hidden>
@@ -563,8 +563,12 @@
                         {% endif %}
                       </td>
                       <td>
-                        {% if pnr|pnr_office is not None %}
-                          {{ pnr|pnr_office }}
+                        {% if pnr|pnr_office %}
+                          {% if pnr|pnr_office|lower == 'web' %} 
+                            {{ pnr|pnr_office }} (Reçu dossier)
+                          {% else %}
+                            {{ pnr|pnr_office }}
+                          {% endif %}
                         {% endif %}
                       </td>
                       <td>
@@ -893,5 +897,5 @@
 
 
 {% endblock content %}
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 

@@ -649,6 +649,9 @@ def pnr_details(request, pnr_id):
     # It is applicable only for Passenger Name Records (PNRs) with a single passenger.
     pnr_detail.attach_ticket_to_first_passenger_segment()
     
+    # This function is responsible for updating the fare cost of a ticket or other fees to ensure they are correct.
+    pnr_detail.rectify_fare_cost()
+    
     context['pnr'] = pnr_detail
     context['passengers'] = pnr_detail.passengers.filter(passenger__passenger_status=1).all().order_by('id')
     context['contacts'] = pnr_detail.contacts.all()

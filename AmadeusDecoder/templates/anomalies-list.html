@@ -42,7 +42,9 @@
                             <tr>
                               <th width="5%" class="text-white">PNR</th>
                               <th width="20%" class="text-white">Catégorie</th>
-                              <th width="5%" class="text-white">Date d'anomalie</th>
+                              <th width="10%" class="text-white">N° Billet</th>
+                              <th width="10%" class="text-white">Montant total</th>
+                              <th width="7%" class="text-white">Date d'anomalie</th>
                               <th width="8%" class="text-white">Signalée par</th>
                               <th width="5%" class="text-white">Statut</th>
                             </tr>
@@ -51,8 +53,10 @@
                             {% for anomalie in page_obj %}
                               <tr class="constat-class" onclick="location.href='{% url 'anomaly_details' anomalie.pnr_id %}'" style="cursor: pointer;">
 
-                                    <td>{{anomalie.pnr.id }}</td>
+                                    <td>{{anomalie.pnr.number }}</td>
                                     <td>{{anomalie.categorie}}</td>
+                                    <td>{{anomalie.infos.ticket_number}}</td>
+                                    <td>{{anomalie.infos.montant|add:anomalie.infos.taxe|default_if_none:0 }}</td>
                                     <td>{{anomalie.creation_date| correct_datetime}}</td>
                                     <td>{{anomalie.issuing_user.username}}</td>
                                     

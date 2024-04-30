@@ -1431,14 +1431,12 @@
 							{% csrf_token %}
 							<div id='list-ticket' ></div>
 
-							<div id='ticket_input' hidden>
+							<div id='ticket_input' {% if request.user.role_id != 1 %}hidden{% endif %} >
 								<label for="ticket_number" class="col-form-label">Numero du Billet:</label>
 								<input type='text' maxlength='16' name="ticket_number" class="form-control" id="ticket_number">
 								<input type='hidden' name="pnr_id" value="{{pnr.id}}" class="form-control" id="pnr-id" >
 								
 							</div>
-
-							
 
 							<div id='info'>
 								<label for="montant_hors_taxe" class="col-form-label">Montant Hors Taxe</label>

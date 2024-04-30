@@ -569,42 +569,7 @@ def updateAnomaly(request):
         anomaly.save()
         return JsonResponse('ok',safe=False)
 
-    context = {}
-    #  save all the details in the table t_anomalie 
-    # bnr : billet non remonté
-    if request.method == 'POST':
-        bnr_number = request.POST.get('bnr_number')
-        bnr_transport_cost = request.POST.get('bnr_transport_cost')
-        bnr_taxe = request.POST.get('bnr_taxe')
-        bnr_pnr_id = request.POST.get('bnr_pnr_id')
-        bnr_pnr = Pnr.objects.get(pk = bnr_pnr_id)
-
-        
-        if request.POST.get('bnr_id'):
-            bnr_id = request.POST.get('bnr_id')
-            ticket = Ticket.objects.get(pk=bnr_id)
-
-            # get the user_copying of the pnr 
-            user_copying= UserCopying.objects.filter(document=bnr_pnr.number).last()
-            if user_copying is not None:
-                issuing_user = User.objects.get(pk=user_copying.user_id.id)
-            else:
-                issuing_user = None
-
-            info = {"ticket_number": bnr_number, "montant": bnr_transport_cost, "taxe": bnr_taxe, "ticket_status": 0, 'ticket_type':ticket.ticket_type} # ticket_status : 0 ticket existant , 1 ticket non existant
-        else:
-            bnr_type = request.POST.get('bnr_type')
-            bnr_fee = request.POST.get('bnr_fee')
-
-            issuing_user = None
-            info = {"ticket_number": bnr_number, "montant": bnr_transport_cost, "taxe": bnr_taxe, "ticket_status": 1, 'ticket_type':bnr_type, 'fee': str(bnr_fee).capitalize()} # ticket_status : 0 ticket existant , 1 ticket non existant
-
-        categorie = CategorieAnomalie.objects.get(pk=2)
-        anomalie = Anomalie(pnr=bnr_pnr, categorie=categorie, infos=info, issuing_user = issuing_user, creation_date=timezone.now())
-        anomalie.save()   
-        anomalie_id = anomalie.id
-        context['status'] = 200
-        return JsonResponse(context)
+    
     
 # ------------------ Add Anomalie Categorie ----------------------
 

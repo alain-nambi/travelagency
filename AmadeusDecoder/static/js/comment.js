@@ -96,6 +96,7 @@ const fixedHeaderCard = document.querySelector(".fixed-header")
 const stickyTrTable = document.querySelector(".sticky-tr-table")
 const pnrManagementMenuTrigger = document.querySelector("#pnrManagementMenu")
 const commentContainer = document.querySelector(".comment-container")
+const manageCustomerContainer = document.querySelector('.manage-customers-container')
 
 if (showOtherCommandsMenu) {
     // Fonction pour mettre à jour le style des éléments
@@ -106,14 +107,20 @@ if (showOtherCommandsMenu) {
                 stickyTrTable.style = "top: 6.4rem !important";
                 pnrManagementMenuTrigger.style = "margin-top: 1rem !important; visibility: visible";
             }
-            commentContainer.style.removeProperty("margin-top")
         } else {
             if (fixedHeaderCard && stickyTrTable && pnrManagementMenuTrigger) {
                 fixedHeaderCard.style.removeProperty("top");
                 stickyTrTable.style.removeProperty("top");
                 pnrManagementMenuTrigger.style.removeProperty("margin-top");
             }
-            commentContainer.style = "margin-top: 3rem !important"
+        }
+
+        if (manageCustomerContainer) {
+            manageCustomerContainer.style.marginTop = isShown ? "3.25rem" : "0.25rem";
+        }
+    
+        if (commentContainer) {
+            commentContainer.style.marginTop = isShown ? "3rem" : "";
         }
     }
 
@@ -125,7 +132,7 @@ if (showOtherCommandsMenu) {
         otherCommandsMenu.classList.remove('d-block');
     }
 
-    if (fixedHeaderCard && stickyTrTable && pnrManagementMenuTrigger || commentContainer) {
+    if (fixedHeaderCard && stickyTrTable && pnrManagementMenuTrigger || commentContainer || manageCustomerContainer) {
         updateElementStyles(isCommandMenuShown)
     }
     
@@ -153,7 +160,7 @@ if (showOtherCommandsMenu) {
         event.preventDefault();
         toggleCommandMenu();
 
-        if (fixedHeaderCard && stickyTrTable && pnrManagementMenuTrigger || commentContainer) {
+        if (fixedHeaderCard && stickyTrTable && pnrManagementMenuTrigger || commentContainer || manageCustomerContainer) {
             // Mise à jour du style des éléments
             updateElementStyles(isCommandMenuShown)
         }

@@ -25,20 +25,19 @@
                 </div>
                 </div>
               </div>
-              {% unremounted_pnr_state as unremounted_pnr_state %}
-              <div class="row d-flex" style="justify-content:space-between !important;">
-                
-                <div class="d-flex float-right mt-4" style="gap: 2rem; margin-left: 4rem !important;">
-                  
-                    <span class="px-2 py-1 bg-green">Traitée : {{unremounted_pnr_state.fasle}} </span>
-                    <span class="px-2 py-1 bg-red">Non traitée : {{unremounted_pnr_state.true}} </span>
-                  
-                </div>
-              </div>
+              
               
               <div class="card-body">
-                <form method='POST' action=''>
-                  {% csrf_token %}
+                {% unremounted_pnr_state as unremounted_pnr_state %}
+                <div class="row d-flex" style="justify-content:space-between !important;">
+                  
+                  <div class="d-flex float-right mt-4" style="gap: 2rem; margin-left: 4rem !important;">
+                    
+                      <span class="px-2 py-1 bg-green">Traitée : {{unremounted_pnr_state.fasle}} </span>
+                      <span class="px-2 py-1 bg-red">Non traitée : {{unremounted_pnr_state.true}} </span>
+                    
+                  </div>
+                </div>
                       <div class="table-adapted-to-screen-height card-body table-responsive p-0">
                         <table class="table table-bordered table-head-fixed text-nowrap all-comment" id="tableAnomaly">
                           <thead class="bg-info">

@@ -65,10 +65,10 @@
                                                             <td class="text-center">{% if ticket.fee %} <span><input class="form-check-input" type="checkbox" checked></span> {% endif %}</td>
                                                             <td class="text-center"> {{ticket.transport_cost | floatformat:2}} </td>
                                                             <td class="text-center"> {{ticket.tax | floatformat:2}} </td>
-                                                            <td class="text-center"> {{ticket.passenger.name}} {% if ticket.passenger.surname %}{{ticket.passenger.surname}}{% endif %} </td>
+                                                            <td class="text-center"> {{ticket.passenger.order}} / {{ticket.passenger.name}} {% if ticket.passenger.surname %}{{ticket.passenger.surname}}{% endif %} </td>
                                                             <td class="text-center"> {{ticket.segment.order}} / {{ticket.segment.codeorg.iata_code}} - {{ticket.segment.codedest.iata_code}} </td>
                                                             <td class="text-center">
-                                                                <span><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"></span>
+                                                                <span><input class="form-check-input" type="checkbox"  id="ticketCheck" checked></span>
                                                                 <span style="margin-left:10px;"><i class="fa fa-pencil" title="Modifier" style="font-size: 15px;color:green;"></i></span>
                                                                 <span style="margin-left:10px;"><i class="fa fa-x" title="Modifier" style="font-size: 15px;color:red;"></i></span>
                                                             </td>
@@ -87,26 +87,26 @@
                                             <table class="table table-primary" style="font-weight:300;" >
                                                 <thead>
                                                     <tr>
+                                                        <th class="text-center" scope="col">Ordre</th>
                                                         <th class="text-center" scope="col">Nom</th>
                                                         <th class="text-center" scope="col">Prénom</th>
                                                         <th class="text-center" scope="col">Désignation</th>
                                                         <th class="text-center" scope="col">Passeport</th>
                                                         <th class="text-center" scope="col">Type</th>
-                                                        <th class="text-center" scope="col">Ordre</th>
                                                         <th class="text-center" scope="col">Action</th>   
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     {% for passenger in passengers %}
                                                         <tr style="justify-content:center;">
+                                                            <td class="text-center"> {{passenger.order}}</td>
                                                             <td class="text-center">{{ passenger.name }}</td>
                                                             <td class="text-center"> {{passenger.surname}} </td>
                                                             <td class="text-center">{{passenger.designation}}</td>
                                                             <td class="text-center"> {{passenger.passeport}} </td>
                                                             <td class="text-center"> {{passenger.type.name}} </td>
-                                                            <td class="text-center"> {{passenger.order}}</td>
                                                             <td class="text-center">
-                                                                <span><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"></span>
+                                                                <span><input class="form-check-input" type="checkbox" id="passengerCheck" checked></span>
                                                                 <span style="margin-left:10px;"><i class="fa fa-pencil" title="Modifier" style="font-size: 15px;color:green;"></i></span>
                                                                 <span style="margin-left:10px;"><i class="fa fa-x" title="Modifier" style="font-size: 15px;color:red;"></i></span>
                                                             </td>
@@ -144,7 +144,7 @@
                                                             <td class="text-center"> {{segment.codeorg.iata_code}} </td>
                                                             <td class="text-center"> {{segment.codedest.iata_code}} </td>
                                                             <td class="text-center">
-                                                                <span><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"></span>
+                                                                <span><input class="form-check-input" type="checkbox" id="SegmentCheck" checked></span>
                                                                 <span style="margin-left:10px;"><i class="fa fa-pencil" title="Modifier" style="font-size: 15px;color:green;"></i></span>
                                                                 <span style="margin-left:10px;"><i class="fa fa-x" title="Modifier" style="font-size: 15px;color:red;"></i></span>
                                                             </td>

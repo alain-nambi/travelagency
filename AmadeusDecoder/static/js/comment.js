@@ -95,21 +95,27 @@ const otherCommandsMenu = document.querySelector(".other-commands-menu");
 const fixedHeaderCard = document.querySelector(".fixed-header")
 const stickyTrTable = document.querySelector(".sticky-tr-table")
 const pnrManagementMenuTrigger = document.querySelector("#pnrManagementMenu")
+const commentContainer = document.querySelector(".comment-container")
 
 if (showOtherCommandsMenu) {
     // Fonction pour mettre à jour le style des éléments
     function updateElementStyles(isShown) {
         if (!isShown) {
-            fixedHeaderCard.style = "top: 3.4rem !important";
-            stickyTrTable.style = "top: 6.4rem !important";
-            pnrManagementMenuTrigger.style = "margin-top: 1rem !important; visibility: visible";
+            if (fixedHeaderCard && stickyTrTable && pnrManagementMenuTrigger) {
+                fixedHeaderCard.style = "top: 3.4rem !important";
+                stickyTrTable.style = "top: 6.4rem !important";
+                pnrManagementMenuTrigger.style = "margin-top: 1rem !important; visibility: visible";
+            }
+            commentContainer.style.removeProperty("margin-top")
         } else {
-            fixedHeaderCard.style.removeProperty("top");
-            stickyTrTable.style.removeProperty("top");
-            pnrManagementMenuTrigger.style.removeProperty("margin-top");
+            if (fixedHeaderCard && stickyTrTable && pnrManagementMenuTrigger) {
+                fixedHeaderCard.style.removeProperty("top");
+                stickyTrTable.style.removeProperty("top");
+                pnrManagementMenuTrigger.style.removeProperty("margin-top");
+            }
+            commentContainer.style = "margin-top: 3rem !important"
         }
     }
-
 
     // Initialisation du statut du menu depuis le localStorage
     let isCommandMenuShown = JSON.parse(localStorage.getItem("isCommandMenuShown")) || false;
@@ -119,7 +125,7 @@ if (showOtherCommandsMenu) {
         otherCommandsMenu.classList.remove('d-block');
     }
 
-    if (fixedHeaderCard && stickyTrTable && pnrManagementMenuTrigger) {
+    if (fixedHeaderCard && stickyTrTable && pnrManagementMenuTrigger || commentContainer) {
         updateElementStyles(isCommandMenuShown)
     }
     
@@ -147,7 +153,7 @@ if (showOtherCommandsMenu) {
         event.preventDefault();
         toggleCommandMenu();
 
-        if (fixedHeaderCard && stickyTrTable && pnrManagementMenuTrigger) {
+        if (fixedHeaderCard && stickyTrTable && pnrManagementMenuTrigger || commentContainer) {
             // Mise à jour du style des éléments
             updateElementStyles(isCommandMenuShown)
         }

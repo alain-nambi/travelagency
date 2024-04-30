@@ -1,16 +1,16 @@
 {% extends "layout-all-pnr.html" %}
 {% block content %}
 {% load pnr_comments %}
-<div class="content-wrapper">
-    <section class="content" style="margin-top: 6.5rem">
-      <div class="container-fluid">
+<div class="content-wrapper" style="overflow: hidden;">
+    <section class="content comment-container">
+      <div class="container-fluid" style="overflow: hidden;">
         <div class="row ">
           <div class="col-12">
-            <div class="card card-primary card-outline ">
-              <div class="card-header justify-content-between py-0">
+            <div class="card card-primary card-outline comment-list-container">
+              <div class="justify-content-between py-0">
                 <div class="row">
                   <div class="col-md-6 float-left">
-                  <h4 class="text-primary title-all-pnr mt-1 mb-0">Gestion Anomalies</h4>
+                    <h4 class="text-primary title-all-pnr mt-2 mb-0 ml-3">Gestion Anomalies</h4>
                   </div>
                   <div class="col-md-6 float-right">
                   <div class="input-group input-group float-sm-right mt-1 mb-1" style="width: 150px;">
@@ -26,7 +26,7 @@
                 </div>
               </div>
 
-              <div class="d-flex justify-content-end mt-4" style="gap: 2rem; margin-right: 4rem !important">
+              <div class="d-flex justify-content-end mt-1" style="gap: 2rem; margin-right: 4rem !important">
                 {% with 1|comment_state as comment_state %}
                   <span class="px-2 py-1 bg-green">Traitée : {{ comment_state.true }} </span>
                   <span class="px-2 py-1 bg-red">Non traitée : {{ comment_state.false }} </span>
@@ -36,7 +36,7 @@
               <div class="card-body">
                 <form method='POST' action=''>
                   {% csrf_token %}
-                      <div class="table-adapted-to-screen-height card-body table-responsive p-0">
+                      <div class="table-adapted-to-screen-height card-body table-responsive p-0" style="max-height: calc(100vh - 250px) !important; overflow: scroll !important;">
                         <table class="table table-bordered table-head-fixed text-nowrap all-comment" id="tableAnomaly">
                           <thead class="bg-info">
                             <tr>

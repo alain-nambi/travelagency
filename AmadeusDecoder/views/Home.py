@@ -19,8 +19,9 @@ from django.forms.models import model_to_dict
 from django.conf import settings
 from AmadeusDecoder.models.invoice.TicketPassengerSegment import OtherFeeSegment, TicketPassengerSegment
 
-from AmadeusDecoder.models.pnr.Pnr import Pnr
+from AmadeusDecoder.models.pnr.Pnr import Pnr, UnremountedPnr, unRemountedPnrPassenger, unRemountedPnrSegment, unRemountedPnrTickets
 from AmadeusDecoder.models.pnr.PnrPassenger import PnrPassenger
+from AmadeusDecoder.models.pnrelements.Airport import Airport
 from AmadeusDecoder.models.user.Users import User, UserCopying
 from AmadeusDecoder.models.invoice.Clients import Client
 from AmadeusDecoder.models.utilities.Comments import Comment, Response
@@ -28,7 +29,7 @@ from AmadeusDecoder.models.invoice.Ticket import Ticket, TicketCanceled
 from AmadeusDecoder.models.invoice.Fee import Fee, ReducePnrFeeRequest, OthersFee
 from AmadeusDecoder.models.invoice.Invoice import Invoice, InvoicesCanceled
 from AmadeusDecoder.models.invoice.InvoiceDetails import InvoiceDetails
-from AmadeusDecoder.models.pnr.Passenger import Passenger
+from AmadeusDecoder.models.pnr.Passenger import Passenger, PassengerType
 from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
 from AmadeusDecoder.models.invoice.Fee import Product
 from AmadeusDecoder.models.pnrelements.PnrAirSegments import PnrAirSegments
@@ -311,6 +312,9 @@ def home(request):
             print("PNR COUNT")
             print(pnr_count)
 
+        offices = Airport.objects.all()
+        passengerType = PassengerType.objects.all()
+
         row_num = request.GET.get('paginate_by', 50) or 50
         page_num = request.GET.get('page', 1)
         paginator = Paginator(pnr_list, row_num)
@@ -324,7 +328,9 @@ def home(request):
             'page_obj': page_obj, 
             'row_num': row_num,
             'pnr_count': pnr_count,
-            'users': users
+            'users': users,
+            'passengerTypes': passengerTypes,
+            'offices' : offices
         }
         return render(request,'home.html', context)
 
@@ -427,6 +433,8 @@ def home(request):
         # Compute count of Pnrs in the list
         pnr_count = len(pnr_list)
 
+        offices = Airport.objects.all()
+        passengerTypes = PassengerType.objects.all()
 
         row_num = request.GET.get('paginate_by', 50) or 50
         page_num = request.GET.get('page', 1)
@@ -441,7 +449,9 @@ def home(request):
             'page_obj': page_obj, 
             'row_num': row_num,
             'pnr_count': pnr_count,
-            'users': users
+            'users': users,
+            'passengerTypes': passengerTypes,
+            'offices' : offices
         }
         return render(request,'home.html', context)
     else:
@@ -610,6 +620,9 @@ def home(request):
 
             print('no creator')
 
+        offices = Airport.objects.all()
+        passengerTypes = PassengerType.objects.all()
+
         row_num = request.GET.get('paginate_by', 50) or 50
         page_num = request.GET.get('page', 1)
         paginator = Paginator(pnr_list, row_num)
@@ -623,7 +636,9 @@ def home(request):
             'page_obj': page_obj, 
             'row_num': row_num,
             'pnr_count': pnr_count,
-            'users': users
+            'users': users,
+            'offices': offices,
+            'passengerTypes' : passengerTypes
         }
         return render(request,'home.html', context)
 

@@ -7,9 +7,10 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
 from AmadeusDecoder.models.invoice.TicketPassengerSegment import TicketPassengerSegment
-from AmadeusDecoder.models.pnr.Passenger import Passenger
+from AmadeusDecoder.models.pnr.Passenger import Passenger, PassengerType
 
-from AmadeusDecoder.models.pnr.Pnr import Pnr
+from AmadeusDecoder.models.pnr.Pnr import Pnr, UnremountedPnr, unRemountedPnrPassenger, unRemountedPnrSegment, unRemountedPnrTickets
+from AmadeusDecoder.models.pnrelements import Airport
 from AmadeusDecoder.models.pnrelements.PnrAirSegments import PnrAirSegments 
 from AmadeusDecoder.models.utilities.Comments import Anomalie, CategorieAnomalie, Comment, Response, NotFetched
 from AmadeusDecoder.models.user.Users import User, UserCopying
@@ -615,9 +616,12 @@ def get_all_canceled_ticket(request):
         page_obj = paginator.page(1)
     except EmptyPage:
         page_obj = paginator.page(paginator.num_pages)
+
     context = {'page_obj': page_obj, 'row_num': row_num, 'pnr_count' : pnr_count,'issuing_users':issuing_users}
 
     return render(request,'ticket_canceled/ticket_canceled.html',context)
+
+        
 
 @login_required(login_url='index')
 def get_canceled_ticket_detail(request,pnr_id):
@@ -772,24 +776,92 @@ def canceled_ticket_advanced_search(request):
     return JsonResponse(context)
 
 
+# ------------------------- PNR non remonté -----------------------------------
+
+# save pnr non remonte
+@login_required(login_url='index')
+def pnr_non_remonte(request):
+    context={}
+    try:
+        pnrNumber = request.POST.get('pnrNumber')
+        pnrType = request.POST.get('pnrType')
+        tickets = json.loads(request.POST.get('tickets'))
+        passengers = json.loads(request.POST.get('passengers'))
+        segments = json.loads(request.POST.get('segments'))
+        user_id = request.POST.get('user_id')
+        emitter = User.objects.get(pk=user_id)
+
+        # save unremounted pnr
+        unremounted_pnr = UnremountedPnr(number=pnrNumber,type=pnrType,emitter=emitter)
+        unremounted_pnr.save()
+
+        # save segment data
+        for segment in segments:
+
+            codeorg = Airport.objects.get(pk=segment['origin'])
+            codedest = Airport.objects.get(pk=segment['destination'])
+            
+            # combine departure/arrival date and time to create a datetime value
+            departuretime=datetime.combine(datetime.strptime(segment['departureDate'], "%Y-%m-%d").date(),datetime.strptime(segment['departureTime'], "%H:%M").time())
+            arrivaltime=datetime.combine(datetime.strptime(segment['arrivalDate'], "%Y-%m-%d").date(),datetime.strptime(segment['arrivalTime'], "%H:%M").time())
+
+            unremounted_pnr_segment = unRemountedPnrSegment(order=segment['order'],flightno=segment['flightNumber'],departuretime=departuretime,unremountedPnr=unremounted_pnr,arrivaltime=arrivaltime, codeorg=codeorg, codedest=codedest)
+            unremounted_pnr_segment.save()
+
+        # save passenger data
+        for passenger in passengers:
+            passenger_type = PassengerType.objects.get(pk=passenger['PassengerType'])
+            unremounted_pnr_passenger = unRemountedPnrPassenger(unremountedPnr=unremounted_pnr,name=passenger['PassengerName'],surname=passenger['PassengerSurname'], designation=passenger['PassengerDesignation'],type=passenger_type, passeport=passenger['Passeport'], order=passenger['PassengerOrder'])
+            unremounted_pnr_passenger.save()
+
+        # save ticket data
+        for ticket in tickets:
+            segment =  unRemountedPnrSegment.objects.get(order=ticket['ticketSegment'], unremountedPnr=unremounted_pnr)         
+            passenger = unRemountedPnrPassenger.objects.get(order=ticket['ticketPassenger'], unremountedPnr=unremounted_pnr)
+            unremounted_pnr_ticket = unRemountedPnrTickets(unremountedPnr=unremounted_pnr,number=ticket['ticketNumber'],type=ticket['ticketType'],transport_cost=ticket['ticketCost'],tax=ticket['ticketTax'],passenger=passenger,segment=segment)
+            unremounted_pnr_ticket.save()
+
+        context['message'] = "Votre demande a été envoyée."
+    except(RuntimeError, TypeError, NameError) as e:
+        print(str(e))
+        context['message'] = str(e)
+    return JsonResponse(context)
 
 
+@login_required(login_url='index')
+def all_unremounted_pnr(request):
+    UnremountedPnrList = UnremountedPnr.objects.all()
+
+    context = {}
+    context['unremounted_pnr'] = UnremountedPnrList
+    object_list = context['unremounted_pnr']
+    row_num = request.GET.get('paginate_by', 20) or 20
+    page_num = request.GET.get('page', 1)
+    paginator = Paginator(object_list, row_num)
+    try:
+        page_obj = paginator.page(page_num)
+    except PageNotAnInteger: 
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+        
+    context = {'page_obj': page_obj, 'row_num': row_num}
+    
+    return render(request,'pnr-non-remonte/list.html',context)
+
+@login_required(login_url='index')
+def unremounted_pnr_details(request,unremounted_pnr_id):
+    context = {}
+    print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+    unremountedPnr = UnremountedPnr.objects.get(pk=unremounted_pnr_id)
+    context['unremounted_pnr'] = unremountedPnr
+    tickets = unRemountedPnrTickets.objects.filter(unremountedPnr__id = unremountedPnr.id).all()
+    print(tickets)
+    passengers = unRemountedPnrPassenger.objects.filter(unremountedPnr__id= unremountedPnr.id).all()
+    segments = unRemountedPnrSegment.objects.filter(unremountedPnr__id= unremountedPnr.id).all()
+    context['tickets'] = tickets
+    context['passengers'] = passengers
+    context['segments'] = segments
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    return render(request,'pnr-non-remonte/details.html',context)

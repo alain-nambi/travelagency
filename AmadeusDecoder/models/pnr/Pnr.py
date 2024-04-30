@@ -287,3 +287,82 @@ class Pnr(models.Model, BaseModel):
     def __str__(self):
         return str(self.number) + ' {}{}{}'.format('(', 'Zenith' if self.type == 'EWA' else self.type, ')')
         
+class UnremountedPnr(models.Model):
+    class Meta:
+        db_table = 't_unremouted_pnr'
+        
+    number = models.CharField(max_length=100, null=False)
+    type = models.CharField(max_length=20, null=False)
+    emitter = models.ForeignKey(
+        'AmadeusDecoder.User',
+        on_delete=models.CASCADE,
+    )
+
+    creation_date = models.DateTimeField(auto_now=True)
+    state = models.IntegerField(default=0) # 0 en attente - 1 validé - 2 annulé - 3 supprimé
+
+
+class unRemountedPnrPassenger(models.Model):
+    class Meta:
+        db_table = 't_unremounted_pnr_passenger'
+
+    unremountedPnr = models.ForeignKey(
+        'AmadeusDecoder.UnremountedPnr',
+        on_delete=models.CASCADE,
+    )
+    name = models.CharField(max_length=100, null=True)
+    surname = models.CharField(max_length=100, null=True)
+    designation = models.CharField(max_length=100, null=True)
+    type = models.ForeignKey(
+        'AmadeusDecoder.PassengerType',
+        on_delete=models.CASCADE,
+    )
+    passeport = models.CharField(max_length=100, null=True)
+    order = models.CharField(max_length=100, null=False)
+
+class unRemountedPnrSegment(models.Model):
+    class Meta:
+        db_table = 't_unremounted_pnr_segment'
+
+    unremountedPnr = models.ForeignKey(
+        'AmadeusDecoder.UnremountedPnr',
+        on_delete=models.CASCADE,
+    )
+    order = models.CharField(max_length=10, null=True)
+    flightno = models.CharField(max_length=50, null=True)
+    departuretime = models.DateTimeField(null=True)
+    arrivaltime = models.DateTimeField(null=True)
+    codeorg = models.ForeignKey(
+        "AmadeusDecoder.Airport",
+        on_delete=models.CASCADE,
+        related_name="origin_code"
+    )
+    codedest = models.ForeignKey(
+        "AmadeusDecoder.Airport",
+        on_delete=models.CASCADE,
+        related_name="destination_code"
+    )
+
+class unRemountedPnrTickets(models.Model):
+    class Meta:
+        db_table = 't_unremounted_pnr_ticket'
+
+    unremountedPnr = models.ForeignKey(
+        'AmadeusDecoder.UnremountedPnr',
+        on_delete=models.CASCADE,
+    )
+    number = models.CharField(max_length=50, null=True)
+    type = models.CharField(max_length=5, null=True)
+    transport_cost = models.DecimalField(max_digits=13, decimal_places=4, default=0)
+    tax = models.DecimalField(max_digits=13, decimal_places=4, default=0)
+    fee = models.BooleanField(default=True)
+
+    passenger = models.ForeignKey(
+        'AmadeusDecoder.unRemountedPnrPassenger',
+        on_delete=models.CASCADE,
+    )
+
+    segment = models.ForeignKey(
+        'AmadeusDecoder.unRemountedPnrSegment',
+        on_delete=models.CASCADE,
+    )

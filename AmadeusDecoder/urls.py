@@ -120,5 +120,8 @@ urlpatterns = [
     path('home/canceled-ticket-research', canceled_ticket_research, name= 'canceled_ticket_research'),
     path('home/canceled-ticket-filter', canceled_ticket_filter, name= 'canceled_ticket_filter'),
     path('home/canceled-ticket-advanced-research', canceled_ticket_advanced_search, name= 'canceled_ticket_advanced_search'),
+    path('home/pnr-non-remonte',pnr_non_remonte,name='pnr_non_remonte'),
+    path('home/unremounted-pnr',all_unremounted_pnr,name='all_unremounted_pnr'),
+    path('home/unremounted-pnr-details/<int:unremounted_pnr_id>',unremounted_pnr_details,name='unremounted_pnr_details'),
 
 ]

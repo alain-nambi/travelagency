@@ -1,0 +1,87 @@
+{% extends 'layout-all-pnr.html' %}
+{% load pnr_comments %}
+{% block content %}
+<div class="content-wrapper">
+    <section class="content" style="margin-top: 4.7rem">
+      <div class="container-fluid">
+        <div class="row ">
+          <div class="col-12">
+            <div class="card card-primary card-outline" style="margin-top: 4rem !important;">
+              <div class="card-header justify-content-between py-0">
+                <div class="row">
+                  <div class="col-md-6 float-left">
+                  <h4 class="text-primary title-all-pnr mt-1 mb-0">Gestion PNR non remonté</h4>
+                  </div>
+                  <div class="col-md-6 float-right">
+                  <div class="input-group input-group float-sm-right mt-1 mb-1" style="width: 150px;">
+                    <input type="text" name="table_search" id="input-constat" class="form-control form-control-sm"
+                      placeholder="Recherche">
+                    <div class="input-group-append">
+                      <button type="submit" class="btn btn-default py-0">
+                        <i class="fas fa-search"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                </div>
+              </div>
+              {% unremounted_pnr_state as unremounted_pnr_state %}
+              <div class="row d-flex" style="justify-content:space-between !important;">
+                
+                <div class="d-flex float-right mt-4" style="gap: 2rem; margin-left: 4rem !important;">
+                  
+                    <span class="px-2 py-1 bg-green">Traitée : {{unremounted_pnr_state.fasle}} </span>
+                    <span class="px-2 py-1 bg-red">Non traitée : {{unremounted_pnr_state.true}} </span>
+                  
+                </div>
+              </div>
+              
+              <div class="card-body">
+                <form method='POST' action=''>
+                  {% csrf_token %}
+                      <div class="table-adapted-to-screen-height card-body table-responsive p-0">
+                        <table class="table table-bordered table-head-fixed text-nowrap all-comment" id="tableAnomaly">
+                          <thead class="bg-info">
+                            <tr>
+                              <th width="5%" class="text-white">PNR</th>
+                              <th width="5%" class="text-white">Type</th>
+                              <th width="5%" class="text-white">Date de signalement</th>
+                              <th width="8%" class="text-white">Signalée par</th>
+                              <th width="5%" class="text-white">Statut</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for unremounted_pnr in page_obj %}
+                              <tr class="constat-class" onclick="location.href='{% url 'unremounted_pnr_details' unremounted_pnr.id %}'" style="cursor: pointer;">
+
+                                    <td>{{unremounted_pnr.number }}</td>
+                                    <td>{{unremounted_pnr.type}}</td>
+                                    <td>{{unremounted_pnr.creation_date| correct_datetime}}</td>
+                                    <td>{{unremounted_pnr.emitter.username}}</td>
+                                    
+                                    {% if unremounted_pnr.state == 0 %}
+                                        <td><button class="btn btn-danger py-0" name="anomaly_state">Non Traitée</button></td>
+                                    {% endif %}
+                                    {% if unremounted_pnr.state == 2 %}
+                                        <td><button class="btn btn-primary py-0" name="anomaly_state">Refusée</button></td>
+                                    {% endif %}
+                                    {% if unremounted_pnr.state == 1 %}
+                                        <td><button class="btn btn-success py-0" name="anomaly_state" >Traitée</button></td>
+                                    {% endif %}
+                                    
+                                </tr>
+                            {% endfor %}
+                                
+                          </tbody>
+                        </table>
+                      </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+    </section>
+
+    
+  </div>
+{% endblock content %}

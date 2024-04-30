@@ -1,0 +1,189 @@
+{% extends "layout-all-pnr.html" %}
+{% load pnr_comments %}
+{% block content %}
+    
+<div class="content-wrapper" >
+	<section class="content-header p-0">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-sm-6" style="padding:1rem;">
+					<h1 class="text-primary">Détail du PNR non remonté</h1>
+				</div>
+            </section>
+	<section class="content">
+
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-md-12 mt-1">
+						<div class="card card-primary card-outline">
+                            
+                                <div class="card-body p-0" id="card-anomaly-{{unremounted_pnr.id}}" style="margin-top:10px;margin-left:10px;">
+                                        <div class="row">
+                                            <div class="card text-white bg-light mb-3" style="width: 20rem;margin:0 30px 0 30px;">
+                                                <div class="card-header"><h3 style="font-weight:bold;">Détail PNR</h3></div>
+                                                <div class="card-body">
+                                                    <h5><span class="text-primary" style="text-decoration: underline;">Numéro </span>: {{ unremounted_pnr.number }}</h5>
+                                                    <h5><span class="text-primary" style="text-decoration: underline;">Type </span>: {{ unremounted_pnr.type }}</h5>
+                                                    
+                                                </div>
+                                            </div>
+
+                                            <div class="card text-white bg-light mb-3" style="max-width: 38rem;margin-left:30px;">
+                                                <div class="card-header"><h3 style="font-weight:bold;">Emission</h3></div>
+                                                <div class="card-body">
+                                                    <h5><span class="text-primary" style="text-decoration: underline;">Emis par </span>: {{ unremounted_pnr.emitter.username }}</h5>
+                                                    <h5><span class="text-primary" style="text-decoration: underline;">Mail </span>: {{ unremounted_pnr.emitter.email }}</h5>
+                                                    <h5><span class="text-primary" style="text-decoration: underline;">le </span>: {{unremounted_pnr.creation_date| correct_datetime}}</h5>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        
+
+                                        <div class="col-md-8" style="margin:20px 0 0 16px;">
+                                            <div>
+                                                <h4>Liste des billets</h4>
+                                            </div>
+                                            <table class="table table-primary" style="font-weight:300;" >
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text-center" scope="col">Numéro</th>
+                                                        <th class="text-center" scope="col">Type</th>
+                                                        <th class="text-center" scope="col">Frais de service</th>
+                                                        <th class="text-center" scope="col">Montant</th>
+                                                        <th class="text-center" scope="col">Taxe</th>
+                                                        <th class="text-center" scope="col">Passager</th>
+                                                        <th class="text-center" scope="col">Segment</th>
+                                                        <th class="text-center" scope="col">Action</th>   
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for ticket in tickets %}
+                                                        <tr style="justify-content:center;">
+                                                            <td class="text-center">{{ ticket.number }}</td>
+                                                            <td class="text-center"> {{ticket.type}} </td>
+                                                            <td class="text-center">{% if ticket.fee %} <span><input class="form-check-input" type="checkbox" checked></span> {% endif %}</td>
+                                                            <td class="text-center"> {{ticket.transport_cost | floatformat:2}} </td>
+                                                            <td class="text-center"> {{ticket.tax | floatformat:2}} </td>
+                                                            <td class="text-center"> {{ticket.passenger.name}} {% if ticket.passenger.surname %}{{ticket.passenger.surname}}{% endif %} </td>
+                                                            <td class="text-center"> {{ticket.segment.order}} / {{ticket.segment.codeorg.iata_code}} - {{ticket.segment.codedest.iata_code}} </td>
+                                                            <td class="text-center">
+                                                                <span><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"></span>
+                                                                <span style="margin-left:10px;"><i class="fa fa-pencil" title="Modifier" style="font-size: 15px;color:green;"></i></span>
+                                                                <span style="margin-left:10px;"><i class="fa fa-x" title="Modifier" style="font-size: 15px;color:red;"></i></span>
+                                                            </td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                
+                                                
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div class="col-md-8" style="margin:20px 0 0 16px;">
+                                            <div>
+                                                <h4>Liste des passagers</h4>
+                                            </div>
+                                            <table class="table table-primary" style="font-weight:300;" >
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text-center" scope="col">Nom</th>
+                                                        <th class="text-center" scope="col">Prénom</th>
+                                                        <th class="text-center" scope="col">Désignation</th>
+                                                        <th class="text-center" scope="col">Passeport</th>
+                                                        <th class="text-center" scope="col">Type</th>
+                                                        <th class="text-center" scope="col">Ordre</th>
+                                                        <th class="text-center" scope="col">Action</th>   
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for passenger in passengers %}
+                                                        <tr style="justify-content:center;">
+                                                            <td class="text-center">{{ passenger.name }}</td>
+                                                            <td class="text-center"> {{passenger.surname}} </td>
+                                                            <td class="text-center">{{passenger.designation}}</td>
+                                                            <td class="text-center"> {{passenger.passeport}} </td>
+                                                            <td class="text-center"> {{passenger.type.name}} </td>
+                                                            <td class="text-center"> {{passenger.order}}</td>
+                                                            <td class="text-center">
+                                                                <span><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"></span>
+                                                                <span style="margin-left:10px;"><i class="fa fa-pencil" title="Modifier" style="font-size: 15px;color:green;"></i></span>
+                                                                <span style="margin-left:10px;"><i class="fa fa-x" title="Modifier" style="font-size: 15px;color:red;"></i></span>
+                                                            </td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                
+                                                
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div class="col-md-8" style="margin:20px 0 0 16px;">
+                                            <div>
+                                                <h4>Liste des segments</h4>
+                                            </div>
+                                            <table class="table table-primary" style="font-weight:300;" >
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text-center" scope="col">Ordre</th>
+                                                        <th class="text-center" scope="col">Numéro de vol</th>
+                                                        <th class="text-center" scope="col">Date et heure de départ</th>
+                                                        <th class="text-center" scope="col">Date et heure de départ</th>
+                                                        <th class="text-center" scope="col">Départ</th>
+                                                        <th class="text-center" scope="col">Arrivée</th>
+                                                        <th class="text-center" scope="col">Action</th>   
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for segment in segments %}
+                                                        <tr style="justify-content:center;">
+                                                            <td class="text-center">{{segment.order}}</td>
+                                                            <td class="text-center">{{ segment.flightno }}</td>
+                                                            <td class="text-center"> {{segment.departuretime}} </td>
+                                                            <td class="text-center">{{segment.arrivaltime}}</td>
+                                                            <td class="text-center"> {{segment.codeorg.iata_code}} </td>
+                                                            <td class="text-center"> {{segment.codedest.iata_code}} </td>
+                                                            <td class="text-center">
+                                                                <span><input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"></span>
+                                                                <span style="margin-left:10px;"><i class="fa fa-pencil" title="Modifier" style="font-size: 15px;color:green;"></i></span>
+                                                                <span style="margin-left:10px;"><i class="fa fa-x" title="Modifier" style="font-size: 15px;color:red;"></i></span>
+                                                            </td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                
+                                                
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                </div>		
+                                <div class="card-footer" >
+                                    {% if unremounted_pnr.state == 0 %}
+                                        
+                                        <div style="float:right;justify-content:space-between;">
+                                            <button class="btn btn-success py-0" name="anomaly_state" id="accept-anomaly" onclick="accept_anomaly('{{unremounted_pnr.id}}')" >Accepter</button>
+                                            
+                                            <button class="btn btn-danger py-0" name="anomaly_state" id="refuse-anomaly" onclick="refuse_anomaly('{{unremounted_pnr.id}}')" >Refuser</button>
+                                            
+                                        </div>
+                                    {% endif %}
+
+
+							    </div>
+							
+							
+							</div>
+
+						</div>
+					</div>
+				</div>
+
+
+			</div>
+			
+		</section>
+
+</div>
+
+
+
+{% endblock content %}

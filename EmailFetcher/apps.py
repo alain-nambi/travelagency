@@ -183,8 +183,10 @@ def delete_all_files_in_attachments_dir():
     """
     Deletes all files and directories recursively in the attachments directory.
     """
+    print("*-- Deletes all files and directories recursively in the attachments directory --*")
+    
     # Define the path to the attachments directory
-    attachments_dir = os.path.join(os.getcwd(), "EmailFetcher", "utilities", "attachments_dir")
+    attachments_dir = os.path.join("opt", "travelagency", "EmailFetcher", "utilities", "attachments_dir")
     
     # Iterate over all items (files and directories) in the attachments directory
     for item in os.scandir(attachments_dir):

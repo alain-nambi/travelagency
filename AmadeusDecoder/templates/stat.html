@@ -133,14 +133,16 @@
                                                 <span class="text-gray-400 mt-2 fs-6" style="font-weight:semibold;">890,344 Passagers</span>
                                             </h3>
                                             <div class="dropdown" style="float:right;">
-                                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                    <i class="fa fa-bars" aria-hidden="true"></i>
-                                                </button>
-                                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                                  <a class="dropdown-item" href="#">Action</a>
-                                                  <a class="dropdown-item" href="#">Another action</a>
-                                                  <a class="dropdown-item" href="#">Something else here</a>
+                                                
+                                                <div class="input-group ">
+                                                <div class="input-group-prepend">
+                                                    <label class="input-group-text" for="selectMonth">Mois</label>
                                                 </div>
+                                                <select class="custom-select" id="selectMonth">
+                                                    <option selected>Choose...</option>
+                                                </select>
+                                                </div>
+                                                    
                                             </div>
                                         </div>
                                         <div class="d-flex card-body">
@@ -229,12 +231,13 @@
         });
 
         chart.render();
+        chart.canvas.getContext('2d', { willReadFrequently: true });
+
 
         var Destination_data = {{all_data|safe}}
         
 
         var chart_2 = new CanvasJS.Chart("chartContainer_2", {
-            exportEnabled: true,
             theme: "light2",
             
             toolTip: {
@@ -257,6 +260,8 @@
             }))
         });
         chart_2.render();
+        chart_2.canvas.getContext('2d', { willReadFrequently: true });
+
 
         var chart_3 = new CanvasJS.Chart("chartContainer_3", {
             exportEnabled: true,
@@ -284,6 +289,7 @@
             }))
         });
         chart_3.render();
+        chart_3.canvas.getContext('2d', { willReadFrequently: true });
 
         var airline_data = {{all_data_airline|safe}}
         var chart_4 = new CanvasJS.Chart("chartContainer_4", {
@@ -309,7 +315,7 @@
             }))
           });
           chart_4.render();
-
+          chart_4.canvas.getContext('2d', { willReadFrequently: true });
         
         
         function toggleDataSeries(e) {

@@ -5,12 +5,15 @@ from django.http import JsonResponse
 
 
 from django.contrib.auth.decorators import login_required
+from AmadeusDecoder.models.invoice.Fee import OthersFee
 from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
-from AmadeusDecoder.models.invoice.TicketPassengerSegment import TicketPassengerSegment
+from AmadeusDecoder.models.invoice.TicketPassengerSegment import OtherFeeSegment, TicketPassengerSegment
 from AmadeusDecoder.models.pnr.Passenger import Passenger, PassengerType
 
 from AmadeusDecoder.models.pnr.Pnr import Pnr, UnremountedPnr, unRemountedPnrPassenger, unRemountedPnrSegment, unRemountedPnrTickets
-from AmadeusDecoder.models.pnrelements import Airport
+from AmadeusDecoder.models.pnr.PnrPassenger import PnrPassenger
+from AmadeusDecoder.models.pnrelements.Airline import Airline
+from AmadeusDecoder.models.pnrelements.Airport import Airport
 from AmadeusDecoder.models.pnrelements.PnrAirSegments import PnrAirSegments 
 from AmadeusDecoder.models.utilities.Comments import Anomalie, Comment, Response, NotFetched
 from AmadeusDecoder.models.user.Users import User, UserCopying
@@ -545,41 +548,54 @@ def pnr_non_remonte(request):
         pnrType = request.POST.get('pnrType')
         tickets = json.loads(request.POST.get('tickets'))
         passengers = json.loads(request.POST.get('passengers'))
-        segments = json.loads(request.POST.get('segments'))
+        segments = json.loads(request.POST.get('segments'))  
         user_id = request.POST.get('user_id')
         emitter = User.objects.get(pk=user_id)
 
-        # save unremounted pnr
-        unremounted_pnr = UnremountedPnr(number=pnrNumber,type=pnrType,emitter=emitter)
-        unremounted_pnr.save()
+        verif_pnr = Pnr.objects.filter(number=pnrNumber).all()
+        if verif_pnr.exists():
+            context['message'] = 'Ce PNR existe déjà'
+            return JsonResponse(context)
 
-        # save segment data
-        for segment in segments:
-
-            codeorg = Airport.objects.get(pk=segment['origin'])
-            codedest = Airport.objects.get(pk=segment['destination'])
+        else:
             
-            # combine departure/arrival date and time to create a datetime value
-            departuretime=datetime.combine(datetime.strptime(segment['departureDate'], "%Y-%m-%d").date(),datetime.strptime(segment['departureTime'], "%H:%M").time())
-            arrivaltime=datetime.combine(datetime.strptime(segment['arrivalDate'], "%Y-%m-%d").date(),datetime.strptime(segment['arrivalTime'], "%H:%M").time())
+            # save unremounted pnr
+            unremounted_pnr = UnremountedPnr(number=pnrNumber,type=pnrType,emitter=emitter)
+            unremounted_pnr.save()
 
-            unremounted_pnr_segment = unRemountedPnrSegment(order=segment['order'],flightno=segment['flightNumber'],departuretime=departuretime,unremountedPnr=unremounted_pnr,arrivaltime=arrivaltime, codeorg=codeorg, codedest=codedest)
-            unremounted_pnr_segment.save()
+            # save segment data
+            for segment in segments:
 
-        # save passenger data
-        for passenger in passengers:
-            passenger_type = PassengerType.objects.get(pk=passenger['PassengerType'])
-            unremounted_pnr_passenger = unRemountedPnrPassenger(unremountedPnr=unremounted_pnr,name=passenger['PassengerName'],surname=passenger['PassengerSurname'], designation=passenger['PassengerDesignation'],type=passenger_type, passeport=passenger['Passeport'], order=passenger['PassengerOrder'])
-            unremounted_pnr_passenger.save()
+                codeorg = Airport.objects.get(pk=segment['origin'])
+                codedest = Airport.objects.get(pk=segment['destination'])
+                airline = Airline.objects.get(pk=segment['airline'])
+                
+                # combine departure/arrival date and time to create a datetime value
+                departuretime=datetime.combine(datetime.strptime(segment['departureDate'], "%Y-%m-%d").date(),datetime.strptime(segment['departureTime'], "%H:%M").time())
+                arrivaltime=datetime.combine(datetime.strptime(segment['arrivalDate'], "%Y-%m-%d").date(),datetime.strptime(segment['arrivalTime'], "%H:%M").time())
 
-        # save ticket data
-        for ticket in tickets:
-            segment =  unRemountedPnrSegment.objects.get(order=ticket['ticketSegment'], unremountedPnr=unremounted_pnr)         
-            passenger = unRemountedPnrPassenger.objects.get(order=ticket['ticketPassenger'], unremountedPnr=unremounted_pnr)
-            unremounted_pnr_ticket = unRemountedPnrTickets(unremountedPnr=unremounted_pnr,number=ticket['ticketNumber'],type=ticket['ticketType'],transport_cost=ticket['ticketCost'],tax=ticket['ticketTax'],passenger=passenger,segment=segment)
-            unremounted_pnr_ticket.save()
+                unremounted_pnr_segment = unRemountedPnrSegment(servicecarrier=airline ,order=segment['order'],flightno=segment['flightNumber'],departuretime=departuretime,unremountedPnr=unremounted_pnr,arrivaltime=arrivaltime, codeorg=codeorg, codedest=codedest)
+                unremounted_pnr_segment.save()
 
-        context['message'] = "Votre demande a été envoyée."
+            # save passenger data
+            for passenger in passengers:
+                passenger_type = PassengerType.objects.get(pk=passenger['PassengerType'])
+                unremounted_pnr_passenger = unRemountedPnrPassenger(unremountedPnr=unremounted_pnr,name=passenger['PassengerName'],surname=passenger['PassengerSurname'], designation=passenger['PassengerDesignation'],type=passenger_type, passeport=passenger['Passeport'], order=passenger['PassengerOrder'])
+                unremounted_pnr_passenger.save()
+
+            # save ticket data
+            for ticket in tickets:
+                segment =  unRemountedPnrSegment.objects.get(order=ticket['ticketSegment'], unremountedPnr=unremounted_pnr)         
+                passenger = unRemountedPnrPassenger.objects.get(order=ticket['ticketPassenger'], unremountedPnr=unremounted_pnr)
+
+                # check if it's a ticket or otherFee
+                if ticket['ticket_type'] == 1:
+                    unremounted_pnr_ticket = unRemountedPnrTickets(ticket_type=1,fee=ticket['fee'],unremountedPnr=unremounted_pnr,number=ticket['designation'],type=ticket['ticketType'],transport_cost=ticket['ticketCost'],tax=ticket['ticketTax'],passenger=passenger,segment=segment)
+                else:
+                    unremounted_pnr_ticket = unRemountedPnrTickets(ticket_type=0,fee=ticket['fee'],unremountedPnr=unremounted_pnr,number=ticket['ticketNumber'],type=ticket['ticketType'],transport_cost=ticket['ticketCost'],tax=ticket['ticketTax'],passenger=passenger,segment=segment)
+                unremounted_pnr_ticket.save()
+
+            context['message'] = "Votre demande a été envoyée."
     except(RuntimeError, TypeError, NameError) as e:
         print(str(e))
         context['message'] = str(e)
@@ -609,16 +625,78 @@ def all_unremounted_pnr(request):
 @login_required(login_url='index')
 def unremounted_pnr_details(request,unremounted_pnr_id):
     context = {}
-    print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
     unremountedPnr = UnremountedPnr.objects.get(pk=unremounted_pnr_id)
     context['unremounted_pnr'] = unremountedPnr
     tickets = unRemountedPnrTickets.objects.filter(unremountedPnr__id = unremountedPnr.id).all()
-    print(tickets)
     passengers = unRemountedPnrPassenger.objects.filter(unremountedPnr__id= unremountedPnr.id).all()
     segments = unRemountedPnrSegment.objects.filter(unremountedPnr__id= unremountedPnr.id).all()
     context['tickets'] = tickets
     context['passengers'] = passengers
     context['segments'] = segments
 
-
     return render(request,'pnr-non-remonte/details.html',context)
+
+
+@login_required(login_url='index')
+def accept_unremounted_pnr(request):
+    context = {}
+    if request.method == 'POST':
+        print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+        ticketIds = json.loads(request.POST.get('ticketIds'))
+        unremountedPnrId =  request.POST.get('unremountedPnrId')
+
+        unremountedPnr = UnremountedPnr.objects.get(pk=unremountedPnrId)
+        
+        verif_pnr = Pnr.objects.filter(number=unremountedPnr.number).all()
+        if not verif_pnr.exists():
+            pnr = Pnr(number=unremountedPnr.number, type=unremountedPnr.type,system_creation_date=datetime.now())
+            pnr.save()
+        else:
+            context['message'] = 'Ce PNR existe déjà'
+            return JsonResponse(context)
+
+        for id in ticketIds:
+            ticket = unRemountedPnrTickets.objects.get(pk=id)
+
+            # save passenger
+            passenger = Passenger(name=ticket.passenger.name, surname=ticket.passenger.surname, designation=ticket.passenger.designation,passeport=ticket.passenger.passeport,types=ticket.passenger.type.name,order=ticket.passenger.order)
+            passenger.save()
+
+             # save segment
+            segment = PnrAirSegments(segmentorder=ticket.segment.order,pnr=pnr, flightno=ticket.segment.flightno, departuretime=ticket.segment.departuretime,arrivaltime=ticket.segment.arrivaltime,codeorg=ticket.segment.codeorg,codedest=ticket.segment.codedest,servicecarrier=ticket.segment.servicecarrier )
+            segment.save()
+
+            # save ticket
+            total = ticket.transport_cost +ticket.tax
+
+            # check if it's a ticket or an otherFee
+            if ticket.ticket_type == 0: # it's a ticket
+                new_ticket = Ticket(pnr = pnr,passenger=passenger,emitter=unremountedPnr.emitter,number=ticket.number,transport_cost=ticket.transport_cost,tax=ticket.tax,ticket_type=ticket.type,total=total)
+                new_ticket.save()
+
+                #save the relation between ticket and segment
+                ticket_passenger_segment = TicketPassengerSegment(ticket=new_ticket,segment=segment)
+                ticket_passenger_segment.save()
+            else: # it's an otherFee
+                new_otherFee = OthersFee(pnr = pnr,passenger=passenger,emitter=unremountedPnr.emitter,designation=ticket.number,cost=ticket.transport_cost,tax=ticket.tax,fee_type=ticket.type,total=total)
+                new_otherFee.save()
+
+                #save the relation between otherFee and segment
+                otherFee_segment = OtherFeeSegment(other_fee=new_otherFee,segment=segment,passenger=passenger)
+                otherFee_segment.save()
+
+            # save pnr_passsenger
+            pnr_passenger = PnrPassenger(pnr=pnr,passenger=passenger)
+            pnr_passenger.save()
+
+            # update state of unremounted pnr to 1 -> accepted
+            unremountedPnr.state=1
+            unremountedPnr.save()
+
+            # add the document and the emitter to UserCopying
+            user_copying = UserCopying(document=unremountedPnr.number,user_id=unremountedPnr.emitter)
+            user_copying.save()
+
+        context['message'] = 'PNR remonté'
+    
+    return JsonResponse(context)

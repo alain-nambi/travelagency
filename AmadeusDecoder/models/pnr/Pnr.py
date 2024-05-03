@@ -398,6 +398,11 @@ class unRemountedPnrSegment(models.Model):
     )
     order = models.CharField(max_length=10, null=True)
     flightno = models.CharField(max_length=50, null=True)
+    servicecarrier = models.ForeignKey(
+        "AmadeusDecoder.Airline",
+        on_delete=models.CASCADE,
+        related_name="segment_airline"
+    )
     departuretime = models.DateTimeField(null=True)
     arrivaltime = models.DateTimeField(null=True)
     codeorg = models.ForeignKey(
@@ -424,6 +429,7 @@ class unRemountedPnrTickets(models.Model):
     transport_cost = models.DecimalField(max_digits=13, decimal_places=4, default=0)
     tax = models.DecimalField(max_digits=13, decimal_places=4, default=0)
     fee = models.BooleanField(default=True)
+    ticket_type = models.IntegerField(default=0) # 0 ticket , 1 other fee
 
     passenger = models.ForeignKey(
         'AmadeusDecoder.unRemountedPnrPassenger',

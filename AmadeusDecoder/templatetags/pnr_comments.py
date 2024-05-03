@@ -145,8 +145,8 @@ def get_details(anomalie):
 # pnr non remonte count state
 @register.simple_tag(name='unremounted_pnr_state')
 def get_anomaly_state():
-    count_anomaly_state_true = UnremountedPnr.objects.filter(state=0).count()
-    count_anomaly_state_false = UnremountedPnr.objects.filter(state=1).count()
+    count_anomaly_state_true = UnremountedPnr.objects.filter(state=1).count()
+    count_anomaly_state_false = UnremountedPnr.objects.filter(state=0).count()
     
     context = {
         "false": count_anomaly_state_false,

@@ -290,20 +290,21 @@ $(document).ready(function () {
                 success: function (data) {
                     let result = data.verif;
 
-                    if (result === 'True') { // if ticket exists
+                    if (result.exist === true) { // if ticket exists
                         // Don't allow to modify ticket number
                         $('#ticket_number').attr('disabled', true)
                         showInfoSection();
+                        $('#montant_hors_taxe').val(result.ticket_cost);
+                        $('#taxe').val(result.ticket_tax);
+
                     } if (result === 'is_no_adc'){
                         toastr.info('Ticket Is no adc')
                     } 
                     if(result === 'pnr'){
                         toastr.info("Billet d'un autre PNR")
                     }
-                    if (result === 'ticket_already_exist') {
-                        toastr.info('Ce billet est déja remonté sur ce PNR courant')
-                    }
-                    if (result.exist === true) {
+                    
+                    if (result.exist === false) {
                         toastr.info(`Ce billet est déja présent dans le PNR ${result.pnr}`)
                     }
                     if (result === 'False') { // if ticket does not exist

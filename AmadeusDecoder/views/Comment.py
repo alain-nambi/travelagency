@@ -246,29 +246,32 @@ def verif_ticket(request):
     if request.method == 'POST':
         ticket_number = request.POST.get('ticket_number')
         pnr_id = request.POST.get('pnr_id')
-
+        print('PNR ID : ',pnr_id)
         ticket = Ticket.objects.filter(number=ticket_number).first()
-        
+        print('ticket PNR ID : ',ticket.pnr.id)
         verif = 'False'
         if ticket is not None:
-            if ticket.pnr_id == pnr_id:
+            if ticket.pnr.id == int(pnr_id):
+                print('------------------- GÜNAYDIN --------------------------')
                 if ticket.is_no_adc == False:
-                    verif='True'
+                    verif={
+                        'exist' : True,
+                        'ticket_cost' : ticket.transport_cost,
+                        'ticket_tax' : ticket.tax
+                    }
+
                 if ticket.is_no_adc == True and ticket.total != 0:
                     verif= 'is_no_adc'
                 if ticket.is_no_adc == True and ticket.total == 0:
                     verif= 'is_no_adc'
-            elif ticket.pnr_id == pnr_id and ticket.total > 0:
-                verif = 'ticket_already_exist'
-                # ticket existant mais pour un autre pnr
+            # ticket existant mais pour un autre pnr
             else:
-                if ticket.pnr_id:
-                    verif = {
-                        'exist': True,
-                        'pnr': ticket.pnr.number,
-                    }
-                else: 
-                    verif = 'pnr'
+                print('--------------------------- GUTTEN MORGEN -----------------------------')
+                verif = {
+                    'exist': False,
+                    'pnr': ticket.pnr.number,
+                }
+
 
         
     return JsonResponse({'verif': verif})

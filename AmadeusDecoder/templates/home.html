@@ -795,13 +795,32 @@
                         </div>
 
                         <div class="row" id="SelectSegmentDiv" style="justify-content:space-between;" hidden>
-                          <div class="form-group col-md-10">
+                          <div class="form-group col-md-10 multiselect-container">
                             <label for="message-text" class="col-form-label">Segment(s)</label>
                             
-                            <select id="selectSegment" name="native-select" multiple data-search="false" data-silent-initial-value-set="true">
+                            {% comment %} <select id="selectSegment" multiple name="native-select" data-search="false" data-silent-initial-value-set="true">
                               <option value='altea'>...</option>
-                            </select>
+                            </select> {% endcomment %}
+                            <div class="row justify-content-center">
+                              <div class="col-md-8 col-lg-5 d-flex justify-content-center align-items-center">
+                                <div class="d-flex text-left align-items-center w-100">
+                                  <strong class="sl">Select Language:</strong>
+                                  <select id="multiple-checkboxes" multiple="multiple">
+                                    <option value="php">PHP</option>
+                                    <option value="javascript">JavaScript</option>
+                                    <option value="java">Java</option>
+                                    <option value="sql">SQL</option>
+                                    <option value="jquery">Jquery</option>
+                                    <option value=".net">.Net</option>
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+
+
                           </div>
+
+                          
 
                           <div class="col-md-2" style="margin-top:40px;">
                             <i class="fa fa-plus-circle" id="addMoreSegmentButton" aria-hidden="true" style="font-size: 20px;color:#007bff"  data-toggle="collapse" data-target="#collapseSegmentData" aria-expanded="false" aria-controls="collapseSegmentData"></i>

@@ -65,6 +65,9 @@ $(document).ready(function(){
             AddSegmentButtonDiv.hidden = false;
         }
     }
+
+
+      
     
     // check if there is tickets data in the session storage
     // if there is, create the table to list the data
@@ -87,13 +90,18 @@ $(document).ready(function(){
                     <tbody>`;
         session_tickets.forEach(tickets => {
             html += `<tr>
-                    <td>${tickets['ticketType']}</td>
-                    <td>${tickets['ticketNumber']}</td>
-                    <td>${tickets['ticketCost']}</td>
-                    <td>${tickets['ticketTax']}</td>
-                    <td>${tickets['ticketPassenger']}</td>
-                    <td>${tickets['ticketSegment']}</td>
-            </tr>`;
+            <td>${ticket['ticketType']}</td>`;
+            if (ticket['ticketNumber']) {
+                html += `<td>${ticket['ticketNumber']}</td>`;
+            } else {
+                html += `<td>${ticket['designation']}</td>`;
+            }
+            html += `<td>${ticket['ticketCost']}</td>
+                        <td>${ticket['ticketTax']}</td>
+                        <td>${ticket['ticketPassenger']}</td>
+                        <td>${ticket['ticketSegment']}</td>
+                    </tr>`;
+        
         });
 
         html += `</tbody>

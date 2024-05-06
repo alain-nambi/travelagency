@@ -97,6 +97,7 @@ const stickyTrTable = document.querySelector(".sticky-tr-table")
 const pnrManagementMenuTrigger = document.querySelector("#pnrManagementMenu")
 const commentContainer = document.querySelector(".comment-container")
 const manageCustomerContainer = document.querySelector('.manage-customers-container')
+const manageUserContainer = document.querySelector(".manage-users-container")
 
 if (showOtherCommandsMenu) {
     // Fonction pour mettre à jour le style des éléments
@@ -122,6 +123,10 @@ if (showOtherCommandsMenu) {
         if (commentContainer) {
             commentContainer.style.marginTop = isShown ? "3rem" : "";
         }
+
+        if (manageUserContainer) {
+            manageUserContainer.style.marginTop = isShown ? "6rem" : "";
+        }
     }
 
     // Initialisation du statut du menu depuis le localStorage
@@ -132,7 +137,7 @@ if (showOtherCommandsMenu) {
         otherCommandsMenu.classList.remove('d-block');
     }
 
-    if (fixedHeaderCard && stickyTrTable && pnrManagementMenuTrigger || commentContainer || manageCustomerContainer) {
+    if (fixedHeaderCard && stickyTrTable && pnrManagementMenuTrigger || commentContainer || manageCustomerContainer || manageUserContainer) {
         updateElementStyles(isCommandMenuShown)
     }
     
@@ -160,7 +165,7 @@ if (showOtherCommandsMenu) {
         event.preventDefault();
         toggleCommandMenu();
 
-        if (fixedHeaderCard && stickyTrTable && pnrManagementMenuTrigger || commentContainer || manageCustomerContainer) {
+        if (fixedHeaderCard && stickyTrTable && pnrManagementMenuTrigger || commentContainer || manageCustomerContainer || manageUserContainer) {
             // Mise à jour du style des éléments
             updateElementStyles(isCommandMenuShown)
         }

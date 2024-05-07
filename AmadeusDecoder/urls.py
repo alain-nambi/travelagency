@@ -123,5 +123,4 @@ urlpatterns = [
     path('home/pnr-non-remonte',pnr_non_remonte,name='pnr_non_remonte'),
     path('home/unremounted-pnr',all_unremounted_pnr,name='all_unremounted_pnr'),
     path('home/unremounted-pnr-details/<int:unremounted_pnr_id>',unremounted_pnr_details,name='unremounted_pnr_details'),
-
 ]

@@ -578,13 +578,15 @@ def graph_view(request):
     print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
     context['passenger_by_age'] = get_passenger_by_age(request)
     context['all_data'] = get_destination_by_month(request)
-    print('all_ data destination')
+    print('---------------------------- all data destination ---------------------------')
     print(context['all_data'])
     context['all_data_origin'] = get_origin_by_month(request)
+
     context['all_data_airline'] = get_stat_airlines(request)
     total_pnr_for_week = get_total_pnr_for_week()
     context['all_pnr_count'] = total_pnr_for_week['all_pnr_count']
     context['last_week_pnr_count'] = total_pnr_for_week['last_week_pnr_count']
+    
 
     
     return render(request, 'stat.html', context)  
@@ -611,30 +613,33 @@ def get_stat_airlines(request):
     
 
 def get_destination_by_month(request):
-    # month = datetime.datetime.now().month
-    month = 12
+    
     all_year = PnrAirSegments.objects.annotate(year=ExtractYear('departuretime')).values('year').distinct()
-    all_data = []
-    for element in all_year:
-        if element['year'] is not None:
-            data = []
+    all_data_by_month = []
 
-            print(element['year'])
-            # destination
-            
-            queryset = PnrAirSegments.objects.annotate(total= Count('codedest_id')).filter( departuretime__month=month,departuretime__year = element['year']).values('codedest_id','total').annotate(total_count=Count('codedest_id')).filter(total_count__gt=10)
-            if queryset.exists():
-                data.append(str(element['year']))
-                for item in queryset:
-                    airport = Airport.objects.get(iata_code = item['codedest_id'])
-                    
-                    if airport.name is not None:
-                        data.append({"y":item['total_count'],"label":airport.name})
-                    if airport.name is None:
-                        data.append({"y":item['total_count'],"label":item['codedest_id']}) 
-                all_data.append(data)
+    for month in range(1, 13):
+        all_data = {}
+        all_data['month'] = month
+        all_data['data'] = []
+        for element in all_year:
+            if element['year'] is not None:
+                data = {}
 
-    return all_data
+                queryset = PnrAirSegments.objects.annotate(total= Count('codedest_id')).filter( departuretime__month=month,departuretime__year = element['year']).values('codedest_id','total').annotate(total_count=Count('codedest_id')).filter(total_count__gt=10)
+                if queryset.exists():
+                    data['year']=(str(element['year']))
+                    data['data'] = []
+                    for item in queryset:
+                        airport = Airport.objects.get(iata_code = item['codedest_id'])
+                        
+                        if airport.name is not None:
+                            data['data'].append({"y":item['total_count'],"label":airport.name})
+                        if airport.name is None:
+                            data['data'].append({"y":item['total_count'],"label":item['codedest_id']}) 
+                    all_data['data'].append(data)
+        all_data_by_month.append(all_data)
+
+    return all_data_by_month
 
 def get_origin_by_month(request):
     # month = datetime.datetime.now().month
@@ -643,7 +648,6 @@ def get_origin_by_month(request):
 
     for month in range(1, 13):
         all_data = []
-        print('month : ', month)
         for element in all_year:
             if element['year'] is not None:
                 data = []
@@ -657,7 +661,9 @@ def get_origin_by_month(request):
                         else:
                             data.append({"y": item['total_count'], "label": item['codeorg_id']})
                     all_data.append(data)
+                    
         all_data_by_month.append(all_data)
+       
 
     return all_data_by_month
 

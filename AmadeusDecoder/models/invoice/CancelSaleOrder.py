@@ -11,7 +11,7 @@ class CancelSaleOrder(models.Model):
     
     pnr = models.ForeignKey(Pnr, on_delete=models.CASCADE, related_name='cancel_sale_orders')
     client = models.ForeignKey(Client, on_delete=models.CASCADE, null=True)
-    agent = models.ForeignKey(User, on_delete=models.CASCADE)
+    agent = models.CharField(max_length=255, null=False)
     ticket = models.OneToOneField(Ticket, on_delete=models.CASCADE, null=True)
     fee = models.OneToOneField(Fee, on_delete=models.CASCADE, null=True)
     other_fee = models.OneToOneField(OthersFee, on_delete=models.CASCADE, null=True)

@@ -28,7 +28,9 @@ def cancel_order_sale_from_odoo(request):
         pnr_number = request.POST.get('pnr_number')
         invoice_number = request.POST.get('invoice_number')
         agent = request.POST.get('agent')
-        client = request.POST.get('client')
+        # client = request.POST.get('client')
+        
+        print(pnr_number, invoice_number, agent)
         
         if pnr_number is not None and invoice_number is not None:
             try:

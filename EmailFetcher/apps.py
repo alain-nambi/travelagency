@@ -257,9 +257,9 @@ class EmailfetcherConfig(AppConfig):
         timer_passenger_segment_missing = RepeatTimer(1, checking_passenger_segment_missing)
         timer_passenger_segment_missing.start()
 
-        print('Daily Pnr created starting')
-        timer_schedule = RepeatTimer(60, start_pnr_daily_report_schedule)
-        timer_schedule.start()
+        # print('Daily Pnr created starting')
+        # timer_schedule = RepeatTimer(60, start_pnr_daily_report_schedule)
+        # timer_schedule.start()
 
         print('Pnr unissued OPC checking is running...')
         timer = RepeatTimer(60, pnr_unissued_opc_checking)  

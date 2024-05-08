@@ -113,6 +113,7 @@ urlpatterns = [
     path('home/user-research', user_research, name= 'user_research'),
     path('home/user-filter', user_filter, name= 'user_filter'),
     path('stat/',graph_view, name='graph_view'),
+    path('stat/details',stat, name='stat'),
     path('comment/get-unshowed-tickets',get_unshowed_tickets, name='get_unshowed_tickets'),
     path('anomaly/add-category',add_anomaly_category,name="add_anomaly_category"),
     path('anomaly/all-canceled-ticket',get_all_canceled_ticket,name="get_all_canceled_ticket"),

@@ -587,9 +587,23 @@ def graph_view(request):
     context['all_pnr_count'] = total_pnr_for_week['all_pnr_count']
     context['last_week_pnr_count'] = total_pnr_for_week['last_week_pnr_count']
     
-
-    
     return render(request, 'stat.html', context)  
+
+def stat(request):
+
+    context = {}
+    context['passenger_by_age'] = get_passenger_by_age(request)
+    context['all_data'] = get_destination_by_month(request)
+    context['all_data_origin'] = get_origin_by_month(request)
+
+    context['all_data_airline'] = get_stat_airlines(request)
+    total_pnr_for_week = get_total_pnr_for_week()
+    context['all_pnr_count'] = total_pnr_for_week['all_pnr_count']
+    context['last_week_pnr_count'] = total_pnr_for_week['last_week_pnr_count']
+    
+    return JsonResponse(context)
+
+
 
 def get_stat_airlines(request):
     # month = datetime.datetime.now().month

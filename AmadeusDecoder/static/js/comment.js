@@ -172,5 +172,33 @@ if (showOtherCommandsMenu) {
     });
 }
 
+const unCheckAllCheckboxUninvoiced = document.getElementById("unCheckAllCheckboxUninvoiced")
+
+if (unCheckAllCheckboxUninvoiced) {
+    unCheckAllCheckboxUninvoiced.addEventListener("click", (event) => {
+        const pnrId = unCheckAllCheckboxUninvoiced.dataset.pnrId
+        console.log(pnrId);
+        $.ajax({
+            type: 'POST',
+            url: '/check-uninvoiced-status/',
+            dataType: 'json',
+            data: {
+                pnr_id: pnrId,
+                csrfmiddlewaretoken: csrftoken,
+            },
+            success: (response) => {
+                console.log(response.status);
+                if (response.status === 'ok') {
+                    toastr.success('Votre demande a été acceptée');
+                    window.location.reload()
+                }
+            },
+            error: (response) => {
+                console.log(response)
+            }
+        });
+    })
+}
+
 
 

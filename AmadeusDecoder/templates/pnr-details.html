@@ -583,6 +583,21 @@
 												Créer commande
 											</button>
 
+											{% with pnr|check_invoiced_status as check_invoiced_status %}
+												{% if check_invoiced_status %}
+													<button 
+														type="button" 
+														id="unCheckAllCheckboxUninvoiced" 
+														class="btn btn-sm-block btn-secondary mb-2 py-0 px-1"
+														data-pnr-id="{{ pnr.id }}" 
+													>
+														<i class="fas fa-plus"></i>
+														<span class="text-sm">Annuler la sélection</span>
+													</button>
+												{% endif %}
+											{% endwith %}
+											
+
 											{% with pnr|check_if_one_or_many_passenger_is_invoiced as check_if_one_or_many_passenger_is_invoiced %}
 												{% with pnr.id|customer_has_not_had_order as customer_has_not_had_order %}
 													{% if check_if_one_or_many_passenger_is_invoiced %}

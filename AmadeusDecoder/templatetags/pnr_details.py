@@ -22,6 +22,11 @@ register = template.Library()
 
 AIRPORT_AGENCY_CODE = configs.AIRPORT_AGENCY_CODE
 
+@register.filter(name='check_invoiced_status')
+def check_invoiced_status(pnr):
+    passenger_invoice_obj = PassengerInvoice.objects.filter(pnr_id=pnr.id).exclude(is_invoiced=True)
+    return passenger_invoice_obj.exists()
+
 @register.filter(name='pnr_office')
 def get_pnr_office(pnr):
     try:   

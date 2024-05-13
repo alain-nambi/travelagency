@@ -2171,6 +2171,35 @@ def unorder_pnr(request):
         
         return JsonResponse({'status':'ok'})
     return JsonResponse({'status':'error'})
+
+@login_required(login_url="index")
+# cancel order in passeger invoice
+def uncheck_ticket_in_passenger_invoiced(request):
+    if request.method == 'POST':
+        pnr_number = request.POST.get('pnr_id')
+
+        if pnr_number:
+            passenger_invoice_obj = PassengerInvoice.objects.filter(pnr_id=pnr_number).exclude(is_invoiced=True)
+        
+            if passenger_invoice_obj:
+                for passenger_invoice in passenger_invoice_obj:
+                    # delete the corresponding passenger invoice if it exist
+                    PassengerInvoice.objects.filter(id=passenger_invoice.id).delete()
+                    
+                    if passenger_invoice.ticket_id:
+                        #  delete the corresponding ticket if it exist
+                        Ticket.objects.filter(id=passenger_invoice.ticket_id).update(is_invoiced=False)
+                    
+                    if passenger_invoice.fee_id:
+                        #  delete the corresponding fee if it exist
+                        Fee.objects.filter(id=passenger_invoice.fee_id).update(is_invoiced=False)
+                        
+                    if passenger_invoice.other_fee_id:
+                        # delete the corresponding other fee if it exist
+                        OthersFee.objects.filter(id=passenger_invoice.other_fee_id).update(is_invoiced=False)
+        
+        return JsonResponse({'status':'ok'})
+    return JsonResponse({'status':'error'})
     
 @login_required(login_url="index")
 def get_all_pnr_unordered(request):

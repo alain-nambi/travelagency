@@ -797,26 +797,22 @@
                         <div class="row" id="SelectSegmentDiv" style="justify-content:space-between;" hidden>
                           <div class="form-group col-md-10 multiselect-container">
                             <label for="message-text" class="col-form-label">Segment(s)</label>
-                            
-                            {% comment %} <select id="selectSegment" multiple name="native-select" data-search="false" data-silent-initial-value-set="true">
-                              <option value='altea'>...</option>
-                            </select> {% endcomment %}
-                            <div class="row justify-content-center">
-                              <div class="col-md-8 col-lg-5 d-flex justify-content-center align-items-center">
-                                <div class="d-flex text-left align-items-center w-100">
-                                  <strong class="sl">Select Language:</strong>
-                                  <select id="multiple-checkboxes" multiple="multiple">
-                                    <option value="php">PHP</option>
-                                    <option value="javascript">JavaScript</option>
-                                    <option value="java">Java</option>
-                                    <option value="sql">SQL</option>
-                                    <option value="jquery">Jquery</option>
-                                    <option value=".net">.Net</option>
-                                  </select>
-                                </div>
+                                                   
+                            <div class="dropdown" id="selectSegment" data-control="checkbox-dropdown">
+                              <label class="dropdown-label">Select</label>
+                              
+                              <div class="dropdown-list">
+                                <a href="#" data-toggle="check-all" class="dropdown-option">
+                                  Check All  
+                                </a>
+                                
+                                <label class="dropdown-option">
+                                  <input type="checkbox" name="dropdown-group" value="Selection 1" />
+                                  Selection One
+                                </label>
+                                    
                               </div>
                             </div>
-
 
                           </div>
 

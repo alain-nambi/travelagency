@@ -25,6 +25,9 @@ const CancelAddSegmentButton = document.querySelector('#CancelAddSegmentButton')
 const SegmentData = document.querySelector('#collapseSegmentData');
 const selectSegment = document.querySelector('#selectSegment');
 const SelectSegmentDiv = document.querySelector('#SelectSegmentDiv');
+var dropdownOptions = document.querySelectorAll('.dropdown-option');
+var dropdownList = document.querySelector('.dropdown-list');
+
 
 const confirmAddPnrButton = document.querySelector('#ConfirmAddPnrButton');
 
@@ -44,6 +47,7 @@ const airline = document.querySelector('#airline');
 const PassengerName = document.querySelector('#PassengerName');
 const PassengerOrder = document.querySelector('#PassengerOrder');
 
+
 $(document).ready(function(){
     if(AddSegmentButton,SelectSegmentDiv, AddSegmentButtonDiv){
         //  check if there is segments data in the session storage
@@ -54,10 +58,24 @@ $(document).ready(function(){
 
             var session_segments = JSON.parse(sessionStorage.getItem('segments'));
             session_segments.forEach(element => {
-                var option = document.createElement('option');
-                option.value = element['order']; // Définir la valeur de l'option
-                option.text = element['order'];
-                selectSegment.appendChild(option);
+                var label = document.createElement('label');
+                label.classList.add('dropdown-option'); // Ajouter la classe dropdown-option
+
+                // Créer l'élément input
+                var input = document.createElement('input');
+                input.type = 'checkbox';
+                input.name = 'dropdown-group';
+                input.value = element['order']; // Définir la valeur
+
+                // Ajouter l'élément input à l'élément label
+                label.appendChild(input);
+
+                // Créer un nœud texte pour le texte "Selection One"
+                var textNode = document.createTextNode(element['order']);
+
+                // Ajouter le nœud texte à l'élément label
+                label.appendChild(textNode);
+                dropdownList.appendChild(label);
 
             });
         }
@@ -67,8 +85,6 @@ $(document).ready(function(){
     }
 
 
-      
-    
     // check if there is tickets data in the session storage
     // if there is, create the table to list the data
     if('tickets' in sessionStorage){
@@ -298,10 +314,9 @@ ConfirmAddSegmentButton.addEventListener('click', function(event){
     
     // Effacer tous les option de selectSegment s'il y en a
     if (!selectSegment.hidden) {
-        var options = selectSegment.options;
-        for (var i = options.length - 1; i >= 0; i--) {
-            selectSegment.remove(i);
-        }
+        for (var i = dropdownOptions.length - 1; i >= 0; i--) {
+            dropdownOptions[i].remove();
+        } 
         
     }
 
@@ -313,25 +328,29 @@ ConfirmAddSegmentButton.addEventListener('click', function(event){
         sessionStorage.setItem('segments', JSON.stringify(session_segments));
 
         // Ajouter les segment contenu dans session storage en tant qu'option de selectSegment
-        session_segments.forEach(element => {
-            var option = document.createElement('option');
-            option.value = element['order']; // Définir la valeur de l'option
-            option.text = element['order'];
-            selectSegment.appendChild(option);
+        session_segments.forEach(element => {  
+
+            var label = document.createElement('label');
+            label.classList.add('dropdown-option'); // Ajouter la classe dropdown-option
+
+            // Créer l'élément input
+            var input = document.createElement('input');
+            input.type = 'checkbox';
+            input.name = 'dropdown-group';
+            input.value = element['order']; // Définir la valeur
+
+            // Ajouter l'élément input à l'élément label
+            label.appendChild(input);
+
+            // Créer un nœud texte pour le texte "Selection One"
+            var textNode = document.createTextNode(element['order']);
+
+            // Ajouter le nœud texte à l'élément label
+            label.appendChild(textNode);
+            dropdownList.appendChild(label);
         });
 
-        VirtualSelect.init({
-            ele: '#selectSegment',
-            multiple: true,
-        });
-        document.querySelector('#selectSegment').setOptions(session_segments);
 
-        var disabledOptions = [];
-        session_segments.forEach(option => {
-            if (option.value != '') {
-                disabledOptions.push(option.value);    
-            }
-        });
     }
     else{
         var segments = [];
@@ -339,23 +358,24 @@ ConfirmAddSegmentButton.addEventListener('click', function(event){
         // Ajouter une entrée au sessionStorage
         sessionStorage.setItem('segments', JSON.stringify(segments));
 
-        var option = document.createElement('option');
-        option.value = Segment['order']; // Définir la valeur de l'option
-        option.text = Segment['order'];
-        selectSegment.appendChild(option);
+        var label = document.createElement('label');
+        label.classList.add('dropdown-option'); // Ajouter la classe dropdown-option
 
-        VirtualSelect.init({
-            ele: '#selectSegment',
-            multiple: true,
-        });
-        document.querySelector('#selectSegment').setOptions(segments);
+        // Créer l'élément input
+        var input = document.createElement('input');
+        input.type = 'checkbox';
+        input.name = 'dropdown-group';
+        input.value = Segment['order']; // Définir la valeur
 
-        var disabledOptions = [];
-        segments.forEach(option => {
-            if (option.value != '') {
-                disabledOptions.push(option.value);    
-            }
-        });
+        // Ajouter l'élément input à l'élément label
+        label.appendChild(input);
+
+        // Créer un nœud texte pour le texte "Selection One"
+        var textNode = document.createTextNode(Segment['order']);
+
+        // Ajouter le nœud texte à l'élément label
+        label.appendChild(textNode);
+        dropdownList.appendChild(label);
     }
     
     closeSegmentSection();
@@ -645,3 +665,5 @@ function acceptToRemountPnr(unremountedPnrId){
         }
     })
 }
+
+// ------------------------- MULTI SELECT ------------------------------------------------

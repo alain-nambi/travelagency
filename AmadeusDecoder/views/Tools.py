@@ -576,10 +576,12 @@ def graph_view(request):
 
     context = {}
     print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
-    context['passenger_by_age'] = get_passenger_by_age(request)
+    passenger_by_age_data = get_passenger_by_age(request)
+    context['passenger_by_age'] = passenger_by_age_data['data']
+    context['total_passenger'] = passenger_by_age_data['total']
+
     context['all_data'] = get_destination_by_month(request)
-    print('---------------------------- all data destination ---------------------------')
-    print(context['all_data'])
+
     context['all_data_origin'] = get_origin_by_month(request)
 
     context['all_data_airline'] = get_stat_airlines(request)
@@ -588,21 +590,6 @@ def graph_view(request):
     context['last_week_pnr_count'] = total_pnr_for_week['last_week_pnr_count']
     
     return render(request, 'stat.html', context)  
-
-def stat(request):
-
-    context = {}
-    context['passenger_by_age'] = get_passenger_by_age(request)
-    context['all_data'] = get_destination_by_month(request)
-    context['all_data_origin'] = get_origin_by_month(request)
-
-    context['all_data_airline'] = get_stat_airlines(request)
-    total_pnr_for_week = get_total_pnr_for_week()
-    context['all_pnr_count'] = total_pnr_for_week['all_pnr_count']
-    context['last_week_pnr_count'] = total_pnr_for_week['last_week_pnr_count']
-    
-    return JsonResponse(context)
-
 
 
 def get_stat_airlines(request):
@@ -712,8 +699,8 @@ def get_passenger_by_age(request):
     data.append({ "label": "Adulte", "y": (total_adt * 100)/total }) 
     data.append({ "label": "Enfant", "y":  (total_chd * 100)/total }) 
     
-
-    return data
+    context = {'total':total, 'data':data}
+    return context
 
 # get all the date of the week of a specific date
 def get_all_date_of_the_week(date):

@@ -47,6 +47,8 @@ const airline = document.querySelector('#airline');
 const PassengerName = document.querySelector('#PassengerName');
 const PassengerOrder = document.querySelector('#PassengerOrder');
 
+var checked=[];
+var label = document.querySelector('.dropdown-label');
 
 $(document).ready(function(){
     if(AddSegmentButton,SelectSegmentDiv, AddSegmentButtonDiv){
@@ -63,9 +65,15 @@ $(document).ready(function(){
 
                 // Créer l'élément input
                 var input = document.createElement('input');
+                input.classList.add('dropdown-input');
                 input.type = 'checkbox';
                 input.name = 'dropdown-group';
                 input.value = element['order']; // Définir la valeur
+
+                input.addEventListener('click', ()=>{
+                    console.log('input clicked !');
+                    updateStatus(input);
+                })
 
                 // Ajouter l'élément input à l'élément label
                 label.appendChild(input);
@@ -254,6 +262,7 @@ if(pnrNumber, ticketNumber,ticketCost, ticketTax, PassengerName, flightNumber, s
     })
 
     AddTicketButton.addEventListener('click', function(event){
+        $('#collapseTicketData').collapse("show");
         generalFooter.hidden= true;
         ticketDataFooter.hidden = false;
     });
@@ -275,6 +284,7 @@ if(pnrNumber, ticketNumber,ticketCost, ticketTax, PassengerName, flightNumber, s
     });
 
     AddPassengerButton.addEventListener('click', function(event){
+        $('#collapsePassengerData').collapse("show");
         generalFooter.hidden= true;
         PassengerDataFooter.hidden = false;
         ticketDataFooter.hidden = true;
@@ -314,9 +324,12 @@ ConfirmAddSegmentButton.addEventListener('click', function(event){
     
     // Effacer tous les option de selectSegment s'il y en a
     if (!selectSegment.hidden) {
-        for (var i = dropdownOptions.length - 1; i >= 0; i--) {
-            dropdownOptions[i].remove();
-        } 
+        var labelElements = selectSegment.querySelectorAll('.dropdown-list label.dropdown-option');
+    
+        // Parcourez les éléments et supprimez chacun d'eux
+        labelElements.forEach(function(label) {
+            label.remove();
+        });
         
     }
 
@@ -335,9 +348,15 @@ ConfirmAddSegmentButton.addEventListener('click', function(event){
 
             // Créer l'élément input
             var input = document.createElement('input');
+            input.classList.add('dropdown-input');
             input.type = 'checkbox';
             input.name = 'dropdown-group';
             input.value = element['order']; // Définir la valeur
+
+            input.addEventListener('click', ()=>{
+                console.log('input clicked !');
+                updateStatus(input);
+            })
 
             // Ajouter l'élément input à l'élément label
             label.appendChild(input);
@@ -363,9 +382,15 @@ ConfirmAddSegmentButton.addEventListener('click', function(event){
 
         // Créer l'élément input
         var input = document.createElement('input');
+        input.classList.add('dropdown-input');
         input.type = 'checkbox';
         input.name = 'dropdown-group';
         input.value = Segment['order']; // Définir la valeur
+
+        input.addEventListener('click', ()=>{
+            console.log('input clicked !');
+            updateStatus(input);
+        })
 
         // Ajouter l'élément input à l'élément label
         label.appendChild(input);
@@ -619,6 +644,7 @@ function closePassengerSection(){
 }
 
 function showSegmentSection(){
+    $('#collapseSegmentData').collapse('show');
     SegmentDataFooter.hidden = false;
     generalFooter.hidden= true;
     ticketDataFooter.hidden = true;
@@ -667,3 +693,129 @@ function acceptToRemountPnr(unremountedPnrId){
 }
 
 // ------------------------- MULTI SELECT ------------------------------------------------
+
+class CheckboxDropdown {
+    constructor(el) {
+        var _this = this;
+        this.isOpen = false;
+        this.areAllChecked = false;
+        this.$el = $(el);
+        this.$label = this.$el.find('.dropdown-label');
+        this.$checkAll = this.$el.find('[data-toggle="check-all"]').first();
+        this.$inputs = this.$el.find('.dropdown-input');
+        this.$inputs.each(function() {
+            console.log('inputs:', $(this).val()); // Afficher la valeur de chaque élément
+        });
+
+        this.onCheckBox();
+
+        this.$label.on('click', function (e) {
+            console.log('coucou1');
+            e.preventDefault();
+            _this.toggleOpen();
+        });
+
+        this.$checkAll.on('click', function (e) {
+            console.log('coucou2');
+            e.preventDefault();
+            _this.onCheckAll();
+        });
+
+        this.$inputs.on('change', function (e) {
+            console.log('coucou3');
+            _this.onCheckBox();
+        });
+    }
+    onCheckBox() {
+        console.log('box checked');
+        this.updateStatus();
+    }
+    updateStatus() {
+        var checked = this.$el.find(':checked');
+        var selectedValues = [];
+
+        this.areAllChecked = false;
+        this.$checkAll.html('Check All');
+
+        if (checked.length <= 0) {
+            this.$label.html('Select Options');
+        }
+        else if (checked.length === 1) {
+            console.log('One option checked');
+            console.log('checked : ', checked.parent('label').text());
+            this.$label.html(checked.parent('label').text());
+        }
+        else if (checked.length === this.$inputs.length) {
+            this.$label.html('All Selected');
+            this.areAllChecked = true;
+            this.$checkAll.html('Uncheck All');
+        }
+        else {
+            console.log('--ELSE--');
+            console.log('chedcked : ', $(this).parent('label').text().trim());
+            checked.each(function () {
+                selectedValues.push($(this).parent('label').text().trim());
+            });
+            this.$label.html(selectedValues.join(', '));
+        }
+    }
+
+
+    onCheckAll(checkAll) {
+        if (!this.areAllChecked || checkAll) {
+            this.areAllChecked = true;
+            this.$checkAll.html('Uncheck All');
+            this.$inputs.prop('checked', true);
+        }
+        else {
+            this.areAllChecked = false;
+            this.$checkAll.html('Check All');
+            this.$inputs.prop('checked', false);
+        }
+
+        this.updateStatus();
+    }
+    toggleOpen(forceOpen) {
+        var _this = this;
+
+        if (!this.isOpen || forceOpen) {
+            this.isOpen = true;
+            this.$el.addClass('on');
+            $(document).on('click', function (e) {
+                if (!$(e.target).closest('[data-control]').length) {
+                    _this.toggleOpen();
+                }
+            });
+        }
+        else {
+            this.isOpen = false;
+            this.$el.removeClass('on');
+            $(document).off('click');
+        }
+    }
+}
+    var is_open = false;
+    var areAllChecked = false;
+
+    
+    console.log('labelsss : ', label);
+    var checkAll = document.querySelector('[data-toggle="check-all"]');
+
+var checkboxesDropdowns = document.querySelectorAll('[data-control="checkbox-dropdown"]');
+for(var i = 0, length = checkboxesDropdowns.length; i < length; i++) {
+    new CheckboxDropdown(checkboxesDropdowns[i]);
+
+}
+
+
+
+function updateStatus(input){
+    checked.push(input);
+    
+    if (checked.length <=0) {
+        label.html('Selectionner un Segment');
+    }
+    else if (checked.length === 1) {
+        label.innerHTML = checked[0].closest('label').textContent.trim();
+    }
+}

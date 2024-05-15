@@ -71,8 +71,9 @@ $(document).ready(function(){
                 input.value = element['order']; // Définir la valeur
 
                 input.addEventListener('click', ()=>{
-                    console.log('input clicked !');
-                    updateStatus(input);
+                    console.log('input clicked ! : ',input);
+                    
+                    updateStatus(input.value);
                 })
 
                 // Ajouter l'élément input à l'élément label
@@ -354,8 +355,9 @@ ConfirmAddSegmentButton.addEventListener('click', function(event){
             input.value = element['order']; // Définir la valeur
 
             input.addEventListener('click', ()=>{
-                console.log('input clicked !');
-                updateStatus(input);
+                console.log('input clicked ! : ',input);
+                
+                updateStatus(input.value);
             })
 
             // Ajouter l'élément input à l'élément label
@@ -388,8 +390,9 @@ ConfirmAddSegmentButton.addEventListener('click', function(event){
         input.value = Segment['order']; // Définir la valeur
 
         input.addEventListener('click', ()=>{
-            console.log('input clicked !');
-            updateStatus(input);
+            console.log('input clicked ! : ',input);
+            
+            updateStatus(input.value);
         })
 
         // Ajouter l'élément input à l'élément label
@@ -809,13 +812,37 @@ for(var i = 0, length = checkboxesDropdowns.length; i < length; i++) {
 
 
 
-function updateStatus(input){
-    checked.push(input);
+function updateStatus(input_value){
+    var selectedValues = []
+    console.log('checked before update : ',checked);
+
+    if (!checked.includes(input_value)) {
+        checked.push(input_value);
+    }
+    else{
+        console.log(input_value);
+        var index = checked.indexOf(input_value);
+        console.log('index : ',index);
+        if (index > -1) {
+            checked.splice(index, 1);
+        }
+        else{
+            checked.pop()
+        }
+    }
+    console.log('checked after update : ', checked);
     
     if (checked.length <=0) {
         label.html('Selectionner un Segment');
     }
     else if (checked.length === 1) {
-        label.innerHTML = checked[0].closest('label').textContent.trim();
+        label.innerHTML = checked[0];
+    }
+    else{
+        checked.forEach(element => {
+            selectedValues.push(element);
+        });
+
+        label.innerHTML = selectedValues;
     }
 }

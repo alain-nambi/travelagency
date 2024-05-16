@@ -95,21 +95,39 @@ const otherCommandsMenu = document.querySelector(".other-commands-menu");
 const fixedHeaderCard = document.querySelector(".fixed-header")
 const stickyTrTable = document.querySelector(".sticky-tr-table")
 const pnrManagementMenuTrigger = document.querySelector("#pnrManagementMenu")
+const commentContainer = document.querySelector(".comment-container")
+const manageCustomerContainer = document.querySelector('.manage-customers-container')
+const manageUserContainer = document.querySelector(".manage-users-container")
 
 if (showOtherCommandsMenu) {
     // Fonction pour mettre à jour le style des éléments
     function updateElementStyles(isShown) {
         if (!isShown) {
-            fixedHeaderCard.style = "top: 3.4rem !important";
-            stickyTrTable.style = "top: 6.4rem !important";
-            pnrManagementMenuTrigger.style = "margin-top: 1rem !important; visibility: visible";
+            if (fixedHeaderCard && stickyTrTable && pnrManagementMenuTrigger) {
+                fixedHeaderCard.style = "top: 3.4rem !important";
+                stickyTrTable.style = "top: 6.4rem !important";
+                pnrManagementMenuTrigger.style = "margin-top: 1rem !important; visibility: visible";
+            }
         } else {
-            fixedHeaderCard.style.removeProperty("top");
-            stickyTrTable.style.removeProperty("top");
-            pnrManagementMenuTrigger.style.removeProperty("margin-top");
+            if (fixedHeaderCard && stickyTrTable && pnrManagementMenuTrigger) {
+                fixedHeaderCard.style.removeProperty("top");
+                stickyTrTable.style.removeProperty("top");
+                pnrManagementMenuTrigger.style.removeProperty("margin-top");
+            }
+        }
+
+        if (manageCustomerContainer) {
+            manageCustomerContainer.style.marginTop = isShown ? "3.25rem" : "0.25rem";
+        }
+    
+        if (commentContainer) {
+            commentContainer.style.marginTop = isShown ? "3rem" : "";
+        }
+
+        if (manageUserContainer) {
+            manageUserContainer.style.marginTop = isShown ? "6rem" : "";
         }
     }
-
 
     // Initialisation du statut du menu depuis le localStorage
     let isCommandMenuShown = JSON.parse(localStorage.getItem("isCommandMenuShown")) || false;
@@ -119,7 +137,7 @@ if (showOtherCommandsMenu) {
         otherCommandsMenu.classList.remove('d-block');
     }
 
-    if (fixedHeaderCard && stickyTrTable && pnrManagementMenuTrigger) {
+    if (fixedHeaderCard && stickyTrTable && pnrManagementMenuTrigger || commentContainer || manageCustomerContainer || manageUserContainer) {
         updateElementStyles(isCommandMenuShown)
     }
     
@@ -147,11 +165,39 @@ if (showOtherCommandsMenu) {
         event.preventDefault();
         toggleCommandMenu();
 
-        if (fixedHeaderCard && stickyTrTable && pnrManagementMenuTrigger) {
+        if (fixedHeaderCard && stickyTrTable && pnrManagementMenuTrigger || commentContainer || manageCustomerContainer || manageUserContainer) {
             // Mise à jour du style des éléments
             updateElementStyles(isCommandMenuShown)
         }
     });
+}
+
+const unCheckAllCheckboxUninvoiced = document.getElementById("unCheckAllCheckboxUninvoiced")
+
+if (unCheckAllCheckboxUninvoiced) {
+    unCheckAllCheckboxUninvoiced.addEventListener("click", (event) => {
+        const pnrId = unCheckAllCheckboxUninvoiced.dataset.pnrId
+        console.log(pnrId);
+        $.ajax({
+            type: 'POST',
+            url: '/check-uninvoiced-status/',
+            dataType: 'json',
+            data: {
+                pnr_id: pnrId,
+                csrfmiddlewaretoken: csrftoken,
+            },
+            success: (response) => {
+                console.log(response.status);
+                if (response.status === 'ok') {
+                    toastr.success('Votre demande a été acceptée');
+                    window.location.reload()
+                }
+            },
+            error: (response) => {
+                console.log(response)
+            }
+        });
+    })
 }
 
 

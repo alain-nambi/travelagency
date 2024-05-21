@@ -264,7 +264,7 @@ def verif_ticket(request):
                     'pnr': ticket.pnr.number,
                 }
         else:
-            response['verif'] = 'ticket_not_found'
+            response['verif'] = 'False'
 
         return JsonResponse(response)
     else:

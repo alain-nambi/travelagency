@@ -2216,7 +2216,7 @@ def get_all_pnr_unordered(request):
     
     context['pnr_list'] = invoices_canceled_list
     object_list = context['pnr_list']
-    row_num = request.GET.get('paginate_by', 20) or 20
+    row_num = request.GET.get('paginate_by', 30) or 30
     page_num = request.GET.get('page', 1)
     paginator = Paginator(object_list, row_num)
     try:

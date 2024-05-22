@@ -113,7 +113,7 @@ $(document).ready(function(){
                       </tr>
                     </thead>
                     <tbody>`;
-        session_tickets.forEach(tickets => {
+        session_tickets.forEach(ticket => {
             html += `<tr>
             <td>${ticket['ticketType']}</td>`;
             if (ticket['ticketNumber']) {
@@ -135,6 +135,44 @@ $(document).ready(function(){
         $("#ticketTable").html(html);
         ticketList.hidden= false;
     }
+
+    if('segments' in sessionStorage){
+        let session_segments = JSON.parse(sessionStorage.getItem('segments'));
+        
+        // Create ticket table
+
+        var html = `<table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Ordre</th>
+                        <th>Vol</th> 
+                        <th>date Départ</th> 
+                        <th>date d'Arriée</th> 
+                        <th>Origine</th> 
+                        <th>Destination</th> 
+                      </tr>
+                    </thead>
+                    <tbody>`;
+        session_segments.forEach(segment => {
+            html += `<tr>
+            <td>${segment['order']}</td>
+            <td>${segment['airline']} ${segment['flightNumber']}</td>
+            <td>${segment['departureDate']} ${segment['departureTime']}</td>
+            <td>${segment['arrivalDate']} ${segment['arrivalTime']}</td>
+            <td>${segment['origin']}</td>
+            <td>${segment['destination']}</td>
+            </tr>`;
+            
+            
+        });
+
+        html += `</tbody>
+        </table>`;
+
+        $("#segmentTable").html(html);
+        segmentList.hidden= false;
+    }
+
 
     //  check if there is passengers data in the session storage
     // if there is, fill the passenger select with it
@@ -467,7 +505,7 @@ ConfirmAddPassengerButton.addEventListener('click', function(event){
 ConfirmAddTicketButton.addEventListener('click', function(event){
 
     var ticketPassenger = $('#passengerSelect').val();
-    var ticketSegment = $('#selectSegment').val();
+    var ticketSegment = checked;
     var fee = document.getElementById('feeSection');
     ticketLabel = document.getElementById('ticketLabelSection');
 
@@ -619,6 +657,7 @@ confirmAddPnrButton.addEventListener('click', function(event){
 
             // Effacer le contenu du sessionStorage
             sessionStorage.clear();
+            checked = [];
             location.reload();
 
         },
@@ -695,8 +734,28 @@ function acceptToRemountPnr(unremountedPnrId){
     })
 }
 
+function refuseToRemountPnr(unremountedPnrId) {
+    $.ajax({
+        type: 'POST',
+        url : '/anomaly/refuse/unremounted-pnr',
+        dataType : 'json',
+        data : {
+            unremountedPnrId : unremountedPnrId,
+            csrfmiddlewaretoken : csrftoken
+        },
+        success : (response) => {
+            toastr.success(response.message);
+            location.reload();
+        },
+        error : (response) => {
+            toastr.error(response.message);
+        }
+    })
+}
+
 // ------------------------- MULTI SELECT ------------------------------------------------
 
+// create a select dropdown
 class CheckboxDropdown {
     constructor(el) {
         var _this = this;
@@ -810,30 +869,25 @@ for(var i = 0, length = checkboxesDropdowns.length; i < length; i++) {
 
 }
 
-
-
+// Update the lobel of the select dropdown S1,S2 / S1,S3,S2
 function updateStatus(input_value){
     var selectedValues = []
-    console.log('checked before update : ',checked);
+    var new_checked_value = []
 
-    if (!checked.includes(input_value)) {
-        checked.push(input_value);
+    if (!checked.includes(input_value.toString().trim())) {
+        checked.push(input_value.toString().trim());
     }
     else{
-        console.log(input_value);
-        var index = checked.indexOf(input_value);
-        console.log('index : ',index);
-        if (index > -1) {
-            checked.splice(index, 1);
-        }
-        else{
-            checked.pop()
-        }
+        checked.forEach(element => {
+            if (element != input_value.toString().trim()) {
+                new_checked_value.push(element)
+            }
+        });
+        checked = new_checked_value;
     }
-    console.log('checked after update : ', checked);
     
     if (checked.length <=0) {
-        label.html('Selectionner un Segment');
+        label.innerHTML = "Selectionner un Segment";
     }
     else if (checked.length === 1) {
         label.innerHTML = checked[0];

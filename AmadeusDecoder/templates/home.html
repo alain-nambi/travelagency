@@ -673,6 +673,10 @@
                         <h4>Liste des billets</h4>
                         <table class="table table-striped" id="ticketTable"></table>
                       </div>
+                      <div class="" id="segmentList" hidden>
+                        <h4>Liste des segments</h4>
+                        <table class="table table-striped" id="segmentTable"></table>
+                      </div>
                         
                       </div>
 
@@ -695,7 +699,7 @@
                         <div class="row" style="justify-content:space-between;">
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Désignation</label>
-                            <input type='text' class="form-control" id="PassengerDesignation" >
+                            <input type='text' class="form-control" id="PassengerDesignation" placeholder="Mme">
                           </div>
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Type</label>
@@ -714,7 +718,7 @@
                           </div>
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Ordre</label>  
-                            <input type='text' class="form-control" id="PassengerOrder" required>
+                            <input type='text' class="form-control" id="PassengerOrder" placeholder='P1' required>
                           </div>
                           
                         </div>
@@ -827,7 +831,7 @@
                         <div class="row" style="justify-content:space-between;">
                           <div class="form-group col-md-3">
                             <label for="message-text" class="col-form-label">Numéro de Vol</label>
-                            <input type='number' class="form-control" id="flightNumber" >
+                            <input type='number' class="form-control" id="flightNumber" placeholder="321">
                           </div>
                           <div class="form-group col-md-3">
                             <label for="message-text" class="col-form-label">Compagnie</label>
@@ -840,7 +844,7 @@
                           </div>
                           <div class="form-group col-md-3">
                             <label for="message-text" class="col-form-label">Ordre</label>
-                            <input type='text' class="form-control" id="segmentOrder" >
+                            <input type='text' class="form-control" id="segmentOrder" placeholder="S1">
                           </div>
                           
                         </div>

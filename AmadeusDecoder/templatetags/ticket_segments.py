@@ -10,6 +10,7 @@ from AmadeusDecoder.models.invoice.Ticket import Ticket
 from AmadeusDecoder.models.invoice.TicketPassengerTST import TicketPassengerTST
 from AmadeusDecoder.models.invoice.Fee import OthersFee
 
+
 register = template.Library()
 
 @register.filter(name='segment')
@@ -77,3 +78,17 @@ def get_ticket_tickets(pnr):
     for ticket in tickets:
         ticket_number.append(ticket.number)
     return ticket_number
+
+@register.filter(name='get_unremounted_ticket_segment')
+def get_unremounted_ticket_segment(unremounted_ticket_id):
+    orders = ''
+    from AmadeusDecoder.models.pnr.Pnr import unRemountedPnrTicketSegment
+    segments_order = unRemountedPnrTicketSegment.objects.filter(ticket__id=unremounted_ticket_id).all()
+    for segment in segments_order:
+        orders += segment.segment.order + '-'
+    
+    if orders.endswith('-'):
+        orders = orders.removesuffix('-')
+    
+    print('--------- ORDER --------------------- ', orders)
+    return orders

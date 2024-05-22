@@ -436,6 +436,15 @@ class unRemountedPnrTickets(models.Model):
         on_delete=models.CASCADE,
     )
 
+class unRemountedPnrTicketSegment(models.Model):
+    class Meta:
+        db_table = 't_unremounted_pnt_ticket_segment'
+
+    ticket = models.ForeignKey(
+        'AmadeusDecoder.unRemountedPnrTickets',
+        on_delete=models.CASCADE,
+    )
+
     segment = models.ForeignKey(
         'AmadeusDecoder.unRemountedPnrSegment',
         on_delete=models.CASCADE,

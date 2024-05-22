@@ -1,5 +1,6 @@
 {% extends "layout-all-pnr.html" %}
 {% load pnr_comments %}
+{% load ticket_segments %}
 {% block content %}
     
 <div class="content-wrapper" >
@@ -70,11 +71,11 @@
                                                         <tr style="justify-content:center;" data-ticket-id="{{ticket.id}}" >
                                                             <td class="text-center">{{ ticket.number }}</td>
                                                             <td class="text-center"> {{ticket.type}} </td>
-                                                            <td class="text-center">{% if ticket.fee %} <span><input class="form-check-input" type="checkbox" checked></span> {% endif %}</td>
+                                                            <td class="text-center">{% if ticket.fee %} <span><input class="form-check-input" type="checkbox" checked {% if unremounted_pnr.state == 2 %} disabled{% endif %}></span> {% endif %}</td>
                                                             <td class="text-center"> {{ticket.transport_cost | floatformat:2}} </td>
                                                             <td class="text-center"> {{ticket.tax | floatformat:2}} </td>
                                                             <td class="text-center"> {{ticket.passenger.order}} / {{ticket.passenger.name}} {% if ticket.passenger.surname %}{{ticket.passenger.surname}}{% endif %} </td>
-                                                            <td class="text-center"> {{ticket.segment.order}} / {{ticket.segment.codeorg.iata_code}} - {{ticket.segment.codedest.iata_code}} </td>
+                                                            <td class="text-center">{% with ticket.id|get_unremounted_ticket_segment as segment_order %} {{segment_order}} {% endwith %}</td>
                                                             {% if unremounted_pnr.state == 0 %}
                                                             <td class="text-center">
                                                                 <span><input class="form-check-input ticketCheck" type="checkbox" checked></span>
@@ -142,7 +143,7 @@
                                                         <th class="text-center" scope="col">Ordre</th>
                                                         <th class="text-center" scope="col">Numéro de vol</th>
                                                         <th class="text-center" scope="col">Date et heure de départ</th>
-                                                        <th class="text-center" scope="col">Date et heure de départ</th>
+                                                        <th class="text-center" scope="col">Date et heure d'arrivée</th>
                                                         <th class="text-center" scope="col">Départ</th>
                                                         <th class="text-center" scope="col">Arrivée</th>
                                                         {% if unremounted_pnr.state == 0 %}
@@ -175,24 +176,32 @@
                                         </div>
                                 </div>		
                                 <div class="card-footer" >
-                                    {% if unremounted_pnr.state == 0 %}
-                                        
-                                        <div style="float:right;justify-content:space-between;">
-                                            <button class="btn btn-success py-0" onclick="acceptToRemountPnr('{{unremounted_pnr.id}}')" >Accepter</button>
-                                            
-                                            <button class="btn btn-danger py-0" id="refuse-anomaly" onclick="refuse_anomaly('{{unremounted_pnr.id}}')" >Refuser</button>
-                                            
+                                    <div class="row" style="justify-content:space-between;">
+                                        <div class="back-button" onclick="backButton" >
+                                            <div class="arrow-wrap">
+                                            <span class="arrow-part-1"></span>
+                                            <span class="arrow-part-2"></span>
+                                            <span class="arrow-part-3"></span>
+                                            </div>
                                         </div>
+                                        <div style="float:right;" >
+                                            {% if unremounted_pnr.state == 0 %}
+                                                <button class="btn btn-success py-0" onclick="acceptToRemountPnr('{{unremounted_pnr.id}}')" >Accepter</button>
+                                                        
+                                                <button class="btn btn-danger py-0" onclick="refuseToRemountPnr('{{unremounted_pnr.id}}')" >Refuser</button>
+                                            {% endif %}
 
-                                    {% else %}
-                                        <div style="float:right;justify-content:space-between;">
-                                            <button class="btn btn-success py-0" >Traité</button>
+                                            {% if unremounted_pnr.state == 1 %}
+                                                <button class="btn btn-success py-0" >Traité</button>
+                                            
+                                            {% endif %}
+
+
+                                            {% if unremounted_pnr.state == 2 %}
+                                                <button class="btn btn-danger py-0" >Refusé</button>
+                                            
+                                            {% endif %}
                                         </div>
-                                    
-                                    {% endif %}
-
-
-
 
 							    </div>
 							

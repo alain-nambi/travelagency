@@ -67,9 +67,17 @@
     var destinations = {{all_data|safe}}
     var all_destination_by_month = (destinations.filter(element => element['month'] === currentMonth))[0]; 
 
+    var origins = {{all_data_origin|safe}}
+    var all_origin_by_month = (origins.filter(element => element['month'] === currentMonth))[0]; 
+
+    var airlines_data = {{all_data_airline|safe}}
+    var all_airline_by_month = (airlines_data.filter(element => element['month'] === currentMonth))[0];
 
     window.onload = function () {
         var selectMonth = document.getElementById("DestinationSelectMonth");
+        var selectOriginMonth = document.getElementById("OriginSelectMonth");
+        var selectAirlineMonth = document.getElementById("AirlineSelectMonth");
+
 
         // Obtenir les noms des mois
         var months = new Array(12);
@@ -80,7 +88,24 @@
             option.text = monthName;
             option.value = i + 1; // Les valeurs commencent souvent à 1 pour janvier
             selectMonth.appendChild(option);
+        }
 
+        for (var i = 0; i < months.length; i++) {
+            var date = new Date(2022, i, 1); // Créer une date pour chaque mois
+            var monthName = date.toLocaleString('default', { month: 'long' }); // Obtenir le nom du mois
+            var option = document.createElement("option");
+            option.text = monthName;
+            option.value = i + 1; // Les valeurs commencent souvent à 1 pour janvier
+            selectOriginMonth.appendChild(option);
+        }
+
+        for (var i = 0; i < months.length; i++) {
+            var date = new Date(2022, i, 1); // Créer une date pour chaque mois
+            var monthName = date.toLocaleString('default', { month: 'long' }); // Obtenir le nom du mois
+            var option = document.createElement("option");
+            option.text = monthName;
+            option.value = i + 1; // Les valeurs commencent souvent à 1 pour janvier
+            selectAirlineMonth.appendChild(option);
         }
 
         //set total passenger
@@ -107,7 +132,7 @@
                 type: "bar",
                 name: element.year,
                 showInLegend: true,
-                yValueFormatString: "#,### passagers",
+                yValueFormatString: "#,### Passagers",
                 dataPoints: element.data
             })),
               
@@ -126,7 +151,53 @@
             }]
         });
         chart_2.render();
-        
+
+        // Passager par origine
+        var chart_3 = new CanvasJS.Chart("chartContainer3", {
+            theme: "light2",
+           
+            toolTip: {
+              shared: true
+            },
+            axisY: {
+              title: "Nombre de passager",
+              valueFormatString: "#,###"
+            },
+            legend: {
+              cursor: "pointer",
+              itemclick: toggleDataSeries
+            },
+            data: all_origin_by_month.data.map((element) => ({
+              
+                type: "bar",
+                name: element.year,
+                showInLegend: true,
+                yValueFormatString: "#,### Passagers",
+                dataPoints: element.data
+            })),
+              
+        });
+        chart_3.render();
+
+        // Nombre de passager par compagnie aérienne
+
+        var chart_4= new CanvasJS.Chart("chartContainer4", {
+            theme: "light2",
+            
+            axisY: {
+              title: "Nombre de Passager",
+              stripLines: [{
+                value: 10000,
+                label: "Goal"
+              }]
+            },
+            data: all_airline_by_month.data.map((element) => ({
+              type: "line",
+              yValueFormatString: "#,### Passagers",
+              dataPoints: element.data
+            })),
+          });
+          chart_4.render();
         
           function toggleDataSeries(e) {
             if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
@@ -137,6 +208,7 @@
             e.chart.render();
         }
 
+        // Changer les données de destination par rapport au mois choisi
         $("#DestinationSelectMonth").change(function (){
             var selectedMonth = $("#DestinationSelectMonth").val();
             
@@ -147,10 +219,42 @@
                 type: "bar",
                 name: element.year,
                 showInLegend: true,
-                yValueFormatString: "#,###MT",
+                yValueFormatString: "#,### Passagers",
                 dataPoints: element.data
             }));
             chart.render();
+        });
+
+        // Changer les données d'origine par rapport au mois choisi
+        $("#OriginSelectMonth").change(function (){
+            var selectedMonth = $("#OriginSelectMonth").val();
+            
+            new_origin_by_month = (origins.filter(element => element['month'] === parseInt(selectedMonth)))[0];
+            
+            chart_3.options.data = new_origin_by_month.data.map((element) => ({
+                type: "bar",
+                name: element.year,
+                showInLegend: true,
+                yValueFormatString: "#,### passagers",
+                dataPoints: element.data
+                
+            }));
+            chart_3.render();
+        });
+
+        // Changer les données des compagnies aérienne par rapport au mois choisi
+        $("#AirlineSelectMonth").change(function (){
+            var selectedMonth = $("#AirlineSelectMonth").val();
+            
+            new_airline_by_month = (airlines_data.filter(element => element['month'] === parseInt(selectedMonth)))[0];
+            
+            chart_4.options.data = new_airline_by_month.data.map((element) => ({
+              
+                type: "line",
+                yValueFormatString: "#,### Passagers",
+                dataPoints: element.data
+            }));
+            chart_4.render();
         });
 
 
@@ -421,11 +525,19 @@
                                     <div class="card-header justify-content-between py-0">
                                         <div class="row">
                                             <div class="col-md-6 float-left">
-                                                <h4 class="text-primary title-all-pnr mt-1 mb-0">Gestion Anomalies</h4>
+                                                <h4 class="text-primary title-all-pnr mt-1 mb-0">Etat d'Analyse et Statistiques</h4>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="card-body">
+                                        <div class="col-md-12" style="padding: 10px;">
+                                            <nav class="nav nav-pills nav-justified">
+                                                <a class="nav-link active" href="#">PNR</a>
+                                                <a class="nav-link" href="#">Passager</a>
+                                                <a class="nav-link" href="#">Anomalie</a>
+                                                <a class="nav-link " href="#" >Utilisateurs</a>
+                                            </nav>
+                                        </div>
             
                                         <div class="row">
                                             <div class="d-flex col-xl col-md-6">
@@ -535,6 +647,8 @@
                                             </div>
                                             
                                         </div>
+
+                                        
             
                                         <div class="row">
                                             <div class="d-flex col-lg-6">
@@ -600,7 +714,6 @@
                                                         
                                                         <h3 class="card-title align-items-start flex-column">
                                                             <span class="card-label  text-gray-800 fs-2" style="font-weight:bolder;">Passagers par Origine</span>
-                                                            <span class="text-gray-400  mt-2 fs-6" style="font-weight:semibold;">890,344 Passagers</span>
                                                         </h3>
             
                                                         <div class="dropdown" style="float:right;">
@@ -609,7 +722,7 @@
                                                             <div class="input-group-prepend">
                                                                 <label class="input-group-text" for="selectMonth">Mois</label>
                                                             </div>
-                                                            <select class="custom-select" id="selectMonth">
+                                                            <select class="custom-select" id="OriginSelectMonth">
                                                                 <option selected>Choose...</option>
                                                             </select>
                                                             </div>
@@ -618,7 +731,7 @@
                                                     </div>
                                                     <div class="d-flex card-body">
                                                         <div class="align-self-center w-100">
-                                                            <div id="chartContainer_3" style="width: 100%; height: 360px;"></div>
+                                                            <div id="chartContainer3" style="width: 100%; height: 360px;"></div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -630,7 +743,7 @@
                                                         
                                                         <h3 class="card-title align-items-start flex-column">
                                                             <span class="card-label  text-gray-800 fs-2" style="font-weight:bolder;">Passagers par Compagnie Aérienne</span>
-                                                            <span class="text-gray-400  mt-2 fs-6" style="font-weight:semibold;">890,344 Passagers</span>
+                                                            
                                                         </h3>
             
                                                         <div class="dropdown" style="float:right;">
@@ -639,7 +752,7 @@
                                                             <div class="input-group-prepend">
                                                                 <label class="input-group-text" for="selectMonth">Mois</label>
                                                             </div>
-                                                            <select class="custom-select" id="selectMonth">
+                                                            <select class="custom-select" id="AirlineSelectMonth">
                                                                 <option selected>Choose...</option>
                                                             </select>
                                                             </div>
@@ -648,7 +761,7 @@
                                                     </div>
                                                     <div class="d-flex card-body">
                                                         <div class="align-self-center w-100">
-                                                            <div id="chartContainer_4" style="width: 100%; height: 360px;"></div>
+                                                            <div id="chartContainer4" style="width: 100%; height: 360px;"></div>
                                                         </div>
                                                     </div>
                                                 </div>

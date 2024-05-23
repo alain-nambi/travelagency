@@ -29,7 +29,8 @@ from AmadeusDecoder.models.user.Users import User
 from AmadeusDecoder.utilities.ProductImportParser import ProductParser, CustomerParser
 from AmadeusDecoder.models.configuration.Configuration import Configuration
 
-from django.db.models import Count
+from django.db import connection
+from django.db.models import Count, Func
 from django.db.models.functions import Lower, ExtractYear
 from openpyxl import Workbook
 from openpyxl.styles import *
@@ -588,6 +589,11 @@ def graph_view(request):
     total_pnr_for_week = get_total_pnr_for_week()
     context['all_pnr_count'] = total_pnr_for_week['all_pnr_count']
     context['last_week_pnr_count'] = total_pnr_for_week['last_week_pnr_count']
+
+    context['passenger_by_month'] = get_passenger_by_month(request)
+    print(context['passenger_by_month'])
+
+    
     
     return render(request, 'stat.html', context)  
 
@@ -602,17 +608,26 @@ def get_stat_airlines(request):
         all_data = {}
         all_data['month'] = month
         all_data['data'] = []
-        for element in all_year:
-            if element['year'] is not None:
-                data = {}
-                
-                queryset = PnrAirSegments.objects.annotate(total= Count('servicecarrier_id')).filter( departuretime__month=month,departuretime__year = element['year']).values('servicecarrier_id','total').annotate(total_count=Count('servicecarrier_id')).filter(total_count__gt=10)
-                if queryset.exists():
+        with connection.cursor() as cursor:
+            for element in all_year:
+                if element['year'] is not None:
+                    data = {}
+                    cursor.execute("""
+                    SELECT servicecarrier_id, count(*) as total
+                    FROM v_pnr_passenger
+                    WHERE EXTRACT(MONTH FROM departuretime) = %s
+                    AND EXTRACT(YEAR FROM departuretime) = %s
+                    GROUP BY servicecarrier_id;
+                """, [month,element['year']])
+                    
+                    # Récupérer les résultats
+                    results = cursor.fetchall()
+
                     data['year']=(str(element['year']))
                     data['data'] = []
-                    for item in queryset:
-                        airline = Airline.objects.get(pk = item['servicecarrier_id'])
-                        data['data'].append({"y":item['total_count'],"label":airline.name}) 
+                    for result in results:
+                        airline = Airline.objects.get(pk = result[0])
+                        data['data'].append({"y":result[1],"label":airline.name}) 
                         
                     all_data['data'].append(data)
         all_data_by_month.append(all_data)
@@ -628,21 +643,32 @@ def get_destination_by_month(request):
         all_data = {}
         all_data['month'] = month
         all_data['data'] = []
-        for element in all_year:
-            if element['year'] is not None:
-                data = {}
+        with connection.cursor() as cursor:
+            for element in all_year:
+                if element['year'] is not None:
+                    data = {}
 
-                queryset = PnrAirSegments.objects.annotate(total= Count('codedest_id')).filter( departuretime__month=month,departuretime__year = element['year']).values('codedest_id','total').annotate(total_count=Count('codedest_id')).filter(total_count__gt=10)
-                if queryset.exists():
+                    cursor.execute("""
+                        SELECT codedest_id, COUNT(*) AS total
+                        FROM v_pnr_passenger
+                        WHERE EXTRACT(MONTH FROM departuretime) = %s
+                        AND EXTRACT(YEAR FROM departuretime) = %s
+                        GROUP BY codedest_id
+                        HAVING COUNT(*) > 20;
+                    """, [month,element['year']])
+
+                    # Récupérer les résultats
+                    results = cursor.fetchall()
+
                     data['year']=(str(element['year']))
                     data['data'] = []
-                    for item in queryset:
-                        airport = Airport.objects.get(iata_code = item['codedest_id'])
+                    for results in results:
+                        airport = Airport.objects.get(iata_code = results[0])
                         
                         if airport.name is not None:
-                            data['data'].append({"y":item['total_count'],"label":airport.name})
+                            data['data'].append({"y":results[1],"label":airport.name})
                         if airport.name is None:
-                            data['data'].append({"y":item['total_count'],"label":item['codedest_id']}) 
+                            data['data'].append({"y":results[1],"label":results[0]}) 
                     all_data['data'].append(data)
         all_data_by_month.append(all_data)
 
@@ -657,24 +683,35 @@ def get_origin_by_month(request):
         all_data = {}
         all_data['month'] = month
         all_data['data'] = []
-        for element in all_year:
-            data = {}
-            if element['year'] is not None:
-                
-                queryset = PnrAirSegments.objects.annotate(total=Count('codeorg_id')).filter(departuretime__month=month, departuretime__year=element['year']).values('codeorg_id').annotate(total_count=Count('codeorg_id')).filter(total_count__gt=10)
-                if queryset.exists():
+        with connection.cursor() as cursor:
+            for element in all_year:
+                if element['year'] is not None:
+                    data = {}
+
+                    cursor.execute("""
+                        SELECT codeorg_id, COUNT(*) AS total
+                        FROM v_pnr_passenger
+                        WHERE EXTRACT(MONTH FROM departuretime) = %s
+                        AND EXTRACT(YEAR FROM departuretime) = %s
+                        GROUP BY codeorg_id
+                        HAVING COUNT(*) > 20;
+                    """, [month,element['year']])
+
+                    # Récupérer les résultats
+                    results = cursor.fetchall()
+
                     data['year']=(str(element['year']))
                     data['data'] = []
-                    for item in queryset:
-                        airport = Airport.objects.filter(iata_code=item['codeorg_id']).first()
-                        if airport:
-                            data['data'].append({"y": item['total_count'], "label": airport.name})
-                        else:
-                            data['data'].append({"y": item['total_count'], "label": item['codeorg_id']})
+                    for results in results:
+                        airport = Airport.objects.get(iata_code = results[0])
+                        
+                        if airport.name is not None:
+                            data['data'].append({"y":results[1],"label":airport.name})
+                        if airport.name is None:
+                            data['data'].append({"y":results[1],"label":results[0]}) 
                     all_data['data'].append(data)
-                    
         all_data_by_month.append(all_data)
-       
+   
 
     return all_data_by_month
 
@@ -747,5 +784,33 @@ def get_total_pnr_for_week():
 
     return context
 
+def get_passenger_by_month(request):
     
+    all_year = PnrAirSegments.objects.annotate(year=ExtractYear('departuretime')).values('year').distinct()
+    all_data = []
+    
+
+    with connection.cursor() as cursor:
+        for element in all_year:
+            if element['year'] is not None:
+                data = {}
+                data['year']=(str(element['year']))
+                data['data'] = []
+                cursor.execute("""
+                    SELECT TO_CHAR(departuretime, 'TMMonth') as month, count(passenger_id) as total
+                    FROM v_pnr_passenger
+                    WHERE EXTRACT(YEAR FROM departuretime) = %s
+                    GROUP BY month;
+                """, [element['year']])
+
+                # Récupérer les résultats
+                results = cursor.fetchall()
+                for result in results:
+                    data['data'].append({"label":result[0],"y":result[1]})
+                all_data.append(data)
+                
+
+    return all_data
+
+
 

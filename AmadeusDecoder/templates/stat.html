@@ -73,6 +73,8 @@
     var airlines_data = {{all_data_airline|safe}}
     var all_airline_by_month = (airlines_data.filter(element => element['month'] === currentMonth))[0];
 
+    var passenger_by_month = {{passenger_by_month|safe}}
+
     window.onload = function () {
         var selectMonth = document.getElementById("DestinationSelectMonth");
         var selectOriginMonth = document.getElementById("OriginSelectMonth");
@@ -108,14 +110,12 @@
             selectAirlineMonth.appendChild(option);
         }
 
-        //set total passenger
-        var total_passenger_span = document.getElementById('total_passenger');
-        total_passenger_span.textContent = {{ total_passenger|safe }}+" Passagers";
+        
 
         // Destination Chart
         var chart = new CanvasJS.Chart("chartContainer", {
             theme: "light2",
-           
+            animationEnabled: true,
             toolTip: {
               shared: true
             },
@@ -155,7 +155,7 @@
         // Passager par origine
         var chart_3 = new CanvasJS.Chart("chartContainer3", {
             theme: "light2",
-           
+            animationEnabled: true,
             toolTip: {
               shared: true
             },
@@ -182,19 +182,19 @@
         // Nombre de passager par compagnie aérienne
 
         var chart_4= new CanvasJS.Chart("chartContainer4", {
-            theme: "light2",
-            
-            axisY: {
-              title: "Nombre de Passager",
-              stripLines: [{
-                value: 10000,
-                label: "Goal"
-              }]
+            animationEnabled: true,
+            exportEnabled: false,
+          
+            legend: {
+                cursor: "pointer",
+                itemclick: hideUnhideDataSeries
             },
+
             data: all_airline_by_month.data.map((element) => ({
-              type: "line",
-              yValueFormatString: "#,### Passagers",
-              dataPoints: element.data
+                type: "column",
+                name: element.year,
+                showInLegend: true,
+            dataPoints: element.data
             })),
           });
           chart_4.render();
@@ -207,6 +207,55 @@
             }
             e.chart.render();
         }
+        function hideUnhideDataSeries(e) {
+          if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+            e.dataSeries.visible = false;
+          } else {
+            e.dataSeries.visible = true;
+          }
+ 
+          e.chart.render();
+        }
+
+        var chart_5 = new CanvasJS.Chart("chartContainer5", {
+            exportEnabled: false,
+            animationEnabled: true,
+            theme: "light1",
+            title: {
+                text: "Nombre de Passager par mois"
+              },
+            axisY: {
+              title: "Nombre de Passager",
+              titleFontColor: "#4F81BC",
+              lineColor: "#4F81BC",
+              labelFontColor: "#4F81BC",
+              tickColor: "#4F81BC",
+              includeZero: true
+            },
+            axisY2: {
+              title: "Clicks",
+              titleFontColor: "#C0504E",
+              lineColor: "#C0504E",
+              labelFontColor: "#C0504E",  
+              tickColor: "#C0504E"
+            },
+            toolTip: {
+              shared: true
+            },
+            legend: {
+              cursor: "pointer",
+              itemclick: toggleDataSeries
+            },
+            data: passenger_by_month.map((element) => ({
+              type: "spline",
+              name: element.year,
+              lineDashType: "dot",
+              showInLegend: true,
+              yValueFormatString: "#,### Passagers",
+              dataPoints: element.data
+            }))
+        });
+          chart_5.render();
 
         // Changer les données de destination par rapport au mois choisi
         $("#DestinationSelectMonth").change(function (){
@@ -250,8 +299,9 @@
             
             chart_4.options.data = new_airline_by_month.data.map((element) => ({
               
-                type: "line",
-                yValueFormatString: "#,### Passagers",
+                type: "column",
+                name: element.year,
+                showInLegend: true,
                 dataPoints: element.data
             }));
             chart_4.render();
@@ -549,28 +599,18 @@
 
                                         <div class="tab-content" id="pills-tabContent" style="margin:30px 0 0 -18px;">
                                             <div class="tab-pane fade show active" id="pills-pnr" role="tabpanel" aria-labelledby="pills-pnr-tab">
-                                                <div class="row">
+                                                <div class="row" style="padding-left:10px;">
                                                     <div class="d-flex col-xl col-md-6">
                                                         <div class="flex-fill card">
                                                             <div class=" py-4 card-body">
-                                                                <div class="d-flex align-items-start">
-                                                                    <div class="flex-grow-1">
-                                                                        <h3 class="mb-2">{{all_pnr_count}}</h3>
-                                                                        <p class="mb-2">Total PNR remonté</p>
-                                                                        <div class="mb-0">
-                                                                            <span class="badge badge-success ">
-                                                                                <i class="bi-graph-up"></i>
-                                                                                {{last_week_pnr_count}}</span>
-                                                                            <span class="text-muted">La semaine dernière</span>
-                                                                        </div>
+                                                                <div class="row align-items-center m-l-0">
+                                                                    <div class="col-auto">
+                                                                        <i class="fas fa-users text-danger" style="font-size:70px;"></i>
                                                                     </div>
                     
-                                                                    <div class="d-inline-block ms-3">
-                                                                        <div class="stat">
-                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-dollar" viewBox="0 0 16 16">
-                                                                                <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73z"/>
-                                                                              </svg>
-                                                                        </div>
+                                                                    <div class="col-auto">
+                                                                        <h2 class="text-muted m-b-10" style="margin-left:2rem;">Passagers</h2>
+                                                                        <h2 class="m-b-0" style="margin-left:4rem;">{{total_passenger}}</h2>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -581,22 +621,14 @@
                                                     <div class="d-flex col-xl col-md-6">
                                                         <div class="flex-fill card">
                                                             <div class=" py-4 card-body">
-                                                                <div class="d-flex align-items-start">
-                                                                    <div class="flex-grow-1">
-                                                                        <h3 class="mb-2">$ 24.300</h3>
-                                                                        <p class="mb-2">Total PNR commandé</p>
-                                                                        <div class="mb-0">
-                                                                            <span class="text-success text-sm font-weight-bolder">+5.35%</span>
-                                                                            <span class="text-muted">La semaine dernière</span>
-                                                                        </div>
+                                                                <div class="row align-items-center m-l-0">
+                                                                    <div class="col-auto">
+                                                                        <i class="fas fa-plane text-info" style="font-size:70px;"></i>
                                                                     </div>
                     
-                                                                    <div class="d-inline-block ms-3">
-                                                                        <div class="stat">
-                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-dollar" viewBox="0 0 16 16">
-                                                                                <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73z"/>
-                                                                              </svg>
-                                                                        </div>
+                                                                    <div class="col-auto">
+                                                                        <h2 class="text-muted m-b-10" style="margin-left:2rem;">Compagnies</h2>
+                                                                        <h2 class="m-b-0" style="margin-left:4rem;">{{most_used_airline.lenght}}</h2>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -658,7 +690,7 @@
                                                     
                                                 </div>
         
-                                                <div class="row">
+                                                <div class="row" style="padding-left:10px;">
                                                     <div class="d-flex col-lg-6">
                                                         <div class="flex-fill w-100 card">
                                                             <div class="" style="padding: 10px 10px 10px 10px;" >
@@ -699,7 +731,7 @@
                                                                 
                                                                 <h3 class="card-title align-items-start flex-column">
                                                                     <span class="card-label  text-gray-800 fs-2" style="font-weight:bolder;">Passagers par tranche d'âge</span>
-                                                                    <span class="text-gray-400  mt-2 fs-6" style="font-weight:semibold;" id="total_passenger"></span>
+                                                                   
                                                                 </h3>
                                                                 
                                                             </div>
@@ -715,7 +747,7 @@
                                                     
                                                 </div>
                                                 
-                                                <div class="row">
+                                                <div class="row" style="padding-left:10px;">
                                                     <div class="d-flex col-lg-6">
                                                         <div class="flex-fill w-100 card">
                                                             <div class="card-header" style="position:sticky !important;">
@@ -774,7 +806,22 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div> 
+                                                </div>
+                                                
+                                                <div class="row" style="padding-left:10px;">
+                                                    <div class="d-flex col-lg-12">
+                                                        <div class="flex-fill w-100 card">
+                                                            
+                                                            <div class="d-flex card-body">
+                                                                <div class="align-self-center w-100">
+                                                                    <div id="chartContainer5" style="width: 100%; height: 360px;"></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                    
+                                                    
+                                                </div>
                                             </div>
                                             <div class="tab-pane fade show active" id="pills-passager" role="tabpanel" aria-labelledby="pills-passager-tab">
 
@@ -800,31 +847,7 @@
                 <strong class="text-center">&copy; 2023 <a href="https://phidia.fr">Phidia</a>.</strong> Tous droits réservés.
                 <b>Version</b> 1.6.12 
             </div>
-            <div class="info-footer-pnr">
-                <div class="row d-flex align-items-center">
-                <div class="col-md-2">
-                    <strong class="text-primary">
-                    <u>Total PNR:</u> 
-                    <span class="request-pnr-counter">{{  pnr_count }}</span>
-                    </strong>
-                </div>
-                <div class="col-md-10">
-    
-                    <div id="pagination"></div>
-                    {% include "pagination.html" %}
-                
-                </div>
-                <div>
-                    <button 
-                    type="button" 
-                    class="btn btn-warning mr-2" id='ExcelUploadPnrList' 
-                    style="padding: 0.1rem 0.5rem !important">
-                    <i class="fa fa-upload text-white" data-toggle="tooltip" data-placement="top"  title="Exporter en CSV"></i>
-                    <span class="text-white">To Excel</span>
-                    </button>
-                </div>
-                </div>
-            </div>
+            
             </footer>
             {% endblock footer%}
     </div>

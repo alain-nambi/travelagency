@@ -572,15 +572,15 @@
                         <div class="row">
                             <div class="col-12">
                                 <div class="card card-primary card-outline" style="margin-top: 4rem !important;">
-                                    <div class="card-header justify-content-between py-0">
-                                        <div class="row">
+                                    <div class="card-header justify-content-between py-0" >
+                                        <div class="row" style="padding:1rem;">
                                             <div class="col-md-6 float-left">
-                                                <h4 class="text-primary title-all-pnr mt-1 mb-0">Etat d'Analyse et Statistiques</h4>
+                                                <h3 class="text-primary title-all-pnr mt-1 mb-0">Etat d'Analyse et Statistiques</h3>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="card-body">
-                                        <div class="col-md-12" style="padding: 10px;">
+                                        <div class="col-md-12" style="">
                                             <ul class="nav nav-pills mb-3 pillsTab" id="pills-tab" role="tablist" style="justify-content:space-between;">
                                                 <li class="nav-item ">
                                                     <a class="nav-link active" id="pills-pnr-tab" data-toggle="pill" href="#pills-pnr" role="tab" aria-controls="pills-pnr" aria-selected="true"><h5 class="m-0">PNR</h5></a>
@@ -628,7 +628,8 @@
                     
                                                                     <div class="col-auto">
                                                                         <h2 class="text-muted m-b-10" style="margin-left:2rem;">Compagnies</h2>
-                                                                        <h2 class="m-b-0" style="margin-left:4rem;">{{most_used_airline.lenght}}</h2>
+                                                                        <span class="text-muted" style="margin-left:3rem;">Les plus utilisées</span>
+                                                                        <h2 class="m-b-0" style="margin-left:5rem;">{{total_most_used_airlines}}</h2>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -639,24 +640,25 @@
                                                     <div class="d-flex col-xl col-md-6">
                                                         <div class="flex-fill card">
                                                             <div class=" py-4 card-body">
-                                                                <div class="d-flex align-items-start">
-                                                                    <div class="flex-grow-1">
-                                                                        <h3 class="mb-2">$ 24.300</h3>
-                                                                        <p class="mb-2">Total PNR remonté Aujourd'hui</p>
+                                                                <div class="row align-items-center m-l-0">
+
+                                                                    <div class="col-auto">
+                                                                        <i class="fa fa-user-plus" style="font-size:70px;color:#C3FF93;"></i>
+                                                                        
+                                                                    </div>
+
+                                                                    <div class="col-auto" style="margin-left:3rem">
+                                                                        <h3 class="mb-2">{{passenger_of_today}}</h3>
+                                                                        <p class="mb-2">Passagers créés aujourd'hui</p>
                                                                         <div class="mb-0">
                                                                             <span class="text-success text-sm font-weight-bolder">+5.35%</span>
-                                                                            <span class="text-muted">Since last week</span>
+                                                                            <span class="text-muted">depuis hier</span>
                                                                         </div>
                                                                     </div>
-                    
-                                                                    <div class="d-inline-block ms-3">
-                                                                        <div class="stat">
-                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-dollar" viewBox="0 0 16 16">
-                                                                                <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73z"/>
-                                                                              </svg>
-                                                                        </div>
-                                                                    </div>
+
+                                                                    
                                                                 </div>
+                                                                
                                                             </div>
                                                         </div>
                     
@@ -665,23 +667,23 @@
                                                     <div class="d-flex col-xl col-md-6">
                                                         <div class="flex-fill card">
                                                             <div class=" py-4 card-body">
-                                                                <div class="d-flex align-items-start">
-                                                                    <div class="flex-grow-1">
-                                                                        <h3 class="mb-2">$ 24.300</h3>
-                                                                        <p class="mb-2">Total Earnings</p>
+                                                                <div class="row align-items-center m-l-0">
+
+                                                                    <div class="col-auto">
+                                                                        <i class="fa fa-bar-chart" style="font-size:70px;color:#FFF455;"></i>
+                                                                        
+                                                                    </div>
+
+                                                                    <div class="col-auto" style="margin-left:3rem">
+                                                                        <h3 class="mb-2">{{passenger_of_today}}</h3>
+                                                                        <p class="mb-2">Passagers créés ce mois-ci</p>
                                                                         <div class="mb-0">
                                                                             <span class="text-success text-sm font-weight-bolder">+5.35%</span>
-                                                                            <span class="text-muted">Since last week</span>
+                                                                            <span class="text-muted">depuis le dernier mois</span>
                                                                         </div>
                                                                     </div>
-                    
-                                                                    <div class="d-inline-block ms-3">
-                                                                        <div class="stat">
-                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-dollar" viewBox="0 0 16 16">
-                                                                                <path d="M4 10.781c.148 1.667 1.513 2.85 3.591 3.003V15h1.043v-1.216c2.27-.179 3.678-1.438 3.678-3.3 0-1.59-.947-2.51-2.956-3.028l-.722-.187V3.467c1.122.11 1.879.714 2.07 1.616h1.47c-.166-1.6-1.54-2.748-3.54-2.875V1H7.591v1.233c-1.939.23-3.27 1.472-3.27 3.156 0 1.454.966 2.483 2.661 2.917l.61.162v4.031c-1.149-.17-1.94-.8-2.131-1.718zm3.391-3.836c-1.043-.263-1.6-.825-1.6-1.616 0-.944.704-1.641 1.8-1.828v3.495l-.2-.05zm1.591 1.872c1.287.323 1.852.859 1.852 1.769 0 1.097-.826 1.828-2.2 1.939V8.73z"/>
-                                                                              </svg>
-                                                                        </div>
-                                                                    </div>
+
+                                                                    
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -824,7 +826,240 @@
                                                 </div>
                                             </div>
                                             <div class="tab-pane fade show active" id="pills-passager" role="tabpanel" aria-labelledby="pills-passager-tab">
+                                                <div class="row" style="padding-left:10px;">
+                                                    <div class="d-flex col-xl col-md-6">
+                                                        <div class="flex-fill card">
+                                                            <div class=" py-4 card-body">
+                                                                <div class="row align-items-center m-l-0">
+                                                                    <div class="col-auto">
+                                                                        <i class="fa fa-file-text text-info" style="font-size:70px;"></i>
+                                                                    </div>
+                    
+                                                                    <div class="col-auto" style="margin-left:3rem">
+                                                                        <h2 class="text-muted m-b-10" style="margin-left:2rem;">PNR</h2>
+                                                                        <h2 class="m-b-0" style="margin-left:1rem;">{{total_pnr}}</h2>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                    
+                                                    </div>
+                                                    
+                                                    <div class="d-flex col-xl col-md-6">
+                                                        <div class="flex-fill card">
+                                                            <div class=" py-4 card-body">
+                                                                <div class="row align-items-center m-l-0">
+                                                                    <div class="row align-items-center m-l-0">
 
+                                                                        <div class="col-auto">
+                                                                            <i class="fa fa-rocket" style="font-size:70px;color:#C3FF93;"></i>
+                                                                            
+                                                                        </div>
+    
+                                                                        <div class="col-auto" style="margin-left:3rem">
+                                                                            <h3 class="mb-2">{{pnr_of_today}}</h3>
+                                                                            <p class="mb-2">PNR remonté aujourd'hui</p>
+                                                                            <div class="mb-0">
+                                                                                <span class="text-success text-sm font-weight-bolder">+5.35%</span>
+                                                                                <span class="text-muted">depuis hier</span>
+                                                                            </div>
+                                                                        </div>
+    
+                                                                        
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                    
+                                                    </div>
+                    
+                                                    <div class="d-flex col-xl col-md-6">
+                                                        <div class="flex-fill card">
+                                                            <div class=" py-4 card-body">
+                                                                <div class="row align-items-center m-l-0">
+
+                                                                    <div class="col-auto">
+                                                                        <i class="fa fa-cloud-upload" style="font-size:70px;color:#FFF455;"></i>
+                                                                        
+                                                                    </div>
+
+                                                                    <div class="col-auto" style="margin-left:3rem">
+                                                                        <h3 class="mb-2">{{pnr_invoiced_today}}</h3>
+                                                                        <p class="mb-2">PNR commandé aujourd'hui</p>
+                                                                        <div class="mb-0">
+                                                                            <span class="text-success text-sm font-weight-bolder">+5.35%</span>
+                                                                            <span class="text-muted">depuis hier</span>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    
+                                                                </div>
+                                                                
+                                                            </div>
+                                                        </div>
+                    
+                                                    </div>
+                    
+                                                    <div class="d-flex col-xl col-md-6">
+                                                        <div class="flex-fill card">
+                                                            <div class=" py-4 card-body">
+                                                                <div class="row align-items-center m-l-0">
+
+                                                                    <div class="col-auto">
+                                                                        <i class="fa fa-window-close text-danger" style="font-size:70px;"></i>
+                                                                        
+                                                                    </div>
+
+                                                                    <div class="col-auto" style="margin-left:3rem">
+                                                                        <h3 class="mb-2">{{pnr_to_invoice}}</h3>
+                                                                        <p class="mb-2">PNR à commandé aujourd'hui</p>
+                                                                        <div class="mb-0">
+                                                                            <span class="text-success text-sm font-weight-bolder">+5.35%</span>
+                                                                            <span class="text-muted">depuis le dernier mois</span>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                    
+                                                    </div>
+                                                    
+                                                </div>
+        
+                                                <div class="row" style="padding-left:10px;">
+                                                    <div class="d-flex col-lg-6">
+                                                        <div class="flex-fill w-100 card">
+                                                            <div class="" style="padding: 10px 10px 10px 10px;" >
+                                                                <div class="row">
+                                                                    <h3 class="card-title align-items-start flex-column col-md-6" style="margin-top:1rem;">
+                                                                        <span class="card-label text-gray-800 fs-2" style="font-weight:bolder;">Total Passager par Destinations</span>
+                                                                        
+                                                                    </h3>
+                                                                    <div class="col-md-6">
+                                                                        <div class="dropdown " style="float:right;">                               
+                                                                            <div class="input-group ">
+                                                                            <div class="input-group-prepend">
+                                                                                <label class="input-group-text" for="selectMonth">Mois</label>
+                                                                            </div>
+                                                                            <select class="custom-select" id="DestinationSelectMonth">
+                                                                                <option selected>Choose...</option>
+                                                                            </select>
+                                                                            </div>
+                                                                                
+                                                                        </div>
+                                                                    </div>
+                                                                    
+                                                                </div>
+                                                                
+                                                            </div>
+                                                            <hr>
+                                                            <div class="d-flex card-body">
+                                                                <div class="align-self-center w-100">
+                                                                    
+                                                                    <div id="PnrchartContainer" style="width:100%; height:380px"></div>  
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-flex col-lg-6">
+                                                        <div class="flex-fill w-100 card">
+                                                            <div class="" style="padding: 10px 10px 10px 10px;">
+                                                                
+                                                                <h3 class="card-title align-items-start flex-column">
+                                                                    <span class="card-label  text-gray-800 fs-2" style="font-weight:bolder;">Passagers par tranche d'âge</span>
+                                                                   
+                                                                </h3>
+                                                                
+                                                            </div>
+                                                            <hr>
+                                                            <div class="d-flex card-body">
+                                                                <div class="align-self-center w-100">
+                                                                    <div id="PnrchartContainer2" style="width: 100%; height: 360px;"></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    
+                                                </div>
+                                                
+                                                <div class="row" style="padding-left:10px;">
+                                                    <div class="d-flex col-lg-6">
+                                                        <div class="flex-fill w-100 card">
+                                                            <div class="card-header" style="position:sticky !important;">
+                                                                
+                                                                <h3 class="card-title align-items-start flex-column">
+                                                                    <span class="card-label  text-gray-800 fs-2" style="font-weight:bolder;">Passagers par Origine</span>
+                                                                </h3>
+                    
+                                                                <div class="dropdown" style="float:right;">
+                                                                    
+                                                                    <div class="input-group ">
+                                                                    <div class="input-group-prepend">
+                                                                        <label class="input-group-text" for="selectMonth">Mois</label>
+                                                                    </div>
+                                                                    <select class="custom-select" id="OriginSelectMonth">
+                                                                        <option selected>Choose...</option>
+                                                                    </select>
+                                                                    </div>
+                                                                        
+                                                                </div>
+                                                            </div>
+                                                            <div class="d-flex card-body">
+                                                                <div class="align-self-center w-100">
+                                                                    <div id="PnrchartContainer3" style="width: 100%; height: 360px;"></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                    
+                                                    <div class="d-flex col-lg-6">
+                                                        <div class="flex-fill w-100 card">
+                                                            <div class="card-header" style="position:sticky !important;">
+                                                                
+                                                                <h3 class="card-title align-items-start flex-column">
+                                                                    <span class="card-label  text-gray-800 fs-2" style="font-weight:bolder;">Passagers par Compagnie Aérienne</span>
+                                                                    
+                                                                </h3>
+                    
+                                                                <div class="dropdown" style="float:right;">
+                                                                    
+                                                                    <div class="input-group ">
+                                                                    <div class="input-group-prepend">
+                                                                        <label class="input-group-text" for="selectMonth">Mois</label>
+                                                                    </div>
+                                                                    <select class="custom-select" id="AirlineSelectMonth">
+                                                                        <option selected>Choose...</option>
+                                                                    </select>
+                                                                    </div>
+                                                                        
+                                                                </div>
+                                                            </div>
+                                                            <div class="d-flex card-body">
+                                                                <div class="align-self-center w-100">
+                                                                    <div id="PnrchartContainer4" style="width: 100%; height: 360px;"></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="row" style="padding-left:10px;">
+                                                    <div class="d-flex col-lg-12">
+                                                        <div class="flex-fill w-100 card">
+                                                            
+                                                            <div class="d-flex card-body">
+                                                                <div class="align-self-center w-100">
+                                                                    <div id="PnrchartContainer5" style="width: 100%; height: 360px;"></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                    
+                                                    
+                                                </div>
                                             </div>
                                         </div>
             

@@ -1,7 +1,7 @@
 // Test Parssage ---------------------------------------
 $(document).ready(function () {
     const fileTestButton = document.getElementById('fileTestButton');
-
+    var newTestButton = document.getElementById('NewTest');
     // Verify if we should show the textarea or the input file
     $(document).on('change', '#SelectTypeParsing', function () {
         if ($(this).val() == 'rd' || $(this).val() == 'ewa' ) {
@@ -36,27 +36,11 @@ $(document).ready(function () {
                 
                 if (data.status == 200) {
 
-                    toastr.success('File uploaded');
-                    //Show the image of the uploaded PDF
-                    var container_image = document.getElementById('pdf_image');
-                    container_image.style.height='400px';
-                    container_image.style.overflow = 'auto';
-                    container_image.style.margin = '20px 0 20px 0';
-                    var imagesData = JSON.parse(data.pdf_image);
-
-                    imagesData.forEach(function(image) {
-                        var pdf_image = document.createElement('img');
-                        pdf_image.src = 'data:image/jpeg;base64,' + image;
-                        pdf_image.style.imageRendering = 'pixelated'; // Utiliser l'interpolation de pixel pour éviter le flou
-                        pdf_image.style.filter = 'brightness(1) contrast(1)';
-                        pdf_image.style.width = '70%'; 
-                        pdf_image.style.height = 'auto';
-                        container_image.appendChild(pdf_image);
-                    });
-
+                    toastr.success('Fichier chargé');
+                    
                     fileTestButton.hidden = false;
                 } else {
-                    toastr.error('File Not uploaded');
+                    toastr.error('Fichier non chargé');
                 }
             }
         });
@@ -64,8 +48,10 @@ $(document).ready(function () {
 
     // Test PNR, TKT, TST (ALTEA)
     $(document).on('click', '#TestTextButton', function() {
+        const error_console = document.getElementById('console');
+
         var data = $('#data').val();
-        var newTestButton = document.getElementById('NewTest');
+        
         $.ajax({
             type: "POST",
             url: "/setting/test-parsing-text",
@@ -76,20 +62,102 @@ $(document).ready(function () {
             },
             success: function (data) {
                 if (data.status == 200) {
-                    toastr.success('Test Done');
-                    // Show the content of what had been tested
-                    var test_container = document.getElementById('text_content');
-                    test_container.style.overflow = 'auto';
-                    test_container.style.height = '400px';
-                    test_container.style.margin = '20px 0 20px 0';
+                    toastr.success('Test réussi');
+                    var pnr = data.pnr
+                    if (pnr) {
+                        
+                        var pnr_html = `<h2>Détails du PNR <a href="/home/pnr/${ pnr.id}"><h2>${pnr.number}</h2></a></h2>`;
+                        $("pnr-data").html(pnr_html); // Mise à jour du contenu de la table
+                        $("#pnr-data").html(pnr_html).trigger("update");
+                        $('#pnr-data').prop('hidden', false);
+                    }
+                    var segments = data.segments
+                    var tickets = data.tickets
+                   
+                    $('#segment-data').prop('hidden', false);
+                    $('#ticket-data').prop('hidden', false);
 
-                    var divContent = document.createElement('textarea');
-                    divContent.textContent = data.content;
-                    divContent.style.width = '600px';
-                    divContent.style.height = '400px';
-                    divContent.style.padding = '20px';
+                    var html = `<thead class="bg-info" id="thead-all-segment">
+                      <tr >
+                        <th>Segment</th>
+                        <th>Vols</th> 
+  
+                        <th>Classe</th>
+                        <th>Cabine</th> 
+                        <th>Départ</th>
+                        <th>Arrivée</th>
+                        <th>Date et heure de départ</th>
+                        <th>Date et heure d'arrivée</th>
+                        </tr>
+                      </thead>
+                      <tbody >`;
 
-                    test_container.appendChild(divContent);
+
+                    segments.forEach(element => {
+                        html +=`<tr>
+                            <td>${ element.segmentorder }</td>
+                            <td>${ element.segment }</td>
+                            <td>${ element.flightclass }</td>
+                            <td></td>
+                            <td>${ element.codeorg }</td>
+                            <td>${ element.codedest }</td>
+                            <td>`
+
+                            if (element.segment_state == 0) {
+                                html += `${ element.departuretime} </td><td>`;
+                            }else{
+                                html += `${ element.departuretime} </td><td>`;
+                            }
+
+                            if (element.segment_state == 0) {
+                                html += `${ element.arrivaltime} </td><td>`;
+                            }else{
+                                html += `Flown </td><td>`;
+                            }
+                             
+                            if (pnr.status != 'Emis') {
+                                html += `${ element.arrivaltime} </td></tr></tbody>`;
+                            }
+                            
+                    });
+                    $("all-segment").html(html); // Mise à jour du contenu de la table
+                    $("#all-segment").html(html).trigger("update");
+
+                    // test_container.appendChild(divContent);
+                    var ticket_html = ``;
+                    if (tickets.length > 0) {
+                        ticket_html += `<thead class="bg-info" >
+                            <tr >
+                            <th>Type</th>
+                            <th>Article</th> 
+                            <th>Passager(s)/Trajet</th>
+                            <th>Transport</th> 
+                            <th>Taxe</th>
+                            <th>Total</th>
+                            <th>Passager/Segment(s)</th>
+                            <th>Date d'émission</th>
+                            </thead>
+                            <tbody>`;
+
+                            tickets.forEach(element => {
+                                ticket_html += `<tr>
+                                <td>${ element.type }</td>
+                                <td>${ element.billet }</td>
+                                <td>${ element.passager }</td>
+                                <td>${ element.montant }</td>
+                                <td>${ element.taxe }</td>
+                                <td>${ element.total }</td>
+                                <td>${ element.passenger_order }</td>
+                                <td>${ element.issuing_date }</td>
+                                <td></tbody>`
+                            });
+                            
+                    }else{
+                        ticket_html += `<h5 class="text-danger">Pas de billet</h5>`
+                    }
+
+                    $("all-ticket-test").html(ticket_html); // Mise à jour du contenu de la table
+                    $("#all-ticket-test").html(ticket_html).trigger("update");
 
                     newTestButton.hidden = false;
 
@@ -115,17 +183,24 @@ $(document).ready(function () {
 
     });
 
-    // reload page
+    // reload page 
     $(document).on('click','#NewTest', function() {
         location.reload();
     });
+
+    $(document).on('click','#NewTestZenith', function() {
+        location.reload();
+    });
+
+    
 });
 
 $(document).ready(function () {
     const error_console = document.getElementById('console');
-
+    var newTestButton = document.getElementById('NewTestZenith');
     // TEST ZENITH
     $(document).on('click', '#fileTestButton', function() {
+        
         const fileInput = $('#fileInput')[0];  
         const file = fileInput.files[0];
         $.ajax({
@@ -139,7 +214,105 @@ $(document).ready(function () {
             success: function (data) {  
 
                 if (data.status == 200) {
-                    toastr.success('File uploaded');
+                    toastr.success('Test réussi');
+                    var pnr = data.pnr
+                    if (pnr) {
+                        
+                        var pnr_html = `<h2>Détails du PNR <a href="/home/pnr/${ pnr.id}"><h2>${pnr.number}</h2></a></h2>`;
+                        $("pnr-data").html(pnr_html); // Mise à jour du contenu de la table
+                        $("#pnr-data").html(pnr_html).trigger("update");
+                        $('#pnr-data').prop('hidden', false);
+                    }
+                    var segments = data.segments
+                    var tickets = data.tickets
+                   
+                    $('#segment-data').prop('hidden', false);
+                    $('#ticket-data').prop('hidden', false);
+
+                    var html = `<thead class="bg-info" id="thead-all-segment">
+                      <tr >
+                        <th>Segment</th>
+                        <th>Vols</th> 
+  
+                        <th>Classe</th>
+                        <th>Cabine</th> 
+                        <th>Départ</th>
+                        <th>Arrivée</th>
+                        <th>Date et heure de départ</th>
+                        <th>Date et heure d'arrivée</th>
+                        </tr>
+                      </thead>
+                      <tbody >`;
+
+
+                    segments.forEach(element => {
+                        html +=`<tr>
+                            <td>${ element.segmentorder }</td>
+                            <td>${ element.segment }</td>
+                            <td>${ element.flightclass }</td>
+                            <td></td>
+                            <td>${ element.codeorg }</td>
+                            <td>${ element.codedest }</td>
+                            <td>`
+
+                            if (element.segment_state == 0) {
+                                html += `${ element.departuretime} </td><td>`;
+                            }else{
+                                html += `${ element.departuretime} </td><td>`;
+                            }
+
+                            if (element.segment_state == 0) {
+                                html += `${ element.arrivaltime} </td><td>`;
+                            }else{
+                                html += `Flown </td><td>`;
+                            }
+                             
+                            if (pnr.status != 'Emis') {
+                                html += `${ element.arrivaltime} </td></tr></tbody>`;
+                            }
+                            
+                    });
+                    $("all-segment").html(html); // Mise à jour du contenu de la table
+                    $("#all-segment").html(html).trigger("update");
+
+                    // test_container.appendChild(divContent);
+                    var ticket_html = ``;
+                    if (tickets.length > 0) {
+                        ticket_html += `<thead class="bg-info" >
+                            <tr >
+                            <th>Type</th>
+                            <th>Article</th> 
+                            <th>Passager(s)/Trajet</th>
+                            <th>Transport</th> 
+                            <th>Taxe</th>
+                            <th>Total</th>
+                            <th>Passager/Segment(s)</th>
+                            <th>Date d'émission</th>
+                            </thead>
+                            <tbody>`;
+
+                            tickets.forEach(element => {
+                                ticket_html += `<tr>
+                                <td>${ element.type }</td>
+                                <td>${ element.billet }</td>
+                                <td>${ element.passager }</td>
+                                <td>${ element.montant }</td>
+                                <td>${ element.taxe }</td>
+                                <td>${ element.total }</td>
+                                <td>${ element.passenger_order }</td>
+                                <td>${ element.issuing_date }</td>
+                                <td></tbody>`
+                            });
+                            
+                    }else{
+                        ticket_html += `<h5 class="text-danger">Pas de billet</h5>`
+                    }
+
+                    $("all-ticket-test").html(ticket_html); // Mise à jour du contenu de la table
+                    $("#all-ticket-test").html(ticket_html).trigger("update");
+
+                    newTestButton.hidden = false;
+
                 } else {
                     //Show the traceback error on the div console in the page
                     error_console.hidden = false;

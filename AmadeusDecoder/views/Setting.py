@@ -624,16 +624,79 @@ def test_parsing_zenith(request):
             for line in content:
                 print(line)
 
-            temp.parse_pnr(temp.get_email_date())
+            data = temp.test_parse_pnr(temp.get_email_date())
+            pnr_data = data['pnr']
+
+            # get details pnr
+            pnr = {'id': pnr_data.id, 'number':pnr_data.number,'status':pnr_data.status}
+            context['pnr'] = pnr
+
+            # get data segments
+            air_segments = pnr_data.segments.filter(segment_type='Flight', air_segment_status=1).all().order_by('segmentorder')
+            segments_data = []
+            for segment in air_segments:
+                values = {}
+                values['segmentorder'] = segment.segmentorder
+                values['segment'] = segment.__str__()
+                values['flightclass'] = segment.flightclass
+                values['codeorg'] = segment.codeorg.iata_code
+                values['codedest'] = segment.codedest.iata_code
+                values['departuretime'] = segment.departuretime
+                values['arrivaltime'] = segment.arrivaltime
+                values['segment_state'] = segment.segment_state
+                segments_data.append(values)
+
+            context['segments'] = segments_data
+
+            # get data ticket
+            tickets = pnr_data.tickets.filter(Q(ticket_status=1) | Q(is_invoiced=True)).filter(Q(total__gt=0) | Q(is_no_adc=True) | (Q(is_refund=True) & Q(total__lt=0))).all().order_by('number')
+            tickets_data = []
+            for ticket in tickets:
+                values = {}
+                if ticket.ticket_type == 'EMD' or ticket.ticket_type == 'TKT':
+                    values['type'] = ticket.ticket_type
+                if ticket.ticket_type == 'CREDIT_NOTE':
+                    values['type'] = 'Avoir'
+            
+                values['billet'] = ticket.__str__()
+                if ticket.ticket_type == 'EMD' and pnr_data.type == 'EWA':
+                    if ticket.ticket_description is not None:
+                        values['passager'] = ticket.ticket_description
+
+                if ticket.passenger is not None :
+                    values['passager'] = ticket.passenger.__str__()
+                else:
+                    values['passager'] = ''
+
+                values['montant'] = ticket.transport_cost
+                values['taxe'] = ticket.tax
+                values['total'] = ticket.total
+
+                if ticket.passenger is not None:
+                    if ticket.passenger.order is not None:
+                        values['passenger_order'] = ticket.passenger.order
+                    else:
+                        values['passenger_order'] = ''
+
+                if ticket.issuing_date is not None:
+                    values['issuing_date'] = ticket.issuing_date
+                else:
+                    values['issuing_date'] = ''
+
+                tickets_data.append(values)
+
+            context['tickets'] = tickets_data
+            
             temp.get_creator_emitter()
             
             
-        except:
+        except Exception as e:
             trace_str = traceback.format_exc()
-            print(trace_str)
+            print(str(e))
             context['status'] = 10
-            context['error'] = trace_str
-
+            if str(e) == 'Receipt received':
+                context['message'] = str(e)
+            
 
         return JsonResponse(context, safe=False)
 
@@ -681,7 +744,67 @@ def test_parsing_text(request):
                         continue
                     if contents[j].startswith('RP') and not contents[j].startswith('RPP'):
                         try:
-                            temp.parse_pnr(contents[j:], needed_content, temp.get_email_date())
+                            # temp.parse_pnr(contents[j:], needed_content, temp.get_email_date())
+                            data = temp.test_parse_pnr(contents[j:], needed_content, temp.get_email_date())
+                            pnr_data = data['pnr']
+                            pnr = {'id': pnr_data.id, 'number':pnr_data.number,'status':pnr_data.status}
+                            context['pnr'] = pnr
+
+                            air_segments = pnr_data.segments.filter(segment_type='Flight', air_segment_status=1).all().order_by('segmentorder')
+                            segments_data = []
+                            for segment in air_segments:
+                                values = {}
+                                values['segmentorder'] = segment.segmentorder
+                                values['segment'] = segment.__str__()
+                                values['flightclass'] = segment.flightclass
+                                values['codeorg'] = segment.codeorg.iata_code
+                                values['codedest'] = segment.codedest.iata_code
+                                values['departuretime'] = segment.departuretime
+                                values['arrivaltime'] = segment.arrivaltime
+                                values['segment_state'] = segment.segment_state
+                                segments_data.append(values)
+
+                            context['segments'] = segments_data
+
+
+                            tickets = pnr_data.tickets.filter(Q(ticket_status=1) | Q(is_invoiced=True)).filter(Q(total__gt=0) | Q(is_no_adc=True) | (Q(is_refund=True) & Q(total__lt=0))).all().order_by('number')
+                            tickets_data = []
+                            for ticket in tickets:
+                                values = {}
+                                if ticket.ticket_type == 'EMD' or ticket.ticket_type == 'TKT':
+                                    values['type'] = ticket.ticket_type
+                                if ticket.ticket_type == 'CREDIT_NOTE':
+                                    values['type'] = 'Avoir'
+                            
+                                values['billet'] = ticket.__str__()
+                                if ticket.ticket_type == 'EMD' and pnr_data.type == 'EWA':
+                                    if ticket.ticket_description is not None:
+                                        values['passager'] = ticket.ticket_description
+
+                                if ticket.passenger is not None :
+                                    values['passager'] = ticket.passenger.__str__()
+                                else:
+                                    values['passager'] = ''
+
+                                values['montant'] = ticket.transport_cost
+                                values['taxe'] = ticket.tax
+                                values['total'] = ticket.total
+
+                                if ticket.passenger is not None:
+                                    if ticket.passenger.order is not None:
+                                        values['passenger_order'] = ticket.passenger.order
+                                    else:
+                                        values['passenger_order'] = ''
+
+                                if ticket.issuing_date is not None:
+                                    values['issuing_date'] = ticket.issuing_date
+                                else:
+                                    values['issuing_date'] = ''
+
+                                tickets_data.append(values)
+
+                            context['tickets'] = tickets_data
+
                             break
                         except:
                             print('File (PNR) with error: ' + file)
@@ -693,7 +816,68 @@ def test_parsing_text(request):
                         try:
                             print('Needed content ', needed_content)
                             print('Needed content 2 ', temp.needed_content(contents[j:]))
-                            temp.parse_emd(temp.needed_content(contents[j:]), temp.get_email_date())
+                            # temp.parse_emd(temp.needed_content(contents[j:]), temp.get_email_date())
+                            ticket_data = temp.test_parse_emd(temp.needed_content(contents[j:]), temp.get_email_date())
+
+                            pnr_data = ticket_data['pnr']
+                            pnr = {'id': pnr_data.id, 'number':pnr_data.number,'status':pnr_data.status}
+                            context['pnr'] = pnr
+
+                            air_segments = pnr_data.segments.filter(segment_type='Flight', air_segment_status=1).all().order_by('segmentorder')
+                            segments_data = []
+                            for segment in air_segments:
+                                values = {}
+                                values['segmentorder'] = segment.segmentorder
+                                values['segment'] = segment.__str__()
+                                values['flightclass'] = segment.flightclass
+                                values['codeorg'] = segment.codeorg.iata_code
+                                values['codedest'] = segment.codedest.iata_code
+                                values['departuretime'] = segment.departuretime
+                                values['arrivaltime'] = segment.arrivaltime
+                                values['segment_state'] = segment.segment_state
+                                segments_data.append(values)
+
+                            context['segments'] = segments_data
+
+
+                            tickets = pnr_data.tickets.filter(Q(ticket_status=1) | Q(is_invoiced=True)).filter(Q(total__gt=0) | Q(is_no_adc=True) | (Q(is_refund=True) & Q(total__lt=0))).all().order_by('number')
+                            tickets_data = []
+                            for ticket in tickets:
+                                values = {}
+                                if ticket.ticket_type == 'EMD' or ticket.ticket_type == 'TKT':
+                                    values['type'] = ticket.ticket_type
+                                if ticket.ticket_type == 'CREDIT_NOTE':
+                                    values['type'] = 'Avoir'
+                            
+                                values['billet'] = ticket.__str__()
+                                if ticket.ticket_type == 'EMD' and pnr_data.type == 'EWA':
+                                    if ticket.ticket_description is not None:
+                                        values['passager'] = ticket.ticket_description
+
+                                if ticket.passenger is not None :
+                                    values['passager'] = ticket.passenger.__str__()
+                                else:
+                                    values['passager'] = ''
+
+                                values['montant'] = ticket.transport_cost
+                                values['taxe'] = ticket.tax
+                                values['total'] = ticket.total
+
+                                if ticket.passenger is not None:
+                                    if ticket.passenger.order is not None:
+                                        values['passenger_order'] = ticket.passenger.order
+                                    else:
+                                        values['passenger_order'] = ''
+
+                                if ticket.issuing_date is not None:
+                                    values['issuing_date'] = ticket.issuing_date
+                                else:
+                                    values['issuing_date'] = ''
+
+                                tickets_data.append(values)
+
+                            context['tickets'] = tickets_data
+
                             break
                         except:
                             print('File (EMD) with error: ' + file)
@@ -703,7 +887,69 @@ def test_parsing_text(request):
                             context['message'] = 'File (EMD) with error: ' + file
                     if contents[j].startswith('TKT'):
                         try:
-                            temp.parse_ticket(temp.needed_content(contents[j:]), temp.get_email_date())
+                            # temp.parse_ticket(temp.needed_content(contents[j:]), temp.get_email_date())
+
+                            ticket_data = temp.test_parse_ticket(temp.needed_content(contents[j:]), temp.get_email_date())
+
+                            pnr_data = ticket_data['pnr']
+                            pnr = {'id': pnr_data.id, 'number':pnr_data.number,'status':pnr_data.status}
+                            context['pnr'] = pnr
+
+                            air_segments = pnr_data.segments.filter(segment_type='Flight', air_segment_status=1).all().order_by('segmentorder')
+                            segments_data = []
+                            for segment in air_segments:
+                                values = {}
+                                values['segmentorder'] = segment.segmentorder
+                                values['segment'] = segment.__str__()
+                                values['flightclass'] = segment.flightclass
+                                values['codeorg'] = segment.codeorg.iata_code
+                                values['codedest'] = segment.codedest.iata_code
+                                values['departuretime'] = segment.departuretime
+                                values['arrivaltime'] = segment.arrivaltime
+                                values['segment_state'] = segment.segment_state
+                                segments_data.append(values)
+
+                            context['segments'] = segments_data
+
+
+                            tickets = pnr_data.tickets.filter(Q(ticket_status=1) | Q(is_invoiced=True)).filter(Q(total__gt=0) | Q(is_no_adc=True) | (Q(is_refund=True) & Q(total__lt=0))).all().order_by('number')
+                            tickets_data = []
+                            for ticket in tickets:
+                                values = {}
+                                if ticket.ticket_type == 'EMD' or ticket.ticket_type == 'TKT':
+                                    values['type'] = ticket.ticket_type
+                                if ticket.ticket_type == 'CREDIT_NOTE':
+                                    values['type'] = 'Avoir'
+                            
+                                values['billet'] = ticket.__str__()
+                                if ticket.ticket_type == 'EMD' and pnr_data.type == 'EWA':
+                                    if ticket.ticket_description is not None:
+                                        values['passager'] = ticket.ticket_description
+
+                                if ticket.passenger is not None :
+                                    values['passager'] = ticket.passenger.__str__()
+                                else:
+                                    values['passager'] = ''
+
+                                values['montant'] = ticket.transport_cost
+                                values['taxe'] = ticket.tax
+                                values['total'] = ticket.total
+
+                                if ticket.passenger is not None:
+                                    if ticket.passenger.order is not None:
+                                        values['passenger_order'] = ticket.passenger.order
+                                    else:
+                                        values['passenger_order'] = ''
+
+                                if ticket.issuing_date is not None:
+                                    values['issuing_date'] = ticket.issuing_date
+                                else:
+                                    values['issuing_date'] = ''
+
+                                tickets_data.append(values)
+
+                            context['tickets'] = tickets_data
+
                             break
                         except:
                             print('File (Ticket) with error: ' + file)
@@ -742,7 +988,7 @@ def test_parsing_text(request):
                             context['error'] = traceback.format_exc()
                             context['status'] = 1
                             context['message'] = 'File (EWA) with error: ' + file
-        context['content'] = data
+        # context['content'] = data
         return JsonResponse(context, safe=False)
             
     except:

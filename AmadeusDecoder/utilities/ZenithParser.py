@@ -1922,6 +1922,7 @@ class ZenithParser():
         except Exception as e:
             transaction.savepoint_rollback(sid)
             raise e
+
     
     # save data for the parsing test
     def test_parse_pnr(self, email_date):
@@ -1929,17 +1930,21 @@ class ZenithParser():
         try:
             content_parts = self.read_file()
             for content in content_parts:
+                
+                pnr_number = content[3]
                 if len(content) == 0:
                     raise Exception('File is empty or not in PDF format.')
+                
                 
                 if RECEIPT_IDENTIFIER[0] in content:
                     from AmadeusDecoder.utilities.ZenithParserReceipt import ZenithParserReceipt
                     ZenithParserReceipt(content).parseReceipt()
-                    raise Exception('Receipt received')
+                    raise ReceiptException('Receipt received', pnr_number)
+
                 
                 if ITINERARY_NAME[0] not in content and PASSENGER_IDENTIFIER[0] not in content and CUSTOMER_NAME_IDENTIFIER[0] not in content:
                     raise Exception('File not EWA PNR.')
-                    
+                
                 pnr, is_saved = self.get_pnr_details(content, 'Emis', email_date)
                 pnr.save()
                 
@@ -2349,4 +2354,7 @@ class ZenithParser():
                         Sending.send_email_pnr_parsing(str(file))
                     continue
                 
-                
+class ReceiptException(Exception):
+    def __init__(self, message, identifier):
+        super().__init__(message)
+        self.identifier = identifier

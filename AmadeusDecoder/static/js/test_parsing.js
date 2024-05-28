@@ -64,6 +64,7 @@ $(document).ready(function () {
                 if (data.status == 200) {
                     toastr.success('Test réussi');
                     var pnr = data.pnr
+                    // Afficher détails PNR
                     if (pnr) {
                         
                         var pnr_html = `<h2>Détails du PNR <a href="/home/pnr/${ pnr.id}"><h2>${pnr.number}</h2></a></h2>`;
@@ -73,12 +74,13 @@ $(document).ready(function () {
                     }
                     var segments = data.segments
                     var tickets = data.tickets
+            
                    
                     $('#segment-data').prop('hidden', false);
                     $('#ticket-data').prop('hidden', false);
 
                     var html = `<thead class="bg-info" id="thead-all-segment">
-                      <tr >
+                        <tr >
                         <th>Segment</th>
                         <th>Vols</th> 
   
@@ -91,7 +93,7 @@ $(document).ready(function () {
                       </thead>
                       <tbody >`;
 
-
+                    // afficher la table des segments
                     segments.forEach(element => {
                         html +=`<tr>
                             <td>${ element.segmentorder }</td>
@@ -118,10 +120,11 @@ $(document).ready(function () {
                             }
                             
                     });
+                    
                     $("all-segment").html(html); // Mise à jour du contenu de la table
                     $("#all-segment").html(html).trigger("update");
 
-                    // test_container.appendChild(divContent);
+                    // Afficher table des billets pour les tickets
                     var ticket_html = ``;
                     if (tickets.length > 0) {
                         ticket_html += `<thead class="bg-info" >
@@ -147,16 +150,68 @@ $(document).ready(function () {
                                 <td>${ element.total }</td>
                                 <td>${ element.passenger_order }</td>
                                 <td>${ element.issuing_date }</td>
-                                <td></tbody>`
+                                </tr>`;
+                                ticket_html += `<tr>
+                                <td>Fee</td>
+                                <td>${ element.fee_type }</td>
+                                <td></td>
+                                <td>${ element.fee_cost }</td>
+                                <td>${ element.fee_taxe }</td>
+                                <td>${ element.fee_total }</td>
+                                <td></td>
+                                <td>${ element.fee_issuing_date }</td>
+                                <td></td>
+                                </tr></tbody>`
                             });
                             
+                    }
+                    console.log('other fee : ',data.other_fee);
+
+                    // Afficher table des billets pour les other_fee
+                    if(data.other_fee){
+                        other_fees = data.other_fee
+                        console.log('other fee : ',other_fees);
+
+                        console.log('tickets.length : ',tickets.length);
+                        if (tickets.length <= 0) {
+                            console.log('other fee : ',other_fees);
+                            ticket_html += `<thead class="bg-info" >
+                                <tr >
+                                <th>Type</th>
+                                <th>Article</th> 
+                                <th>Passager(s)/Trajet</th>
+                                <th>Transport</th> 
+                                <th>Taxe</th>
+                                <th>Total</th>
+                                <th>Passager/Segment(s)</th>
+                                <th>Date d'émission</th>
+                                </thead>
+                                <tbody>`;
+    
+                            other_fees.forEach(element => {
+                                ticket_html += `<tr>
+                                <td>${ element.type }</td>
+                                <td>${ element.billet }</td>
+                                <td>${ element.passager }</td>
+                                <td>${ element.montant }</td>
+                                <td>${ element.taxe }</td>
+                                <td>${ element.total }</td>
+                                <td>${ element.passenger_segment }</td>
+                                <td>${ element.issuing_date }</td>
+                                <td></tbody>`
+                            });
+                                
+                        }
                     }else{
-                        ticket_html += `<h5 class="text-danger">Pas de billet</h5>`
+                        if(tickets.length <0){
+                            ticket_html += `<h5 class="text-danger">Pas de billet</h5>`
+                        }
                     }
 
                     $("all-ticket-test").html(ticket_html); // Mise à jour du contenu de la table
                     $("#all-ticket-test").html(ticket_html).trigger("update");
 
+                    
                     newTestButton.hidden = false;
 
                 } else {
@@ -196,6 +251,8 @@ $(document).ready(function () {
 $(document).ready(function () {
     const error_console = document.getElementById('console');
     var newTestButton = document.getElementById('NewTestZenith');
+    var uploadButton = document.getElementById('fileUploadButton');
+    var testButton = document.getElementById('fileTestButton');
     // TEST ZENITH
     $(document).on('click', '#fileTestButton', function() {
         
@@ -211,9 +268,10 @@ $(document).ready(function () {
             },
             success: function (data) {  
 
-                if (data.status == 200 ) {
+                if (data.status == 200 || data.status == 122 ) {
                     toastr.success('Test réussi');
                     var pnr = data.pnr
+                    // Afficher détails PNR
                     if (pnr) {
                         
                         var pnr_html = `<h2>Détails du PNR <a href="/home/pnr/${ pnr.id}"><h2>${pnr.number}</h2></a></h2>`;
@@ -223,6 +281,7 @@ $(document).ready(function () {
                     }
                     var segments = data.segments
                     var tickets = data.tickets
+            
                    
                     $('#segment-data').prop('hidden', false);
                     $('#ticket-data').prop('hidden', false);
@@ -233,7 +292,6 @@ $(document).ready(function () {
                         <th>Vols</th> 
   
                         <th>Classe</th>
-                        <th>Cabine</th> 
                         <th>Départ</th>
                         <th>Arrivée</th>
                         <th>Date et heure de départ</th>
@@ -242,13 +300,12 @@ $(document).ready(function () {
                       </thead>
                       <tbody >`;
 
-
+                    // afficher la table des segments
                     segments.forEach(element => {
                         html +=`<tr>
                             <td>${ element.segmentorder }</td>
                             <td>${ element.segment }</td>
                             <td>${ element.flightclass }</td>
-                            <td></td>
                             <td>${ element.codeorg }</td>
                             <td>${ element.codedest }</td>
                             <td>`
@@ -273,7 +330,7 @@ $(document).ready(function () {
                     $("all-segment").html(html); // Mise à jour du contenu de la table
                     $("#all-segment").html(html).trigger("update");
 
-                    // test_container.appendChild(divContent);
+                    // Afficher table des billets pour les tickets
                     var ticket_html = ``;
                     if (tickets.length > 0) {
                         ticket_html += `<thead class="bg-info" >
@@ -299,38 +356,85 @@ $(document).ready(function () {
                                 <td>${ element.total }</td>
                                 <td>${ element.passenger_order }</td>
                                 <td>${ element.issuing_date }</td>
-                                <td></tbody>`
+                                </tr>`;
+                                ticket_html += `<tr>
+                                <td>Fee</td>
+                                <td>${ element.fee_type }</td>
+                                <td></td>
+                                <td>${ element.fee_cost }</td>
+                                <td>${ element.fee_taxe }</td>
+                                <td>${ element.fee_total }</td>
+                                <td></td>
+                                <td>${ element.fee_issuing_date }</td>
+                                <td></td>
+                                </tr></tbody>`
                             });
                             
+                    }
+                    console.log('other fee : ',data.other_fee);
+
+                    // Afficher table des billets pour les other_fee
+                    if(data.other_fee){
+                        other_fees = data.other_fee
+                        console.log('other fee : ',other_fees);
+
+                        console.log('tickets.length : ',tickets.length);
+                        if (tickets.length <= 0) {
+                            console.log('other fee : ',other_fees);
+                            ticket_html += `<thead class="bg-info" >
+                                <tr >
+                                <th>Type</th>
+                                <th>Article</th> 
+                                <th>Passager(s)/Trajet</th>
+                                <th>Transport</th> 
+                                <th>Taxe</th>
+                                <th>Total</th>
+                                <th>Passager/Segment(s)</th>
+                                <th>Date d'émission</th>
+                                </thead>
+                                <tbody>`;
+    
+                                other_fees.forEach(element => {
+                                    ticket_html += `<tr>
+                                    <td>${ element.type }</td>
+                                    <td>${ element.billet }</td>
+                                    <td>${ element.passager }</td>
+                                    <td>${ element.montant }</td>
+                                    <td>${ element.taxe }</td>
+                                    <td>${ element.total }</td>
+                                    <td>${ element.passenger_segment }</td>
+                                    <td>${ element.issuing_date }</td>
+                                    <td></tbody>`
+                                });
+                                
+                        }
                     }else{
-                        ticket_html += `<h5 class="text-danger">Pas de billet</h5>`
+                        if(tickets.length <0){
+                            ticket_html += `<h5 class="text-danger">Pas de billet</h5>`
+                        }
                     }
 
                     $("all-ticket-test").html(ticket_html); // Mise à jour du contenu de la table
                     $("#all-ticket-test").html(ticket_html).trigger("update");
 
                     newTestButton.hidden = false;
-
+                    uploadButton.hidden = true;
+                    testButton.hidden = true;
                 } else {
                     
-                    if(data.message){
-                        message = data.message
-                        if(message == 'Receipt received'){
-                            toastr.success('Reçu ajoutée');
-                        }
-                        
-                    }else{
                         //Show the traceback error on the div console in the page
                         error_console.hidden = false;
 
                         var error_list = data.error.split(',');
                         error_list.forEach(error => {
-                        var paragraphe = document.createElement('p');
-                        paragraphe.textContent = error;
-                        error_console.appendChild(paragraphe);
+                            var paragraphe = document.createElement('p');
+                            paragraphe.textContent = error;
+                            error_console.appendChild(paragraphe);
 
-                    });
-                    }
+                        });
+                    newTestButton.hidden = false;
+                    uploadButton.hidden = true;
+                    testButton.hidden = true;
   
                 }
             }

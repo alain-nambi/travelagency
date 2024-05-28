@@ -410,6 +410,7 @@ reduceFeeRequest.addEventListener("click", (e) => {
     url: `/home/reduce-fee-request`,
     data: {
       csrfmiddlewaretoken: csrftoken,
+      userId: user_id,
       pnrId: pnrIdNew,
       userId:user_id,
       feeId: fee_id,

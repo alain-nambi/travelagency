@@ -183,7 +183,7 @@ $(document).ready(function () {
                 $('#fee').show();
             }
         });
-    }
+    }  
 });
 
 
@@ -224,7 +224,6 @@ function accept_anomaly(anomalie_id){
         });
     
 }
-
 
 //---------------- Ticket verification and saving anomalie
 $(document).ready(function () {

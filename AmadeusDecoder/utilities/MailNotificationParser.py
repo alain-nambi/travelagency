@@ -712,7 +712,7 @@ class MailNotification():
                                         {fee_request.system_creation_date.date()}
                                     </td>
                                     <td style="border:1px solid #ddd;padding:8px;">
-                                        <a href="{ISSOUFALI_URL}/home/pnr/{fee_request.pnr.id}" title="Ouvrir le pnr {fee_request.pnr.id}" target="_blank" style="text-decoration">
+                                        <a href='{ISSOUFALI_URL}/home/pnr/{fee_request.pnr.id}' title="Ouvrir le pnr {fee_request.pnr.id}" target="_blank" style="text-decoration">
                                             {fee_request.pnr.number}
                                         </a>
                                     </td>

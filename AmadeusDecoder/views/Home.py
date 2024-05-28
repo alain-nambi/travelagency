@@ -656,6 +656,9 @@ def pnr_details(request, pnr_id):
     # It is applicable only for Passenger Name Records (PNRs) with a single passenger.
     pnr_detail.attach_ticket_to_first_passenger_segment()
     
+    # This function is responsible for updating the fare cost of a ticket or other fees to ensure they are correct.
+    pnr_detail.rectify_fare_cost()
+    
     context['pnr'] = pnr_detail
     context['passengers'] = pnr_detail.passengers.filter(passenger__passenger_status=1).all().order_by('id')
     context['contacts'] = pnr_detail.contacts.all()
@@ -2188,6 +2191,35 @@ def unorder_pnr(request):
                     invoices_canceled = InvoicesCanceled(pnr_id=pnr.id,invoice_number=invoice_number,motif=motif,ticket_id=passenger_invoice.ticket_id, other_fee_id = passenger_invoice.other_fee_id,user_id=user_id, fee_id=passenger_invoice.fee_id) 
                     invoices_canceled.save()
                 
+        
+        return JsonResponse({'status':'ok'})
+    return JsonResponse({'status':'error'})
+
+@login_required(login_url="index")
+# cancel order in passeger invoice
+def uncheck_ticket_in_passenger_invoiced(request):
+    if request.method == 'POST':
+        pnr_number = request.POST.get('pnr_id')
+
+        if pnr_number:
+            passenger_invoice_obj = PassengerInvoice.objects.filter(pnr_id=pnr_number).exclude(is_invoiced=True)
+        
+            if passenger_invoice_obj:
+                for passenger_invoice in passenger_invoice_obj:
+                    # delete the corresponding passenger invoice if it exist
+                    PassengerInvoice.objects.filter(id=passenger_invoice.id).delete()
+                    
+                    if passenger_invoice.ticket_id:
+                        #  delete the corresponding ticket if it exist
+                        Ticket.objects.filter(id=passenger_invoice.ticket_id).update(is_invoiced=False)
+                    
+                    if passenger_invoice.fee_id:
+                        #  delete the corresponding fee if it exist
+                        Fee.objects.filter(id=passenger_invoice.fee_id).update(is_invoiced=False)
+                        
+                    if passenger_invoice.other_fee_id:
+                        # delete the corresponding other fee if it exist
+                        OthersFee.objects.filter(id=passenger_invoice.other_fee_id).update(is_invoiced=False)
         
         return JsonResponse({'status':'ok'})
     return JsonResponse({'status':'error'})

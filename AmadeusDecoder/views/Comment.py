@@ -292,24 +292,29 @@ def verif_ticket(request):
     if request.method == 'POST':
         ticket_number = request.POST.get('ticket_number')
         pnr_id = request.POST.get('pnr_id')
-
         ticket = Ticket.objects.filter(number=ticket_number).first()
         
-        verif = 'False'
-        if ticket is not None:
-            if ticket.pnr_id == pnr_id:
-                if ticket.is_no_adc == False:
-                    verif='True'
-                if ticket.is_no_adc == True and ticket.total != 0:
-                    verif= 'is_no_adc'
-                if ticket.is_no_adc == True and ticket.total == 0:
-                    verif= 'is_no_adc'
-            else:
-                # ticket existant mais pour un autre pnr
-                verif = 'pnr'
-
+        response = {'verif': 'False'}
         
-    return JsonResponse({'verif': verif})
+        if ticket is not None:
+            if int(ticket.pnr_id) == int(pnr_id):
+                if ticket.is_no_adc:
+                    response['verif'] = 'is_no_adc'
+                elif ticket.total > 0 and ticket.ticket_status == 1:
+                    response['verif'] = 'ticket_already_exist'
+                else:
+                    response['verif'] = 'True'
+            else:
+                response['verif'] = {
+                    'exist': True,
+                    'pnr': ticket.pnr.number,
+                }
+        else:
+            response['verif'] = 'False'
+
+        return JsonResponse(response)
+    else:
+        return JsonResponse({'error': 'Invalid request'})
 
 # get by pnr
 @login_required(login_url='index')
@@ -431,13 +436,16 @@ def save_ticket_anomalie(request):
         anomalie_id = anomalie.id
         response_data = {'status':'ok','anomalie_id':anomalie_id}
 
-        if user.role.id == 1:
-            response_data['accept'] = True
-        else:
-            response_data['accept'] = False
-
+        # if user.role.id in [1, 2]:
+        #     response_data['accept'] = True
+        # else:
+        #     response_data['accept'] = False
+        
+        # Accepter les demandes pour les billets archivés pour toutes les utilisateurs
+        response_data['accept'] = True
+        
         return JsonResponse(response_data,safe=False)
- 
+
 
 @login_required(login_url='index')
 def get_all_anomalies(request):
@@ -483,6 +491,9 @@ def update_ticket(request):
             ticket.transport_cost = anomalie.infos.get('montant')
             ticket.tax = anomalie.infos.get('taxe')
             ticket.total = float(anomalie.infos.get('montant')) + float(anomalie.infos.get('taxe'))
+            # set is_no_adc if total = 0
+            if ticket.total == 0:
+                ticket.is_no_adc = True
             ticket.ticket_status = 1
             ticket.emitter = None
             ticket.issuing_date = datetime.now()
@@ -495,6 +506,9 @@ def update_ticket(request):
             ticket.number=anomalie.infos.get('ticket_number')
             ticket.tax=anomalie.infos.get('taxe')
             ticket.total = float(anomalie.infos.get('montant')) + float(anomalie.infos.get('taxe'))
+            # set is_no_adc if total = 0
+            if ticket.total == 0:
+                ticket.is_no_adc = True
             ticket.ticket_status=1
             ticket.pnr_id=anomalie.pnr_id
             ticket.passenger_id=anomalie.infos.get('passenger_id')
@@ -561,7 +575,8 @@ def updateAnomaly(request):
         montant = request.POST.get('montant')
         taxe = request.POST.get('taxe')
         anomaly_id = request.POST.get('anomaly_id')
-        
+        print('-------------------ANOMALY ----------------------------')
+        print(montant)
         anomaly = Anomalie.objects.get(pk=anomaly_id)
         anomaly.infos['ticket_number'] = ticket
         anomaly.infos['montant'] = montant

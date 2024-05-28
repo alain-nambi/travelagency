@@ -71,27 +71,40 @@
     src="{% static 'image/profile.webp' %}"
 old -->
 <div class="wrapper">
-  <nav class="main-header navbar navbar-expand navbar-white navbar-light shadow" id="layoutHomeMenu">
+  <nav class="main-header navbar navbar-expand navbar-white navbar-light" id="layoutHomeMenu">
     <form method='POST' action=''>
           <!-- Left navbar links -->
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a class="nav-link" id="pushed-sidebar" data-widget="pushmenu" href="#" role="button"><i
-              class="fas fa-bars"></i></a>   
+          <a class="nav-link" id="pushed" data-widget="" href="#" role="button" style="cursor: none;">
+            <!-- <i class="fas fa-bars"></i> -->
+          </a>   
         </li>
         <li class="nav-item">
           {% include "commandes_modal.html" %}
         </li>
-        <li class="nav-item ml-5 d-flex" style="gap: 0.5rem;">
+        <li class="nav-item ml-5 d-flex align-items-center" style="gap: 0.5rem;">
           <div class="align-items-center">
             <span id="mail-user" data-mail="issoufali.pnr@outlook.com;{{request.user.email}}">issoufali.pnr@outlook.com;{{request.user.email}}</span>
-            <a type="button" class="btn btn-outline-primary zenith" onclick="copymailuser()">Zenith</a> 
+            <a type="button" class="btn btn-outline-primary" onclick="copymailuser()">Zenith</a> 
             
           </div>
+
+          <div class="align-items-center">
+            <!--- Button pour afficher les autres listes de commandes -->
+            <button 
+              id="showOtherCommandsMenu" 
+              type="button" 
+              class="btn btn-outline-success"
+            >
+              <span>Afficher autres commandes</span>
+            </button>
+          </div>
+
             <div id="pnrNotUpdated">
               <button 
                 type="button" 
-                class="btn btn-outline-danger zenith" 
+                class="btn btn-outline-danger" 
                 data-toggle="modal" 
                 data-target="#modalPnrNotUpdated" 
                 title="Pnr non remonté"
@@ -452,6 +465,7 @@ old -->
 
     <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
     <script script type="text/javascript" src="https://cdn.canvasjs.com/canvasjs.min.js"></script> 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/colresizable/1.6.0/colResizable-1.6.min.js" integrity="sha512-pMZ2rgWRGMywzbRAVwGk+auTREN0ldKKjACUSB4cneTgD3kn/6pu//Lxi4l8xSRkY83HENr1vztTnGDySWs0Mg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/js/selectize.min.js" integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -473,6 +487,22 @@ old -->
     {% endfor %}
     {% endif %}
     <script>
+      $(function(){
+        $("#all-pnr").colResizable({
+          liveDrag: true,
+          gripInnerHtml:"<div class='grip'></div>", 
+          draggingClass:"dragging", 
+          resizeMode:'fit'
+        });  
+
+        $("#all-pnr-after-search").colResizable({
+          liveDrag: true,
+          gripInnerHtml:"<div class='grip'></div>", 
+          draggingClass:"dragging", 
+          resizeMode:'fit'
+        }); 
+      });
+
       $('.tooltips.state_1').append("<span></span>");
       $('.tooltips:not([tooltip-position])').attr('tooltip-position', 'bottom');
       $(".tooltips.state_1").mouseenter(function () {

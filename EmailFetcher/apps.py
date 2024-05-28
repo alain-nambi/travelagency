@@ -1,3 +1,4 @@
+import shutil
 from django.apps import AppConfig
 from threading import Thread, Timer
 import os
@@ -177,6 +178,34 @@ def load_config():
     # assign current company to local variable 'session_variable'
     session_variables.current_company = configs.COMPANY_NAME
     print('Configurations loaded.')
+    
+def delete_all_files_in_attachments_dir():
+    """
+    Deletes all files and directories recursively in the attachments directory.
+    """
+    print("*-- Deletes all files and directories recursively in the attachments directory --*")
+    
+    # Define the path to the attachments directory
+    attachments_dir = os.path.join("opt", "travelagency", "EmailFetcher", "utilities", "attachments_dir")
+    
+    # Iterate over all items (files and directories) in the attachments directory
+    for item in os.scandir(attachments_dir):
+        # Construct the full path to the current item
+        item_path = os.path.join(attachments_dir, item.name)
+        
+        # Check if the item is a file
+        if os.path.isfile(item_path):
+            # Remove the file
+            os.remove(item_path)
+            print("📢 ========> Deleted file:", item_path)
+        # Check if the item is a directory
+        elif os.path.isdir(item_path):
+            # Remove the directory and its contents recursively
+            shutil.rmtree(item_path)
+            print("📢 ========> Deleted directory:", item_path)
+        else:
+            # Handle the case if the item is neither a file nor a directory
+            print("📢 ========> Unknown item type:", item_path)
 
 class EmailfetcherConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'

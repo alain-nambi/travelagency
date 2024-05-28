@@ -66,6 +66,18 @@
 									<div class="row mb-0 px-2 py-0">
 										<div class="col-md-2">
 											<h4 class="text-primary mx-0 mb-0">Détail du PNR</h4>
+											{% if pnr.is_archived %}
+												<div 
+													class="btn btn-warning px-2 py-0" 
+													onmouseover="this.style.backgroundColor='#ffc107'" 
+													onmouseout="this.style.backgroundColor='#ffc107'" 
+													style="border: none; cursor: help;"
+													title="? Cliquer sur le bouton Signaler pour faire une demande si des billets sont manquants"
+												>
+													<i class="fa fa-warning"></i>
+													<span>PNR archivé</span>
+												</div>
+											{% endif %}
 										</div>
 										<div class="col-md-4">
 											{% if pnr.status_value == 0 %}
@@ -147,7 +159,16 @@
 									</div>
 									<div class="row mb-2 px-2 py-0">
 										<div class="col-md-3 px-2">
-											<p class="details-p mb-0"><span class="details-span text-primary">Agence</span> {% if pnr.agency is not None %} {{ pnr.agency }} {% elif pnr.agency is None and pnr.type == 'EWA' %} {{ pnr.agency_name }} {% endif %}</p>
+											<p class="details-p mb-0">
+												<span class="details-span text-primary">Agence</span> 
+												{% if pnr|pnr_office %}
+													{% if pnr|pnr_office|lower == 'web' %} 
+														{{ pnr|pnr_office }} (Reçu dossier)
+													{% else %}
+														{{ pnr|pnr_office }}
+													{% endif %}
+												{% endif %}
+											</p>
 											
 											
 											<p class="details-p mb-0">
@@ -561,6 +582,21 @@
 												<i class="fas fa-plus"></i>
 												Créer commande
 											</button>
+
+											{% with pnr|check_invoiced_status as check_invoiced_status %}
+												{% if check_invoiced_status %}
+													<button 
+														type="button" 
+														id="unCheckAllCheckboxUninvoiced" 
+														class="btn btn-sm-block btn-secondary mb-2 py-0 px-1"
+														data-pnr-id="{{ pnr.id }}" 
+													>
+														<i class="fas fa-plus"></i>
+														<span class="text-sm">Annuler la sélection</span>
+													</button>
+												{% endif %}
+											{% endwith %}
+											
 
 											{% with pnr|check_if_one_or_many_passenger_is_invoiced as check_if_one_or_many_passenger_is_invoiced %}
 												{% with pnr.id|customer_has_not_had_order as customer_has_not_had_order %}
@@ -1475,8 +1511,8 @@
 								
 							</div>
 							<div>
-								<button class="btn btn-danger" id="comment-ticket-cancel-button" style="margin-top:5px;" >Annuler</button>
-								<button class="btn btn-success" id="comment-ticket-next-button" style="margin-top:5px;" disabled>Suivant</button>
+								<button class="btn btn-success" id="comment-ticket-next-button" style="margin-top:5px;" disabled>Confirmer</button>
+								<button class="btn btn-danger" id="comment-ticket-cancel-button" style="margin-top:5px;" >Annuler</button>            
 							</div>
 
 							

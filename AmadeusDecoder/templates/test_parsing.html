@@ -1,4 +1,6 @@
-{% extends "layout.html" %} {% block content %}
+{% extends "layout.html" %} 
+{% load pnr_details %} 
+{% block content %}
 <div class="content-wrapper">
   <section class="content-header p-0">
     <div class="container-fluid">
@@ -46,9 +48,7 @@
                     <div>
                         <select class="form-control col-md-3" id="SelectTypeParsing" >
                             <option value="">Que voulez-vous tester?</option>
-                            <option value="pnr">PNR</option>
-                            <option value="tkt">TKT</option>
-                            <option value="tst">TST</option>
+                            <option value="data">Altéa</option>
                             <option value="ewa">Zénith/EWA</option>
                             <option value="rd">Reçu dossier</option>
 
@@ -57,18 +57,52 @@
 
                     <div class="row col-md-8" style="margin-top:20px;" id="input_file" hidden>
                         <input type="file" id="fileInput" name="file" class="form-control col-md-7" style="padding:2px;" />
-                        <button type = "button" id="fileUploadButton" class="btn btn-success" style="margin-left:10px;">Tester</button>
+                        <button type = "button" id="fileUploadButton" class="btn btn-success" style="margin-left:10px;">Upload</button>
+                        <button type = "button" id="fileTestButton" class="btn btn-success" style="margin-left:10px;" hidden>Test</button>
+                        <button type = "button" class="btn btn-primary" id="NewTestZenith" style="margin-left:10px;" hidden>New Test</button>
                     </div>
     
                     <div class="row col-md-8" style="margin-top:20px;" id="textarea" hidden>
-                        <textarea type="text" name="file" class="form-control z-depth-1 col-md-7"  rows="7" style="padding:2px; " ></textarea>
-                        <button type = "button" class="btn btn-success h-25" style="margin:119px 0 0 10px;">Tester</button>
+                      
+
+                        <textarea type="text"  id="data" class="form-control z-depth-1 col-md-7"  rows="7" style="padding:2px; " ></textarea>
+                        <button type = "button" class="btn btn-success h-25" id="TestTextButton" style="margin:119px 0 0 10px;">Test</button>
+                        <button type = "button" class="btn btn-primary h-25" id="NewTest" style="margin:119px 0 0 10px;" hidden>New Test</button>
+
                     </div>
 
-                    <div class="w-100 " style="background-color:black;height:200px;margin-top:20px;" id="console" hidden>
-                        <div style="padding:10px;">
-                            <h4 style="color:red">Erreur !!!!</h4>
+                    <div>
+                      <div id="text_content" class="w-100" style="margin-top:3rem;">
+                        <div id="pnr-data" class="w-100" hidden>
+                          
                         </div>
+                        <div class="row">
+                          <div class="col-md-12 px-2" id="segment-data" hidden>
+                            <h6 class="text-primary float-left mb-0">Information de vols: (PNR Air segment)</h6>
+
+                            <div class="table-responsive">
+                              <table class="table" id="all-segment"></table>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="row w-100" >
+                          <div class="col-md-12 px-2" id="ticket-data" hidden>
+                            <h6 class="text-primary mb-1">Billets et frais (en {{ 'Issoufali'|company_currency }})</h6>
+
+                            <div class="table-responsive">
+                              <table class="table" id="all-ticket-test"></table>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                                            
+                      
+                    </div>
+
+                    <div class="bg-black p-4 rounded-b-lg w-100 h-auto text-xs text-white" style="border-radius:20px;" id="console" hidden>
+                        
                     </div>
                 </div>
 

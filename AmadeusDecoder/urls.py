@@ -74,7 +74,7 @@ urlpatterns = [
     path('home/update-anomaly', updateAnomaly, name='update_anomaly'),
     path('home/ticket-delete',ticket_delete,name='ticket_delete'),
     path('comment/get-unshowed-tickets',get_unshowed_tickets, name='get_unshowed_tickets'),
-    path('check-uninvoiced-status/', uncheck_ticket_in_passenger_invoiced, name='uncheck_ticket_in_passenger_invoiced')
+    path('check-uninvoiced-status/', uncheck_ticket_in_passenger_invoiced, name='uncheck_ticket_in_passenger_invoiced'),
     path('setting/email',email_setting, name='email_setting'),
     path('setting/parsing',parsing_setting, name='parsing_setting'),
     path('setting/ftp',ftp_setting, name='ftp_setting'),
@@ -101,7 +101,6 @@ urlpatterns = [
     path('setting/emd-parsing-create',emd_parsing_create,name='emd_parsing_create'),
     path('setting/emd-statues-update',emd_statues_update,name='emd_statues_update'),
     path('setting/test-parsing',test_parsing,name='test_parsing'),
-    path('setting/test-parsing-pdf',test_parsing_pdf,name='test_parsing_pdf'),
 
     
 ]

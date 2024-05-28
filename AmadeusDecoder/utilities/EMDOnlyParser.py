@@ -420,7 +420,7 @@ class EMDOnlyParser():
                 temp_fee.save()
 
 
- # parse ticket data for the parsing test
+# parse ticket data for the parsing test
     def test_parse_emd(self, file_contents, email_date):
         print('EMD FILE DETECTED')
         emd = Ticket()

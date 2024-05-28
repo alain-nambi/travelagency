@@ -83,7 +83,6 @@ $(document).ready(function () {
                         <th>Vols</th> 
   
                         <th>Classe</th>
-                        <th>Cabine</th> 
                         <th>Départ</th>
                         <th>Arrivée</th>
                         <th>Date et heure de départ</th>
@@ -98,7 +97,6 @@ $(document).ready(function () {
                             <td>${ element.segmentorder }</td>
                             <td>${ element.segment }</td>
                             <td>${ element.flightclass }</td>
-                            <td></td>
                             <td>${ element.codeorg }</td>
                             <td>${ element.codedest }</td>
                             <td>`
@@ -213,7 +211,7 @@ $(document).ready(function () {
             },
             success: function (data) {  
 
-                if (data.status == 200) {
+                if (data.status == 200 ) {
                     toastr.success('Test réussi');
                     var pnr = data.pnr
                     if (pnr) {
@@ -314,16 +312,26 @@ $(document).ready(function () {
                     newTestButton.hidden = false;
 
                 } else {
-                    //Show the traceback error on the div console in the page
-                    error_console.hidden = false;
                     
-                    var error_list = data.error.split(',');
-                    error_list.forEach(error => {
+                    if(data.message){
+                        message = data.message
+                        if(message == 'Receipt received'){
+                            toastr.success('Reçu ajoutée');
+                        }
+                        
+                    }else{
+                        //Show the traceback error on the div console in the page
+                        error_console.hidden = false;
+
+                        var error_list = data.error.split(',');
+                        error_list.forEach(error => {
                         var paragraphe = document.createElement('p');
                         paragraphe.textContent = error;
                         error_console.appendChild(paragraphe);
+
                     });
-                    
+                    }
+  
                 }
             }
         });

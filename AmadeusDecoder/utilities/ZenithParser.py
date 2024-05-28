@@ -2354,5 +2354,9 @@ class ZenithParser():
                         from AmadeusDecoder.utilities.SendMail import Sending
                         Sending.send_email_pnr_parsing(str(file))
                     continue
-                
+
+class ReceiptException(Exception):
+    def __init__(self, message, identifier):
+        super().__init__(message)
+        self.identifier = identifier         
                 

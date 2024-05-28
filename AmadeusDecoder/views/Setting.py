@@ -559,11 +559,6 @@ def emd_statues_update(request):
 def test_parsing(request):
     return render(request,'test_parsing.html')  
 
-def test_parsing_txt(request):
-    if request.method == 'POST':
-        context={}
-
-    return JsonResponse(context, safe=False)
 
 def test_parsing_upload_file(request):
     import fitz
@@ -820,10 +815,19 @@ def test_parsing_text(request):
         temp = AmadeusParser() 
         file = '0_fnd@amadeus.com'
         chemin = os.getcwd() + '/EmailFetcher/utilities/attachments_dir/' + file 
+        text_to_write = "Subject\nYour travel information\n\nPlain_Text\n"
 
+        # Vérifiez si le fichier existe, sinon créer le fichier
+        if not os.path.exists(chemin):
+            open(chemin, 'a').close()
+            with open(chemin,'w') as fichier:
+                fichier.write(text_to_write)
+ 
+        # Lecture du contenu existant du fichier
         with open(chemin,'r') as fichier:
             lines = fichier.readlines()
-
+        
+        # Écriture des premières lignes et ajout des nouvelles données
         with open(chemin,'w') as fichier:
             fichier.writelines(lines[:8 -1])
             fichier.writelines(data)

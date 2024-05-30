@@ -867,7 +867,6 @@ def pnr_non_remonte(request):
         context['message'] = str(e)
     return JsonResponse(context)
 
-
 @login_required(login_url='index')
 def all_unremounted_pnr(request):
     UnremountedPnrList = UnremountedPnr.objects.all()

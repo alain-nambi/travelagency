@@ -29,8 +29,9 @@ from AmadeusDecoder.models.user.Users import User
 from AmadeusDecoder.utilities.ProductImportParser import ProductParser, CustomerParser
 from AmadeusDecoder.models.configuration.Configuration import Configuration
 
-from django.db.models import Count
-from django.db.models.functions import Lower, ExtractYear
+from django.db import connection
+from django.db.models import Count, Func
+from django.db.models.functions import Lower, ExtractYear, Cast
 from openpyxl import Workbook
 from openpyxl.styles import *
 import decimal
@@ -576,43 +577,75 @@ def graph_view(request):
 
     context = {}
     print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
-    context['passenger_by_age'] = get_passenger_by_age(request)
-    context['all_data'] = get_destination_by_month(request)
-    print('---------------------------- all data destination ---------------------------')
-    print(context['all_data'])
-    context['all_data_origin'] = get_origin_by_month(request)
+    passenger_by_age_data = get_passenger_by_age()
+    context['passenger_by_age'] = passenger_by_age_data['data']
+    context['total_passenger'] = passenger_by_age_data['total']
 
-    context['all_data_airline'] = get_stat_airlines(request)
+    context['all_data'] = get_destination_by_month()
+
+    context['all_data_origin'] = get_origin_by_month()
+
+    context['all_data_airline'] = get_stat_airlines()
     total_pnr_for_week = get_total_pnr_for_week()
     context['all_pnr_count'] = total_pnr_for_week['all_pnr_count']
     context['last_week_pnr_count'] = total_pnr_for_week['last_week_pnr_count']
-    
 
+    most_used_airlines = get_most_used_airlines()
+    context['total_most_used_airlines'] = len(most_used_airlines)
+    context['most_used_airlines'] = most_used_airlines
+
+    context['passenger_by_month'] = get_passenger_by_month()
+
+    context['passenger_of_today'] = get_passenger_of_today()
+
+    context['passenger_of_the_month'] = get_passenger_of_the_month()
+
+    context['total_pnr'] = Pnr.objects.count()
+
+    context['pnr_of_today'] = get_pnr_of_today()
+    context['pnr_invoiced_today'] = get_pnr_invoiced_today()
+    context['pnr_to_invoice'] = get_pnr_to_invoice_today()
     
     return render(request, 'stat.html', context)  
 
-def get_stat_airlines(request):
+
+def get_stat_airlines():
     # month = datetime.datetime.now().month
     month = 3
     all_year = PnrAirSegments.objects.annotate(year=ExtractYear('departuretime')).values('year').distinct()
-    all_data = []
-    for element in all_year:
-        if element['year'] is not None:
-            data = []
-            
-            queryset = PnrAirSegments.objects.annotate(total= Count('servicecarrier_id')).filter( departuretime__month=month,departuretime__year = element['year']).values('servicecarrier_id','total').annotate(total_count=Count('servicecarrier_id')).filter(total_count__gt=10)
-            if queryset.exists():
-                data.append(str(element['year']))
-                for item in queryset:
-                    airline = Airline.objects.get(pk = item['servicecarrier_id'])
-                    data.append({"y":item['total_count'],"label":airline.name}) 
+    all_data_by_month = []
+
+    for month in range(1, 13):
+        all_data = {}
+        all_data['month'] = month
+        all_data['data'] = []
+        with connection.cursor() as cursor:
+            for element in all_year:
+                if element['year'] is not None:
+                    data = {}
+                    cursor.execute("""
+                    SELECT servicecarrier_id, count(*) as total
+                    FROM v_pnr_passenger
+                    WHERE EXTRACT(MONTH FROM departuretime) = %s
+                    AND EXTRACT(YEAR FROM departuretime) = %s
+                    GROUP BY servicecarrier_id;
+                """, [month,element['year']])
                     
-                all_data.append(data)
-    print('all_data',all_data)    
-    return all_data
+                    # Récupérer les résultats
+                    results = cursor.fetchall()
+
+                    data['year']=(str(element['year']))
+                    data['data'] = []
+                    for result in results:
+                        airline = Airline.objects.get(pk = result[0])
+                        data['data'].append({"y":result[1],"label":airline.name}) 
+                        
+                    all_data['data'].append(data)
+        all_data_by_month.append(all_data)
+    return all_data_by_month
     
 
-def get_destination_by_month(request):
+def get_destination_by_month():
     
     all_year = PnrAirSegments.objects.annotate(year=ExtractYear('departuretime')).values('year').distinct()
     all_data_by_month = []
@@ -621,53 +654,79 @@ def get_destination_by_month(request):
         all_data = {}
         all_data['month'] = month
         all_data['data'] = []
-        for element in all_year:
-            if element['year'] is not None:
-                data = {}
+        with connection.cursor() as cursor:
+            for element in all_year:
+                if element['year'] is not None:
+                    data = {}
 
-                queryset = PnrAirSegments.objects.annotate(total= Count('codedest_id')).filter( departuretime__month=month,departuretime__year = element['year']).values('codedest_id','total').annotate(total_count=Count('codedest_id')).filter(total_count__gt=10)
-                if queryset.exists():
+                    cursor.execute("""
+                        SELECT codedest_id, COUNT(*) AS total
+                        FROM v_pnr_passenger
+                        WHERE EXTRACT(MONTH FROM departuretime) = %s
+                        AND EXTRACT(YEAR FROM departuretime) = %s
+                        GROUP BY codedest_id
+                        HAVING COUNT(*) > 20;
+                    """, [month,element['year']])
+
+                    # Récupérer les résultats
+                    results = cursor.fetchall()
+
                     data['year']=(str(element['year']))
                     data['data'] = []
-                    for item in queryset:
-                        airport = Airport.objects.get(iata_code = item['codedest_id'])
+                    for results in results:
+                        airport = Airport.objects.get(iata_code = results[0])
                         
                         if airport.name is not None:
-                            data['data'].append({"y":item['total_count'],"label":airport.name})
+                            data['data'].append({"y":results[1],"label":airport.name})
                         if airport.name is None:
-                            data['data'].append({"y":item['total_count'],"label":item['codedest_id']}) 
+                            data['data'].append({"y":results[1],"label":results[0]}) 
                     all_data['data'].append(data)
         all_data_by_month.append(all_data)
 
     return all_data_by_month
 
-def get_origin_by_month(request):
+def get_origin_by_month():
     # month = datetime.datetime.now().month
     all_year = PnrAirSegments.objects.annotate(year=ExtractYear('departuretime')).values('year').distinct()
     all_data_by_month = []
 
     for month in range(1, 13):
-        all_data = []
-        for element in all_year:
-            if element['year'] is not None:
-                data = []
-                queryset = PnrAirSegments.objects.annotate(total=Count('codeorg_id')).filter(departuretime__month=month, departuretime__year=element['year']).values('codeorg_id').annotate(total_count=Count('codeorg_id')).filter(total_count__gt=10)
-                if queryset.exists():
-                    data.append(str(element['year']))
-                    for item in queryset:
-                        airport = Airport.objects.filter(iata_code=item['codeorg_id']).first()
-                        if airport:
-                            data.append({"y": item['total_count'], "label": airport.name})
-                        else:
-                            data.append({"y": item['total_count'], "label": item['codeorg_id']})
-                    all_data.append(data)
-                    
+        all_data = {}
+        all_data['month'] = month
+        all_data['data'] = []
+        with connection.cursor() as cursor:
+            for element in all_year:
+                if element['year'] is not None:
+                    data = {}
+
+                    cursor.execute("""
+                        SELECT codeorg_id, COUNT(*) AS total
+                        FROM v_pnr_passenger
+                        WHERE EXTRACT(MONTH FROM departuretime) = %s
+                        AND EXTRACT(YEAR FROM departuretime) = %s
+                        GROUP BY codeorg_id
+                        HAVING COUNT(*) > 20;
+                    """, [month,element['year']])
+
+                    # Récupérer les résultats
+                    results = cursor.fetchall()
+
+                    data['year']=(str(element['year']))
+                    data['data'] = []
+                    for results in results:
+                        airport = Airport.objects.get(iata_code = results[0])
+                        
+                        if airport.name is not None:
+                            data['data'].append({"y":results[1],"label":airport.name})
+                        if airport.name is None:
+                            data['data'].append({"y":results[1],"label":results[0]}) 
+                    all_data['data'].append(data)
         all_data_by_month.append(all_data)
-       
+   
 
     return all_data_by_month
 
-def get_passenger_by_age(request):
+def get_passenger_by_age():
 
 
     queryset = Passenger.objects.annotate(lower_designation=Lower('designation')).values('lower_designation').annotate(total=Count('id'))
@@ -698,8 +757,8 @@ def get_passenger_by_age(request):
     data.append({ "label": "Adulte", "y": (total_adt * 100)/total }) 
     data.append({ "label": "Enfant", "y":  (total_chd * 100)/total }) 
     
-
-    return data
+    context = {'total':total, 'data':data}
+    return context
 
 # get all the date of the week of a specific date
 def get_all_date_of_the_week(date):
@@ -736,5 +795,167 @@ def get_total_pnr_for_week():
 
     return context
 
+def get_passenger_by_month():
+    
+    all_year = PnrAirSegments.objects.annotate(year=ExtractYear('departuretime')).values('year').distinct()
+    all_data = []
     
 
+    with connection.cursor() as cursor:
+        for element in all_year:
+            if element['year'] is not None:
+                data = {}
+                data['year']=(str(element['year']))
+                data['data'] = []
+                cursor.execute("""
+                    SELECT TO_CHAR(departuretime, 'TMMonth') as month, count(passenger_id) as total
+                    FROM v_pnr_passenger
+                    WHERE EXTRACT(YEAR FROM departuretime) = %s
+                    GROUP BY month;
+                """, [element['year']])
+
+                # Récupérer les résultats
+                results = cursor.fetchall()
+                for result in results:
+                    data['data'].append({"label":result[0],"y":result[1]})
+                all_data.append(data)
+                
+
+    return all_data
+
+def get_most_used_airlines():
+    most_used_airlines = []
+    with connection.cursor() as cursor:
+
+        cursor.execute("""
+            select servicecarrier_id , count(servicecarrier_id) from v_pnr_passenger vpp 
+            group by servicecarrier_id 
+            having count(servicecarrier_id) >20
+        """)
+
+        # Récupérer les résultats
+        results = cursor.fetchall()
+
+        for result in results:
+            airline = Airline.objects.get(pk = result[0])
+            most_used_airlines.append({"y":result[1],"label":airline.name})
+    return most_used_airlines
+
+def get_passenger_of_today():
+    passenger_of_today = 0
+    now = datetime.now()
+
+    with connection.cursor() as cursor:
+
+        cursor.execute("""
+            select extract (day from departuretime) as day, count(passenger_id) from v_pnr_passenger vpp 
+            where extract (day from departuretime) = %s
+            and extract (month from departuretime) = %s
+            and extract (year from departuretime) = %s
+            group by day
+        """, [now.day,now.month,now.year])
+
+        # Récupérer les résultats
+        results = cursor.fetchall()
+
+        for result in results:
+            passenger_of_today = result[1]
+
+    return passenger_of_today
+            
+def get_passenger_of_the_month():
+    passenger_of_the_month = 0
+    now = datetime.now()
+
+    with connection.cursor() as cursor:
+
+        cursor.execute("""
+            select extract (month from departuretime) as month, count(passenger_id) from v_pnr_passenger vpp 
+            where extract (month from departuretime) = %s
+            and extract (year from departuretime) = %s
+            group by month
+        """, [now.month,now.year])
+
+        # Récupérer les résultats
+        results = cursor.fetchall()
+
+        for result in results:
+            passenger_of_the_month = result[1]
+
+    return passenger_of_the_month
+            
+def get_pnr_of_today(date):
+    pnr_count_by_date=0
+    
+
+    with connection.cursor() as cursor:
+
+        cursor.execute("""
+            select date(system_creation_date) ,count(*) from t_pnr tp 
+            where date(system_creation_date) = %s
+            group by date(system_creation_date)
+        """, [date])
+
+        # Récupérer les résultats
+        results = cursor.fetchall()
+
+        for result in results:
+            pnr_count_by_date = result[1]
+
+    return pnr_count_by_date
+
+def get_pnr_invoiced_today(date):
+    
+    pnr_count_by_date=0
+
+    with connection.cursor() as cursor:
+
+        cursor.execute("""
+            select date(system_creation_date) ,count(*) from t_pnr tp 
+            where date(system_creation_date) = %s
+            and is_invoiced = true 
+            group by date(system_creation_date)
+        """, [date])
+
+        # Récupérer les résultats
+        results = cursor.fetchall()
+
+        for result in results:
+            pnr_count_by_date = result[1]
+
+    return pnr_count_by_date
+
+def get_pnr_to_invoice_today(date):
+    pnr_to_invoice = get_pnr_of_today(date) - get_pnr_invoiced_today(date)
+
+    return pnr_to_invoice
+
+def get_pnr_difference():
+    context = {}
+    today_date = datetime.today().date()
+    formatted_date = today_date.strftime('%Y-%m-%d')
+
+    yesterday_date = today_date - timedelta(days=1)
+
+    pnr_of_today = get_pnr_of_today(formatted_date)
+    pnr_invoiced_today = get_pnr_invoiced_today(formatted_date)
+    pnr_to_invoice_today = get_pnr_to_invoice_today(formatted_date)
+
+    pnr_of_yesterday= get_pnr_of_today(yesterday_date)
+    pnr_invoiced_yesterday= get_pnr_invoiced_today(yesterday_date)
+    pnr_to_invoice_yesterday= get_pnr_to_invoice_today(yesterday_date)
+
+    pnr_remonte_diff = pnr_of_today - pnr_of_yesterday
+    pourcentage_pnr_remonte = (pnr_remonte_diff * 100)/pnr_of_today
+
+    pnr_invoiced_diff = pnr_invoiced_today - pnr_invoiced_yesterday
+    pourcentage_pnr_invoiced = (pnr_invoiced_diff * 100)/pnr_invoiced_today
+
+    pnr_to_invoice_diff = pnr_to_invoice_today - pnr_to_invoice_yesterday
+    pourcentage_pnr_to_invoice = (pnr_to_invoice_diff * 100)/pnr_to_invoice_today
+
+    context['pourcentage_pnr_remonte'] = pourcentage_pnr_remonte
+    context['pourcentage_pnr_invoiced'] = pourcentage_pnr_invoiced
+    context['pourcentage_pnr_to_invoice'] = pourcentage_pnr_to_invoice
+
+    return context

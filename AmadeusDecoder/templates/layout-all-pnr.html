@@ -41,6 +41,8 @@
   <!-- <link rel="stylesheet" href="{% static 'css/adminlte.css' %}"> -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/css/adminlte.min.css" integrity="sha512-IuO+tczf4J43RzbCMEFggCWW5JuX78IrCJRFFBoQEXNvGI6gkUw4OjuwMidiS4Lm9Q2lILzpJwZuMWuSEeT9UQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
+ 
+
   <!-- Toastr -->
   <!-- <link rel="stylesheet" href="{% static 'plugins/toastr/toastr.min.css' %}"> -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" integrity="sha512-6S2HWzVFxruDlZxI3sXOZZ4/eJ8AcxkQH1+JjSe/ONCEqR9L4Ysq5JdT5ipqtzU7WHalNwzwBv+iE51gNHJNqQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -447,6 +449,14 @@ old -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.17.8/addons/pager/jquery.tablesorter.pager.min.js" integrity="sha512-XPtB1jKozWRGiBUT7iaM6Gd60MTDr6mqa/cBUocrCZ5BjpZUiIvRxwS7wo1gEIqKiMPpSdf4hcpY0WupaPmrSQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+    
+
+    {% comment %} chart js {% endcomment %}
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    
     <!-- <script src="{% static 'plugins/toastr/toastr.min.js' %}"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
@@ -459,7 +469,6 @@ old -->
     <script src="{% static 'js/config.js' %}"></script>
     <script src="{% static 'js/manage_user.js' %}"></script>
     <script src="{% static 'js/canvasjs.min.js' %}"></script>
-    <script src="{% static 'js/stats.js' %}"></script>
     <script src="{% static 'js/anomalie.js' %}"></script>
     <script src="{% static 'js/pnr_non_remonte.js' %}"></script>
 

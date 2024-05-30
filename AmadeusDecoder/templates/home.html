@@ -674,6 +674,10 @@
                         <h4>Liste des billets</h4>
                         <table class="table table-striped" id="ticketTable"></table>
                       </div>
+                      <div class="" id="segmentList" hidden>
+                        <h4>Liste des segments</h4>
+                        <table class="table table-striped" id="segmentTable"></table>
+                      </div>
                         
                       </div>
 
@@ -696,7 +700,7 @@
                         <div class="row" style="justify-content:space-between;">
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Désignation</label>
-                            <input type='text' class="form-control" id="PassengerDesignation" >
+                            <input type='text' class="form-control" id="PassengerDesignation" placeholder="Mme">
                           </div>
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Type</label>
@@ -715,7 +719,7 @@
                           </div>
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Ordre</label>  
-                            <input type='text' class="form-control" id="PassengerOrder" required>
+                            <input type='text' class="form-control" id="PassengerOrder" placeholder='P1' required>
                           </div>
                           
                         </div>
@@ -724,14 +728,22 @@
                         
                         
                       <div id="collapseTicketData" class="collapse" >
-                        <div>
-                          <h4>Ajouter un billet</h4><br>
+                        <div class="row" style="justify-content:space-between;">
+                          <div class="form-group col-md-5" id="AddTicketLabelSection"><h4>Ajouter un billet</h4><br></div>
+                          <div class="form-group col-md-5" id="AddTicketButtonSection" hidden>
+                            <button type="button" class="btn btn-outline-primary" id="AddTicketButton2" >Ajouter un billets</button>
+                          </div>
+
+                          <div class="form-group col-md-5">
+                            <button type="button" class="btn btn-outline-primary" id="AddOtherFeeButton">Ajouter d'autre frais</button>
+                          </div>
                         </div>
                         <div class="row" style="justify-content:space-between;">
                           <div class="form-group col-md-5">
-                            <label for="message-text" class="col-form-label">Numéro du Billet</label>
+                            <label for="message-text" id="ticketLabelSection" class="col-form-label">Numéro du Billet</label>
                             <input type='number' class="form-control" id="ticketNumber" required>
                           </div>
+
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Type</label>
                             <select id="ticketType" class="form-control form-control select-type ">
@@ -740,9 +752,23 @@
 
                             </select>
                           </div>
-                          
+
                           <input type='hidden' name="user_id" value="{{request.user.id}}" class="form-control" id="user_id" >
                         </div>
+                        
+                        <div class="row" style="justify-content:space-between;"  id="unremountedPnrFeeSection" hidden>
+                          <div class="form-group col-md-5"></div>
+                          <div class="form-group col-md-5">
+                            <div class="form-check" >
+                              <input class="form-check-input" type="checkbox" value=""  id="feeSection">
+                              <label class="form-check-label" for="flexCheckDefault">
+                                frais de service
+                              </label>
+                            </div>
+                          </div>
+                          
+                        </div>
+                        
 
                         <div class="row" style="justify-content:space-between;">
                           <div class="form-group col-md-5">
@@ -774,12 +800,24 @@
                         </div>
 
                         <div class="row" id="SelectSegmentDiv" style="justify-content:space-between;" hidden>
-                          <div class="form-group col-md-10">
+                          <div class="form-group col-md-10 multiselect-container">
                             <label for="message-text" class="col-form-label">Segment(s)</label>
-                            <select id="selectSegment" class="form-control form-control select-type">
-                              <option value='altea'>...</option>
-                            </select>
+                                                   
+                            <div class="dropdown" id="selectSegment" data-control="checkbox-dropdown">
+                              <label class="dropdown-label">Select</label>
+                              
+                              <div class="dropdown-list">
+                                <a href="#" data-toggle="check-all" class="dropdown-option">
+                                  Check All  
+                                </a>
+                                
+                                    
+                              </div>
+                            </div>
+
                           </div>
+
+                          
 
                           <div class="col-md-2" style="margin-top:40px;">
                             <i class="fa fa-plus-circle" id="addMoreSegmentButton" aria-hidden="true" style="font-size: 20px;color:#007bff"  data-toggle="collapse" data-target="#collapseSegmentData" aria-expanded="false" aria-controls="collapseSegmentData"></i>
@@ -792,13 +830,22 @@
                           <h4>Ajouter un Segment</h4><br>
                         </div>
                         <div class="row" style="justify-content:space-between;">
-                          <div class="form-group col-md-5">
+                          <div class="form-group col-md-3">
                             <label for="message-text" class="col-form-label">Numéro de Vol</label>
-                            <input type='number' class="form-control" id="flightNumber" >
+                            <input type='number' class="form-control" id="flightNumber" placeholder="321">
                           </div>
-                          <div class="form-group col-md-5">
+                          <div class="form-group col-md-3">
+                            <label for="message-text" class="col-form-label">Compagnie</label>
+                            <select id="airline" class="form-control form-control select-type" data-search="true">
+                              {% for airline in airlines %}
+                                <option value='{{airline.id}}'>{{airline.name}}</option>
+                              {% endfor %}
+                              
+                            </select>
+                          </div>
+                          <div class="form-group col-md-3">
                             <label for="message-text" class="col-form-label">Ordre</label>
-                            <input type='text' class="form-control" id="segmentOrder" >
+                            <input type='text' class="form-control" id="segmentOrder" placeholder="S1">
                           </div>
                           
                         </div>

@@ -251,12 +251,6 @@ old -->
               </a>
             </li>
             <li class="nav-item">
-              <a href="{% url 'get_all_canceled_ticket' %}" class="nav-link">
-                <i class="fas fa-ban nav-icon"></i>
-                <p>Billets annulés</p>
-              </a>
-            </li>
-            <li class="nav-item">
               <a href="{% url 'all_unremounted_pnr' %}" class="nav-link">
                 <i class="fas fa-clock nav-icon"></i>
                 <p>PNR Non remonté</p>
@@ -264,11 +258,26 @@ old -->
             </li>
 
             <li class="nav-item">
-              <a href="{% url 'get_all_anomalies' %}" class="nav-link">
-                <i class="fas fa-clock nav-icon"></i>
-                <p>Anomalie en attente</p>
+              <a href="{% url 'get_all_canceled_ticket' %}" class="nav-link">
+                <i class="fas fa-ban nav-icon"></i>
+                <p>Billets annulés</p>
               </a>
             </li>
+
+            <li class="nav-item">
+              <a href="{% url 'get_all_anomalies' %}" class="nav-link">
+                <i class="fas fa-clock nav-icon"></i>
+                <p>Billet non remonté</p>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a href="{% url 'graph_view' %}" class="nav-link">
+                <i class="fas fa-chart-bar nav-icon"></i>
+                <p>Statistiques</p>
+              </a>
+            </li>
+            
             {% endif %}
             <!--menu direction role_id=2-->
             {% if request.user.role_id == 2 %} 

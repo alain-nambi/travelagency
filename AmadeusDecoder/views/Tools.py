@@ -602,9 +602,11 @@ def graph_view(request):
 
     context['total_pnr'] = Pnr.objects.count()
 
-    context['pnr_of_today'] = get_pnr_of_today()
-    context['pnr_invoiced_today'] = get_pnr_invoiced_today()
-    context['pnr_to_invoice'] = get_pnr_to_invoice_today()
+    today_date = datetime.today().date()
+    formatted_date = today_date.strftime('%Y-%m-%d')
+    context['pnr_of_today'] = get_pnr_of_today(formatted_date)
+    context['pnr_invoiced_today'] = get_pnr_invoiced_today(formatted_date)
+    context['pnr_to_invoice'] = get_pnr_to_invoice_today(formatted_date)
     
     return render(request, 'stat.html', context)  
 

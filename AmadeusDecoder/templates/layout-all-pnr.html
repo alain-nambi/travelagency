@@ -239,12 +239,6 @@ old -->
               </a>
             </li>
             <li class="nav-item">
-              <a href="{% url 'get_all_canceled_ticket' %}" class="nav-link">
-                <i class="fas fa-ban nav-icon"></i>
-                <p>Billets annulés</p>
-              </a>
-            </li>
-            <li class="nav-item">
               <a href="{% url 'all_unremounted_pnr' %}" class="nav-link">
                 <i class="fas fa-clock nav-icon"></i>
                 <p>PNR Non remonté</p>
@@ -252,9 +246,16 @@ old -->
             </li>
 
             <li class="nav-item">
+              <a href="{% url 'get_all_canceled_ticket' %}" class="nav-link">
+                <i class="fas fa-ban nav-icon"></i>
+                <p>Billets annulés</p>
+              </a>
+            </li>
+
+            <li class="nav-item">
               <a href="{% url 'get_all_anomalies' %}" class="nav-link">
                 <i class="fas fa-clock nav-icon"></i>
-                <p>Anomalie en attente</p>
+                <p>Billet non remonté</p>
               </a>
             </li>
 

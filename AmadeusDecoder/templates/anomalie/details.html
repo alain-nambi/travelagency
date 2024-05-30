@@ -3,20 +3,23 @@
 {% block content %}
     
 <div class="content-wrapper">
-	<section class="content-header p-0">
-		<div class="container-fluid">
-			<div class="row">
-				<div class="col-sm-6">
-					<h1 class="text-primary">Détail de l'anomalie</h1>
-				</div>
-            </section>
-	<section class="content">
+
+	<section class="content" >
 
 			<div class="container-fluid">
 				<div class="row">
 					<div class="col-md-12 mt-1">
 						<div class="card card-primary card-outline">
-                            <div class="card-header p-0 " style="margin-top:20px;">
+                            <div class="" style="padding:1rem;">
+                                <div class="row">
+                                    <div class="col-md-6 float-left">
+                                        <h4 class="text-primary title-all-pnr mt-1 mb-0">Détail du billet non remonté</h4>
+                                    </div>
+                                    
+                                </div>
+                            </div><hr>
+                              
+                            <div class="" style="margin-top:20px;">
                                 <h5 style='margin-left:10px;'>PNR: <a href="{% url 'pnr_details' pnr_id %}" style="font-size: 1.25rem;"> {{ pnr_id }}</a>
 									
 								</h5>
@@ -28,9 +31,6 @@
                                         <h6>Mail: {{ anomalie.issuing_user.email }}</h6>
                                         <h6> {{anomalie.creation_date| correct_datetime}}</h6>
                                     
-                                        <div class="mailbox-read-message">
-                                            <button class="btn btn-outline-secondary">{{anomalie.categorie}}</button>
-                                        </div>
                                     </div>
                                     
                                     <div class="mx-auto d-flex justify-content-between" style="width: 600px;">

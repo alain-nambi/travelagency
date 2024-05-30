@@ -12,12 +12,20 @@
             <div class="col-12">
                 <div class="card card-primary card-outline content-all-pnr h-100" id="pnrManagementMenu">
                     <!-- /.card-header -->
-                    <div class="card-header justify-content-between py-0">
-                        <div class="card-header p-0 " style="margin:20px 0 20px 0;">
-                            <h5 style='margin-left:10px;'>PNR: <a href="{% url 'pnr_details' pnr.id %}" style="font-size: 1.25rem;"> {{ pnr.number }}</a>
-                                
-                            </h5>
+
+                    <div class="" style="padding:1rem;">
+                        <div class="row">
+                            <div class="col-md-6 float-left">
+                                <h4 class="text-primary title-all-pnr mt-1 mb-0">Détail du billet non remonté</h4>
+                            </div>
+                            
                         </div>
+                    </div><hr>
+
+                    <div>
+                        <h5 style='margin-left:10px;'>PNR: <a href="{% url 'pnr_details' pnr.id %}" style="font-size: 1.25rem;"> {{ pnr.number }}</a>
+                            
+                        </h5>
                     </div>
                     <div class="card-body p-0" id="showTableForAllPnr">
                         

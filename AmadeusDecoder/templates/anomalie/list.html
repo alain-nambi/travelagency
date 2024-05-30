@@ -2,15 +2,15 @@
 {% load pnr_comments %}
 {% block content %}
 <div class="content-wrapper">
-    <section class="content" style="margin-top: 4.7rem">
+    <section class="content" style="margin-top: 2rem">
       <div class="container-fluid">
         <div class="row ">
           <div class="col-12">
-            <div class="card card-primary card-outline" style="margin-top: 4rem !important;">
-              <div class="card-header justify-content-between py-0">
+            <div class="card card-primary card-outline" style="margin-top: 1rem !important;">
+              <div class="" style="padding:1rem;">
                 <div class="row">
                   <div class="col-md-6 float-left">
-                  <h4 class="text-primary title-all-pnr mt-1 mb-0">Gestion Anomalies</h4>
+                  <h4 class="text-primary title-all-pnr mt-1 mb-0">Billet non remonté</h4>
                   </div>
                   <div class="col-md-6 float-right">
                   <div class="input-group input-group float-sm-right mt-1 mb-1" style="width: 150px;">
@@ -24,9 +24,10 @@
                   </div>
                 </div>
                 </div>
-              </div>
+              </div><hr>
+              
               {% anomaly_state as anomaly_state %}
-              <div class="row d-flex" style="justify-content:space-between !important;">
+              {% comment %} <div class="row d-flex" style="justify-content:space-between !important;">
                 <div class="d-flex mt-4" style="gap: 2rem; margin-left: 4rem !important">
                   <a class="btn btn-outline-success" data-toggle="modal" data-target="#modalCategory" ><i class="fas fa-plus"></i>
                     Ajouter une catégorie
@@ -39,7 +40,7 @@
                     <span class="px-2 py-1 bg-red">Non traitée : {{anomaly_state.true}} </span>
                   
                 </div>
-              </div>
+              </div> {% endcomment %}
               
               <div class="card-body">
                 <form method='POST' action=''>

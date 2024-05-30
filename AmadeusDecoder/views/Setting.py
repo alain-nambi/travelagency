@@ -699,6 +699,13 @@ def test_parsing_zenith(request):
                     values['total'] = round(other_fee.total,2)
                     values['passenger_segment'] = other_fee.passenger_segment if other_fee.passenger_segment is not None else ''
                     values['issuing_date'] = (other_fee.creation_date).strftime("%d/%m/%Y") if other_fee.creation_date is not None else ''
+
+                    fee = ticket.fees.all()[0]
+                    values['fee_type'] = fee.type
+                    values['fee_cost'] = round(fee.cost,2)
+                    values['fee_taxe'] = round(fee.tax,2)
+                    values['fee_total'] = round(fee.total,2)
+                    values['fee_issuing_date'] = (fee.ticket.issuing_date).strftime("%d/%m/%Y") if fee.ticket.issuing_date is not None else ''
                     
                     other_fee_data.append(values)
 
@@ -717,7 +724,6 @@ def test_parsing_zenith(request):
 
             # get data segments
             air_segments = pnr_data.segments.filter(segment_type='Flight', air_segment_status=1).all().order_by('segmentorder')
-            
             segments_data = []
             for segment in air_segments:
                 values = {}
@@ -753,27 +759,15 @@ def test_parsing_zenith(request):
                 values['taxe'] = round(ticket.tax,2)
                 values['total'] = round(ticket.total,2)
 
-                if ticket.passenger is not None:
-                    if ticket.passenger.order is not None:
-                        values['passenger_order'] = ticket.passenger.order
-                    else:
-                        values['passenger_order'] = ''
-
-                if ticket.issuing_date is not None:
-                    values['issuing_date'] = (ticket.issuing_date).strftime("%d/%m/%Y")
-                else:
-                    values['issuing_date'] = ''
-
+                values['passenger_order'] = ticket.passenger.order if ticket.passenger is not None else ''
+                values['issuing_date'] = (ticket.issuing_date).strftime("%d/%m/%Y") if ticket.issuing_date is not None else ''
+                
                 fee = ticket.fees.all()[0]
                 values['fee_type'] = fee.type
                 values['fee_cost'] = round(fee.cost,2)
                 values['fee_taxe'] = round(fee.tax,2)
                 values['fee_total'] = round(fee.total,2)
-
-                if fee.ticket.issuing_date is not None:
-                    values['fee_issuing_date'] = (fee.ticket.issuing_date).strftime("%d/%m/%Y")
-                else:
-                    values['fee_issuing_date'] = ''
+                values['fee_issuing_date'] = (fee.ticket.issuing_date).strftime("%d/%m/%Y") if fee.ticket.issuing_date is not None else ''
 
                 tickets_data.append(values)
 
@@ -782,26 +776,27 @@ def test_parsing_zenith(request):
             # get data other fee
             other_fees = pnr_data.others_fees.filter((Q(other_fee_status=1) & Q(ticket=None)) | Q(is_invoiced=True)).all()
             other_fee_data =[]
-            
-            if other_fees :
+
+            if other_fees is not None:
 
                 for other_fee in other_fees:
                     values = {}
                     values['type'] = other_fee.fee_type
                     values['billet'] = other_fee.designation
+                    values['passager'] = other_fee.passenger.__str__()
                     values['montant'] = round(other_fee.cost,2)
                     values['taxe'] = round(other_fee.tax,2)
                     values['total'] = round(other_fee.total,2)
+                    values['passenger_segment'] = other_fee.passenger_segment if other_fee.passenger_segment is not None else ''
+                    values['issuing_date'] = (other_fee.creation_date).strftime("%d/%m/%Y") if other_fee.creation_date is not None else ''
 
-                    if other_fee.passenger_segment is not None:
-                        values['passenger_segment'] = other_fee.passenger_segment
-                    else:
-                        values['passenger_segment'] = ''
-
-                    if other_fee.creation_date is not None:
-                        values['issuing_date'] = (other_fee.creation_date).strftime("%d/%m/%Y")
-                    else:
-                        values['issuing_date'] = 'Non émis'
+                    fee = other_fee.fees.all()[0]
+                    values['fee_type'] = fee.type
+                    values['fee_cost'] = round(fee.cost,2)
+                    values['fee_taxe'] = round(fee.tax,2)
+                    values['fee_total'] = round(fee.total,2)
+                    values['fee_issuing_date'] = (other_fee.creation_date).strftime("%d/%m/%Y") if other_fee.creation_date is not None else ''
+                    
                     other_fee_data.append(values)
 
                 context['other_fee'] = other_fee_data
@@ -823,10 +818,19 @@ def test_parsing_text(request):
         temp = AmadeusParser() 
         file = '0_fnd@amadeus.com'
         chemin = os.getcwd() + '/EmailFetcher/utilities/attachments_dir/' + file 
+        text_to_write = "Subject\nYour travel information\n\nPlain_Text\n"
 
+        # Vérifiez si le fichier existe, sinon créer le fichier
+        if not os.path.exists(chemin):
+            open(chemin, 'a').close()
+            with open(chemin,'w') as fichier:
+                fichier.write(text_to_write)
+ 
+        # Lecture du contenu existant du fichier
         with open(chemin,'r') as fichier:
             lines = fichier.readlines()
-
+        
+        # Écriture des premières lignes et ajout des nouvelles données
         with open(chemin,'w') as fichier:
             fichier.writelines(lines[:8 -1])
             fichier.writelines(data)
@@ -930,6 +934,13 @@ def test_parsing_text(request):
                                     values['total'] = round(other_fee.total,2)
                                     values['passenger_segment'] = other_fee.passenger_segment if other_fee.passenger_segment is not None else ''
                                     values['issuing_date'] = (other_fee.creation_date).strftime("%d/%m/%Y") if other_fee.creation_date is not None else ''
+
+                                    fee = ticket.fees.all()[0]
+                                    values['fee_type'] = fee.type
+                                    values['fee_cost'] = round(fee.cost,2)
+                                    values['fee_taxe'] = round(fee.tax,2)
+                                    values['fee_total'] = round(fee.total,2)
+                                    values['fee_issuing_date'] = (fee.ticket.issuing_date).strftime("%d/%m/%Y") if fee.ticket.issuing_date is not None else ''
                                     
                                     other_fee_data.append(values)
 
@@ -1020,6 +1031,13 @@ def test_parsing_text(request):
                                     values['total'] = round(other_fee.total,2)
                                     values['passenger_segment'] = other_fee.passenger_segment if other_fee.passenger_segment is not None else ''
                                     values['issuing_date'] = (other_fee.creation_date).strftime("%d/%m/%Y") if other_fee.creation_date is not None else ''
+
+                                    fee = ticket.fees.all()[0]
+                                    values['fee_type'] = fee.type
+                                    values['fee_cost'] = round(fee.cost,2)
+                                    values['fee_taxe'] = round(fee.tax,2)
+                                    values['fee_total'] = round(fee.total,2)
+                                    values['fee_issuing_date'] = (fee.ticket.issuing_date).strftime("%d/%m/%Y") if fee.ticket.issuing_date is not None else ''
                                     
                                     other_fee_data.append(values)
 
@@ -1109,6 +1127,13 @@ def test_parsing_text(request):
                                     values['total'] = round(other_fee.total,2)
                                     values['passenger_segment'] = other_fee.passenger_segment if other_fee.passenger_segment is not None else ''
                                     values['issuing_date'] = (other_fee.creation_date).strftime("%d/%m/%Y") if other_fee.creation_date is not None else ''
+
+                                    fee = ticket.fees.all()[0]
+                                    values['fee_type'] = fee.type
+                                    values['fee_cost'] = round(fee.cost,2)
+                                    values['fee_taxe'] = round(fee.tax,2)
+                                    values['fee_total'] = round(fee.total,2)
+                                    values['fee_issuing_date'] = (fee.ticket.issuing_date).strftime("%d/%m/%Y") if fee.ticket.issuing_date is not None else ''
                                     
                                     other_fee_data.append(values)
 

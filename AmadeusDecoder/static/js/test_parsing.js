@@ -198,7 +198,19 @@ $(document).ready(function () {
                                 <td>${ element.total }</td>
                                 <td>${ element.passenger_segment }</td>
                                 <td>${ element.issuing_date }</td>
-                                <td></tbody>`
+                                </tr>`;
+
+                                ticket_html += `<tr>
+                                    <td>Fee</td>
+                                    <td>${ element.fee_type }</td>
+                                    <td></td>
+                                    <td>${ element.fee_cost }</td>
+                                    <td>${ element.fee_taxe }</td>
+                                    <td>${ element.fee_total }</td>
+                                    <td></td>
+                                    <td>${ element.fee_issuing_date }</td>
+                                    <td></td>
+                                    </tr></tbody>`;
                             });
                                 
                         }
@@ -404,8 +416,20 @@ $(document).ready(function () {
                                     <td>${ element.total }</td>
                                     <td>${ element.passenger_segment }</td>
                                     <td>${ element.issuing_date }</td>
-                                    <td></tbody>`
-                                });
+                                    </tr>`;
+
+                                    ticket_html += `<tr>
+                                    <td>Fee</td>
+                                    <td>${ element.fee_type }</td>
+                                    <td></td>
+                                    <td>${ element.fee_cost }</td>
+                                    <td>${ element.fee_taxe }</td>
+                                    <td>${ element.fee_total }</td>
+                                    <td></td>
+                                    <td>${ element.fee_issuing_date }</td>
+                                    <td></td>
+                                    </tr></tbody>`
+                                    });
                                 
                         }
                     }else{

@@ -657,11 +657,11 @@
                       <div id="simple_info">
                         <div class="row" style="justify-content:space-between;">
                           <div class="form-group col-md-5">
-                            <label for="message-text" class="col-form-label">Numero PNR:</label>
-                            <input type='text' class="form-control" id="pnrNumber" placeholder="Veuillez saisir le numero du PNR..." required>
+                            <label for="message-text" class="col-form-label">Numero PNR: <abbr title="(obligatoire)" aria-hidden="true" style="color:red;">*</abbr></label>
+                            <input type='text' class="form-control" id="pnrNumber" placeholder="00C996" required>
                           </div>
                           <div class="form-group col-md-5 " >
-                            <label for="message-text" class="col-form-label">Type</label>
+                            <label for="message-text" class="col-form-label">Type <abbr title="(obligatoire)" aria-hidden="true" style="color:red;">*</abbr></label>
                             <select id="pnrType" class="form-control form-control select-type ">
                               <option value='altea'>Altéa</option>
                               <option value='zenith'>Zénith</option>
@@ -677,6 +677,11 @@
                         <h4>Liste des segments</h4>
                         <table class="table table-striped" id="segmentTable"></table>
                       </div>
+                      <div class="" id="passengerList" hidden>
+                        <h4>Liste des passagers</h4>
+                        <table class="table table-striped" id="passengerTable"></table>
+                      </div>
+
                         
                       </div>
 
@@ -686,11 +691,11 @@
                         </div>
                         <div class="row" style="justify-content:space-between;">
                           <div class="form-group col-md-5">
-                            <label for="message-text" class="col-form-label">Nom</label>
+                            <label for="message-text" class="col-form-label">Nom <abbr title="(obligatoire)" aria-hidden="true" style="color:red;">*</abbr></label>
                             <input type='text' class="form-control" id="PassengerName" required>
                           </div>
                           <div class="form-group col-md-5">
-                            <label for="message-text" class="col-form-label">Prénom</label>  
+                            <label for="message-text" class="col-form-label">Prénom <abbr title="(obligatoire)" aria-hidden="true" style="color:red;">*</abbr></label>  
                             <input type='text' class="form-control" id="PassengerSurname">
                           </div>
                           
@@ -698,11 +703,11 @@
 
                         <div class="row" style="justify-content:space-between;">
                           <div class="form-group col-md-5">
-                            <label for="message-text" class="col-form-label">Désignation</label>
+                            <label for="message-text" class="col-form-label">Désignation <abbr title="(obligatoire)" aria-hidden="true" style="color:red;">*</abbr></label>
                             <input type='text' class="form-control" id="PassengerDesignation" placeholder="Mme">
                           </div>
                           <div class="form-group col-md-5">
-                            <label for="message-text" class="col-form-label">Type</label>
+                            <label for="message-text" class="col-form-label">Type<abbr title="(obligatoire)" aria-hidden="true" style="color:red;">*</abbr></label>
                             <select id="PassengerType" class="form-control form-control select-type ">
                               {% for type in passengerTypes %}
                                 <option value='{{type.id}}'>{{type.name}}</option>
@@ -714,10 +719,10 @@
                         <div class="row" style="justify-content:space-between;">
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Passeport</label>
-                            <input type='text' class="form-control" id="Passeport" >
+                            <input type='text' class="form-control" id="Passeport" placeholder="Numéro du Passeport" >
                           </div>
                           <div class="form-group col-md-5">
-                            <label for="message-text" class="col-form-label">Ordre</label>  
+                            <label for="message-text" class="col-form-label">Ordre <abbr title="(obligatoire)" aria-hidden="true" style="color:red;">*</abbr></label>  
                             <input type='text' class="form-control" id="PassengerOrder" placeholder='P1' required>
                           </div>
                           
@@ -739,15 +744,22 @@
                         </div>
                         <div class="row" style="justify-content:space-between;">
                           <div class="form-group col-md-5">
-                            <label for="message-text" id="ticketLabelSection" class="col-form-label">Numéro du Billet</label>
-                            <input type='number' class="form-control" id="ticketNumber" required>
+                            <label for="message-text" id="ticketLabelSection" class="col-form-label">Numéro du Billet <abbr title="(obligatoire)" aria-hidden="true" style="color:red;">*</abbr></label>
+                            <input type='number' class="form-control" id="ticketNumber" placeholder="7602404634591" required>
                           </div>
 
                           <div class="form-group col-md-5">
-                            <label for="message-text" class="col-form-label">Type</label>
+                            <label for="message-text" class="col-form-label">Type <abbr title="(obligatoire)" aria-hidden="true" style="color:red;">*</abbr></label>
                             <select id="ticketType" class="form-control form-control select-type ">
                               <option value="TKT">TKT</option>
                               <option value="EMD">EMD</option>
+                              <option value="Supplement">Supplement</option>
+                              <option value="AVOIR COMPAGNIE">AVOIR COMPAGNIE</option>
+                              <option value="Cancellation">Cancellation</option>
+                              <option value="Voucher">Voucher</option>
+                              <option value="Pénalité">Pénalité</option>
+                              <option value="outsourcing">Outsourcing</option>
+                              <option value="Autres">Autres</option>
 
                             </select>
                           </div>
@@ -771,19 +783,19 @@
 
                         <div class="row" style="justify-content:space-between;">
                           <div class="form-group col-md-5">
-                            <label for="message-text" class="col-form-label">Montant Hors Taxe</label>
-                            <input type='number' class="form-control" id="ticketCost" required>
+                            <label for="message-text" class="col-form-label">Montant Hors Taxe <abbr title="(obligatoire)" aria-hidden="true" style="color:red;">*</abbr></label>
+                            <input type='number' class="form-control" id="ticketCost" placeholder="..,.." required>
                           </div>
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Taxe</label>
-                            <input type='number' class="form-control" id="ticketTax" required>
+                            <input type='number' class="form-control" id="ticketTax" placeholder="..,.." required>
                           </div>
                           
                         </div>
 
                         <div class="row">
                           <div class="form-group col-md-10">
-                            <label for="message-text" class="col-form-label">Passager(s)</label>
+                            <label for="message-text" class="col-form-label">Passager(s) <abbr title="(obligatoire)" aria-hidden="true" style="color:red;">*</abbr></label>
                             <select id="passengerSelect" class="form-control form-control select-type ">
                               <option value='altea'>...</option>
                             </select>
@@ -829,21 +841,22 @@
                           <h4>Ajouter un Segment</h4><br>
                         </div>
                         <div class="row" style="justify-content:space-between;">
-                          <div class="form-group col-md-3">
-                            <label for="message-text" class="col-form-label">Numéro de Vol</label>
+                          <div class="form-group col-md-4">
+                            <label for="message-text" class="col-form-label">Numéro de Vol <abbr title="(obligatoire)" aria-hidden="true" style="color:red;">*</abbr></label>
                             <input type='number' class="form-control" id="flightNumber" placeholder="321">
                           </div>
                           <div class="form-group col-md-3">
-                            <label for="message-text" class="col-form-label">Compagnie</label>
-                            <select id="airline" class="form-control form-control select-type" data-search="true">
+                            <label for="message-text" class="col-form-label">Compagnie <abbr title="(obligatoire)" aria-hidden="true" style="color:red;">*</abbr></label>
+                            <select id="airline" class="selectpicker form-control" data-live-search="true">
+                              
                               {% for airline in airlines %}
-                                <option value='{{airline.id}}'>{{airline.name}}</option>
+                                <option value='{{airline.id}}'>{{airline.name}} {{airline.iata}}</option>
                               {% endfor %}
                               
                             </select>
                           </div>
                           <div class="form-group col-md-3">
-                            <label for="message-text" class="col-form-label">Ordre</label>
+                            <label for="message-text" class="col-form-label">Ordre <abbr title="(obligatoire)" aria-hidden="true" style="color:red;">*</abbr></label>
                             <input type='text' class="form-control" id="segmentOrder" placeholder="S1">
                           </div>
                           
@@ -851,43 +864,42 @@
 
                         <div class="row" style="justify-content:space-between;">
                           <div class="form-group col-md-5">
-                            <label for="message-text" class="col-form-label">Date de départ</label>
+                            <label for="message-text" class="col-form-label">Date de départ <abbr title="(obligatoire)" aria-hidden="true" style="color:red;">*</abbr></label>
                             <input type='date' class="form-control" id="departureDate" >
                           </div>
                           <div class="form-group col-md-5">
-                            <label for="message-text" class="col-form-label">Heure de départ</label>
+                            <label for="message-text" class="col-form-label">Heure de départ <abbr title="(obligatoire)" aria-hidden="true" style="color:red;">*</abbr></label>
                             <input type='time' class="form-control" id="departureTime" >
                           </div>
                         </div>
 
                         <div class="row" style="justify-content:space-between;">
                           <div class="form-group col-md-5">
-                            <label for="message-text" class="col-form-label">Date d'arrivée</label>
+                            <label for="message-text" class="col-form-label">Date d'arrivée <abbr title="(obligatoire)" aria-hidden="true" style="color:red;">*</abbr></label>
                             <input type='date' class="form-control" id="arrivalDate" >
                           </div>
                           <div class="form-group col-md-5">
-                            <label for="message-text" class="col-form-label">Heure d'arrivée</label>
+                            <label for="message-text" class="col-form-label">Heure d'arrivée <abbr title="(obligatoire)" aria-hidden="true" style="color:red;">*</abbr></label>
                             <input type='time' class="form-control" id="arrivalTime" >
                           </div>
                         </div>
 
                         <div class="row" style="justify-content:space-between;">
                           <div class="form-group col-md-5">
-                            <label for="message-text" class="col-form-label">Origine</label>
-                            <select id="origin" class="form-control form-control select-type">
-                              {% for office in offices %}
-                                <option value='{{office.id}}'>{{office.iata_code}}</option>
+                            <label for="message-text" class="col-form-label">Origine <abbr title="(obligatoire)" aria-hidden="true" style="color:red;">*</abbr></label>
+                            <input type='text' class="form-control" id="origin" placeholder="CDG" >
+                            <select id="origin" class="selectpicker form-control" data-live-search="true">
+                              
+                              {% for offine in offices %}
+                                <option value='{{offine.id}}'>{{offine.name}}</option>
                               {% endfor %}
                               
                             </select>
                           </div>
                           <div class="form-group col-md-5">
-                            <label for="message-text" class="col-form-label">Destination</label>
-                            <select id="destination" class="form-control form-control select-type">
-                              {% for office in offices %}
-                                <option value='{{office.id}}'>{{office.iata_code}}</option>
-                              {% endfor %}
-                            </select>
+                            <label for="message-text" class="col-form-label">Destination <abbr title="(obligatoire)" aria-hidden="true" style="color:red;">*</abbr></label>
+                            <input type='text' class="form-control" id="destination" placeholder="">
+                            
                           </div>
                         </div>
 

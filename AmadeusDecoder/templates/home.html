@@ -887,19 +887,23 @@
                         <div class="row" style="justify-content:space-between;">
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Origine <abbr title="(obligatoire)" aria-hidden="true" style="color:red;">*</abbr></label>
-                            <input type='text' class="form-control" id="origin" placeholder="CDG" >
                             <select id="origin" class="selectpicker form-control" data-live-search="true">
                               
                               {% for offine in offices %}
-                                <option value='{{offine.id}}'>{{offine.name}}</option>
+                                <option value='{{offine.id}}'>{{offine.iata_code}}</option>
                               {% endfor %}
                               
                             </select>
                           </div>
                           <div class="form-group col-md-5">
                             <label for="message-text" class="col-form-label">Destination <abbr title="(obligatoire)" aria-hidden="true" style="color:red;">*</abbr></label>
-                            <input type='text' class="form-control" id="destination" placeholder="">
-                            
+                            <select id="destination" class="selectpicker form-control" data-live-search="true">
+                              
+                              {% for offine in offices %}
+                                <option value='{{offine.id}}'>{{offine.iata_code}}</option>
+                              {% endfor %}
+                              
+                            </select>
                           </div>
                         </div>
 

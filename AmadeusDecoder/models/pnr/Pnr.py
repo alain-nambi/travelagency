@@ -425,7 +425,7 @@ class unRemountedPnrTickets(models.Model):
         on_delete=models.CASCADE,
     )
     number = models.CharField(max_length=50, null=True)
-    type = models.CharField(max_length=5, null=True)
+    type = models.CharField(max_length=50, null=True)
     transport_cost = models.DecimalField(max_digits=13, decimal_places=4, default=0)
     tax = models.DecimalField(max_digits=13, decimal_places=4, default=0)
     fee = models.BooleanField(default=True)

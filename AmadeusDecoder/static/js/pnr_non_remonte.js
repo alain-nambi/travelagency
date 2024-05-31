@@ -51,6 +51,14 @@ var checked=[];
 var label = document.querySelector('.dropdown-label');
 
 $(document).ready(function(){
+
+    $('#ticketType').on('change', function(){
+        if($('#ticketType').val() == 'EMD'){
+            console.log('heyyyyyyyyyyyyyyyyyyyyyyyy!!!!!!!!!!!!!!!!!');
+            $('#unremountedPnrFeeSection').hidden = false;
+        }
+    } )
+
     if(AddSegmentButton,SelectSegmentDiv, AddSegmentButtonDiv){
         //  check if there is segments data in the session storage
         // if there is, fill the segment select with it
@@ -116,51 +124,94 @@ $(document).ready(function(){
         session_tickets.forEach(ticket => {
             html += `<tr>
             <td>${ticket['ticketType']}</td>`;
-            if (ticket['ticketNumber']) {s
+            if (ticket['ticketNumber']) {
                 html += `<td>${ticket['ticketNumber']}</td>`;
             } else {
                 html += `<td>${ticket['designation']}</td>`;
             }
             html += `<td>${ticket['ticketCost']}</td>
                         <td>${ticket['ticketTax']}</td>
-                        <td class="ticket_passenger">${ticket['ticketPassenger']}</td>
-                        <td class="ticket_segment">${ticket['ticketSegment']}</td>
+                        <td>${ticket['ticketPassenger']}</td>
+                        <td>${ticket['ticketSegment']}</td>
                     </tr>`;
         
         });
 
         html += `</tbody>
-        </table>`;
+        </table>`; 
+
 
         $("#ticketTable").html(html);
         ticketList.hidden= false;
     }
 
-
-    //  check if there is passengers data in the session storage
-    // if there is, fill the passenger select with it
     if('passengers' in sessionStorage){
         let session_passengers = JSON.parse(sessionStorage.getItem('passengers'));
-        // Ajouter les passagers contenu dans session storage en tant qu'option de selectSegment
-        session_passengers.forEach(element => {
-            var option = document.createElement('option');
-            option.value = element['PassengerOrder']; // Définir la valeur de l'option
-            option.text = element['PassengerName'] +" " +element['PassengerSurname'];
-            passengerSelect.appendChild(option);
+        
+        // Create ticket table
+    
+        var html = `<table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Ordre</th>
+                        <th>Désignation</th> 
+                        <th>Nom</th>
+                        <th>Type</th> 
+                      </tr>
+                    </thead>
+                    <tbody>`;
+        session_passengers.forEach(passenger => {
+            html += `<tr>
+            <td>${passenger['PassengerOrder']}</td>
+            <td>${passenger['PassengerDesignation']}</td>
+            <td>${passenger['PassengerName']} ${passenger['PassengerSurname']}</td>
+            <td>${passenger['PassengerTypeLabel']}</td>
+            </tr>`;
+    
         });
+    
+        html += `</tbody>
+        </table>`;
+    
+        $("#passengerTable").html(html);
+        passengerList.hidden= false;
     }
 
-    $('#ticketType').on('change', ()=>{
-
-        if($('#ticketType').val() == 'EMD'){
-            unremountedPnrFeeSection.hidden = false;
-        }
-        else{
-            unremountedPnrFeeSection.hidden = true;
-
-        }
-    })
-
+    if('segments' in sessionStorage){
+        let session_segments = JSON.parse(sessionStorage.getItem('segments'));
+        
+        // Create ticket table
+    
+        var html = `<table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Ordre</th>
+                        <th>Vol</th> 
+                        <th>date Départ</th> 
+                        <th>date d'Arriée</th> 
+                        <th>Origine</th> 
+                        <th>Destination</th> 
+                      </tr>
+                    </thead>
+                    <tbody>`;
+        session_segments.forEach(segment => {
+            html += `<tr>
+            <td>${segment['order']}</td>
+            <td>${segment['airline']} ${segment['flightNumber']}</td>
+            <td>${segment['departureDate']} ${segment['departureTime']}</td>
+            <td>${segment['arrivalDate']} ${segment['arrivalTime']}</td>
+            <td>${segment['origin']}</td>
+            <td>${segment['destination']}</td>
+            </tr>`;
+    
+        });
+    
+        html += `</tbody>
+        </table>`;
+    
+        $("#segmentTable").html(html);
+        segmentList.hidden= false;
+    }
 })
 
 if(pnrNumber, ticketNumber,ticketCost, ticketTax, PassengerName, flightNumber, segmentOrder, PassengerOrder, PassengerName, AddTicketButton, cancelAddTicketButton, AddPassengerButton, CancelAddPassengerButton, AddSegmentButton, AddMoreSegmentButton
@@ -319,6 +370,8 @@ ConfirmAddSegmentButton.addEventListener('click', function(event){
     var origin = $('#origin').val();
     var destination = $('#destination').val();
     var airline = $('#airline').val();
+    // var originLabel = $('#origin').text();
+    // var destinationLabel = $('#destination').text();
     var order = $('#segmentOrder').val();
 
 
@@ -370,6 +423,40 @@ ConfirmAddSegmentButton.addEventListener('click', function(event){
             // Ajouter le nœud texte à l'élément label
             label.appendChild(textNode);
             dropdownList.appendChild(label);
+
+                
+                // Create ticket table
+            
+                var html = `<table class="table table-striped">
+                            <thead>
+                              <tr>
+                                <th>Ordre</th>
+                                <th>Vol</th> 
+                                <th>date Départ</th> 
+                                <th>date d'Arriée</th> 
+                                <th>Origine</th> 
+                                <th>Destination</th> 
+                              </tr>
+                            </thead>
+                            <tbody>`;
+                session_segments.forEach(segment => {
+                    html += `<tr>
+                    <td>${segment['order']}</td>
+                    <td>${segment['airline']} ${segment['flightNumber']}</td>
+                    <td>${segment['departureDate']} ${segment['departureTime']}</td>
+                    <td>${segment['arrival']} ${segment['arrivalTime']}</td>
+                    <td>${segment['origin']}</td>
+                    <td>${segment['destination']}</td>
+                    </tr>`;
+            
+                });
+            
+                html += `</tbody>
+                </table>`;
+            
+                $("#segmentTable").html(html);
+                segmentList.hidden= false;
+            
         });
 
 
@@ -419,9 +506,10 @@ ConfirmAddPassengerButton.addEventListener('click', function(event){
     var PassengerDesignation = $('#PassengerDesignation').val();
     var PassengerOrder = $('#PassengerOrder').val();
     var PassengerType = $('#PassengerType').val();
+    var PassengerTypeLabel = $('#PassengerType').text();
     var Passeport = $('#Passeport').val();
 
-    var Passenger = {"PassengerName":PassengerName,"PassengerSurname":PassengerSurname,"PassengerDesignation":PassengerDesignation,"PassengerOrder":PassengerOrder,"PassengerType":PassengerType,"Passeport":Passeport}
+    var Passenger = {"PassengerTypeLabel":PassengerTypeLabel,"PassengerName":PassengerName,"PassengerSurname":PassengerSurname,"PassengerDesignation":PassengerDesignation,"PassengerOrder":PassengerOrder,"PassengerType":PassengerType,"Passeport":Passeport}
     
     // Effacer tous les option de Passenger select s'il y en a
     
@@ -446,6 +534,32 @@ ConfirmAddPassengerButton.addEventListener('click', function(event){
             option.value = element['PassengerOrder']; // Définir la valeur de l'option
             option.text = element['PassengerName'] +" " +element['PassengerSurname'];
             passengerSelect.appendChild(option);
+
+            var html = `<table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Ordre</th>
+                        <th>Désignation</th> 
+                        <th>Nom</th>
+                        <th>Type</th> 
+                      </tr>
+                    </thead>
+                    <tbody>`;
+        session_passengers.forEach(passenger => {
+            html += `<tr>
+            <td>${passenger['PassengerOrder']}</td>
+            <td>${passenger['PassengerDesignation']}</td>
+            <td>${passenger['PassengerName']} ${passenger['PassengerSurname']}</td>
+            <td>${passenger['PassengerTypeLabel']}</td>
+            </tr>`;
+    
+        });
+    
+        html += `</tbody>
+        </table>`;
+    
+        $("#passengerTable").html(html);
+        passengerList.hidden= false;
         });
     }
     else{
@@ -518,8 +632,8 @@ ConfirmAddTicketButton.addEventListener('click', function(event){
             }
             html += `<td>${ticket['ticketCost']}</td>
                         <td>${ticket['ticketTax']}</td>
-                        <td class="ticket_passenger">${ticket['ticketPassenger']}</td>
-                        <td class="ticket_segment">${ticket['ticketSegment']}</td>
+                        <td>${ticket['ticketPassenger']}</td>
+                        <td>${ticket['ticketSegment']}</td>
                     </tr>`;
         });
 
@@ -864,80 +978,4 @@ function updateStatus(input_value){
     }
 }
 
-$('.ticket_segment').addEventListener('click', function(event){
-
-    if('segments' in sessionStorage){
-        let session_segments = JSON.parse(sessionStorage.getItem('segments'));
-        
-        // Create ticket table
-    
-        var html = `<table class="table table-striped">
-                    <thead>
-                      <tr>
-                        <th>Ordre</th>
-                        <th>Vol</th> 
-                        <th>date Départ</th> 
-                        <th>date d'Arriée</th> 
-                        <th>Origine</th> 
-                        <th>Destination</th> 
-                      </tr>
-                    </thead>
-                    <tbody>`;
-        session_segments.forEach(segment => {
-            html += `<tr>
-            <td>${segment['order']}</td>
-            <td>${segment['airline']} ${segment['flightNumber']}</td>
-            <td>${segment['departureDate']} ${segment['departureTime']}</td>
-            <td>${segment['arrivalDate']} ${segment['arrivalTime']}</td>
-            <td>${segment['origin']}</td>
-            <td>${segment['destination']}</td>
-            </tr>`;
-    
-        });
-    
-        html += `</tbody>
-        </table>`;
-    
-        $("#segmentTable").html(html);
-        segmentList.hidden= false;
-    }
-
-});
-
-$('.ticket_passenger').addEventListener('click', function(event){
-
-    if('passengers' in sessionStorage){
-        let session_passengers = JSON.parse(sessionStorage.getItem('passengers'));
-        
-        // Create ticket table
-    
-        var html = `<table class="table table-striped">
-                    <thead>
-                      <tr>
-                        <th>Ordre</th>
-                        <th>Désignation</th> 
-                        <th>Nom</th>
-                        <th>Type</th> 
-                      </tr>
-                    </thead>
-                    <tbody>`;
-        session_passengers.forEach(passenger => {
-            html += `<tr>
-            <td>${passenger['order']}</td>
-            <td>${passenger['PassengerDesignation']}</td>
-            <td>${passenger['PassengerName']} ${passenger['PassengerSurname']}</td>
-            <td>${passenger['PassengerOrder']}</td>
-            <td>${passenger['PassengerType']}</td>
-            </tr>`;
-    
-        });
-    
-        html += `</tbody>
-        </table>`;
-    
-        $("#passengerTable").html(html);
-        passengerList.hidden= false;
-    }
-
-});
 

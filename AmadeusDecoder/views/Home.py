@@ -750,16 +750,7 @@ def pnr_details(request, pnr_id):
                 pnr_detail.save()
 
 
-        ticket = Ticket.objects.get(pk=88395)
-        segments = ''
-        for passengerSegment in ticket.ticket_parts.all().order_by('segment__id'):
-            segments += passengerSegment.segment.segmentorder + '-'
-            print('--------------------------------- ticket segment -------------------------------')
-            print(segments)
-        for ssrs in  ticket.ticket_ssrs.all():
-            segments += ssrs.ssr.order_line + '-'
-            print('with ssrs')
-            print(segments)
+        
 
     return render(request,'pnr-details.html', context)
 
@@ -2249,6 +2240,11 @@ def get_all_pnr_unordered(request):
     context = {}
     invoices_canceled_list = InvoicesCanceled.objects.all().distinct('pnr_id')
     
+    users = []
+    invoice_canceled = InvoicesCanceled.objects.all().distinct('user')      
+    for invoice in invoice_canceled:
+        users.append(invoice.user)
+    
     pnr_count = invoices_canceled_list.count()
     
     context['pnr_list'] = invoices_canceled_list
@@ -2262,7 +2258,7 @@ def get_all_pnr_unordered(request):
         page_obj = paginator.page(1)
     except EmptyPage:
         page_obj = paginator.page(paginator.num_pages)
-    context = {'page_obj': page_obj, 'row_num': row_num, 'pnr_count' : pnr_count}
+    context = {'page_obj': page_obj, 'row_num': row_num, 'pnr_count' : pnr_count, 'issuing_users' : users}
     
     return render(request,'unordered_pnr.html', context)
 
@@ -2281,54 +2277,49 @@ def unordered_pnr_research(request):
                 search_results.append(p1)
         print(search_results)
         
-        _passengers = Passenger.objects.all().filter(Q(name__icontains=pnr_research) | Q(surname__icontains=pnr_research) )
+        # _passengers = Passenger.objects.all().filter(Q(name__icontains=pnr_research) | Q(surname__icontains=pnr_research) )
         
-        for p in _passengers :
+        # for p in _passengers :
             
-            pnr_passenger = PnrPassenger.objects.all().filter(passenger=p).first()
-            if pnr_passenger is not None :
-                pnr_object = InvoicesCanceled.objects.all().filter(pnr_id=pnr_passenger.pnr.pk).distinct()
+        #     pnr_passenger = PnrPassenger.objects.all().filter(passenger=p).first()
+        #     if pnr_passenger is not None :
+        #         pnr_object = InvoicesCanceled.objects.all().filter(pnr_id=pnr_passenger.pnr.pk).distinct()
                 
-                if pnr_object.exists() and pnr_object not in search_results and pnr_object is not None :
-                    search_results.extend(pnr_object)
-        print(search_results)
+        #         if pnr_object.exists() and pnr_object not in search_results and pnr_object is not None :
+        #             search_results.extend(pnr_object)
+        # print(search_results)
         
-        # Search with customer
-        _customers = Client.objects.all().filter(Q(intitule__icontains=pnr_research) )
+        # # Search with customer
+        # _customers = Client.objects.all().filter(Q(intitule__icontains=pnr_research) )
         
-        for c in _customers :
-            pnr_passenger_invoice = PassengerInvoice.objects.all().filter(client=c).first()
-            if pnr_passenger_invoice is not None :
-                pnr_cobject = InvoicesCanceled.objects.all().filter(pnr_id=pnr_passenger_invoice.pnr.pk).distinct()
+        # for c in _customers :
+        #     pnr_passenger_invoice = PassengerInvoice.objects.all().filter(client=c).first()
+        #     if pnr_passenger_invoice is not None :
+        #         pnr_cobject = InvoicesCanceled.objects.all().filter(pnr_id=pnr_passenger_invoice.pnr.pk).distinct()
                 
-                if pnr_cobject.exists() and pnr_cobject not in search_results and pnr_cobject is not None :
-                    search_results.extend(pnr_cobject)
+        #         if pnr_cobject.exists() and pnr_cobject not in search_results and pnr_cobject is not None :
+        #             search_results.extend(pnr_cobject)
                 
-        _users = User.objects.all().filter(Q(username__icontains=pnr_research))        
-        for user in _users:
-            pnr_invoices = InvoicesCanceled.objects.all().filter(user_id=user.pk).distinct()
+        # _users = User.objects.all().filter(Q(username__icontains=pnr_research))        
+        # for user in _users:
+        #     pnr_invoices = InvoicesCanceled.objects.all().filter(user_id=user.pk).distinct()
             
-            if pnr_invoices.exists() and pnr_invoices not in search_results and pnr_invoices is not None :
-                search_results.extend(pnr_invoices)
+        #     if pnr_invoices.exists() and pnr_invoices not in search_results and pnr_invoices is not None :
+        #         search_results.extend(pnr_invoices)
                     
         print(search_results)
-        
-        results = []
-        for invoice in search_results:
+        if pnr_results.exists():
+            results = get_data_unordered_pnr_from_query_set(search_results)
+            context['results'] = results
+            context['status'] = 200
+        else:
+            context['status'] = 404
+            context['message'] = 'Aucun résultat trouvé.'
             
-            values = {}
-            values['pnr_id'] = invoice.pnr.id
-            values['pnr_number'] = invoice.pnr.number
-            values['invoice_number'] = invoice.invoice_number
-            values['motif'] = invoice.motif
-            values['date'] = invoice.date
-            values['user'] = invoice.user.username
-            results.append(values)
         pnr_count = len(results)
         
-        context = {'results' : results, 'pnr_count' :  pnr_count}
     return JsonResponse(context)
-        
+     
 def liste_commandes(request):
     return render(request,'commandes_modal.html') 
 # Supprimer les tickets non commandés
@@ -2399,3 +2390,119 @@ def ticket_delete(request):
 
 
         return JsonResponse({'status':'ok'})
+
+@login_required(login_url='index')
+def unordered_pnr_filter(request):
+    context ={}
+    search_results = []
+    if request.method == 'POST':
+        try:
+            filtre = request.POST.get('filter')
+            data_search = request.POST.get('data_search')
+            title = ""
+            if filtre == 'motif':
+                invoice_canceled = InvoicesCanceled.objects.filter(motif__icontains=data_search).all()
+                title += " motif - "+data_search
+
+            if filtre == 'date':
+                invoice_canceled = InvoicesCanceled.objects.filter(date__date=data_search).all()
+                title += " date - "+data_search
+
+            if filtre == 'creator':
+                invoice_canceled = InvoicesCanceled.objects.filter(user__id=data_search).all()
+                title += " créateur - "+ User.objects.get(pk=data_search).username
+                
+            if invoice_canceled.exists():
+                print(invoice_canceled)
+                for ticket in invoice_canceled :
+                    search_results.append(ticket)
+        
+                results = get_data_unordered_pnr_from_query_set(request,search_results)
+                context['status'] = 200
+                context['results'] = results
+                context['searchTitle'] = title
+            else:
+                context['status'] = 404
+                context['message'] = 'Aucun résultat trouvé.'
+        except:
+            context['status'] = 100
+            context['message'] = "Une erreur s'est produite."
+
+
+    return JsonResponse(context)
+
+# ------------ transform a list of queryset to table specialy for the canceled ticket search
+@login_required(login_url="index")
+def get_data_unordered_pnr_from_query_set(request,search_results):
+    results = []
+    for invoice in search_results:
+        
+        values = {}
+        values['pnr_id'] = invoice.pnr.id
+        values['pnr_number'] = invoice.pnr.number
+        values['invoice_number'] = invoice.invoice_number
+        values['motif'] = invoice.motif
+        values['date'] = (invoice.date).strftime("%m/%d/%Y, %H:%M:%S")
+        values['user'] = invoice.user.username
+        results.append(values)
+    return results
+
+@login_required(login_url='index')
+def unordered_pnr_advanced_search(request):
+    context ={}
+    search_results = []
+    if request.method == 'POST':
+        try:
+            print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+            date = request.POST.get('date')
+            motif = request.POST.get('motif')
+            createur = request.POST.get('createur')
+
+            print('motif : ', motif)
+            print('date : ', date)
+            print('createur : ', createur)
+
+
+            filter_conditions = {}
+            title = ""
+
+            # Ajouter les conditions de filtre pour les variables non-None
+            if date is not None and date != "":
+                filter_conditions['date__date'] = date
+                title = " date - "+ date
+            if motif is not None and motif != "":
+                filter_conditions['motif__icontains'] = motif
+                title += " motif - " + motif
+            if createur is not None and createur != "":
+                filter_conditions['user__id'] = createur
+                title += " créateur - "+ User.objects.get(pk=createur).username
+
+            # Créer un objet Q pour combiner les conditions de filtre
+            query_filter = Q(**filter_conditions)
+
+            # Exécuter la requête avec les conditions de filtre
+            invoice_canceled = InvoicesCanceled.objects.filter(query_filter).all()
+                
+
+            if invoice_canceled.exists():
+                print(invoice_canceled)
+                for ticket in invoice_canceled :
+                    search_results.append(ticket)
+                    print(ticket)
+        
+                results = get_data_unordered_pnr_from_query_set(request,search_results)
+                context['status'] = 200
+                context['results'] = results
+                context['searchTitle'] = title
+            else:
+                context['status'] = 404
+                context['message'] = 'Aucun résultat trouvé.'
+        except:
+            context['status'] = 100
+            context['message'] = "Une erreur s'est produite."
+
+
+    return JsonResponse(context)
+
+
+

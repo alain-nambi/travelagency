@@ -757,77 +757,66 @@ function searchCanceledTicketFunction() {
           csrfmiddlewaretoken: csrftoken,
         },
         success: function (data) {
+            $("#spinnerLoadingSearch").hide();
+
           let SEARCH_RESULT = data.results;
-  
+          console.log('COUCOU : ',data.results);
+        
           if (SEARCH_RESULT.length > 0) {
             document.querySelector("#all-canceled-ticket-after-search").innerHTML = "";
   
             $("#all-canceled-ticket-after-search").show();
-            $("#initialPagination").hide();
-            $("#spinnerLoadingSearch").hide();
+            
   
             
             // $("tbody.tbody-canceled-ticket").remove();
             $("#all-canceled-ticket").remove();
   
-            var options = {
-              dataSource: SEARCH_RESULT, // La source de données pour la pagination (ici, les lignes de la table)
-              locator: "items",
-              showGoInput: true,
-              showGoButton: true,
-              showNavigator: true,
-              formatNavigator:
-                "<%= rangeStart %> - <%= rangeEnd %> sur <%= totalNumber %> résultat(s)",
-              callback: function (data, pagination) {
-                // La fonction de rappel pour mettre à jour les résultats affichés
-                var html = `<thead id="thead-all-pnr">
-                      <tr id="tr-all-canceled-ticket">
-                        <th>Numéro du PNR</th>
-                        <th>Numéro du Billet</th> 
-  
-                        <th class="pnr-creation-date" style="cursor: pointer;">
-                          <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
-                            Date d'annulation
-                            <i class="fa fa-sm fa-solid" id="icon__pnrDateCreation"></i>
-                          </div>
-                        </th>
-                        <th>Motif</th> 
-                        <th class="pnr-creator-list">
-                          <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
-                            Créateur
-                            <i class="fa fa-sm fa-solid" id="icon__pnrCreator"></i>
-                          </div>
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody class="tbody-canceled-ticket-after-search">`;
-                $.each(data, function (index,canceled_ticket) {
-  
-                    html += `
-                    <tr 
-                        onclick="location.href='/anomaly/canceled-ticket-detail/${canceled_ticket.pnr_id}/'" 
-                        style="cursor: pointer;" 
-                        role="row"
-                    >
-                        <td>${canceled_ticket.pnr_number}</td>`;
-                        
-                    if (canceled_ticket.ticket_number) {
-                        html += `<td>${canceled_ticket.ticket_number}</td>`;
-                    } else {
-                        html += `<td>${canceled_ticket.other_fee}</td>`;
-                    }
-              
-                    html += `
-                            <td>${canceled_ticket.date}</td>
-                            <td>${canceled_ticket.motif}</td>
-                            <td>${canceled_ticket.issuing_user}</td>
-                        </tr>`;
-                });
-                html += `</tbody>`;
-                $("all-canceled-ticket-after-search").html(html); // Mise à jour du contenu de la table
-                $("#all-canceled-ticket-after-search").html(html).trigger("update");
-              },
-            };
+            var html = `<thead id="thead-all-pnr">
+                <tr id="tr-all-canceled-ticket">
+                    <th>Numéro du PNR</th>
+                    <th>Numéro du Billet</th> 
+
+                    <th class="pnr-creation-date" style="cursor: pointer;">
+                    <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
+                        Date d'annulation
+                        <i class="fa fa-sm fa-solid" id="icon__pnrDateCreation"></i>
+                    </div>
+                    </th>
+                    <th>Motif</th> 
+                    <th class="pnr-creator-list">
+                    <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
+                        Créateur
+                        <i class="fa fa-sm fa-solid" id="icon__pnrCreator"></i>
+                    </div>
+                    </th>
+                </tr>
+                </thead>
+                <tbody class="tbody-canceled-ticket-after-search">`;
+            SEARCH_RESULT.forEach(canceled_ticket => {
+                html += `
+                <tr 
+                    onclick="location.href='/anomaly/canceled-ticket-detail/${canceled_ticket.pnr_id}/'" 
+                    style="cursor: pointer;" 
+                    role="row"
+                >
+                    <td>${canceled_ticket.pnr_number}</td>`;
+                    
+                if (canceled_ticket.ticket_number) {
+                    html += `<td>${canceled_ticket.ticket_number}</td>`;
+                } else {
+                    html += `<td>${canceled_ticket.other_fee}</td>`;
+                }
+
+                html += `
+                        <td>${canceled_ticket.date}</td>
+                        <td>${canceled_ticket.motif}</td>
+                        <td>${canceled_ticket.issuing_user}</td>
+                    </tr>`;
+            });
+            html += `</tbody>`;
+            $("all-canceled-ticket-after-search").html(html); // Mise à jour du contenu de la table
+            $("#all-canceled-ticket-after-search").html(html).trigger("update");
 
             //  add a title
             var content = document.querySelector('#SearchTitle');
@@ -841,7 +830,7 @@ function searchCanceledTicketFunction() {
             title.id = "titleSearch";
             content.appendChild(title);
   
-            $("#pagination").pagination(options); // Initialisation de la pagination avec les options définies
+            
   
           } else {
             $("#spinnerLoadingSearch").hide();
@@ -874,29 +863,17 @@ function filterFunction(filter,data_search){
         success : function(data){
             if (data.status == 200){
                 let SEARCH_RESULT = data.results;
+                console.log('COUCOU : ',data.results);
   
                 if (SEARCH_RESULT.length > 0) {
                     document.querySelector("#all-canceled-ticket-after-search").innerHTML = "";
         
                     $("#all-canceled-ticket-after-search").show();
-                    $("#initialPagination").hide();
-                    $("#spinnerLoadingSearch").hide();
-        
                     
                     // $("tbody.tbody-canceled-ticket").remove();
                     $("#all-canceled-ticket").remove();
         
-                    var options = {
-                    dataSource: SEARCH_RESULT, // La source de données pour la pagination (ici, les lignes de la table)
-                    locator: "items",
-                    showGoInput: true,
-                    showGoButton: true,
-                    showNavigator: true,
-                    formatNavigator:
-                        "<%= rangeStart %> - <%= rangeEnd %> sur <%= totalNumber %> résultat(s)",
-                    callback: function (data, pagination) {
-                        // La fonction de rappel pour mettre à jour les résultats affichés
-                        var html = `<thead id="thead-all-pnr">
+                    var html = `<thead id="thead-all-pnr">
                             <tr id="tr-all-canceled-ticket">
                                 <th>Numéro du PNR</th>
                                 <th>Numéro du Billet</th> 
@@ -917,8 +894,7 @@ function filterFunction(filter,data_search){
                             </tr>
                             </thead>
                             <tbody class="tbody-canceled-ticket-after-search">`;
-                        $.each(data, function (index,canceled_ticket) {
-        
+                        SEARCH_RESULT.forEach(canceled_ticket => {
                             html += `
                             <tr 
                                 onclick="location.href='/anomaly/canceled-ticket-detail/${canceled_ticket.pnr_id}/'" 
@@ -932,7 +908,7 @@ function filterFunction(filter,data_search){
                             } else {
                                 html += `<td>${canceled_ticket.other_fee}</td>`;
                             }
-                    
+
                             html += `
                                     <td>${canceled_ticket.date}</td>
                                     <td>${canceled_ticket.motif}</td>
@@ -942,8 +918,6 @@ function filterFunction(filter,data_search){
                         html += `</tbody>`;
                         $("all-canceled-ticket-after-search").html(html); // Mise à jour du contenu de la table
                         $("#all-canceled-ticket-after-search").html(html).trigger("update");
-                    },
-                    };
 
                     var content = document.querySelector('#SearchTitle');
                     var existingTitle = document.getElementById('titleSearch');
@@ -956,7 +930,7 @@ function filterFunction(filter,data_search){
                     title.id = "titleSearch";
                     content.appendChild(title);
         
-                    $("#pagination").pagination(options); // Initialisation de la pagination avec les options définies
+                    
         
                 } else {
                     $("#spinnerLoadingSearch").hide();
@@ -984,6 +958,7 @@ $('#buttonFilterByCancellationDate').on('click', () =>{
 $('#buttonFilterByMotif').on('click', () =>{
     filter = 'motif'
     data_search = $('#MotifFilterInput').val();
+    console.log('data_search : ',data_search);
     filterFunction(filter,data_search);
     CloseCanceledTicketFilter();
 })
@@ -1035,29 +1010,17 @@ function TicketAdvancedSearch(date,motif,createur){
         success: function (data) {
             if(data.status == 200){
                 let SEARCH_RESULT = data.results;
+                console.log('COUCOU : ',data.results);
   
                 if (SEARCH_RESULT.length > 0) {
                     document.querySelector("#all-canceled-ticket-after-search").innerHTML = "";
         
                     $("#all-canceled-ticket-after-search").show();
-                    $("#initialPagination").hide();
-                    $("#spinnerLoadingSearch").hide();
-        
-                    
+
                     // $("tbody.tbody-canceled-ticket").remove();
                     $("#all-canceled-ticket").remove();
         
-                    var options = {
-                    dataSource: SEARCH_RESULT, // La source de données pour la pagination (ici, les lignes de la table)
-                    locator: "items",
-                    showGoInput: true,
-                    showGoButton: true,
-                    showNavigator: true,
-                    formatNavigator:
-                        "<%= rangeStart %> - <%= rangeEnd %> sur <%= totalNumber %> résultat(s)",
-                    callback: function (data, pagination) {
-                        // La fonction de rappel pour mettre à jour les résultats affichés
-                        var html = `<thead id="thead-all-pnr">
+                    var html = `<thead id="thead-all-pnr">
                             <tr id="tr-all-canceled-ticket">
                                 <th>Numéro du PNR</th>
                                 <th>Numéro du Billet</th> 
@@ -1078,8 +1041,7 @@ function TicketAdvancedSearch(date,motif,createur){
                             </tr>
                             </thead>
                             <tbody class="tbody-canceled-ticket-after-search">`;
-                        $.each(data, function (index,canceled_ticket) {
-        
+                        SEARCH_RESULT.forEach(canceled_ticket => {
                             html += `
                             <tr 
                                 onclick="location.href='/anomaly/canceled-ticket-detail/${canceled_ticket.pnr_id}/'" 
@@ -1093,7 +1055,7 @@ function TicketAdvancedSearch(date,motif,createur){
                             } else {
                                 html += `<td>${canceled_ticket.other_fee}</td>`;
                             }
-                    
+
                             html += `
                                     <td>${canceled_ticket.date}</td>
                                     <td>${canceled_ticket.motif}</td>
@@ -1103,8 +1065,6 @@ function TicketAdvancedSearch(date,motif,createur){
                         html += `</tbody>`;
                         $("all-canceled-ticket-after-search").html(html); // Mise à jour du contenu de la table
                         $("#all-canceled-ticket-after-search").html(html).trigger("update");
-                    },
-                    };
 
                     // Add a title
                     var content = document.querySelector('#SearchTitle');
@@ -1118,7 +1078,7 @@ function TicketAdvancedSearch(date,motif,createur){
                     title.id = "titleSearch";
                     content.appendChild(title);
         
-                    $("#pagination").pagination(options); // Initialisation de la pagination avec les options définies
+                    
         
                 } else {
                     $("#spinnerLoadingSearch").hide();

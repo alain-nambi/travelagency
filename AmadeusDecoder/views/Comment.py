@@ -616,7 +616,6 @@ def get_all_canceled_ticket(request):
     issuing_users= []
 
     tickets_issuing_users = TicketCanceled.objects.all().distinct('issuing_user')      
-    print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
     for tickets_user in tickets_issuing_users:
         print(tickets_user.issuing_user) 
         issuing_users.append(tickets_user.issuing_user)
@@ -663,7 +662,7 @@ def get_data_ticket_from_query_set(request,search_results):
         else:
             values['other_fee'] = canceled_ticket.other_fee.designation
         values['motif'] = canceled_ticket.motif
-        values['date'] = canceled_ticket.date
+        values['date'] = (canceled_ticket.date).strftime("%m/%d/%Y")
         values['issuing_user'] = canceled_ticket.issuing_user.username
         results.append(values)
     return results

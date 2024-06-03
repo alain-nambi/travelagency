@@ -71,7 +71,7 @@
                                                         <tr style="justify-content:center;" data-ticket-id="{{ticket.id}}" >
                                                             <td class="text-center">{{ ticket.number }}</td>
                                                             <td class="text-center"> {{ticket.type}} </td>
-                                                            <td class="text-center">{% if ticket.fee %} <span><input class="form-check-input" type="checkbox" checked {% if unremounted_pnr.state == 2 %} disabled{% endif %}></span> {% endif %}</td>
+                                                            <td class="text-center">{% if ticket.fee %} <span><input class="form-check-input" type="checkbox" checked {% if unremounted_pnr.state != 0 %} disabled{% endif %}></span> {% endif %}</td>
                                                             <td class="text-center"> {{ticket.transport_cost | floatformat:2}} </td>
                                                             <td class="text-center"> {{ticket.tax | floatformat:2}} </td>
                                                             <td class="text-center"> {{ticket.passenger.order}} / {{ticket.passenger.name}} {% if ticket.passenger.surname %}{{ticket.passenger.surname}}{% endif %} </td>

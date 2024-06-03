@@ -710,7 +710,7 @@
                             <label for="message-text" class="col-form-label">Type<abbr title="(obligatoire)" aria-hidden="true" style="color:red;">*</abbr></label>
                             <select id="PassengerType" class="form-control form-control select-type ">
                               {% for type in passengerTypes %}
-                                <option value='{{type.id}}'>{{type.name}}</option>
+                                <option value='{{type.id}}' label="{{type.name}}">{{type.name}}</option>
                               {% endfor %}
                             </select>
                           </div>
@@ -797,7 +797,7 @@
                           <div class="form-group col-md-10">
                             <label for="message-text" class="col-form-label">Passager(s) <abbr title="(obligatoire)" aria-hidden="true" style="color:red;">*</abbr></label>
                             <select id="passengerSelect" class="form-control form-control select-type ">
-                              <option value='altea'>...</option>
+                              <option value=''>...</option>
                             </select>
                           
                           </div>
@@ -850,7 +850,7 @@
                             <select id="airline" class="selectpicker form-control" data-live-search="true">
                               
                               {% for airline in airlines %}
-                                <option value='{{airline.id}}'>{{airline.name}} {{airline.iata}}</option>
+                                <option value='{{airline.id}}' label="{{airline.iata}}">{{airline.name}} {{airline.iata}}</option>
                               {% endfor %}
                               
                             </select>
@@ -890,7 +890,7 @@
                             <select id="origin" class="selectpicker form-control" data-live-search="true">
                               
                               {% for offine in offices %}
-                                <option value='{{offine.id}}'>{{offine.iata_code}}</option>
+                                <option value='{{offine.id}}' label="{{offine.iata_code}}">{{offine.iata_code}}</option>
                               {% endfor %}
                               
                             </select>
@@ -900,7 +900,7 @@
                             <select id="destination" class="selectpicker form-control" data-live-search="true">
                               
                               {% for offine in offices %}
-                                <option value='{{offine.id}}'>{{offine.iata_code}}</option>
+                                <option value='{{offine.id}}' label="{{offine.iata_code}}">{{offine.iata_code}}</option>
                               {% endfor %}
                               
                             </select>

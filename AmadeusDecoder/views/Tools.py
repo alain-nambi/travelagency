@@ -961,3 +961,4 @@ def get_pnr_difference():
     context['pourcentage_pnr_to_invoice'] = pourcentage_pnr_to_invoice
 
     return context
+

@@ -10,7 +10,7 @@
     {% if state_email_recipients == "complet" or state_email_recipients == "incomplet" %}
       <div class="card " style=" height:auto; margin:0 120px 0 20px;">
         <div class="card-header-notification-recipients">
-          <h2 class="card-title"><strong style="font-size: 16px;">Notifications Recipients</strong></h2>
+          <h2 class="card-title"><strong style="font-size: 16px;">Destinataires des notifications</strong></h2>
           <h4 class="card-description"></h4>
         </div>
 
@@ -61,7 +61,7 @@
         {% if state_email_sender == "complet" or state_email_sender == "incomplet" %}
         <div class="card" style="height:auto; margin:20px 120px 0 20px;">
           <div class="card-header-notification-sender">
-          <h2 class="card-title"><strong style="font-size: 16px;">Notifications Sender</strong></h2>    
+          <h2 class="card-title"><strong style="font-size: 16px;">Expéditeur de notifications</strong></h2>    
           </div>
             <div class="card-body" >
               <table class="table table-bordered table-head-fixed text-wrap">
@@ -98,7 +98,7 @@
         
         <div class="card" id="add-email-sender-parsing-card" style="height:auto;width:38rem; margin:70px 120px 0 20px;" {% if state_email_sender != "vide" %}hidden{% endif %}>
           <div class="card-header">
-          <h2 class="card-title">Notifications Sender</h2>    
+          <h2 class="card-title">Expéditeur de notifications</h2>    
           <i class="fa fa-x" style="float: right; cursor:pointer;" aria-hidden="true" onclick="HideCard('add-email-sender-parsing-card')" {% if state_email_sender == "vide" %}hidden{% endif %}></i>
           </div>
           <div class="card-body">
@@ -150,7 +150,7 @@
   <div style="display: flex; flex-direction: column;">
       <div class="card " style=" height:auto;width:38rem; margin:70px 120px 0 20px;"id="add-email-recipients-parsing-card" {% if state_email_recipients != "vide" %}hidden{% endif %}>
         <div class="card-header">
-          <h2 class="card-title">Notifications Recipients</h2>
+          <h2 class="card-title">Destinataires des notifications</h2>
           <i class="fa fa-x" style="float: right; cursor:pointer;" aria-hidden="true" onclick="HideCard('add-email-recipients-parsing-card')" {% if state_email_recipients == "vide" %}hidden{% endif %}></i>
       </div>
       

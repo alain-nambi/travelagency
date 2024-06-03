@@ -28,6 +28,7 @@ from AmadeusDecoder.models.pnrelements.PnrAirSegments import PnrAirSegments
 from AmadeusDecoder.models.user.Users import User
 from AmadeusDecoder.utilities.ProductImportParser import ProductParser, CustomerParser
 from AmadeusDecoder.models.configuration.Configuration import Configuration
+from AmadeusDecoder.models.utilities.Comments import Comment
 
 from django.db import connection
 from django.db.models import Count, Func
@@ -617,6 +618,9 @@ def graph_view(request):
 
     context['pnr_invoiced'] = get_pnr_invoices_by_month()
     context['pnr_created'] = get_pnr_created_by_month()
+    context['anomaly_by_month'] =  get_anomaly_created_by_month()
+    context['anomaly_by_user'] = get_anomaly_created_by_user()
+    print(context['anomaly_by_user'])
     
     return render(request, 'stat.html', context)  
 
@@ -820,11 +824,28 @@ def get_passenger_by_month():
                 data['year']=(str(element['year']))
                 data['data'] = []
                 cursor.execute("""
-                    SELECT TO_CHAR(departuretime, 'TMMonth') as month, count(passenger_id) as total,extract(month from departuretime) as mois 
+                    WITH all_months AS (
+                    SELECT generate_series(1, 12) AS mois
+                    )
+                    , passengers_by_month AS (
+                    SELECT TO_CHAR(departuretime, 'TMMonth') AS month, COUNT(passenger_id) AS total, EXTRACT(month FROM departuretime) AS mois
                     FROM v_pnr_passenger
                     WHERE EXTRACT(YEAR FROM departuretime) = %s
-                    GROUP BY month, mois 
-                    order by mois;
+                    GROUP BY TO_CHAR(departuretime, 'TMMonth'), EXTRACT(month FROM departuretime)
+                    )
+                    SELECT 
+                    TO_CHAR(TO_DATE(m.mois::text, 'MM'), 'TMMonth') AS month, 
+                    COALESCE(p.total, 0) AS total, 
+                    m.mois
+                    FROM 
+                    all_months m
+                    LEFT JOIN 
+                    passengers_by_month p 
+                    ON 
+                    m.mois = p.mois
+                    ORDER BY 
+                    m.mois;
+
                 """, [element['year']])
 
                 # Récupérer les résultats
@@ -987,11 +1008,29 @@ def get_pnr_invoices_by_month():
                 data['year']=(str(element['year']))
                 data['data'] = []
                 cursor.execute("""
-                    select TO_CHAR(system_creation_date, 'TMMonth') as month,count(*),extract(month from system_creation_date) as mois from t_pnr tp 
-                    where is_invoiced= true 
-                    and extract(year from system_creation_date) = %s
-                    group by month,mois
-                    order by mois;
+                    WITH all_months AS (
+                    SELECT generate_series(1, 12) AS mois
+                    )
+                    , pnr_by_month AS (
+                    SELECT TO_CHAR(system_creation_date, 'TMMonth') AS month, COUNT(*) AS total, EXTRACT(month FROM system_creation_date) AS mois
+                    FROM t_pnr
+                    WHERE is_invoiced = true 
+                    AND EXTRACT(year FROM system_creation_date) = %s
+                    GROUP BY TO_CHAR(system_creation_date, 'TMMonth'), EXTRACT(month FROM system_creation_date)
+                    )
+                    SELECT 
+                    TO_CHAR(TO_DATE(m.mois::text, 'MM'), 'TMMonth') AS month, 
+                    COALESCE(p.total, 0) AS total, 
+                    m.mois
+                    FROM 
+                    all_months m
+                    LEFT JOIN 
+                    pnr_by_month p 
+                    ON 
+                    m.mois = p.mois
+                    ORDER BY 
+                    m.mois;
+
                 """, [element['year']])
 
                 # Récupérer les résultats
@@ -1016,10 +1055,28 @@ def get_pnr_created_by_month():
                 data['year']=(str(element['year']))
                 data['data'] = []
                 cursor.execute("""
-                    select TO_CHAR(system_creation_date, 'TMMonth') as month,count(*),extract(month from system_creation_date) as mois from t_pnr tp  
-                    where extract(year from system_creation_date) = %s
-                    group by month,mois
-                    order by mois;
+                        WITH all_months AS (
+                            SELECT generate_series(1, 12) AS mois
+                        )
+                        , pnr_by_month AS (
+                            SELECT TO_CHAR(system_creation_date, 'TMMonth') AS month, COUNT(*) AS total, EXTRACT(month FROM system_creation_date) AS mois
+                            FROM t_pnr
+                            WHERE EXTRACT(year FROM system_creation_date) = %s
+                            GROUP BY TO_CHAR(system_creation_date, 'TMMonth'), EXTRACT(month FROM system_creation_date)
+                        )
+                        SELECT 
+                            TO_CHAR(TO_DATE(m.mois::text, 'MM'), 'TMMonth') AS month, 
+                            COALESCE(p.total, 0) AS total, 
+                            m.mois
+                        FROM 
+                            all_months m
+                        LEFT JOIN 
+                            pnr_by_month p 
+                        ON 
+                            m.mois = p.mois
+                        ORDER BY 
+                            m.mois;
+
                 """, [element['year']])
 
                 # Récupérer les résultats
@@ -1027,10 +1084,86 @@ def get_pnr_created_by_month():
                 for result in results:
                     data['data'].append({"label":result[0],"y":result[1]})
                 all_data.append(data)
-                
-
+            
     return all_data
 
+def get_anomaly_created_by_month():
+    all_year = Comment.objects.annotate(year=ExtractYear('creation_date')).values('year').distinct()
+    all_data = []
+    
+
+    with connection.cursor() as cursor:
+        for element in all_year:
+            if element['year'] is not None:
+                data = {}
+                data['year']=(str(element['year']))
+                data['data'] = []
+
+                cursor.execute("""
+                WITH all_months AS (
+                    SELECT generate_series(1, 12) AS month_num
+                )
+                , comments_by_month AS (
+                    SELECT EXTRACT(month FROM creation_date) AS mois, COUNT(*) AS total
+                    FROM t_comment
+                    WHERE EXTRACT(YEAR FROM creation_date) = %s
+                    GROUP BY EXTRACT(month FROM creation_date)
+                )
+                SELECT 
+                    TO_CHAR(TO_DATE(m.month_num::text, 'MM'), 'TMMonth') AS month, 
+                    COALESCE(c.total, 0) AS total, 
+                    m.month_num AS mois
+                FROM 
+                    all_months m
+                LEFT JOIN 
+                    comments_by_month c 
+                ON 
+                    m.month_num = c.mois
+                ORDER BY 
+                    m.month_num;
+                """, [element['year']])
+
+                # Récupérer les résultats
+                results = cursor.fetchall()
+                for result in results:
+                    data['data'].append({"label":result[0],"y":result[1]})
+                all_data.append(data)
+            
+    return all_data
+
+def get_anomaly_created_by_user():
+    all_year = Comment.objects.annotate(year=ExtractYear('creation_date')).values('year').distinct()
+    all_data_by_month = []
+
+    for month in range(1, 13):
+        all_data = {}
+        all_data['month'] = month
+        all_data['data'] = []
+        with connection.cursor() as cursor:
+            for element in all_year:
+                if element['year'] is not None:
+                    data = {}
+
+                    cursor.execute("""
+                        select tc.user_id_id ,count(*) as total from t_comment tc
+                        WHERE EXTRACT(MONTH FROM creation_date) = %s
+                        AND EXTRACT(YEAR FROM creation_date) = %s
+                        group by user_id_id;
+                    """, [month,element['year']])
+
+                    # Récupérer les résultats
+                    results = cursor.fetchall()
+
+                    data['year']=(str(element['year']))
+                    data['data'] = []
+                    for results in results:
+                        user = User.objects.get(pk = results[0])
+                        data['data'].append({"y":results[1],"label":user.username}) 
+
+                    all_data['data'].append(data)
+        all_data_by_month.append(all_data)
+
+    return all_data_by_month
 
 
 

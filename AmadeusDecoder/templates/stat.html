@@ -75,11 +75,16 @@
 
     var passenger_by_month = {{passenger_by_month|safe}}
 
+    var pnr_invoiced = {{pnr_invoiced|safe}}
+    var pnr_created = {{pnr_created|safe}}
+
+
+
     window.onload = function () {
         var selectMonth = document.getElementById("DestinationSelectMonth");
         var selectOriginMonth = document.getElementById("OriginSelectMonth");
         var selectAirlineMonth = document.getElementById("AirlineSelectMonth");
-
+        {% comment %} var CommandeSelectMonth = document.getElementById("CommandeSelectMonth"); {% endcomment %}
 
         // Obtenir les noms des mois
         var months = new Array(12);
@@ -110,6 +115,7 @@
             selectAirlineMonth.appendChild(option);
         }
 
+        
         
 
         // Destination Chart
@@ -256,6 +262,86 @@
             }))
         });
           chart_5.render();
+
+        var chart_6 = new CanvasJS.Chart("PnrchartContainer1", {
+            exportEnabled: false,
+            animationEnabled: true,
+            theme: "light1",
+            title: {
+                text: "Pnr commandé par mois"
+              },
+            axisY: {
+              title: "Nombre de PNR",
+              titleFontColor: "#4F81BC",
+              lineColor: "#4F81BC",
+              labelFontColor: "#4F81BC",
+              tickColor: "#4F81BC",
+              includeZero: true
+            },
+            axisY2: {
+              title: "Clicks",
+              titleFontColor: "#C0504E",
+              lineColor: "#C0504E",
+              labelFontColor: "#C0504E",  
+              tickColor: "#C0504E"
+            },
+            toolTip: {
+              shared: true
+            },
+            legend: {
+              cursor: "pointer",
+              itemclick: toggleDataSeries
+            },
+            data: pnr_invoiced.map((element) => ({
+              type: "spline",
+              name: element.year,
+              lineDashType: "dot",
+              showInLegend: true,
+              yValueFormatString: "#,### PNR",
+              dataPoints: element.data
+            }))
+        });
+        chart_6.render();
+
+        var chart_7 = new CanvasJS.Chart("PnrchartContainer2", {
+            exportEnabled: false,
+            animationEnabled: true,
+            theme: "light1",
+            title: {
+                text: "Pnr remonté par mois"
+              },
+            axisY: {
+              title: "Nombre de PNR",
+              titleFontColor: "#4F81BC",
+              lineColor: "#4F81BC",
+              labelFontColor: "#4F81BC",
+              tickColor: "#4F81BC",
+              includeZero: true
+            },
+            axisY2: {
+              title: "Clicks",
+              titleFontColor: "#C0504E",
+              lineColor: "#C0504E",
+              labelFontColor: "#C0504E",  
+              tickColor: "#C0504E"
+            },
+            toolTip: {
+              shared: true
+            },
+            legend: {
+              cursor: "pointer",
+              itemclick: toggleDataSeries
+            },
+            data: pnr_created.map((element) => ({
+              type: "spline",
+              name: element.year,
+              lineDashType: "dot",
+              showInLegend: true,
+              yValueFormatString: "#,### PNR",
+              dataPoints: element.data
+            }))
+        });
+        chart_7.render();
 
         // Changer les données de destination par rapport au mois choisi
         $("#DestinationSelectMonth").change(function (){
@@ -859,10 +945,10 @@
                                                                         <div class="col-auto" style="margin-left:3rem">
                                                                             <h3 class="mb-2">{{pnr_of_today}}</h3>
                                                                             <p class="mb-2">PNR remonté aujourd'hui</p>
-                                                                            <div class="mb-0">
-                                                                                <span class="text-success text-sm font-weight-bolder">{{pourcentage_pnr_remonte}}</span>
+                                                                            {% comment %} <div class="mb-0">
+                                                                                <span class="text-success text-sm font-weight-bolder"></span>
                                                                                 <span class="text-muted">depuis hier</span>
-                                                                            </div>
+                                                                            </div> {% endcomment %}
                                                                         </div>
     
                                                                         
@@ -886,10 +972,10 @@
                                                                     <div class="col-auto" style="margin-left:3rem">
                                                                         <h3 class="mb-2">{{pnr_invoiced_today}}</h3>
                                                                         <p class="mb-2">PNR commandé aujourd'hui</p>
-                                                                        <div class="mb-0">
-                                                                            <span class="text-success text-sm font-weight-bolder">{{pourcentage_pnr_invoiced}}</span>
+                                                                        {% comment %} <div class="mb-0">
+                                                                            <span class="text-success text-sm font-weight-bolder"></span>
                                                                             <span class="text-muted">depuis hier</span>
-                                                                        </div>
+                                                                        </div> {% endcomment %}
                                                                     </div>
 
                                                                     
@@ -913,10 +999,10 @@
                                                                     <div class="col-auto" style="margin-left:3rem">
                                                                         <h3 class="mb-2">{{pnr_to_invoice}}</h3>
                                                                         <p class="mb-2">PNR à commandé aujourd'hui</p>
-                                                                        <div class="mb-0">
-                                                                            <span class="text-success text-sm font-weight-bolder">{{pourcentage_pnr_to_invoice}}</span>
+                                                                        {% comment %} <div class="mb-0">
+                                                                            <span class="text-success text-sm font-weight-bolder"></span>
                                                                             <span class="text-muted">depuis le dernier mois</span>
-                                                                        </div>
+                                                                        </div> {% endcomment %}
                                                                     </div>
 
                                                                     
@@ -931,49 +1017,18 @@
                                                 <div class="row" style="padding-left:10px;">
                                                     <div class="d-flex col-lg-6">
                                                         <div class="flex-fill w-100 card">
-                                                            <div class="" style="padding: 10px 10px 10px 10px;" >
-                                                                <div class="row">
-                                                                    <h3 class="card-title align-items-start flex-column col-md-6" style="margin-top:1rem;">
-                                                                        <span class="card-label text-gray-800 fs-2" style="font-weight:bolder;">Total Passager par Destinations</span>
-                                                                        
-                                                                    </h3>
-                                                                    <div class="col-md-6">
-                                                                        <div class="dropdown " style="float:right;">                               
-                                                                            <div class="input-group ">
-                                                                            <div class="input-group-prepend">
-                                                                                <label class="input-group-text" for="selectMonth">Mois</label>
-                                                                            </div>
-                                                                            <select class="custom-select" id="DestinationSelectMonth">
-                                                                                <option selected>Choose...</option>
-                                                                            </select>
-                                                                            </div>
-                                                                                
-                                                                        </div>
-                                                                    </div>
-                                                                    
-                                                                </div>
-                                                                
-                                                            </div>
-                                                            <hr>
+                                                           
                                                             <div class="d-flex card-body">
                                                                 <div class="align-self-center w-100">
                                                                     
-                                                                    <div id="PnrchartContainer" style="width:100%; height:380px"></div>  
+                                                                    <div id="PnrchartContainer1" style="width:100%; height:380px"></div>  
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div class="d-flex col-lg-6">
                                                         <div class="flex-fill w-100 card">
-                                                            <div class="" style="padding: 10px 10px 10px 10px;">
-                                                                
-                                                                <h3 class="card-title align-items-start flex-column">
-                                                                    <span class="card-label  text-gray-800 fs-2" style="font-weight:bolder;">Passagers par tranche d'âge</span>
-                                                                   
-                                                                </h3>
-                                                                
-                                                            </div>
-                                                            <hr>
+                                                            
                                                             <div class="d-flex card-body">
                                                                 <div class="align-self-center w-100">
                                                                     <div id="PnrchartContainer2" style="width: 100%; height: 360px;"></div>

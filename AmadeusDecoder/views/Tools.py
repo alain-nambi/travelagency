@@ -603,7 +603,8 @@ def graph_view(request):
     context['total_pnr'] = Pnr.objects.count()
 
     today_date = datetime.today().date()
-    formatted_date = today_date.strftime('%Y-%m-%d')
+    # formatted_date = today_date.strftime('%Y-%m-%d')
+    formatted_date= '2023-06-22'
     context['pnr_of_today'] = get_pnr_of_today(formatted_date)
     context['pnr_invoiced_today'] = get_pnr_invoiced_today(formatted_date)
     context['pnr_to_invoice'] = get_pnr_to_invoice_today(formatted_date)
@@ -615,7 +616,7 @@ def graph_view(request):
     context['pourcentage_pnr_to_invoice'] = pnr_difference['pourcentage_pnr_to_invoice']
 
     context['pnr_invoiced'] = get_pnr_invoices_by_month()
-    print(context['pnr_invoiced'])
+    context['pnr_created'] = get_pnr_created_by_month()
     
     return render(request, 'stat.html', context)  
 
@@ -819,10 +820,11 @@ def get_passenger_by_month():
                 data['year']=(str(element['year']))
                 data['data'] = []
                 cursor.execute("""
-                    SELECT TO_CHAR(departuretime, 'TMMonth') as month, count(passenger_id) as total
+                    SELECT TO_CHAR(departuretime, 'TMMonth') as month, count(passenger_id) as total,extract(month from departuretime) as mois 
                     FROM v_pnr_passenger
                     WHERE EXTRACT(YEAR FROM departuretime) = %s
-                    GROUP BY month;
+                    GROUP BY month, mois 
+                    order by mois;
                 """, [element['year']])
 
                 # Récupérer les résultats
@@ -944,9 +946,11 @@ def get_pnr_to_invoice_today(date):
 def get_pnr_difference():
     context = {}
     today_date = datetime.today().date()
-    formatted_date = today_date.strftime('%Y-%m-%d')
+    # formatted_date = today_date.strftime('%Y-%m-%d')
+    formatted_date= '2024-04-22'
+    yesterday_date= '2024-04-21'
 
-    yesterday_date = today_date - timedelta(days=1)
+    # yesterday_date = today_date - timedelta(days=1)
 
     pnr_of_today = get_pnr_of_today(formatted_date)
     pnr_invoiced_today = get_pnr_invoiced_today(formatted_date)
@@ -983,9 +987,11 @@ def get_pnr_invoices_by_month():
                 data['year']=(str(element['year']))
                 data['data'] = []
                 cursor.execute("""
-                    select TO_CHAR(system_creation_date, 'TMMonth') as month,count(*) from t_pnr tp  
+                    select TO_CHAR(system_creation_date, 'TMMonth') as month,count(*),extract(month from system_creation_date) as mois from t_pnr tp 
                     where is_invoiced= true 
-                    and extract(year from system_creation_date) = %s;
+                    and extract(year from system_creation_date) = %s
+                    group by month,mois
+                    order by mois;
                 """, [element['year']])
 
                 # Récupérer les résultats
@@ -996,3 +1002,73 @@ def get_pnr_invoices_by_month():
                 
 
     return all_data
+
+
+def get_pnr_created_by_month():
+    all_year = Pnr.objects.annotate(year=ExtractYear('system_creation_date')).values('year').distinct()
+    all_data = []
+    
+
+    with connection.cursor() as cursor:
+        for element in all_year:
+            if element['year'] is not None:
+                data = {}
+                data['year']=(str(element['year']))
+                data['data'] = []
+                cursor.execute("""
+                    select TO_CHAR(system_creation_date, 'TMMonth') as month,count(*),extract(month from system_creation_date) as mois from t_pnr tp  
+                    where extract(year from system_creation_date) = %s
+                    group by month,mois
+                    order by mois;
+                """, [element['year']])
+
+                # Récupérer les résultats
+                results = cursor.fetchall()
+                for result in results:
+                    data['data'].append({"label":result[0],"y":result[1]})
+                all_data.append(data)
+                
+
+    return all_data
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

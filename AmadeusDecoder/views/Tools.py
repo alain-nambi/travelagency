@@ -602,9 +602,20 @@ def graph_view(request):
 
     context['total_pnr'] = Pnr.objects.count()
 
-    context['pnr_of_today'] = get_pnr_of_today()
-    context['pnr_invoiced_today'] = get_pnr_invoiced_today()
-    context['pnr_to_invoice'] = get_pnr_to_invoice_today()
+    today_date = datetime.today().date()
+    formatted_date = today_date.strftime('%Y-%m-%d')
+    context['pnr_of_today'] = get_pnr_of_today(formatted_date)
+    context['pnr_invoiced_today'] = get_pnr_invoiced_today(formatted_date)
+    context['pnr_to_invoice'] = get_pnr_to_invoice_today(formatted_date)
+
+    pnr_difference = get_pnr_difference()
+
+    context['pourcentage_pnr_remonte'] = pnr_difference['pourcentage_pnr_remonte']
+    context['pourcentage_pnr_invoiced'] = pnr_difference['pourcentage_pnr_invoiced']
+    context['pourcentage_pnr_to_invoice'] = pnr_difference['pourcentage_pnr_to_invoice']
+
+    context['pnr_invoiced'] = get_pnr_invoices_by_month()
+    print(context['pnr_invoiced'])
     
     return render(request, 'stat.html', context)  
 
@@ -959,3 +970,29 @@ def get_pnr_difference():
     context['pourcentage_pnr_to_invoice'] = pourcentage_pnr_to_invoice
 
     return context
+
+def get_pnr_invoices_by_month():
+    all_year = Pnr.objects.annotate(year=ExtractYear('system_creation_date')).values('year').distinct()
+    all_data = []
+    
+
+    with connection.cursor() as cursor:
+        for element in all_year:
+            if element['year'] is not None:
+                data = {}
+                data['year']=(str(element['year']))
+                data['data'] = []
+                cursor.execute("""
+                    select TO_CHAR(system_creation_date, 'TMMonth') as month,count(*) from t_pnr tp  
+                    where is_invoiced= true 
+                    and extract(year from system_creation_date) = %s;
+                """, [element['year']])
+
+                # Récupérer les résultats
+                results = cursor.fetchall()
+                for result in results:
+                    data['data'].append({"label":result[0],"y":result[1]})
+                all_data.append(data)
+                
+
+    return all_data

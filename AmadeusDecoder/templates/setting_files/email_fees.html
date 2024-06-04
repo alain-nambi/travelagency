@@ -9,7 +9,7 @@
     {% if state_email_fee == "complet" or email_fee_recipients%}
       <div class="card " style="margin:0 120px 0 20px;">
         <div class="card-header-email-fees">
-            <h2 class="card-title"><strong style="font-size: 16px;">Email Fees Recipients</strong></h2>
+            <h2 class="card-title"><strong style="font-size: 16px;">Destinataires des emails de frais</strong></h2>
             <h4 class="card-description"></h4>
         </div>
 
@@ -48,7 +48,7 @@
     {% endif %}
     <div class="card " style="margin:70px 120px 30px 20px;width:48rem;"  id="add-email-fee-card" {% if state_email_fee != "vide" %}hidden{% endif %}>
       <div class="card-header">
-          <h2 class="card-title">Email Fees Recipients</h2>
+          <h2 class="card-title">Destinataires des emails de frais</h2>
           <i class="fa fa-x" style="float: right; cursor:pointer;" aria-hidden="true" onclick="HideCard('add-email-fee-card')" {% if state_email_fee == "vide" %}hidden{% endif %}></i>
       </div>
       <div class="card-body"  >
@@ -58,7 +58,7 @@
         </div>
 
         <div class="form-group">
-            <label class="col-form-label col-4">Value Name</label>
+            <label class="col-form-label col-4">Nom de la valeur</label>
             <select class="form-control" >
               {% for config in email_fee_value_name %}
                 <option value="{{config.id}}">{{config.value_name}}</option>
@@ -94,10 +94,10 @@
         {% if state_email_fee_sender == "complet" or state_email_fee_sender == "incomplet" %}
         <div class="card " style="margin:30px 120px 0 20px;" >
           <div class="card-header-email-sender">
-              <h2 class="card-title"><strong style="font-size: 16px;">Email Fees Sender</strong></h2>
+              <h2 class="card-title"><strong style="font-size: 16px;">Expéditeurs des emails de frais</strong></h2>
           </div>
           <div class="card-body" >
-            <table class="table table-bordered table-head-fixed text-wrap"">
+            <table class="table table-bordered table-head-fixed text-wrap">
               <thead class="bg-info">
                 <tr>
                 <th scope="col" style="background: #fff !important;color: #000 !important;">Environnement</th>
@@ -130,7 +130,7 @@
 
         <div class="card" style="margin:70px 120px 0 20px;width:48rem;"  id="add-email-fee-sender-card" {% if state_email_fee_sender != "vide" %}hidden{% endif %}>
           <div class="card-header">
-          <h2 class="card-title">Email Fee Sender</h2>
+          <h2 class="card-title">Expéditeur des emails de frais</h2>
           <h4 class="card-description"></h4>
           <i class="fa fa-x" style="float: right; cursor:pointer;" aria-hidden="true" onclick="HideCard('add-email-fee-sender-card')" {% if state_email_fee_sender == "vide" %}hidden{% endif %}></i>
           </div>
@@ -142,7 +142,7 @@
             </div>
 
             <div class="form-group">
-              <label class="col-form-label col-4">Value Name</label>
+              <label class="col-form-label col-4">Nom de la valeur</label>
               <select class="form-control" id="value_name_email_fee_sender">
                 {% for config in email_fee_sender_value_name %}
                   <option value="{{config.id}}">{{config.value_name}}</option>
@@ -156,7 +156,7 @@
             </div>
 
             <div class="form-group">
-              <label class="col-form-label col-4">Password</label>
+              <label class="col-form-label col-4">Mot de passe</label>
               <input type="password" name="password_email_fee_sender" id="password_email_fee_sender" class="form-control "/>
               <span class="fas fa-eye" onclick="showPassword('password_email_fee_sender')"  style="cursor: pointer;"></span>
               
@@ -186,7 +186,7 @@
       <div class="modal-header">
         <h5 class="modal-title" id="modalPnrNotUpdatedTitle">
           <i class="fa fa-upload"></i>
-          Email Fee 
+          Email Frais
         </h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
@@ -200,7 +200,7 @@
             </div>
 
             <div class="form-group">
-                <label class="col-form-label col-4">Value Name</label>
+                <label class="col-form-label col-4">Nom de la valeur</label>
                 <input type="text" readonly id="modalFeesValueName" class="form-control "/>
             </div>
 
@@ -233,7 +233,7 @@
       <div class="modal-header">
         <h5 class="modal-title" id="modalPnrNotUpdatedTitle">
           <i class="fa fa-mail"></i>
-          Email Fee Request Tools
+          Email Frais
         </h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
@@ -247,7 +247,7 @@
             </div>
 
             <div class="input-group mb-3">
-            <label class="col-form-label col-4">Value Name</label>
+            <label class="col-form-label col-4">Nom de la valeur</label>
             <input type="text" readonly id="modalFeeSenderValueName" class="form-control "/>
             </div>
 
@@ -257,9 +257,9 @@
             </div>
 
             <div class="input-group mb-3">
-                <label class="col-form-label col-4">Password</label>
+                <label class="col-form-label col-4">Mot de passe</label>
                 <input type="password" name="password" id="modalFeeSenderPassword" class="form-control "/>
-                <span class="fas fa-eye" onclick="showPassword('modalFeeSenderPassword')"  style="cursor: pointer;margin-top:10px"></span>
+                <span class="fas fa-eye password-button-email-modal" onclick="showPassword('modalNotifSenderPassword')"  style="cursor: pointer;"></span>
                 
             </div>
 

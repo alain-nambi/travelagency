@@ -1,4 +1,4 @@
-{% extends "layout-all-pnr.html" %}
+{% extends "simple_layout.html" %} 
 {% block content %}
 <div class="content-wrapper">
   <section class="content-header p-0 manage-users-container">
@@ -71,6 +71,17 @@
                             </div>
                             <i class="fa-solid fa-angle-right"></i>
                           </li>
+                          <!-- Add status filter -->
+                          <li class="list list-four mb-1">
+                            <div class="filter-menu list" id="showFilterByPnrStatus">
+                              <i class="fas fa-sliders-h" style="padding-left: 1px !important;"></i>
+                              <span>Statut</span>
+                            </div>
+                            <i class="fa-solid fa-angle-right"></i>
+                          </li>
+
+                          
+
                           <li class="list list-five bg-danger justify-content-center " id="NoFilter">
                             <div class="filter-menu list">
                               <i class="fas fa-close" style="padding-left: 1px !important; font-size: 14px !important"></i>
@@ -87,7 +98,7 @@
                         <ul class="filter-menu">
                           {% for role in roles %}
                               <li class=" list-two mb-1" onclick="ShowUserByType({{role.id}})" >
-                                <div class="filter-menu list" >
+                                <div class="filter-menu list">
                                   <i class="fa fa-check"></i>
                                   <span>{{role.name}}</span>
                                 </div>
@@ -95,6 +106,26 @@
                           {% endfor %}
                             
                             
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div class="pnr-status absolute" style="margin-left:14rem;">
+                      <div class="content">
+                        <ul class="filter-menu">
+                          <li class="pnr-list list-one mb-1">
+                            <div class="filter-menu list" id="showIssuedPnr">
+                              <i class="fa fa-check"></i>
+                              <span>Archivé</span>
+                            </div>
+                          </li>
+                          <li class="pnr-list list-two">
+                            <div class="filter-menu list active" id="showNotIssuedPnr">
+                              <i class="fa fa-check"></i>
+                              <span>Non archivé</span>
+                            </div>
+                          </li>
+                          
                         </ul>
                       </div>
                     </div>

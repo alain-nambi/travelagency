@@ -63,22 +63,23 @@
     var currentDate = new Date();
     var currentMonth = currentDate.getMonth() + 1;
 
-
-    var pnr_invoiced = {{pnr_invoiced|safe}}
-    var pnr_created = {{pnr_created|safe}}
+    var anomaly_by_month = {{anomaly_by_month|safe}}
+    var anomaly_by_user = {{anomaly_by_user|safe}}
+    var anomaly_by_user_by_month = (anomaly_by_user.filter(element => element['month'] === currentMonth))[0];
 
 
     window.onload = function () {
+        var AnomalySelectMonth = document.getElementById("AnomalySelectMonth");
 
-
-        function hideUnhideDataSeries(e) {
-          if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
-            e.dataSeries.visible = false;
-          } else {
-            e.dataSeries.visible = true;
-          }
- 
-          e.chart.render();
+        // Obtenir les noms des mois
+        var months = new Array(12);
+        for (var i = 0; i < months.length; i++) {
+            var date = new Date(2022, i, 1); // Créer une date pour chaque mois
+            var monthName = date.toLocaleString('default', { month: 'long' }); // Obtenir le nom du mois
+            var option = document.createElement("option");
+            option.text = monthName;
+            option.value = i + 1; // Les valeurs commencent souvent à 1 pour janvier
+            AnomalySelectMonth.appendChild(option);
         }
 
         function toggleDataSeries(e) {
@@ -90,12 +91,12 @@
             e.chart.render();
         }
 
-        var chart_6 = new CanvasJS.Chart("PnrchartContainer2", {
+        var chart_8 = new CanvasJS.Chart("AnomalychartContainer1", {
             exportEnabled: false,
             animationEnabled: true,
             theme: "light1",
             title: {
-                text: "Pnr commandé par mois"
+                text: "Anomalie par mois"
               },
             axisY: {
               title: "Nombre de PNR",
@@ -119,7 +120,7 @@
               cursor: "pointer",
               itemclick: toggleDataSeries
             },
-            data: pnr_invoiced.map((element) => ({
+            data: anomaly_by_month.map((element) => ({
               type: "spline",
               name: element.year,
               lineDashType: "dot",
@@ -128,51 +129,52 @@
               dataPoints: element.data
             }))
         });
-        chart_6.render();
+        chart_8.render();
 
-        var chart_7 = new CanvasJS.Chart("PnrchartContainer1", {
-            exportEnabled: false,
+        var chart_9 = new CanvasJS.Chart("AnomalychartContainer2", {
+            theme: "light2",
             animationEnabled: true,
-            theme: "light1",
-            title: {
-                text: "Pnr remonté par mois"
-              },
-            axisY: {
-              title: "Nombre de PNR",
-              titleFontColor: "#4F81BC",
-              lineColor: "#4F81BC",
-              labelFontColor: "#4F81BC",
-              tickColor: "#4F81BC",
-              includeZero: true
-            },
-            axisY2: {
-              title: "Clicks",
-              titleFontColor: "#C0504E",
-              lineColor: "#C0504E",
-              labelFontColor: "#C0504E",  
-              tickColor: "#C0504E"
-            },
             toolTip: {
               shared: true
+            },
+            axisY: {
+              title: "Anomalie par utilisateur",
+              valueFormatString: "#,###"
             },
             legend: {
               cursor: "pointer",
               itemclick: toggleDataSeries
             },
-            data: pnr_created.map((element) => ({
-              type: "spline",
-              name: element.year,
-              lineDashType: "dot",
-              showInLegend: true,
-              yValueFormatString: "#,### PNR",
-              dataPoints: element.data
-            }))
+            data: anomaly_by_user_by_month.data.map((element) => ({
+              
+                type: "bar",
+                name: element.year,
+                showInLegend: true,
+                yValueFormatString: "#,### anomalie(s)",
+                dataPoints: element.data
+            })),
+              
         });
-        chart_7.render();
+        chart_9.render();
 
-        
 
-       
+        // Changer les données de l'anomalie par rapport au mois choisi
+        $("#AnomalySelectMonth").change(function (){
+            var selectedMonth = $("#AnomalySelectMonth").val();
+            
+            new_anomaly_by_month = (anomaly_by_user.filter(element => element['month'] === parseInt(selectedMonth)))[0];
+            
+            chart_9.options.data = new_anomaly_by_month.data.map((element) => ({
+              
+                type: "bar",
+                name: element.year,
+                showInLegend: true,
+                yValueFormatString: "#,### anomalie(s)",
+                dataPoints: element.data
+            }));
+            chart_9.render();
+        });
+
 
         $("#updateDataPoint").click(function () {
 
@@ -466,6 +468,7 @@
                                             </div>
                                         </div>
 
+
                                         <div class="tab-content" id="pills-tabContent" style="margin:30px 0 0 -18px;">
                                             
                                             <div class="tab-pane fade show active" id="pills-passager" role="tabpanel" aria-labelledby="pills-passager-tab">
@@ -479,8 +482,8 @@
                                                                     </div>
                     
                                                                     <div class="col-auto" style="margin-left:3rem">
-                                                                        <h2 class="text-muted m-b-10" style="margin-left:2rem;">PNR</h2>
-                                                                        <h2 class="m-b-0" style="margin-left:1rem;">{{total_pnr}}</h2>
+                                                                        <h2 class="text-muted m-b-10" style="margin-left:2rem;">Anolmalie</h2>
+                                                                        <h2 class="m-b-0" style="margin-left:1rem;">{{total_anomaly }}</h2>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -495,13 +498,13 @@
                                                                     <div class="row align-items-center m-l-0">
 
                                                                         <div class="col-auto">
-                                                                            <i class="fa fa-rocket" style="font-size:70px;color:#C3FF93;"></i>
+                                                                            <i class="fa fa-comments" style="font-size:70px;color:#C3FF93;"></i>
                                                                             
                                                                         </div>
     
                                                                         <div class="col-auto" style="margin-left:3rem">
-                                                                            <h3 class="mb-2">{{pnr_of_today}}</h3>
-                                                                            <p class="mb-2">PNR remonté aujourd'hui</p>
+                                                                            <h3 class="mb-2">{{anomaly_of_this_month}}</h3>
+                                                                            <p class="mb-2">Anomalie signalé ce mois-ci</p>
                                                                             {% comment %} <div class="mb-0">
                                                                                 <span class="text-success text-sm font-weight-bolder"></span>
                                                                                 <span class="text-muted">depuis hier</span>
@@ -522,13 +525,13 @@
                                                                 <div class="row align-items-center m-l-0">
 
                                                                     <div class="col-auto">
-                                                                        <i class="fa fa-cloud-upload" style="font-size:70px;color:#FFF455;"></i>
+                                                                        <i class="fa fa-comments" style="font-size:70px;color:#FFF455;"></i>
                                                                         
                                                                     </div>
 
                                                                     <div class="col-auto" style="margin-left:3rem">
-                                                                        <h3 class="mb-2">{{pnr_invoiced_today}}</h3>
-                                                                        <p class="mb-2">PNR commandé aujourd'hui</p>
+                                                                        <h3 class="mb-2">{{anomaly_of_today}}</h3>
+                                                                        <p class="mb-2">Anomalie signalé aujourd'hui</p>
                                                                         {% comment %} <div class="mb-0">
                                                                             <span class="text-success text-sm font-weight-bolder"></span>
                                                                             <span class="text-muted">depuis hier</span>
@@ -549,13 +552,13 @@
                                                                 <div class="row align-items-center m-l-0">
 
                                                                     <div class="col-auto">
-                                                                        <i class="fa fa-window-close text-danger" style="font-size:70px;"></i>
+                                                                        <i class="fa fa-check-square " style="font-size:70px;color:#C3FF93;"></i>
                                                                         
                                                                     </div>
 
                                                                     <div class="col-auto" style="margin-left:3rem">
-                                                                        <h3 class="mb-2">{{pnr_to_invoice}}</h3>
-                                                                        <p class="mb-2">PNR à commandé aujourd'hui</p>
+                                                                        <h3 class="mb-2">{{anomaly_non_traite}}</h3>
+                                                                        <p class="mb-2">Anomalie non traité </p>
                                                                         {% comment %} <div class="mb-0">
                                                                             <span class="text-success text-sm font-weight-bolder"></span>
                                                                             <span class="text-muted">depuis le dernier mois</span>
@@ -571,32 +574,49 @@
                                                     
                                                 </div>
         
+                                                
+                                                
                                                 <div class="row" style="padding-left:10px;">
-                                                    <div class="d-flex col-lg-6">
-                                                        <div class="flex-fill w-100 card">
-                                                           
-                                                            <div class="d-flex card-body">
-                                                                <div class="align-self-center w-100">
-                                                                    
-                                                                    <div id="PnrchartContainer1" style="width:100%; height:380px"></div>  
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
                                                     <div class="d-flex col-lg-6">
                                                         <div class="flex-fill w-100 card">
                                                             
                                                             <div class="d-flex card-body">
                                                                 <div class="align-self-center w-100">
-                                                                    <div id="PnrchartContainer2" style="width: 100%; height: 360px;"></div>
+                                                                    <div id="AnomalychartContainer1" style="width: 100%; height: 360px;"></div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                     
-                                                    
+                                                    <div class="d-flex col-lg-6">
+                                                        <div class="flex-fill w-100 card">
+                                                            <div class="card-header" style="position:sticky !important;">
+                                                                
+                                                                <h3 class="card-title align-items-start flex-column">
+                                                                    <span class="card-label  text-gray-800 fs-2" style="font-weight:bolder;">Anomalie par utilisateur</span>
+                                                                </h3>
+                    
+                                                                <div class="dropdown" style="float:right;">
+                                                                    
+                                                                    <div class="input-group ">
+                                                                    <div class="input-group-prepend">
+                                                                        <label class="input-group-text" for="selectMonth">Mois</label>
+                                                                    </div>
+                                                                    <select class="custom-select" id="AnomalySelectMonth">
+                                                                        <option selected>Choose...</option>
+                                                                    </select>
+                                                                    </div>
+                                                                        
+                                                                </div>
+                                                            </div>
+                                                            <div class="d-flex card-body">
+                                                                <div class="align-self-center w-100">
+                                                                    <div id="AnomalychartContainer2" style="width: 100%; height: 360px;"></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                
                                                 
                                                 <div class="row" style="padding-left:10px;">
                                                     <div class="d-flex col-lg-12">
@@ -604,7 +624,7 @@
                                                             
                                                             <div class="d-flex card-body">
                                                                 <div class="align-self-center w-100">
-                                                                    <div id="PnrchartContainer3" style="width: 100%; height: 360px;"></div>
+                                                                    <div id="PnrchartContainer5" style="width: 100%; height: 360px;"></div>
                                                                 </div>
                                                             </div>
                                                         </div>

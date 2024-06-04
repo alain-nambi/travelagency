@@ -624,6 +624,83 @@ def graph_view(request):
     
     return render(request, 'stat.html', context)  
 
+def passenger_graph_view(request):
+
+    context = {}
+    passenger_by_age_data = get_passenger_by_age()
+    context['passenger_by_age'] = passenger_by_age_data['data']
+    context['total_passenger'] = passenger_by_age_data['total']
+
+    context['all_data'] = get_destination_by_month()
+
+    context['all_data_origin'] = get_origin_by_month()
+
+    context['all_data_airline'] = get_stat_airlines()
+    total_pnr_for_week = get_total_pnr_for_week()
+    context['all_pnr_count'] = total_pnr_for_week['all_pnr_count']
+    context['last_week_pnr_count'] = total_pnr_for_week['last_week_pnr_count']
+
+    most_used_airlines = get_most_used_airlines()
+    context['total_most_used_airlines'] = len(most_used_airlines)
+    context['most_used_airlines'] = most_used_airlines
+
+    context['passenger_by_month'] = get_passenger_by_month()
+
+    context['passenger_of_today'] = get_passenger_of_today()
+
+    context['passenger_of_the_month'] = get_passenger_of_the_month()
+
+    
+    
+    return render(request, 'stat/passenger_stat.html', context)  
+
+
+def anomaly_graph_view(request):
+
+    context = {}
+    context['anomaly_by_month'] =  get_anomaly_created_by_month()
+    context['anomaly_by_user'] = get_anomaly_created_by_user()
+
+    context['anomaly_of_today'] = get_anomaly_of_today()
+    context['anomaly_of_this_month'] = get_anomaly_of_this_month()
+    context['total_anomaly'] = get_total_anomaly()
+    context['anomaly_non_traite'] = get_anomaly_non_traite()
+
+
+    
+    return render(request, 'stat/anomalie_stat.html', context)  
+
+
+def user_graph_view(request):
+
+    context = {}
+    passenger_by_age_data = get_passenger_by_age()
+    context['passenger_by_age'] = passenger_by_age_data['data']
+    context['total_passenger'] = passenger_by_age_data['total']
+
+    context['all_data'] = get_destination_by_month()
+
+    context['all_data_origin'] = get_origin_by_month()
+
+    context['all_data_airline'] = get_stat_airlines()
+    total_pnr_for_week = get_total_pnr_for_week()
+    context['all_pnr_count'] = total_pnr_for_week['all_pnr_count']
+    context['last_week_pnr_count'] = total_pnr_for_week['last_week_pnr_count']
+
+    most_used_airlines = get_most_used_airlines()
+    context['total_most_used_airlines'] = len(most_used_airlines)
+    context['most_used_airlines'] = most_used_airlines
+
+    context['passenger_by_month'] = get_passenger_by_month()
+
+    context['passenger_of_today'] = get_passenger_of_today()
+
+    context['passenger_of_the_month'] = get_passenger_of_the_month()
+
+    
+    
+    return render(request, 'stat/user_stat.html', context)  
+
 
 def get_stat_airlines():
     # month = datetime.datetime.now().month
@@ -877,7 +954,9 @@ def get_most_used_airlines():
 
 def get_passenger_of_today():
     passenger_of_today = 0
-    now = datetime.now()
+    # now = datetime.now()
+    date = '2023-06-21'
+    now = datetime.strptime(date, "%Y-%m-%d")
 
     with connection.cursor() as cursor:
 
@@ -899,7 +978,9 @@ def get_passenger_of_today():
             
 def get_passenger_of_the_month():
     passenger_of_the_month = 0
-    now = datetime.now()
+    # now = datetime.now()
+    date = '2023-06-21'
+    now = datetime.strptime(date, "%Y-%m-%d")
 
     with connection.cursor() as cursor:
 
@@ -1164,6 +1245,93 @@ def get_anomaly_created_by_user():
         all_data_by_month.append(all_data)
 
     return all_data_by_month
+
+def get_anomaly_of_today():
+    
+    anomaly_count_by_date=0
+    # now = datetime.now()
+    date = '2023-06-21'
+    now = datetime.strptime(date, "%Y-%m-%d")
+
+    with connection.cursor() as cursor:
+
+        cursor.execute("""
+            select date(creation_date) ,count(*) from t_comment 
+            where date(creation_date) = %s
+            group by date(creation_date)
+        """, [date])
+
+        # Récupérer les résultats
+        results = cursor.fetchall()
+
+        for result in results:
+            anomaly_count_by_date = result[1]
+
+    return anomaly_count_by_date
+
+def get_anomaly_of_this_month():
+    
+    anomaly_count_by_date=0
+    # now = datetime.now()
+    date = '2023-06-21'
+    now = datetime.strptime(date, "%Y-%m-%d")
+
+    with connection.cursor() as cursor:
+
+        cursor.execute("""
+            select extract (month from creation_date) as month, count(*) from t_comment 
+            where extract (month from creation_date) = %s
+            and extract (year from creation_date) = %s
+            group by month
+        """, [now.month,now.year])
+
+        # Récupérer les résultats
+        results = cursor.fetchall()
+
+        for result in results:
+            anomaly_count_by_date = result[1]
+
+    return anomaly_count_by_date
+
+def get_total_anomaly():
+    
+    anomaly_count=0
+
+    with connection.cursor() as cursor:
+
+        cursor.execute("""
+            select count(*) from t_comment 
+        """)
+
+        # Récupérer les résultats
+        results = cursor.fetchall()
+
+        for result in results:
+            anomaly_count = result[0]
+
+    return anomaly_count
+
+def get_anomaly_non_traite():
+    
+    anomaly_count=0
+
+    with connection.cursor() as cursor:
+
+        cursor.execute("""
+            select count(*) from t_comment 
+            where state = false
+        """)
+
+        # Récupérer les résultats
+        results = cursor.fetchall()
+
+        for result in results:
+            anomaly_count = result[0]
+
+    return anomaly_count
+
+
+
 
 
 

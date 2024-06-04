@@ -75,11 +75,19 @@
 
     var passenger_by_month = {{passenger_by_month|safe}}
 
+    var pnr_invoiced = {{pnr_invoiced|safe}}
+    var pnr_created = {{pnr_created|safe}}
+
+    var anomaly_by_month = {{anomaly_by_month|safe}}
+    var anomaly_by_user = {{anomaly_by_user|safe}}
+    var anomaly_by_user_by_month = (anomaly_by_user.filter(element => element['month'] === currentMonth))[0];
+
+
     window.onload = function () {
         var selectMonth = document.getElementById("DestinationSelectMonth");
         var selectOriginMonth = document.getElementById("OriginSelectMonth");
         var selectAirlineMonth = document.getElementById("AirlineSelectMonth");
-
+        var AnomalySelectMonth = document.getElementById("AnomalySelectMonth"); 
 
         // Obtenir les noms des mois
         var months = new Array(12);
@@ -110,6 +118,15 @@
             selectAirlineMonth.appendChild(option);
         }
 
+        for (var i = 0; i < months.length; i++) {
+            var date = new Date(2022, i, 1); // Créer une date pour chaque mois
+            var monthName = date.toLocaleString('default', { month: 'long' }); // Obtenir le nom du mois
+            var option = document.createElement("option");
+            option.text = monthName;
+            option.value = i + 1; // Les valeurs commencent souvent à 1 pour janvier
+            AnomalySelectMonth.appendChild(option);
+        }
+        
         
 
         // Destination Chart
@@ -257,6 +274,192 @@
         });
           chart_5.render();
 
+        var chart_6 = new CanvasJS.Chart("PnrchartContainer1", {
+            exportEnabled: false,
+            animationEnabled: true,
+            theme: "light1",
+            title: {
+                text: "Pnr commandé par mois"
+              },
+            axisY: {
+              title: "Nombre de PNR",
+              titleFontColor: "#4F81BC",
+              lineColor: "#4F81BC",
+              labelFontColor: "#4F81BC",
+              tickColor: "#4F81BC",
+              includeZero: true
+            },
+            axisY2: {
+              title: "Clicks",
+              titleFontColor: "#C0504E",
+              lineColor: "#C0504E",
+              labelFontColor: "#C0504E",  
+              tickColor: "#C0504E"
+            },
+            toolTip: {
+              shared: true
+            },
+            legend: {
+              cursor: "pointer",
+              itemclick: toggleDataSeries
+            },
+            data: pnr_invoiced.map((element) => ({
+              type: "spline",
+              name: element.year,
+              lineDashType: "dot",
+              showInLegend: true,
+              yValueFormatString: "#,### PNR",
+              dataPoints: element.data
+            }))
+        });
+        chart_6.render();
+
+        var chart_7 = new CanvasJS.Chart("PnrchartContainer2", {
+            exportEnabled: false,
+            animationEnabled: true,
+            theme: "light1",
+            title: {
+                text: "Pnr remonté par mois"
+              },
+            axisY: {
+              title: "Nombre de PNR",
+              titleFontColor: "#4F81BC",
+              lineColor: "#4F81BC",
+              labelFontColor: "#4F81BC",
+              tickColor: "#4F81BC",
+              includeZero: true
+            },
+            axisY2: {
+              title: "Clicks",
+              titleFontColor: "#C0504E",
+              lineColor: "#C0504E",
+              labelFontColor: "#C0504E",  
+              tickColor: "#C0504E"
+            },
+            toolTip: {
+              shared: true
+            },
+            legend: {
+              cursor: "pointer",
+              itemclick: toggleDataSeries
+            },
+            data: pnr_created.map((element) => ({
+              type: "spline",
+              name: element.year,
+              lineDashType: "dot",
+              showInLegend: true,
+              yValueFormatString: "#,### PNR",
+              dataPoints: element.data
+            }))
+        });
+        chart_7.render();
+
+        var chart_7 = new CanvasJS.Chart("PnrchartContainer2", {
+            exportEnabled: false,
+            animationEnabled: true,
+            theme: "light1",
+            title: {
+                text: "Pnr remonté par mois"
+              },
+            axisY: {
+              title: "Nombre de PNR",
+              titleFontColor: "#4F81BC",
+              lineColor: "#4F81BC",
+              labelFontColor: "#4F81BC",
+              tickColor: "#4F81BC",
+              includeZero: true
+            },
+            axisY2: {
+              title: "Clicks",
+              titleFontColor: "#C0504E",
+              lineColor: "#C0504E",
+              labelFontColor: "#C0504E",  
+              tickColor: "#C0504E"
+            },
+            toolTip: {
+              shared: true
+            },
+            legend: {
+              cursor: "pointer",
+              itemclick: toggleDataSeries
+            },
+            data: pnr_created.map((element) => ({
+              type: "spline",
+              name: element.year,
+              lineDashType: "dot",
+              showInLegend: true,
+              yValueFormatString: "#,### PNR",
+              dataPoints: element.data
+            }))
+        });
+        chart_7.render();
+
+        var chart_8 = new CanvasJS.Chart("AnomalychartContainer1", {
+            exportEnabled: false,
+            animationEnabled: true,
+            theme: "light1",
+            title: {
+                text: "Anomalie par mois"
+              },
+            axisY: {
+              title: "Nombre de PNR",
+              titleFontColor: "#4F81BC",
+              lineColor: "#4F81BC",
+              labelFontColor: "#4F81BC",
+              tickColor: "#4F81BC",
+              includeZero: true
+            },
+            axisY2: {
+              title: "Clicks",
+              titleFontColor: "#C0504E",
+              lineColor: "#C0504E",
+              labelFontColor: "#C0504E",  
+              tickColor: "#C0504E"
+            },
+            toolTip: {
+              shared: true
+            },
+            legend: {
+              cursor: "pointer",
+              itemclick: toggleDataSeries
+            },
+            data: anomaly_by_month.map((element) => ({
+              type: "spline",
+              name: element.year,
+              lineDashType: "dot",
+              showInLegend: true,
+              yValueFormatString: "#,### PNR",
+              dataPoints: element.data
+            }))
+        });
+        chart_8.render();
+
+        var chart_9 = new CanvasJS.Chart("AnomalychartContainer2", {
+            theme: "light2",
+            animationEnabled: true,
+            toolTip: {
+              shared: true
+            },
+            axisY: {
+              title: "Anomalie par utilisateur",
+              valueFormatString: "#,###"
+            },
+            legend: {
+              cursor: "pointer",
+              itemclick: toggleDataSeries
+            },
+            data: anomaly_by_user_by_month.data.map((element) => ({
+              
+                type: "bar",
+                name: element.year,
+                showInLegend: true,
+                yValueFormatString: "#,### anomalie(s)",
+                dataPoints: element.data
+            })),
+              
+        });
+        chart_9.render();
+
         // Changer les données de destination par rapport au mois choisi
         $("#DestinationSelectMonth").change(function (){
             var selectedMonth = $("#DestinationSelectMonth").val();
@@ -305,6 +508,23 @@
                 dataPoints: element.data
             }));
             chart_4.render();
+        });
+
+        // Changer les données de l'anomalie par rapport au mois choisi
+        $("#AnomalySelectMonth").change(function (){
+            var selectedMonth = $("#AnomalySelectMonth").val();
+            
+            new_anomaly_by_month = (destinations.filter(element => element['month'] === parseInt(selectedMonth)))[0];
+            
+            chart_9.options.data = new_anomaly_by_month.data.map((element) => ({
+              
+                type: "bar",
+                name: element.year,
+                showInLegend: true,
+                yValueFormatString: "#,### anomalie(s)",
+                dataPoints: element.data
+            }));
+            chart_9.render();
         });
 
 
@@ -651,10 +871,7 @@
                                                                     <div class="col-auto" style="margin-left:3rem">
                                                                         <h3 class="mb-2">{{passenger_of_today}}</h3>
                                                                         <p class="mb-2">Passagers créés aujourd'hui</p>
-                                                                        <div class="mb-0">
-                                                                            <span class="text-success text-sm font-weight-bolder">+5.35%</span>
-                                                                            <span class="text-muted">depuis hier</span>
-                                                                        </div>
+                                                                        
                                                                     </div>
 
                                                                     
@@ -678,10 +895,7 @@
                                                                     <div class="col-auto" style="margin-left:3rem">
                                                                         <h3 class="mb-2">{{passenger_of_today}}</h3>
                                                                         <p class="mb-2">Passagers créés ce mois-ci</p>
-                                                                        <div class="mb-0">
-                                                                            <span class="text-success text-sm font-weight-bolder">+5.35%</span>
-                                                                            <span class="text-muted">depuis le dernier mois</span>
-                                                                        </div>
+                                                                        
                                                                     </div>
 
                                                                     
@@ -860,10 +1074,10 @@
                                                                         <div class="col-auto" style="margin-left:3rem">
                                                                             <h3 class="mb-2">{{pnr_of_today}}</h3>
                                                                             <p class="mb-2">PNR remonté aujourd'hui</p>
-                                                                            <div class="mb-0">
-                                                                                <span class="text-success text-sm font-weight-bolder">+5.35%</span>
+                                                                            {% comment %} <div class="mb-0">
+                                                                                <span class="text-success text-sm font-weight-bolder"></span>
                                                                                 <span class="text-muted">depuis hier</span>
-                                                                            </div>
+                                                                            </div> {% endcomment %}
                                                                         </div>
     
                                                                         
@@ -887,10 +1101,10 @@
                                                                     <div class="col-auto" style="margin-left:3rem">
                                                                         <h3 class="mb-2">{{pnr_invoiced_today}}</h3>
                                                                         <p class="mb-2">PNR commandé aujourd'hui</p>
-                                                                        <div class="mb-0">
-                                                                            <span class="text-success text-sm font-weight-bolder">+5.35%</span>
+                                                                        {% comment %} <div class="mb-0">
+                                                                            <span class="text-success text-sm font-weight-bolder"></span>
                                                                             <span class="text-muted">depuis hier</span>
-                                                                        </div>
+                                                                        </div> {% endcomment %}
                                                                     </div>
 
                                                                     
@@ -914,10 +1128,10 @@
                                                                     <div class="col-auto" style="margin-left:3rem">
                                                                         <h3 class="mb-2">{{pnr_to_invoice}}</h3>
                                                                         <p class="mb-2">PNR à commandé aujourd'hui</p>
-                                                                        <div class="mb-0">
-                                                                            <span class="text-success text-sm font-weight-bolder">+5.35%</span>
+                                                                        {% comment %} <div class="mb-0">
+                                                                            <span class="text-success text-sm font-weight-bolder"></span>
                                                                             <span class="text-muted">depuis le dernier mois</span>
-                                                                        </div>
+                                                                        </div> {% endcomment %}
                                                                     </div>
 
                                                                     
@@ -932,49 +1146,18 @@
                                                 <div class="row" style="padding-left:10px;">
                                                     <div class="d-flex col-lg-6">
                                                         <div class="flex-fill w-100 card">
-                                                            <div class="" style="padding: 10px 10px 10px 10px;" >
-                                                                <div class="row">
-                                                                    <h3 class="card-title align-items-start flex-column col-md-6" style="margin-top:1rem;">
-                                                                        <span class="card-label text-gray-800 fs-2" style="font-weight:bolder;">Total Passager par Destinations</span>
-                                                                        
-                                                                    </h3>
-                                                                    <div class="col-md-6">
-                                                                        <div class="dropdown " style="float:right;">                               
-                                                                            <div class="input-group ">
-                                                                            <div class="input-group-prepend">
-                                                                                <label class="input-group-text" for="selectMonth">Mois</label>
-                                                                            </div>
-                                                                            <select class="custom-select" id="DestinationSelectMonth">
-                                                                                <option selected>Choose...</option>
-                                                                            </select>
-                                                                            </div>
-                                                                                
-                                                                        </div>
-                                                                    </div>
-                                                                    
-                                                                </div>
-                                                                
-                                                            </div>
-                                                            <hr>
+                                                           
                                                             <div class="d-flex card-body">
                                                                 <div class="align-self-center w-100">
                                                                     
-                                                                    <div id="PnrchartContainer" style="width:100%; height:380px"></div>  
+                                                                    <div id="PnrchartContainer1" style="width:100%; height:380px"></div>  
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div class="d-flex col-lg-6">
                                                         <div class="flex-fill w-100 card">
-                                                            <div class="" style="padding: 10px 10px 10px 10px;">
-                                                                
-                                                                <h3 class="card-title align-items-start flex-column">
-                                                                    <span class="card-label  text-gray-800 fs-2" style="font-weight:bolder;">Passagers par tranche d'âge</span>
-                                                                   
-                                                                </h3>
-                                                                
-                                                            </div>
-                                                            <hr>
+                                                            
                                                             <div class="d-flex card-body">
                                                                 <div class="align-self-center w-100">
                                                                     <div id="PnrchartContainer2" style="width: 100%; height: 360px;"></div>
@@ -989,40 +1172,21 @@
                                                 <div class="row" style="padding-left:10px;">
                                                     <div class="d-flex col-lg-6">
                                                         <div class="flex-fill w-100 card">
-                                                            <div class="card-header" style="position:sticky !important;">
-                                                                
-                                                                <h3 class="card-title align-items-start flex-column">
-                                                                    <span class="card-label  text-gray-800 fs-2" style="font-weight:bolder;">Passagers par Origine</span>
-                                                                </h3>
-                    
-                                                                <div class="dropdown" style="float:right;">
-                                                                    
-                                                                    <div class="input-group ">
-                                                                    <div class="input-group-prepend">
-                                                                        <label class="input-group-text" for="selectMonth">Mois</label>
-                                                                    </div>
-                                                                    <select class="custom-select" id="OriginSelectMonth">
-                                                                        <option selected>Choose...</option>
-                                                                    </select>
-                                                                    </div>
-                                                                        
-                                                                </div>
-                                                            </div>
+                                                            
                                                             <div class="d-flex card-body">
                                                                 <div class="align-self-center w-100">
-                                                                    <div id="PnrchartContainer3" style="width: 100%; height: 360px;"></div>
+                                                                    <div id="AnomalychartContainer1" style="width: 100%; height: 360px;"></div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                    
+                                                    
                                                     <div class="d-flex col-lg-6">
                                                         <div class="flex-fill w-100 card">
                                                             <div class="card-header" style="position:sticky !important;">
                                                                 
                                                                 <h3 class="card-title align-items-start flex-column">
-                                                                    <span class="card-label  text-gray-800 fs-2" style="font-weight:bolder;">Passagers par Compagnie Aérienne</span>
-                                                                    
+                                                                    <span class="card-label  text-gray-800 fs-2" style="font-weight:bolder;">Anomalie par utilisateur</span>
                                                                 </h3>
                     
                                                                 <div class="dropdown" style="float:right;">
@@ -1031,7 +1195,7 @@
                                                                     <div class="input-group-prepend">
                                                                         <label class="input-group-text" for="selectMonth">Mois</label>
                                                                     </div>
-                                                                    <select class="custom-select" id="AirlineSelectMonth">
+                                                                    <select class="custom-select" id="AnomalySelectMonth">
                                                                         <option selected>Choose...</option>
                                                                     </select>
                                                                     </div>
@@ -1040,7 +1204,7 @@
                                                             </div>
                                                             <div class="d-flex card-body">
                                                                 <div class="align-self-center w-100">
-                                                                    <div id="PnrchartContainer4" style="width: 100%; height: 360px;"></div>
+                                                                    <div id="AnomalychartContainer2" style="width: 100%; height: 360px;"></div>
                                                                 </div>
                                                             </div>
                                                         </div>

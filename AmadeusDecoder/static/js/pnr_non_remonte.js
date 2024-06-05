@@ -27,7 +27,8 @@ const selectSegment = document.querySelector('#selectSegment');
 const SelectSegmentDiv = document.querySelector('#SelectSegmentDiv');
 var dropdownOptions = document.querySelectorAll('.dropdown-option');
 var dropdownList = document.querySelector('.dropdown-list');
-
+var segmentList = document.querySelector('#segmentList');
+var passengerList = document.querySelector('#passengerList');
 
 const confirmAddPnrButton = document.querySelector('#ConfirmAddPnrButton');
 
@@ -51,6 +52,13 @@ var checked=[];
 var label = document.querySelector('.dropdown-label');
 
 $(document).ready(function(){
+
+    $('#ticketType').on('change', function(){
+        if($('#ticketType').val() == 'EMD'){
+            unremountedPnrFeeSection.hidden = false;
+        }
+    } )
+
     if(AddSegmentButton,SelectSegmentDiv, AddSegmentButtonDiv){
         //  check if there is segments data in the session storage
         // if there is, fill the segment select with it
@@ -130,17 +138,50 @@ $(document).ready(function(){
         });
 
         html += `</tbody>
-        </table>`;
+        </table>`; 
+
 
         $("#ticketTable").html(html);
         ticketList.hidden= false;
     }
 
+    if('passengers' in sessionStorage){
+        let session_passengers = JSON.parse(sessionStorage.getItem('passengers'));
+        
+        // Create ticket table
+    
+        var html = `<table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Ordre</th>
+                        <th>Désignation</th> 
+                        <th>Nom</th>
+                        <th>Type</th> 
+                      </tr>
+                    </thead>
+                    <tbody>`;
+        session_passengers.forEach(passenger => {
+            html += `<tr>
+            <td>${passenger['PassengerOrder']}</td>
+            <td>${passenger['PassengerDesignation']}</td>
+            <td>${passenger['PassengerName']} ${passenger['PassengerSurname']}</td>
+            <td>${passenger['PassengerTypeLabel']}</td>
+            </tr>`;
+    
+        });
+    
+        html += `</tbody>
+        </table>`;
+    
+        $("#passengerTable").html(html);
+        passengerList.hidden= false;
+    }
+
     if('segments' in sessionStorage){
         let session_segments = JSON.parse(sessionStorage.getItem('segments'));
         
-        // Create ticket table
-
+        // Create segment table
+    
         var html = `<table class="table table-striped">
                     <thead>
                       <tr>
@@ -156,48 +197,33 @@ $(document).ready(function(){
         session_segments.forEach(segment => {
             html += `<tr>
             <td>${segment['order']}</td>
-            <td>${segment['airline']} ${segment['flightNumber']}</td>
+            <td>${segment['airlineLabel']} ${segment['flightNumber']}</td>
             <td>${segment['departureDate']} ${segment['departureTime']}</td>
             <td>${segment['arrivalDate']} ${segment['arrivalTime']}</td>
-            <td>${segment['origin']}</td>
-            <td>${segment['destination']}</td>
+            <td>${segment['originLabel']}</td>
+            <td>${segment['destinationLabel']}</td>
             </tr>`;
-            
-            
+    
         });
-
+    
         html += `</tbody>
         </table>`;
-
+    
         $("#segmentTable").html(html);
         segmentList.hidden= false;
     }
 
-
-    //  check if there is passengers data in the session storage
-    // if there is, fill the passenger select with it
-    if('passengers' in sessionStorage){
-        let session_passengers = JSON.parse(sessionStorage.getItem('passengers'));
-        // Ajouter les passagers contenu dans session storage en tant qu'option de selectSegment
-        session_passengers.forEach(element => {
-            var option = document.createElement('option');
-            option.value = element['PassengerOrder']; // Définir la valeur de l'option
-            option.text = element['PassengerName'] +" " +element['PassengerSurname'];
-            passengerSelect.appendChild(option);
-        });
-    }
-
-    $('#ticketType').on('change', ()=>{
-
-        if($('#ticketType').val() == 'EMD'){
-            unremountedPnrFeeSection.hidden = false;
+    $('#pnrNumber').on('input',function(){
+        pnrType = document.getElementById('pnrType');
+        var pnrValue = $(this).val();
+        $(this).val(pnrValue.toUpperCase());
+        if (pnrValue.startsWith('00')){
+            $('#pnrType').val('zenith');
         }
         else{
-            unremountedPnrFeeSection.hidden = true;
-
+            $('#pnrType').val('altea');
         }
     })
-
 })
 
 if(pnrNumber, ticketNumber,ticketCost, ticketTax, PassengerName, flightNumber, segmentOrder, PassengerOrder, PassengerName, AddTicketButton, cancelAddTicketButton, AddPassengerButton, CancelAddPassengerButton, AddSegmentButton, AddMoreSegmentButton
@@ -356,10 +382,16 @@ ConfirmAddSegmentButton.addEventListener('click', function(event){
     var origin = $('#origin').val();
     var destination = $('#destination').val();
     var airline = $('#airline').val();
+    var airlineLabel = $('#airline option:selected').attr('label');
+    var originLabel = $('#origin option:selected').attr('label');
+    var destinationLabel = $('#destination option:selected').attr('label');
+
+    // var originLabel = $('#origin').text();
+    // var destinationLabel = $('#destination').text();
     var order = $('#segmentOrder').val();
 
 
-    var Segment = {"airline":airline,"flightNumber":flightNumber.value,"order":order,"departureDate":departureDate,"departureTime":departureTime,"arrivalDate":arrivalDate,"arrivalTime":arrivalTime,"origin":origin,"destination":destination}
+    var Segment = {"airlineLabel":airlineLabel,"originLabel":originLabel,"destinationLabel":destinationLabel,"airline":airline,"flightNumber":flightNumber.value,"order":order,"departureDate":departureDate,"departureTime":departureTime,"arrivalDate":arrivalDate,"arrivalTime":arrivalTime,"origin":origin,"destination":destination}
     
     // Effacer tous les option de selectSegment s'il y en a
     if (!selectSegment.hidden) {
@@ -407,6 +439,40 @@ ConfirmAddSegmentButton.addEventListener('click', function(event){
             // Ajouter le nœud texte à l'élément label
             label.appendChild(textNode);
             dropdownList.appendChild(label);
+
+                
+                // Create segment table
+            
+                var html = `<table class="table table-striped">
+                            <thead>
+                              <tr>
+                                <th>Ordre</th>
+                                <th>Vol</th> 
+                                <th>date Départ</th> 
+                                <th>date d'Arriée</th> 
+                                <th>Origine</th> 
+                                <th>Destination</th> 
+                              </tr>
+                            </thead>
+                            <tbody>`;
+                session_segments.forEach(segment => {
+                    html += `<tr>
+                    <td>${segment['order']}</td>
+                    <td>${segment['airlineLabel']} ${segment['flightNumber']}</td>
+                    <td>${segment['departureDate']} ${segment['departureTime']}</td>
+                    <td>${segment['arrivalDate']} ${segment['arrivalTime']}</td>
+                    <td>${segment['originLabel']}</td>
+                    <td>${segment['destinationLabel']}</td>
+                    </tr>`;
+            
+                });
+            
+                html += `</tbody>
+                </table>`;
+            
+                $("#segmentTable").html(html);
+                segmentList.hidden= false;
+            
         });
 
 
@@ -442,6 +508,34 @@ ConfirmAddSegmentButton.addEventListener('click', function(event){
         // Ajouter le nœud texte à l'élément label
         label.appendChild(textNode);
         dropdownList.appendChild(label);
+
+        var html = `<table class="table table-striped">
+                            <thead>
+                              <tr>
+                                <th>Ordre</th>
+                                <th>Vol</th> 
+                                <th>date Départ</th> 
+                                <th>date d'Arriée</th> 
+                                <th>Origine</th> 
+                                <th>Destination</th> 
+                              </tr>
+                            </thead>
+                            <tbody>`;
+                    html += `<tr>
+                    <td>${Segment['order']}</td>
+                    <td>${Segment['airlineLabel']} ${Segment['flightNumber']}</td>
+                    <td>${Segment['departureDate']} ${Segment['departureTime']}</td>
+                    <td>${Segment['arrivalDate']} ${Segment['arrivalTime']}</td>
+                    <td>${Segment['originLabel']}</td>
+                    <td>${Segment['destinationLabel']}</td>
+                    </tr>`;
+            
+            
+                html += `</tbody>
+                </table>`;
+            
+                $("#segmentTable").html(html);
+                segmentList.hidden= false;
     }
     
     closeSegmentSection();
@@ -456,9 +550,10 @@ ConfirmAddPassengerButton.addEventListener('click', function(event){
     var PassengerDesignation = $('#PassengerDesignation').val();
     var PassengerOrder = $('#PassengerOrder').val();
     var PassengerType = $('#PassengerType').val();
+    var PassengerTypeLabel = $('#PassengerType option:selected').attr('label');
     var Passeport = $('#Passeport').val();
 
-    var Passenger = {"PassengerName":PassengerName,"PassengerSurname":PassengerSurname,"PassengerDesignation":PassengerDesignation,"PassengerOrder":PassengerOrder,"PassengerType":PassengerType,"Passeport":Passeport}
+    var Passenger = {"PassengerTypeLabel":PassengerTypeLabel,"PassengerName":PassengerName,"PassengerSurname":PassengerSurname,"PassengerDesignation":PassengerDesignation,"PassengerOrder":PassengerOrder,"PassengerType":PassengerType,"Passeport":Passeport}
     
     // Effacer tous les option de Passenger select s'il y en a
     
@@ -484,6 +579,33 @@ ConfirmAddPassengerButton.addEventListener('click', function(event){
             option.text = element['PassengerName'] +" " +element['PassengerSurname'];
             passengerSelect.appendChild(option);
         });
+
+            var html = `<table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Ordre</th>
+                        <th>Désignation</th> 
+                        <th>Nom</th>
+                        <th>Type</th> 
+                      </tr>
+                    </thead>
+                    <tbody>`;
+        session_passengers.forEach(passenger => {
+            html += `<tr>
+            <td>${passenger['PassengerOrder']}</td>
+            <td>${passenger['PassengerDesignation']}</td>
+            <td>${passenger['PassengerName']} ${passenger['PassengerSurname']}</td>
+            <td>${passenger['PassengerTypeLabel']}</td>
+            </tr>`;
+    
+        });
+    
+        html += `</tbody>
+        </table>`;
+    
+        $("#passengerTable").html(html);
+        passengerList.hidden= false;
+        
     }
     else{
         var passengers = [];
@@ -495,6 +617,32 @@ ConfirmAddPassengerButton.addEventListener('click', function(event){
         option.value = Passenger['PassengerOrder'] ; // Définir la valeur de l'option
         option.text = Passenger['PassengerName'] +" " +Passenger['PassengerSurname'];
         passengerSelect.appendChild(option);
+
+        var html = `<table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Ordre</th>
+                        <th>Désignation</th> 
+                        <th>Nom</th>
+                        <th>Type</th> 
+                      </tr>
+                    </thead>
+                    <tbody>`;
+        
+            html += `<tr>
+            <td>${Passenger['PassengerOrder']}</td>
+            <td>${Passenger['PassengerDesignation']}</td>
+            <td>${Passenger['PassengerName']} ${Passenger['PassengerSurname']}</td>
+            <td>${Passenger['PassengerTypeLabel']}</td>
+            </tr>`;
+    
+
+    
+        html += `</tbody>
+        </table>`;
+    
+        $("#passengerTable").html(html);
+        passengerList.hidden= false;
     }
     
     closePassengerSection();
@@ -900,3 +1048,5 @@ function updateStatus(input_value){
         label.innerHTML = selectedValues;
     }
 }
+
+

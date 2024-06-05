@@ -60,9 +60,9 @@
                                                         <th class="text-center" scope="col">Taxe</th>
                                                         <th class="text-center" scope="col">Passager</th>
                                                         <th class="text-center" scope="col">Segment</th>
-                                                        {% if unremounted_pnr.state == 0 %}
+                                                        {% comment %} {% if unremounted_pnr.state == 0 %}
                                                         <th class="text-center" scope="col">Action</th>  
-                                                        {% endif %}
+                                                        {% endif %} {% endcomment %}
                                                          
                                                     </tr>
                                                 </thead>
@@ -71,18 +71,18 @@
                                                         <tr style="justify-content:center;" data-ticket-id="{{ticket.id}}" >
                                                             <td class="text-center">{{ ticket.number }}</td>
                                                             <td class="text-center"> {{ticket.type}} </td>
-                                                            <td class="text-center">{% if ticket.fee %} <span><input class="form-check-input" type="checkbox" checked {% if unremounted_pnr.state == 2 %} disabled{% endif %}></span> {% endif %}</td>
+                                                            <td class="text-center">{% if ticket.fee %} <span><input class="form-check-input" type="checkbox" checked  disabled></span> {% endif %}</td>
                                                             <td class="text-center"> {{ticket.transport_cost | floatformat:2}} </td>
                                                             <td class="text-center"> {{ticket.tax | floatformat:2}} </td>
                                                             <td class="text-center"> {{ticket.passenger.order}} / {{ticket.passenger.name}} {% if ticket.passenger.surname %}{{ticket.passenger.surname}}{% endif %} </td>
                                                             <td class="text-center">{% with ticket.id|get_unremounted_ticket_segment as segment_order %} {{segment_order}} {% endwith %}</td>
-                                                            {% if unremounted_pnr.state == 0 %}
+                                                            {% comment %} {% if unremounted_pnr.state == 0 %}
                                                             <td class="text-center">
                                                                 <span><input class="form-check-input ticketCheck" type="checkbox" checked></span>
                                                                 <span style="margin-left:10px;"><i class="fa fa-pencil" title="Modifier" style="font-size: 15px;color:green;"></i></span>
                                                                 <span style="margin-left:10px;"><i class="fa fa-x" title="Modifier" style="font-size: 15px;color:red;"></i></span>
                                                             </td>
-                                                            {% endif %}
+                                                            {% endif %} {% endcomment %}
                                                         </tr>
                                                     {% endfor %}
                                                 
@@ -104,9 +104,9 @@
                                                         <th class="text-center" scope="col">Désignation</th>
                                                         <th class="text-center" scope="col">Passeport</th>
                                                         <th class="text-center" scope="col">Type</th>
-                                                        {% if unremounted_pnr.state == 0 %}
+                                                        {% comment %} {% if unremounted_pnr.state == 0 %}
                                                         <th class="text-center" scope="col">Action</th>  
-                                                        {% endif %}
+                                                        {% endif %} {% endcomment %}
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -118,13 +118,13 @@
                                                             <td class="text-center">{{passenger.designation}}</td>
                                                             <td class="text-center"> {{passenger.passeport}} </td>
                                                             <td class="text-center"> {{passenger.type.name}} </td>
-                                                            {% if unremounted_pnr.state == 0 %}
+                                                            {% comment %} {% if unremounted_pnr.state == 0 %}
                                                             <td class="text-center">
                                                                 
                                                                 <span style="margin-left:10px;"><i class="fa fa-pencil" title="Modifier" style="font-size: 15px;color:green;"></i></span>
                                                                 <span style="margin-left:10px;"><i class="fa fa-x" title="Modifier" style="font-size: 15px;color:red;"></i></span>
                                                             </td>
-                                                            {% endif %}
+                                                            {% endif %} {% endcomment %}
                                                         </tr>
                                                     {% endfor %}
                                                 
@@ -146,9 +146,9 @@
                                                         <th class="text-center" scope="col">Date et heure d'arrivée</th>
                                                         <th class="text-center" scope="col">Départ</th>
                                                         <th class="text-center" scope="col">Arrivée</th>
-                                                        {% if unremounted_pnr.state == 0 %}
+                                                        {% comment %} {% if unremounted_pnr.state == 0 %}
                                                         <th class="text-center" scope="col">Action</th>  
-                                                        {% endif %}
+                                                        {% endif %} {% endcomment %}
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -160,13 +160,13 @@
                                                             <td class="text-center">{{segment.arrivaltime}}</td>
                                                             <td class="text-center"> {{segment.codeorg.iata_code}} </td>
                                                             <td class="text-center"> {{segment.codedest.iata_code}} </td>
-                                                            {% if unremounted_pnr.state == 0 %}
+                                                            {% comment %} {% if unremounted_pnr.state == 0 %}
                                                             <td class="text-center">
                                                                 
                                                                 <span style="margin-left:10px;"><i class="fa fa-pencil" title="Modifier" style="font-size: 15px;color:green;"></i></span>
                                                                 <span style="margin-left:10px;"><i class="fa fa-x" title="Modifier" style="font-size: 15px;color:red;"></i></span>
                                                             </td>
-                                                            {% endif %}
+                                                            {% endif %} {% endcomment %}
                                                         </tr>
                                                     {% endfor %}
                                                 

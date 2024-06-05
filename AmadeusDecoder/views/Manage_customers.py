@@ -184,8 +184,7 @@ def customers(request):
     context = {'page_obj': page_obj, 'row_num': row_num}
     return render(request,'manage_customers.html', context)    
 
-def customers_details(request,customer_id):
+def customer_details(request,customer_id):
     details = Client.objects.get(pk=customer_id)
-    context = {'details' : details}
-
+    context = {'customer' : details}
     return render(request,'customer.html',context)

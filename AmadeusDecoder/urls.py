@@ -3,7 +3,7 @@ from . import views
 
 from .views import home
 from .views.Dashboard import dashboard
-from .views.Manage_customers import customers, create_customer, modify_customer_info, modify_customer_in_passenger_invoice, delete_customer
+from .views.Manage_customers import *
 from .views.Manage_users import *
 from .views.Account import account
 from .views.Tools import *
@@ -131,5 +131,7 @@ urlpatterns = [
     path('check-uninvoiced-status/', uncheck_ticket_in_passenger_invoiced, name='uncheck_ticket_in_passenger_invoiced'),
     path('anomaly/accept/unremounted-pnr',accept_unremounted_pnr, name='accept_unremounted_pnr'),
     path('anomaly/refuse/unremounted-pnr',refuse_unremounted_pnr, name='refuse_unremounted_pnr'),
-    path('customers/details/<int:customer_id>', customers_details, name = "customers_details"),
+    path('home/unremounted-pnr-research', unremounted_pnr_research, name= 'unremounted_pnr_research'),
+    path('customer/details/<int:customer_id>',customer_details,name="customer_details"),
+    
 ]

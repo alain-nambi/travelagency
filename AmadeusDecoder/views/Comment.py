@@ -662,7 +662,7 @@ def get_data_ticket_from_query_set(request,search_results):
         else:
             values['other_fee'] = canceled_ticket.other_fee.designation
         values['motif'] = canceled_ticket.motif
-        values['date'] = (canceled_ticket.date).strftime("%m/%d/%Y")
+        values['date'] = (canceled_ticket.date).strftime("%d/%m/%Y")
         values['issuing_user'] = canceled_ticket.issuing_user.username
         results.append(values)
     return results
@@ -1005,7 +1005,50 @@ def refuse_unremounted_pnr(request):
 
     return JsonResponse(context)
 
+# ------------ transform a list of queryset to table specialy for the canceled ticket search
+@login_required(login_url="index")
+def get_data_unremounted_pnr_from_query_set(request,search_results):
+    results = []
+    for pnr in search_results:
+        
+        values = {}
+        values['id'] = pnr.id
+        values['number'] = pnr.number
+        values['type'] = pnr.type
+        values['emitter'] = pnr.emitter
+        values['date'] = (pnr.creation_date).strftime("%d/%m/%Y, %H:%M:%S")
+        values['state'] = pnr.user.username
+        results.append(values)
+    return results
 
+
+@login_required(login_url="index")
+def unremounted_pnr_research(request):
+    context = {}
+    
+    if request.method == 'POST' and request.POST.get('pnr_research'):
+        search_results = []
+        
+        pnr_research = request.POST.get('pnr_research')
+        pnr_results = UnremountedPnr.objects.all().filter(Q(number__icontains=pnr_research) | Q(type__icontains=pnr_research)| Q(state__icontains=pnr_research) )
+        
+        if pnr_results.exists():
+            for p1 in pnr_results :
+                search_results.append(p1)
+        print(search_results)
+                    
+        print(search_results)
+        if pnr_results.exists():
+            results = get_data_unremounted_pnr_from_query_set(search_results)
+            context['results'] = results
+            context['status'] = 200
+        else:
+            context['status'] = 404
+            context['message'] = 'Aucun résultat trouvé.'
+            
+        pnr_count = len(results)
+        
+    return JsonResponse(context)
 
 
 

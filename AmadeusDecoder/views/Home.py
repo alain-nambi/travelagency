@@ -2442,7 +2442,7 @@ def get_data_unordered_pnr_from_query_set(request,search_results):
         values['pnr_number'] = invoice.pnr.number
         values['invoice_number'] = invoice.invoice_number
         values['motif'] = invoice.motif
-        values['date'] = (invoice.date).strftime("%m/%d/%Y, %H:%M:%S")
+        values['date'] = (invoice.date).strftime("%d/%m/%Y, %H:%M:%S")
         values['user'] = invoice.user.username
         results.append(values)
     return results

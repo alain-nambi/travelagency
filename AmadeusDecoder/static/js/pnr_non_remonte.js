@@ -1050,3 +1050,242 @@ function updateStatus(input_value){
 }
 
 
+$(document).ready(function () {
+
+  $("#upnr-research").on("click", function () {
+    searchUnremountedPnrFunction();
+  });
+});
+
+function searchUnremountedPnrFunction() {
+  
+  var pnr_research = $("#input-unordered-pnr").val().toLowerCase();
+  if (pnr_research.trim() != "") {
+    $("#spinnerLoadingSearch").show();
+    $.ajax({
+      type: "POST",
+      url: "/home/unremounted-pnr-research",
+      dataType: "json",
+      data: {
+        pnr_research: pnr_research,
+        csrfmiddlewaretoken: csrftoken,
+      },
+      success: function (data) {
+        let SEARCH_RESULT = data.results;
+
+        if (SEARCH_RESULT.length > 0) {
+          console.log('data_results : ',data.results);
+          document.querySelector("#all-unremounted-pnr-after-search").innerHTML = "";
+
+          $("#all-unremounted-pnr-after-search").show();
+          $("#initialPagination").hide();
+          $("#spinnerLoadingSearch").hide();
+
+
+
+          $(".request-pnr-counter").text(SEARCH_RESULT.length);
+          $("#unremountedpnrCounterOnSearch").val(" / " + SEARCH_RESULT.length);
+
+          let pnrAfterSearch = SEARCH_RESULT.map((invoice, index) => {
+            return { id: invoice.pnr_id, position: index, number: invoice.pnr_number };
+          });
+          
+
+          localStorage.setItem(
+            "pnrAfterSearch",
+            JSON.stringify(pnrAfterSearch)
+          );
+
+          $("#all-unremounted-pnr").remove();
+          $("#all-unremounted-pnr-after-search").show();
+
+          var html = `<thead class="bg-info">
+                            <tr>
+                              <th width="5%" class="text-white">PNR</th>
+                              <th width="5%" class="text-white">Type</th>
+                              <th width="5%" class="text-white">Date de signalement</th>
+                              <th width="8%" class="text-white">Signalée par</th>
+                              <th width="5%" class="text-white">Statut</th>
+                            </tr>
+                          </thead>
+                  <tbody class="tbody-unordered-pnr-after-search">`;
+              SEARCH_RESULT.forEach(pnr => {
+                  html += `
+                    <tr 
+                      onclick="location.href='/home/unremounted-pnr-details/${pnr.number}/'" 
+                      style="cursor: pointer;" 
+                      role="row">
+                      <td>${pnr.type}</td>             
+                      <td> ${pnr.date} </td>
+                      <td> ${pnr.issuing_user} </td>
+                      <td> ${pnr.status} </td>                      
+                    </tr>
+                  
+                `;
+              });
+
+              html += `</tbody>`;
+              $("all-unremounted-pnr-after-search").html(html); // Mise à jour du contenu de la table
+              $("#all-unremounted-pnr-after-search").html(html).trigger("update");
+
+        } else {
+          $("#spinnerLoadingSearch").hide();
+          const input__searchPnrValue = $("#input-upnr").val();
+          $("#input-upnr").val("");
+          toastr.error(
+            `Aucun PNR correspondant à la recherche ~ ${input__searchPnrValue} ~`
+          );
+        }
+      },
+    });
+  } else {
+    $("#spinnerLoadingSearch").hide();
+    toastr.warning(`La recherche ne doit pas être vide`);
+  }
+}
+
+//  filtre motif/date/créateur
+
+function UnremountedfilterFunction(filter,data_search){
+    $.ajax({
+        type : "POST",
+        url : "/home/unordered-pnr-filter",
+        dataType: "json",
+        data : {
+            filter:filter,
+            data_search:data_search,
+            csrfmiddlewaretoken : csrftoken
+        },
+        success : function(data){
+            if (data.status == 200){
+                let SEARCH_RESULT = data.results;
+
+                if (SEARCH_RESULT.length > 0) {
+                console.log('data_results : ',data.results);
+                document.querySelector("#all-unremounted-pnr-after-search").innerHTML = "";
+
+                $("#all-unremounted-pnr-after-search").show();
+                $("#initialPagination").hide();
+                $("#spinnerLoadingSearch").hide();
+
+
+
+                $(".request-pnr-counter").text(SEARCH_RESULT.length);
+                $("#unremountedpnrCounterOnSearch").val(" / " + SEARCH_RESULT.length);
+
+                let pnrAfterSearch = SEARCH_RESULT.map((invoice, index) => {
+                    return { id: invoice.pnr_id, position: index, number: invoice.pnr_number };
+                });
+                
+
+                localStorage.setItem(
+                    "pnrAfterSearch",
+                    JSON.stringify(pnrAfterSearch)
+                );
+
+                $("#all-unremounted-pnr").remove();
+                $("#all-unremounted-pnr-after-search").show();
+
+                var html = `<thead class="bg-info">
+                                    <tr>
+                                    <th width="5%" class="text-white">PNR</th>
+                                    <th width="5%" class="text-white">Type</th>
+                                    <th width="5%" class="text-white">Date de signalement</th>
+                                    <th width="8%" class="text-white">Signalée par</th>
+                                    <th width="5%" class="text-white">Statut</th>
+                                    </tr>
+                                </thead>
+                        <tbody class="tbody-unordered-pnr-after-search">`;
+                    SEARCH_RESULT.forEach(pnr => {
+                        html += `
+                            <tr 
+                            onclick="location.href='/home/unremounted-pnr-details/${pnr.number}/'" 
+                            style="cursor: pointer;" 
+                            role="row">
+                            <td>${pnr.type}</td>             
+                            <td> ${pnr.date} </td>
+                            <td> ${pnr.issuing_user} </td>
+                            <td> ${pnr.status} </td>                      
+                            </tr>
+                        
+                        `;
+                    });
+
+                    html += `</tbody>`;
+                    $("all-unremounted-pnr-after-search").html(html); // Mise à jour du contenu de la table
+                    $("#all-unremounted-pnr-after-search").html(html).trigger("update");
+
+                } else {
+                $("#spinnerLoadingSearch").hide();
+                const input__searchPnrValue = $("#input-upnr").val();
+                $("#input-upnr").val("");
+                toastr.error(
+                    `Aucun PNR correspondant à la recherche ~ ${input__searchPnrValue} ~`
+                );
+                }
+            }
+            else{
+                toastr.error(data.message)
+            }
+        }
+    })
+}
+
+$('#buttonFilterByDateUnremounted').on('click', () =>{
+    filter = 'date'
+    data_search = $('#DatInputUnremounted').val();
+    UnremountedfilterFunction(filter,data_search);
+    CloseUnremountedFilter();
+})
+$('#buttonFilterTypeUnremounted').on('click', () =>{
+    filter = 'type'
+    data_search = $('#cancelationDatInputUnremounted').val();
+    UnremountedfilterFunction(filter,data_search);
+    CloseUnremountedFilter();
+})
+$('#buttonFilterByStatusUnremounted').on('click', () =>{
+    filter = 'status'
+    data_search = $('#cancelationDatInputUnremounted').val();
+    UnremountedfilterFunction(filter,data_search);
+    CloseUnremountedFilter();
+})
+
+$('#buttonFilterByCostUnremounted').on('click', () =>{
+    filter = 'montant'
+    data_search = $('#MotantminFilterInputUnremounted').val();
+    data_search = $('#MotantmaxFilterInputUnremounted').val();
+
+    console.log('data_search : ',data_search);
+    UnremountedfilterFunction(filter,data_search);
+    CloseUnremountedFilter();
+})
+
+$('#buttonFilterByCreatorUnremounted').on('click', () =>{
+    filter = 'creator'
+    data_search = $('#FilterCreatorSelectUnremounted').val();
+    UnremountedfilterFunction(filter,data_search);
+    CloseUnremountedFilter();
+})
+
+// close filter
+$('#CloseUnremountedFilter').on('click', () => {
+    CloseUnremountedFilter();
+});
+
+function CloseUnremountedFilter(){
+    $('.wrapper-menu-filter').hide();
+    $('.pnr-menu').hide();
+    $('.creator-group-menu ').hide();
+    $('.date-range-menu').hide();
+}
+
+// Recherche avancée billets annulés
+
+$('#UnremountedAdvancedSearch').on('click',() => {
+    var date = $('#UnremountedcancellationDateInput').val();
+    var motif = $('#UnremountedMontantInput').val();
+    var createur = $('#UnremountedCreatorSelector').val();
+
+    UnremountedAdvancedSearch(date,motif,createur);
+});
+  

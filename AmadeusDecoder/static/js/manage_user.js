@@ -273,6 +273,10 @@ $(document).ready(function () {
   })
 });
 
+function closeFilter(){
+    $pnrMenu.hide();
+    $wrapperMenuFilter.hide();
+}
 // Search function for user list
 
 function SearchUser() {
@@ -312,55 +316,40 @@ function SearchUser() {
           $("#all-user").remove();
           $("#all-user-after-search").show();
 
-          var options = {
-            dataSource: SEARCH_RESULT, // La source de données pour la pagination (ici, les lignes de la table)
-            locator: "items",
-            showGoInput: true,
-            showGoButton: true,
-            showNavigator: true,
-            formatNavigator:
-              "<%= rangeStart %> - <%= rangeEnd %> sur <%= totalNumber %> résultat(s)",
-            callback: function (data, pagination) {
-              // La fonction de rappel pour mettre à jour les résultats affichés
-              var html = `<thead class="bg-info">
-                    <tr>
-                      <th>Nom</th>
-                      <th>Prénom(s)</th>
-                      <th>Nom d'utilisateur</th>
-                      <th>Email</th>
-                      <th>Rôle</th>
-                    </tr>
-                  </thead>
-                  <tbody class="tbody-user-after-search">`;
-              $.each(data, function (index,user) {
 
+          var html = `<thead class="bg-info">
+                <tr>
+                  <th>Nom</th>
+                  <th>Prénom(s)</th>
+                  <th>Nom d'utilisateur</th>
+                  <th>Email</th>
+                  <th>Rôle</th>
+                </tr>
+              </thead>
+              <tbody class="tbody-user-after-search">`;
+              SEARCH_RESULT.forEach(user => {
                 html += `
-                    <tr 
-                      onclick="location.href='/user/details/${user.id}/'" 
-                      style="cursor: pointer;" 
-                      role="row"
-                    >
-                      <td> 
-                        ${user.name}  
-                      </td>             
-                      <td> ${user.first_name} </td>
-                      <td> ${user.username} </td>
+                <tr 
+                  onclick="location.href='/user/details/${user.id}/'" 
+                  style="cursor: pointer;" 
+                  role="row"
+                >
+                  <td> 
+                    ${user.name}  
+                  </td>             
+                  <td> ${user.first_name} </td>
+                  <td> ${user.username} </td>
 
-                      <td> ${user.email} </td>
-                      <td> ${user.role} </td>
-                      
-                    </tr>
+                  <td> ${user.email} </td>
+                  <td> ${user.role} </td>
                   
-                `;
-              });
-              html += `</tbody>`;
-              $("all-user-after-search").html(html); // Mise à jour du contenu de la table
-              $("#all-user-after-search").html(html).trigger("update");
-            },
-          };
+                </tr>`;
+              }); 
 
-          $("#pagination").pagination(options); // Initialisation de la pagination avec les options définies
-
+          html += `</tbody>`;
+          $("all-user-after-search").html(html); // Mise à jour du contenu de la table
+          $("#all-user-after-search").html(html).trigger("update");
+              
         } else {
           $("#spinnerLoadingSearch").hide();
           const input__searchPnrValue = $("#input-user").val();
@@ -413,54 +402,38 @@ function ShowUserByType(role_id){
           $("#all-user").hide();
           $("#all-user-after-search").show();
 
-          var options = {
-            dataSource: SEARCH_RESULT, // La source de données pour la pagination (ici, les lignes de la table)
-            locator: "items",
-            showGoInput: true,
-            showGoButton: true,
-            showNavigator: true,
-            formatNavigator:
-              "<%= rangeStart %> - <%= rangeEnd %> sur <%= totalNumber %> résultat(s)",
-            callback: function (data, pagination) {
-              // La fonction de rappel pour mettre à jour les résultats affichés
-              var html = `<thead class="bg-info">
-                    <tr>
-                      <th>Nom</th>
-                      <th>Prénom(s)</th>
-                      <th>Nom d'utilisateur</th>
-                      <th>Email</th>
-                      <th>Rôle</th>
-                    </tr>
-                  </thead>
-                  <tbody class="tbody-user-after-search">`;
-              $.each(data, function (index,user) {
-
+          var html = `<thead class="bg-info">
+                <tr>
+                  <th>Nom</th>
+                  <th>Prénom(s)</th>
+                  <th>Nom d'utilisateur</th>
+                  <th>Email</th>
+                  <th>Rôle</th>
+                </tr>
+              </thead>
+              <tbody class="tbody-user-after-search">`;
+              SEARCH_RESULT.forEach(user => {
                 html += `
-                    <tr 
-                      onclick="location.href='/user/details/${user.id}/'" 
-                      style="cursor: pointer;" 
-                      role="row"
-                    >
-                      <td> 
-                        ${user.name}  
-                      </td>             
-                      <td> ${user.first_name} </td>
-                      <td> ${user.username} </td>
+                <tr 
+                  onclick="location.href='/user/details/${user.id}/'" 
+                  style="cursor: pointer;" 
+                  role="row"
+                >
+                  <td> 
+                    ${user.name}  
+                  </td>             
+                  <td> ${user.first_name} </td>
+                  <td> ${user.username} </td>
 
-                      <td> ${user.email} </td>
-                      <td> ${user.role} </td>
-                      
-                    </tr>
+                  <td> ${user.email} </td>
+                  <td> ${user.role} </td>
                   
-                `;
-              });
-              html += `</tbody>`;
-              $("all-user-after-search").html(html); // Mise à jour du contenu de la table
-              $("#all-user-after-search").html(html).trigger("update");
-            },
-          };
+                </tr>`;
+              }); 
 
-          $("#pagination").pagination(options); // Initialisation de la pagination avec les options définies
+          html += `</tbody>`;
+          $("all-user-after-search").html(html); // Mise à jour du contenu de la table
+          $("#all-user-after-search").html(html).trigger("update");
 
         } else {
           // $("#spinnerLoadingSearch").hide();
@@ -468,6 +441,7 @@ function ShowUserByType(role_id){
             `Aucun utilisateur ne correspondant à la recherche `
           );
         }
+        closeFilter();
       },
     });
 }

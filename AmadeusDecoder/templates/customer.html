@@ -1,0 +1,101 @@
+{% extends "simple_layout.html" %} 
+{% block content %}
+<div class="content-wrapper" style="margin-top: 8rem;">
+  <section class="content-header p-0" style="margin-top: 8rem;">
+    <div class="container-fluid" style="padding-top: 0.75rem;">
+      <div class="row">
+        <div class="col-sm-6">
+          <h1 class="text-primary">Gestion utilisateurs</h1>
+        </div>
+        <div class="col-sm-6">
+          <a class="btn btn-outline-success float-sm-right mt-1 mr-2 mb-1" href="{% url 'register' %}"><i class="fas fa-plus"></i>
+            Ajouter un utilisateur
+          </a>
+        </div>
+      </div>
+    </div><!-- /.container-fluid -->
+  </section>
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row ">
+        <div class="col-12">
+          <div class="card card-tabs">
+            <div style="{% if not user.is_active %} background-color:#B3C8CF;{% else %}background-color:#A0DEFF;{% endif %}">
+                
+                
+                <div class="col text-center align-items-center">
+                    <h3 class="profile-username"><i class="fas fa-user-circle fa-2x"></i></h3>
+                    <h3 class="profile-username">{{user.username}}</h3>
+                </div>
+
+                
+            </div><hr>
+            <div class="card-body">
+                <div class="card card-primary card-outline px-4 w-50">
+                    <div class="box-body box-profile">
+                      <input type="hidden" id="user_id" value="{{user.id}}" />
+                      
+                      <ul class="list-group list-group-unbordered">
+                        <li class="list-group-item">
+                          <b>Intitulé :</b> <a class="pull-right" id="user_name_label">{{client.intitule}}</a>
+                          <input type="text" class="form form-control w-50" id="user_name_update" required hidden/>
+                            
+                        </li>
+                        <li class="list-group-item">
+                          <b>E-mail :</b> <a class="pull-right" id="user_first_name_label" >{{client.email}}</a>
+                          <input type="text" class="form form-control w-50" id="client_first_name_update" required hidden/>
+                        </li>
+                        <li class="list-group-item">
+                          <b>Téléphone :</b> <a class="pull-right" id="client_email_label" >{{client.telephone}}</a>
+                          <input type="text" class="form form-control w-50" id="client_email_update" required hidden/>
+                        </li>
+                        <li class="list-group-item mb-2">
+                            <b>Adresse :</b> <a class="pull-right" id="client_role_label" >{{client.address_1}}</a>
+                            <input type="text" class="form form-control w-50" id="client_email_update" required hidden/>
+                        </li>
+                        <li class="list-group-item mb-2">
+                            <b>Adresse Secondaire:</b> <a class="pull-right" id="client_role_label" >{{client.address_2}}</a>
+                            <input type="text" class="form form-control w-50" id="client_email_update" required hidden/>
+                        </li>
+                        <li class="list-group-item mb-2">
+                            <b>Code postal :</b> <a class="pull-right" id="client_role_label" >{{client.code_postal}}</a>
+                            <input type="text" class="form form-control w-50" id="client_email_update" required hidden/>
+                        </li>
+                        <li class="list-group-item mb-2">
+                            <b>Ville :</b> <a class="pull-right" id="client_role_label" >{{client.city}}</a>
+                            <input type="text" class="form form-control w-50" id="client_email_update" required hidden/>
+                        </li>
+                        <li class="list-group-item mb-2">
+                            <b>Département :</b> <a class="pull-right" id="client_role_label" >{{client.departement}}</a>
+                            <input type="text" class="form form-control w-50" id="client_email_update" required hidden/>
+                        </li>
+                        <li class="list-group-item mb-2">
+                            <b>Pays :</b> <a class="pull-right" id="client_role_label" >{{client.country}}</a>
+                            <input type="text" class="form form-control w-50" id="client_email_update" required hidden/>
+                        </li>
+                      </ul>
+                        <div class="row" style="display:flex; justify-content: space-between;margin-bottom:1rem;color:#007bff">
+                            
+                            <a class="btn btn-dark " id="update_info"><b>Modifier</b></a>
+                            <a class="btn btn-success" hidden id="confirm_update_info"  data-toggle="modal" data-target="#modalConfirmUpdate" data-action="update_info" data-user="{{user.id}}" data-connected-user="{{request.user.id}}"><b>Confirmer</b></a>
+                        </div>
+                      
+                
+                      
+                    </div>
+        
+                  </div>
+            </div>
+
+            <a class="btn btn-primary"  href="{% url 'customers_details' %}" style="width:100px;margin:0 0 10px 10px;" title='Retour' type="button"  id="reactive_user" >
+              <b>Retour</b>
+            </a>
+            <!-- /.card -->
+          </div>
+        </div>
+      </div>
+  </section>
+</div>
+
+
+{% endblock content %}

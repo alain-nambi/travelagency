@@ -60,12 +60,12 @@
   <!-- tablesort-->
   <link href="{% static 'css/theme.default.css' %}" rel="stylesheet">
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" integrity="sha512-is1TN9d5Tt0OFxQTczhF1BPaJRaNzbSRKjk9yvExCHuCgfROU67TpE+67x35lbHEaQmbUxZ1Xjq18pIFpxGNmg==" crossorigin="anonymous">
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0/css/select2.min.css" rel="stylesheet" />
 
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/css/selectize.css" integrity="sha512-Y+AaVWdRf6zsGm7eV+EGOIuqYZoi2wUQ7wF8oHbnLy8k2zdVGSxyjn2qDUMFkLRy/9mqOAE5BeyEqx1yxDTQIw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/css/bootstrap-select.min.css" integrity="sha512-ARJR74swou2y0Q2V9k0GbzQ/5vJ2RBSoCWokg4zkfM29Fb3vZEQyv0iWBMW/yvKgyHSR/7D64pFMmU8nYmbRkg==" crossorigin="anonymous">
 
   {% endblock %}
 
@@ -382,43 +382,14 @@ old -->
         </div>
         <div class="info-footer-pnr">
           <div class="row d-flex align-items-center">
-            <div class="col-md-2">
-              <strong class="text-primary">
-                <u>Total PNR:</u> 
-                <span class="request-pnr-counter">{{  pnr_count }}</span>
-              </strong>
-            </div>
+            
             <div class="col-md-10">
 
               <div id="pagination"></div>
               {% include "pagination.html" %}
-              <!-- <div class="pager">
-                <span class="right">
-                  <span class="prev">
-                    <i class="fa fa-angle-left"></i>
-                  </span>
-                  <span class="pagecount"></span>
-                  <span class="next">
-                    <i class="fa fa-angle-right"></i>
-                  </span>
-                </span>
-                <select class="form-control form-control-sm pagesize" style="display: inline; width: 40%;">
-                  <option value="" disabled selected>Nombres de lignes</option>
-                  <option value="20">20</option>
-                  <option value="50">50</option>
-                  <option value="100">100</option>
-                  <option value="{{ pnr_count }}">Tous</option>
-                </select>
-              </div> -->
-            </div>
+              
             <div>
-              <button 
-                type="button" 
-                class="btn btn-warning mr-2" id='ExcelUploadPnrList' 
-                style="padding: 0.1rem 0.5rem !important">
-                <i class="fa fa-upload text-white" data-toggle="tooltip" data-placement="top"  title="Exporter en CSV"></i>
-                <span class="text-white">To Excel</span>
-              </button>
+              
             </div>
           </div>
         </div>
@@ -433,7 +404,7 @@ old -->
     <!-- <script src="{% static 'js/jquery.min.js' %}"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha512-+NqPlbbtM1QqiK8ZAo4Yrj2c4lNQoGv8P79DPtKzj++l5jnN39rHA/xsqn8zE9l0uSoxaCdrOgFs6yjyfbBxSg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     
-    {% comment %} <script script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0/js/select2.min.js"></script> {% endcomment %}
+    <script script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0/js/select2.min.js"></script>
     <!-- Bootstrap 4 -->
     <!-- <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.1/js/bootstrap.bundle.min.js" integrity="sha512-mULnawDVcCnsk9a4aG1QLZZ6rcce/jSzEGqUkeOLy0b6q0+T6syHrxlsAGH7ZVoqC93Pd0lBqd6WguPWih7VHA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -485,13 +456,11 @@ old -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/colresizable/1.6.0/colResizable-1.6.min.js" integrity="sha512-pMZ2rgWRGMywzbRAVwGk+auTREN0ldKKjACUSB4cneTgD3kn/6pu//Lxi4l8xSRkY83HENr1vztTnGDySWs0Mg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-    
-    <script src=" https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js "></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" integrity="sha512-2ImtlRlf2VVmiGZsjm9bEyhjGW4dU7B6TNwh/hx/iSByxNENtj3WVE6o/9Lj4TJeVXPi4bnOIMXFIJJAeufa0A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/js/selectize.min.js" integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/js/bootstrap-select.min.js" integrity="sha512-yDlE7vpGDP7o2eftkCiPZ+yuUyEcaBwoJoIhdXv71KZWugFqEphIS3PU60lEkFaz8RxaVsMpSvQxMBaKVwA5xg==" crossorigin="anonymous"></script>
-
+    <script src=" https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js "></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" integrity="sha512-2ImtlRlf2VVmiGZsjm9bEyhjGW4dU7B6TNwh/hx/iSByxNENtj3WVE6o/9Lj4TJeVXPi4bnOIMXFIJJAeufa0A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
     {% if messages %}
     {% for message in messages %}
     {% if message.tags == 'success'%}

@@ -1,6 +1,6 @@
-{% extends "layout-all-pnr.html" %}
+{% extends "simple_layout.html" %} 
 {% block content %}
-<div class="content-wrapper" >
+<div class="content-wrapper" style="margin-top: 8rem;">
   <section class="content-header p-0" style="margin-top: 8rem;">
     <div class="container-fluid" style="padding-top: 0.75rem;">
       <div class="row">
@@ -19,8 +19,8 @@
     <div class="container-fluid">
       <div class="row ">
         <div class="col-12">
-          <div class="card {% if not user.is_active %} card-warning {% endif %} card-primary card-tabs">
-            <div class="card-header p-0 pt-1">
+          <div class="card card-tabs">
+            <div style="{% if not user.is_active %} background-color:#B3C8CF;{% else %}background-color:#A0DEFF;{% endif %}">
                 <div class="col text-right" style="margin-bottom:1rem;">
                   {% if user.is_active%}
                     <a class="btn btn-danger " title='Archiver {{user.name}}' type="button" data-toggle="modal" 
@@ -44,7 +44,7 @@
                 </div>
 
                 
-            </div>
+            </div><hr>
             <div class="card-body">
                 <div class="card card-primary card-outline px-4 w-50">
                     <div class="box-body box-profile">

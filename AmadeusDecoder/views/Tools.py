@@ -28,6 +28,7 @@ from AmadeusDecoder.models.pnrelements.PnrAirSegments import PnrAirSegments
 from AmadeusDecoder.models.user.Users import User
 from AmadeusDecoder.utilities.ProductImportParser import ProductParser, CustomerParser
 from AmadeusDecoder.models.configuration.Configuration import Configuration
+from AmadeusDecoder.models.utilities.Comments import Comment
 
 from django.db import connection
 from django.db.models import Count, Func
@@ -603,12 +604,102 @@ def graph_view(request):
     context['total_pnr'] = Pnr.objects.count()
 
     today_date = datetime.today().date()
-    formatted_date = today_date.strftime('%Y-%m-%d')
+    # formatted_date = today_date.strftime('%Y-%m-%d')
+    formatted_date= '2023-06-22'
     context['pnr_of_today'] = get_pnr_of_today(formatted_date)
     context['pnr_invoiced_today'] = get_pnr_invoiced_today(formatted_date)
     context['pnr_to_invoice'] = get_pnr_to_invoice_today(formatted_date)
+
+    pnr_difference = get_pnr_difference()
+
+    context['pourcentage_pnr_remonte'] = pnr_difference['pourcentage_pnr_remonte']
+    context['pourcentage_pnr_invoiced'] = pnr_difference['pourcentage_pnr_invoiced']
+    context['pourcentage_pnr_to_invoice'] = pnr_difference['pourcentage_pnr_to_invoice']
+
+    context['pnr_invoiced'] = get_pnr_invoices_by_month()
+    context['pnr_created'] = get_pnr_created_by_month()
+    context['anomaly_by_month'] =  get_anomaly_created_by_month()
+    context['anomaly_by_user'] = get_anomaly_created_by_user()
+    print(context['anomaly_by_user'])
     
     return render(request, 'stat.html', context)  
+
+def passenger_graph_view(request):
+
+    context = {}
+    passenger_by_age_data = get_passenger_by_age()
+    context['passenger_by_age'] = passenger_by_age_data['data']
+    context['total_passenger'] = passenger_by_age_data['total']
+
+    context['all_data'] = get_destination_by_month()
+
+    context['all_data_origin'] = get_origin_by_month()
+
+    context['all_data_airline'] = get_stat_airlines()
+    total_pnr_for_week = get_total_pnr_for_week()
+    context['all_pnr_count'] = total_pnr_for_week['all_pnr_count']
+    context['last_week_pnr_count'] = total_pnr_for_week['last_week_pnr_count']
+
+    most_used_airlines = get_most_used_airlines()
+    context['total_most_used_airlines'] = len(most_used_airlines)
+    context['most_used_airlines'] = most_used_airlines
+
+    context['passenger_by_month'] = get_passenger_by_month()
+
+    context['passenger_of_today'] = get_passenger_of_today()
+
+    context['passenger_of_the_month'] = get_passenger_of_the_month()
+
+    
+    
+    return render(request, 'stat/passenger_stat.html', context)  
+
+
+def anomaly_graph_view(request):
+
+    context = {}
+    context['anomaly_by_month'] =  get_anomaly_created_by_month()
+    context['anomaly_by_user'] = get_anomaly_created_by_user()
+
+    context['anomaly_of_today'] = get_anomaly_of_today()
+    context['anomaly_of_this_month'] = get_anomaly_of_this_month()
+    context['total_anomaly'] = get_total_anomaly()
+    context['anomaly_non_traite'] = get_anomaly_non_traite()
+
+
+    
+    return render(request, 'stat/anomalie_stat.html', context)  
+
+
+def user_graph_view(request):
+
+    context = {}
+    passenger_by_age_data = get_passenger_by_age()
+    context['passenger_by_age'] = passenger_by_age_data['data']
+    context['total_passenger'] = passenger_by_age_data['total']
+
+    context['all_data'] = get_destination_by_month()
+
+    context['all_data_origin'] = get_origin_by_month()
+
+    context['all_data_airline'] = get_stat_airlines()
+    total_pnr_for_week = get_total_pnr_for_week()
+    context['all_pnr_count'] = total_pnr_for_week['all_pnr_count']
+    context['last_week_pnr_count'] = total_pnr_for_week['last_week_pnr_count']
+
+    most_used_airlines = get_most_used_airlines()
+    context['total_most_used_airlines'] = len(most_used_airlines)
+    context['most_used_airlines'] = most_used_airlines
+
+    context['passenger_by_month'] = get_passenger_by_month()
+
+    context['passenger_of_today'] = get_passenger_of_today()
+
+    context['passenger_of_the_month'] = get_passenger_of_the_month()
+
+    
+    
+    return render(request, 'stat/user_stat.html', context)  
 
 
 def get_stat_airlines():
@@ -810,10 +901,28 @@ def get_passenger_by_month():
                 data['year']=(str(element['year']))
                 data['data'] = []
                 cursor.execute("""
-                    SELECT TO_CHAR(departuretime, 'TMMonth') as month, count(passenger_id) as total
+                    WITH all_months AS (
+                    SELECT generate_series(1, 12) AS mois
+                    )
+                    , passengers_by_month AS (
+                    SELECT TO_CHAR(departuretime, 'TMMonth') AS month, COUNT(passenger_id) AS total, EXTRACT(month FROM departuretime) AS mois
                     FROM v_pnr_passenger
                     WHERE EXTRACT(YEAR FROM departuretime) = %s
-                    GROUP BY month;
+                    GROUP BY TO_CHAR(departuretime, 'TMMonth'), EXTRACT(month FROM departuretime)
+                    )
+                    SELECT 
+                    TO_CHAR(TO_DATE(m.mois::text, 'MM'), 'TMMonth') AS month, 
+                    COALESCE(p.total, 0) AS total, 
+                    m.mois
+                    FROM 
+                    all_months m
+                    LEFT JOIN 
+                    passengers_by_month p 
+                    ON 
+                    m.mois = p.mois
+                    ORDER BY 
+                    m.mois;
+
                 """, [element['year']])
 
                 # Récupérer les résultats
@@ -845,7 +954,9 @@ def get_most_used_airlines():
 
 def get_passenger_of_today():
     passenger_of_today = 0
-    now = datetime.now()
+    # now = datetime.now()
+    date = '2023-06-21'
+    now = datetime.strptime(date, "%Y-%m-%d")
 
     with connection.cursor() as cursor:
 
@@ -867,7 +978,9 @@ def get_passenger_of_today():
             
 def get_passenger_of_the_month():
     passenger_of_the_month = 0
-    now = datetime.now()
+    # now = datetime.now()
+    date = '2023-06-21'
+    now = datetime.strptime(date, "%Y-%m-%d")
 
     with connection.cursor() as cursor:
 
@@ -935,9 +1048,11 @@ def get_pnr_to_invoice_today(date):
 def get_pnr_difference():
     context = {}
     today_date = datetime.today().date()
-    formatted_date = today_date.strftime('%Y-%m-%d')
+    # formatted_date = today_date.strftime('%Y-%m-%d')
+    formatted_date= '2024-04-22'
+    yesterday_date= '2024-04-21'
 
-    yesterday_date = today_date - timedelta(days=1)
+    # yesterday_date = today_date - timedelta(days=1)
 
     pnr_of_today = get_pnr_of_today(formatted_date)
     pnr_invoiced_today = get_pnr_invoiced_today(formatted_date)
@@ -961,3 +1076,300 @@ def get_pnr_difference():
     context['pourcentage_pnr_to_invoice'] = pourcentage_pnr_to_invoice
 
     return context
+
+def get_pnr_invoices_by_month():
+    all_year = Pnr.objects.annotate(year=ExtractYear('system_creation_date')).values('year').distinct()
+    all_data = []
+    
+
+    with connection.cursor() as cursor:
+        for element in all_year:
+            if element['year'] is not None:
+                data = {}
+                data['year']=(str(element['year']))
+                data['data'] = []
+                cursor.execute("""
+                    WITH all_months AS (
+                    SELECT generate_series(1, 12) AS mois
+                    )
+                    , pnr_by_month AS (
+                    SELECT TO_CHAR(system_creation_date, 'TMMonth') AS month, COUNT(*) AS total, EXTRACT(month FROM system_creation_date) AS mois
+                    FROM t_pnr
+                    WHERE is_invoiced = true 
+                    AND EXTRACT(year FROM system_creation_date) = %s
+                    GROUP BY TO_CHAR(system_creation_date, 'TMMonth'), EXTRACT(month FROM system_creation_date)
+                    )
+                    SELECT 
+                    TO_CHAR(TO_DATE(m.mois::text, 'MM'), 'TMMonth') AS month, 
+                    COALESCE(p.total, 0) AS total, 
+                    m.mois
+                    FROM 
+                    all_months m
+                    LEFT JOIN 
+                    pnr_by_month p 
+                    ON 
+                    m.mois = p.mois
+                    ORDER BY 
+                    m.mois;
+
+                """, [element['year']])
+
+                # Récupérer les résultats
+                results = cursor.fetchall()
+                for result in results:
+                    data['data'].append({"label":result[0],"y":result[1]})
+                all_data.append(data)
+                
+
+    return all_data
+
+
+def get_pnr_created_by_month():
+    all_year = Pnr.objects.annotate(year=ExtractYear('system_creation_date')).values('year').distinct()
+    all_data = []
+    
+
+    with connection.cursor() as cursor:
+        for element in all_year:
+            if element['year'] is not None:
+                data = {}
+                data['year']=(str(element['year']))
+                data['data'] = []
+                cursor.execute("""
+                        WITH all_months AS (
+                            SELECT generate_series(1, 12) AS mois
+                        )
+                        , pnr_by_month AS (
+                            SELECT TO_CHAR(system_creation_date, 'TMMonth') AS month, COUNT(*) AS total, EXTRACT(month FROM system_creation_date) AS mois
+                            FROM t_pnr
+                            WHERE EXTRACT(year FROM system_creation_date) = %s
+                            GROUP BY TO_CHAR(system_creation_date, 'TMMonth'), EXTRACT(month FROM system_creation_date)
+                        )
+                        SELECT 
+                            TO_CHAR(TO_DATE(m.mois::text, 'MM'), 'TMMonth') AS month, 
+                            COALESCE(p.total, 0) AS total, 
+                            m.mois
+                        FROM 
+                            all_months m
+                        LEFT JOIN 
+                            pnr_by_month p 
+                        ON 
+                            m.mois = p.mois
+                        ORDER BY 
+                            m.mois;
+
+                """, [element['year']])
+
+                # Récupérer les résultats
+                results = cursor.fetchall()
+                for result in results:
+                    data['data'].append({"label":result[0],"y":result[1]})
+                all_data.append(data)
+            
+    return all_data
+
+def get_anomaly_created_by_month():
+    all_year = Comment.objects.annotate(year=ExtractYear('creation_date')).values('year').distinct()
+    all_data = []
+    
+
+    with connection.cursor() as cursor:
+        for element in all_year:
+            if element['year'] is not None:
+                data = {}
+                data['year']=(str(element['year']))
+                data['data'] = []
+
+                cursor.execute("""
+                WITH all_months AS (
+                    SELECT generate_series(1, 12) AS month_num
+                )
+                , comments_by_month AS (
+                    SELECT EXTRACT(month FROM creation_date) AS mois, COUNT(*) AS total
+                    FROM t_comment
+                    WHERE EXTRACT(YEAR FROM creation_date) = %s
+                    GROUP BY EXTRACT(month FROM creation_date)
+                )
+                SELECT 
+                    TO_CHAR(TO_DATE(m.month_num::text, 'MM'), 'TMMonth') AS month, 
+                    COALESCE(c.total, 0) AS total, 
+                    m.month_num AS mois
+                FROM 
+                    all_months m
+                LEFT JOIN 
+                    comments_by_month c 
+                ON 
+                    m.month_num = c.mois
+                ORDER BY 
+                    m.month_num;
+                """, [element['year']])
+
+                # Récupérer les résultats
+                results = cursor.fetchall()
+                for result in results:
+                    data['data'].append({"label":result[0],"y":result[1]})
+                all_data.append(data)
+            
+    return all_data
+
+def get_anomaly_created_by_user():
+    all_year = Comment.objects.annotate(year=ExtractYear('creation_date')).values('year').distinct()
+    all_data_by_month = []
+
+    for month in range(1, 13):
+        all_data = {}
+        all_data['month'] = month
+        all_data['data'] = []
+        with connection.cursor() as cursor:
+            for element in all_year:
+                if element['year'] is not None:
+                    data = {}
+
+                    cursor.execute("""
+                        select tc.user_id_id ,count(*) as total from t_comment tc
+                        WHERE EXTRACT(MONTH FROM creation_date) = %s
+                        AND EXTRACT(YEAR FROM creation_date) = %s
+                        group by user_id_id;
+                    """, [month,element['year']])
+
+                    # Récupérer les résultats
+                    results = cursor.fetchall()
+
+                    data['year']=(str(element['year']))
+                    data['data'] = []
+                    for results in results:
+                        user = User.objects.get(pk = results[0])
+                        data['data'].append({"y":results[1],"label":user.username}) 
+
+                    all_data['data'].append(data)
+        all_data_by_month.append(all_data)
+
+    return all_data_by_month
+
+def get_anomaly_of_today():
+    
+    anomaly_count_by_date=0
+    # now = datetime.now()
+    date = '2023-06-21'
+    now = datetime.strptime(date, "%Y-%m-%d")
+
+    with connection.cursor() as cursor:
+
+        cursor.execute("""
+            select date(creation_date) ,count(*) from t_comment 
+            where date(creation_date) = %s
+            group by date(creation_date)
+        """, [date])
+
+        # Récupérer les résultats
+        results = cursor.fetchall()
+
+        for result in results:
+            anomaly_count_by_date = result[1]
+
+    return anomaly_count_by_date
+
+def get_anomaly_of_this_month():
+    
+    anomaly_count_by_date=0
+    # now = datetime.now()
+    date = '2023-06-21'
+    now = datetime.strptime(date, "%Y-%m-%d")
+
+    with connection.cursor() as cursor:
+
+        cursor.execute("""
+            select extract (month from creation_date) as month, count(*) from t_comment 
+            where extract (month from creation_date) = %s
+            and extract (year from creation_date) = %s
+            group by month
+        """, [now.month,now.year])
+
+        # Récupérer les résultats
+        results = cursor.fetchall()
+
+        for result in results:
+            anomaly_count_by_date = result[1]
+
+    return anomaly_count_by_date
+
+def get_total_anomaly():
+    
+    anomaly_count=0
+
+    with connection.cursor() as cursor:
+
+        cursor.execute("""
+            select count(*) from t_comment 
+        """)
+
+        # Récupérer les résultats
+        results = cursor.fetchall()
+
+        for result in results:
+            anomaly_count = result[0]
+
+    return anomaly_count
+
+def get_anomaly_non_traite():
+    
+    anomaly_count=0
+
+    with connection.cursor() as cursor:
+
+        cursor.execute("""
+            select count(*) from t_comment 
+            where state = false
+        """)
+
+        # Récupérer les résultats
+        results = cursor.fetchall()
+
+        for result in results:
+            anomaly_count = result[0]
+
+    return anomaly_count
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

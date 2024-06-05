@@ -2,17 +2,17 @@
     
     <div class="card col-md-5 px-0" style="width: 38rem; margin:0 0 0 10px; box-shadow: none; border-radius: 8px;">
         <div class="card-header-company-info d-flex align-items-center justify-content-between">
-            <h1 class="card-title"><strong  style="font-size: 16px;">Company Information</strong></h1>
+            <h1 class="card-title"><strong  style="font-size: 16px;">Informations sur la compagnie</strong></h1>
             <button class="bg-transparent btn-update-general-info" onclick="updateGeneralInfo()">
                 <i class="fa fa-pencil" aria-hidden="true"></i>
-                <span>Update</span>
+                <span>Modifier</span>
             </button>
         </div>
         
         {% if state == "true" %}
             <div class="card-body" style="padding: 0.5rem 1.25rem 0.5rem 1.25rem;">
                 <div class="row">
-                    <label class="col-form-label col-4" >Name</label >
+                    <label class="col-form-label col-4" >Nom</label >
                     <label class="col-form-label col-4" id="name_label">
                     {{configs.COMPANY_NAME}}
                     </label>
@@ -20,7 +20,7 @@
                 </div>
                 <hr style="margin-top: 6px; margin-bottom: 6px;">
                 <div class="row">
-                    <label class="col-form-label col-4">Currency Name</label>
+                    <label class="col-form-label col-4">Nom de la devise</label>
                     <label  class="col-form-label col-4" id="currency_name_label">
                     {{configs.COMPANY_CURRENCY_NAME}}
                     </label>
@@ -28,7 +28,7 @@
                 </div>
                 <hr style="margin-top: 6px; margin-bottom: 6px;">
                 <div class="row">
-                    <label class="col-form-label col-4" >Currency Code</label >
+                    <label class="col-form-label col-4" >Code de la devise</label >
                     <label class="col-form-label col-4" id="currency_code_label">
                     {{configs.COMPANY_CURRENCY_CODE}}
                     </label>
@@ -37,7 +37,7 @@
                 <hr style="margin-top: 6px; margin-bottom: 6px;">
 
                 <div class="row">
-                    <label  class="col-form-label col-4" >Language Code</label >
+                    <label  class="col-form-label col-4" >Code de la langue</label >
                     <label  class="col-form-label col-4" id="language_code_label" >
                     {{configs.COMPANY_LANGUAGE_CODE}}
                     </label>
@@ -46,7 +46,7 @@
                 <hr style="margin-top: 6px; margin-bottom: 6px;">
 
                 <div class="row">
-                    <label class="col-form-label col-4" >Regional Countries</label >
+                    <label class="col-form-label col-4" >Pays régionaux</label >
                     <div class="col-8">
                         <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
                             <td>
@@ -68,8 +68,8 @@
                             </ul>
                         </div>
                         <div class="insertmodaldetail d-flex align-items-center" style="gap: 0.5rem;">
-                            <button type="button" class="btn btn-primary" onclick="removeAllModal()" id="removeAllCountry">Remove All</button>
-                            <button type="button" id="GeneralInfoUpdate" class="btn btn-success">Validate the change</button>
+                            <button type="button" class="btn btn-primary" onclick="removeAllModal()" id="removeAllCountry">Tout supprimer</button>
+                            <button type="button" id="GeneralInfoUpdate" class="btn btn-success">Valider</button>
                         </div>
                     </div>
                 </div>
@@ -82,37 +82,37 @@
         
             <div class="card-body" {% if state != "false" %}hidden{% endif %} >
                 <div class="row">
-                    <label for="name" class="col-form-label col-4" >Name</label>
+                    <label for="name" class="col-form-label col-4" >Nom</label>
                     <input type="text"  class="form-control" id="create_name" />
                 </div>
                 <div class="row">
-                    <label for="currency_name"class="col-form-label col-4">Currency Name</label>
+                    <label for="currency_name"class="col-form-label col-4">Nom de la devise</label>
                     <input type="text" class="form-control" id="create_currency_name"/>
                 </div>
                 <div class="row">
-                    <label for="currency_code" class="col-form-label col-4" >Currency Code</label >
+                    <label for="currency_code" class="col-form-label col-4" >Code de la devise</label >
                     <input type="text" class="form-control" id="create_currency_code" />
                 </div>
 
                 <div class="row">
-                    <label for="language_code" class="col-form-label col-4" >Language Code</label >
+                    <label for="language_code" class="col-form-label col-4" >Code de la langue</label >
                     <input type="text" class="form-control" id="create_language_code" />
                 </div>
 
                 <div class="multiInsertwrapper">
-                    <label for="currency_name"class="col-form-label col-6" >Regional Contries</label>
+                    <label for="currency_name"class="col-form-label col-6" >Pays régionaux</label>
                     <div class="multiInsertcontent" >
                         <ul class="multiInsertul" >
                             <input type="text" id="regional_contry"  class="form-control" />
                         </ul>
                     </div>
                     <div class="multiInsertdetail">
-                        <button type="button" class="btn btn-primary removaAllButton" >Remove</button>
+                        <button type="button" class="btn btn-primary removaAllButton" >Supp</button>
                     </div>
                 </div>
             </div>
              <div class="card-footer" {% if state != "false" %}hidden{% endif %}>
-                <button type="button" onclick="CreateCompany()" class="btn btn-success" style="margin-top: 20px;float:right;">Save</button>
+                <button type="button" onclick="CreateCompany()" class="btn btn-success" style="margin-top: 20px;float:right;">Enregistrer</button>
             </div>
             
     </div>

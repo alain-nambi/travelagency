@@ -1,9 +1,5 @@
 <div class="card h-auto" style="width: 38rem;height:auto; margin:0 120px 0 20px;">
-  <div class="card-header">
-    <h2 class="card-title">PNR</h2>
-    <h4 class="card-description"></h4>
-    
-  </div>
+  
   
   {% if state_email_pnr == 'true' %}
        <div class="card-body" >
@@ -12,7 +8,7 @@
             <tr>
               <th scope="col" style="background: #fff !important;color: #000 !important;">Environnement</th>
               <th scope="col" style="background: #fff !important;color: #000 !important;">Email</th>
-              <th scope="col" style="background: #fff !important;color: #000 !important;">Password</th>
+              <th scope="col" style="background: #fff !important;color: #000 !important;">Mot de passe</th>
             </tr>
           </thead>
 
@@ -43,7 +39,7 @@
         </div>
 
         <div>
-          <label for="currency_name"class="col-form-label col-4">Password</label>
+          <label for="currency_name"class="col-form-label col-4">Mot de passe</label>
           <input type="password" name="email_pnr_password" id="email_pnr_password" class="form-control "/>
           <span class="fas fa-eye" onclick="showPassword('email_pnr_password')"  style="cursor: pointer;"></span>
         </div>
@@ -84,7 +80,7 @@
           </div>
 
           <div class="form-group">
-            <label for="currency_name"class="col-form-label col-4">Password</label>
+            <label for="currency_name"class="col-form-label col-4">Mot de passe</label>
               <input type="password" name="password" id="modalEmailPnrPassword" class="form-control ">
               <span class="fas fa-eye password-button-modal" onclick="showPassword('modalEmailPnrPassword')"  style="cursor: pointer;"></span>
           </div>

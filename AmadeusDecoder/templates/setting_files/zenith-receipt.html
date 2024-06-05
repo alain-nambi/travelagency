@@ -5,7 +5,7 @@
     </div>
 {% endif %}
 
-<div class="d-flex gap-3" style="margin-top:1rem;">
+<div style="display:flex;justify-content: space-between; margin-right: 1rem;margin-top:1rem;">
   <div style="display: flex; flex-direction: column;">
     {% if zenith_receipt_state == "complet" or zenith_receipt_config %}
         <div class="card " style="width: 38rem;height:auto; margin:0 120px 0 20px;">
@@ -125,4 +125,4 @@
         </div>
   </div>
 </div>
-  <button type="button" class="btn btn-success w-25" style="margin-top: 20px;float:right;" onclick="redirectToTab('pills-emd-tab')">Suivant</button>
+  <button type="button" class="btn btn-success w-25" style="margin-top: 20px;float:right;margin-bottom:20px;" onclick="redirectToTab('pills-emd-tab')">Suivant</button>

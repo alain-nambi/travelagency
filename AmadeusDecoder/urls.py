@@ -113,6 +113,9 @@ urlpatterns = [
     path('home/user-research', user_research, name= 'user_research'),
     path('home/user-filter', user_filter, name= 'user_filter'),
     path('stat/',graph_view, name='graph_view'),
+    path('stat/passenger',passenger_graph_view, name='passenger_graph_view'),
+    path('stat/anomaly',anomaly_graph_view, name='anomaly_graph_view'),
+    path('stat/user',user_graph_view, name='user_graph_view'),
     path('comment/get-unshowed-tickets',get_unshowed_tickets, name='get_unshowed_tickets'),
     path('anomaly/add-category',add_anomaly_category,name="add_anomaly_category"),
     path('anomaly/all-canceled-ticket',get_all_canceled_ticket,name="get_all_canceled_ticket"),
@@ -128,5 +131,5 @@ urlpatterns = [
     path('check-uninvoiced-status/', uncheck_ticket_in_passenger_invoiced, name='uncheck_ticket_in_passenger_invoiced'),
     path('anomaly/accept/unremounted-pnr',accept_unremounted_pnr, name='accept_unremounted_pnr'),
     path('anomaly/refuse/unremounted-pnr',refuse_unremounted_pnr, name='refuse_unremounted_pnr'),
-
+    path('customers/details/<int:customer_id>', customers_details, name = "customers_details"),
 ]

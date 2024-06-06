@@ -83,7 +83,7 @@
                       <td>{{env}}</td>
                       <td>{{email.value_name}}</td>
                       <td>{{email.dict_value.address}}</td>
-                      <td>{{email.dict_value.password}}</td>
+                      <td class="passwordconfig">{{email.dict_value.password}}</td>
                       <td>{{email.dict_value.smtp}}</td>
                       <td>{{email.dict_value.port}}</td>
                     </tr>
@@ -281,7 +281,7 @@
             <div class="form-group">
               <label class="col-form-label col-4 ">Mot de passe</label>
               <input type="password" name="password" id="modalNotifSenderPassword" class="form-control "/>
-              <span class="fas fa-eye password-button-modal" onclick="showPassword('modalNotifSenderPassword')"  style="cursor: pointer;"></span>
+              
             </div>
 
       </div>

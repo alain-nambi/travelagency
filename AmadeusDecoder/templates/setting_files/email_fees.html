@@ -116,7 +116,7 @@
                     <td>{{env}}</td>
                     <td>{{config.value_name}}</td>
                     <td>{{config.dict_value.address}}</td>
-                    <td>{{config.dict_value.password}}</td>
+                    <td class="passwordconfig">{{config.dict_value.password}}</td>
                     <td>{{config.dict_value.smtp}}</td>
                     <td>{{config.dict_value.port}}</td>
                   </tr>
@@ -158,7 +158,6 @@
             <div class="form-group">
               <label class="col-form-label col-4">Mot de passe</label>
               <input type="password" name="password_email_fee_sender" id="password_email_fee_sender" class="form-control "/>
-              <span class="fas fa-eye" onclick="showPassword('password_email_fee_sender')"  style="cursor: pointer;"></span>
               
             </div>
 
@@ -259,7 +258,6 @@
             <div class="input-group mb-3">
                 <label class="col-form-label col-4">Mot de passe</label>
                 <input type="password" name="password" id="modalFeeSenderPassword" class="form-control "/>
-                <span class="fas fa-eye password-button-email-modal" onclick="showPassword('modalNotifSenderPassword')"  style="cursor: pointer;"></span>
                 
             </div>
 

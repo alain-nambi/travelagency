@@ -17,7 +17,7 @@
               <tr data-toggle="modal" data-target="#EmailPnrModal" data-env="{{env}}" data-email="{{configs.EMAIL_PNR.address}}" data-password="{{configs.EMAIL_PNR.password}}" style="cursor: pointer;" id="trEmailPnrModal">
                 <td>{{env}}</td>
                 <td>{{configs.EMAIL_PNR.address}}</td>
-                <td>{{configs.EMAIL_PNR.password}}</td>
+                <td class="passwordconfig">{{configs.EMAIL_PNR.password}}</td>
             </tr>
 
           </tbody>
@@ -41,7 +41,6 @@
         <div>
           <label for="currency_name"class="col-form-label col-4">Mot de passe</label>
           <input type="password" name="email_pnr_password" id="email_pnr_password" class="form-control "/>
-          <span class="fas fa-eye" onclick="showPassword('email_pnr_password')"  style="cursor: pointer;"></span>
         </div>
 
         <div class="card-footer" id="">

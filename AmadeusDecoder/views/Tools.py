@@ -577,29 +577,10 @@ def get_pnr_office(pnr):
 def graph_view(request):
 
     context = {}
-    print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
-    passenger_by_age_data = get_passenger_by_age()
-    context['passenger_by_age'] = passenger_by_age_data['data']
-    context['total_passenger'] = passenger_by_age_data['total']
-
-    context['all_data'] = get_destination_by_month()
-
-    context['all_data_origin'] = get_origin_by_month()
-
-    context['all_data_airline'] = get_stat_airlines()
+    
     total_pnr_for_week = get_total_pnr_for_week()
     context['all_pnr_count'] = total_pnr_for_week['all_pnr_count']
     context['last_week_pnr_count'] = total_pnr_for_week['last_week_pnr_count']
-
-    most_used_airlines = get_most_used_airlines()
-    context['total_most_used_airlines'] = len(most_used_airlines)
-    context['most_used_airlines'] = most_used_airlines
-
-    context['passenger_by_month'] = get_passenger_by_month()
-
-    context['passenger_of_today'] = get_passenger_of_today()
-
-    context['passenger_of_the_month'] = get_passenger_of_the_month()
 
     context['total_pnr'] = Pnr.objects.count()
 
@@ -618,9 +599,7 @@ def graph_view(request):
 
     context['pnr_invoiced'] = get_pnr_invoices_by_month()
     context['pnr_created'] = get_pnr_created_by_month()
-    context['anomaly_by_month'] =  get_anomaly_created_by_month()
-    context['anomaly_by_user'] = get_anomaly_created_by_user()
-    print(context['anomaly_by_user'])
+    
     
     return render(request, 'stat.html', context)  
 
@@ -674,37 +653,15 @@ def anomaly_graph_view(request):
 def user_graph_view(request):
 
     context = {}
-    passenger_by_age_data = get_passenger_by_age()
-    context['passenger_by_age'] = passenger_by_age_data['data']
-    context['total_passenger'] = passenger_by_age_data['total']
-
-    context['all_data'] = get_destination_by_month()
-
-    context['all_data_origin'] = get_origin_by_month()
-
-    context['all_data_airline'] = get_stat_airlines()
-    total_pnr_for_week = get_total_pnr_for_week()
-    context['all_pnr_count'] = total_pnr_for_week['all_pnr_count']
-    context['last_week_pnr_count'] = total_pnr_for_week['last_week_pnr_count']
-
-    most_used_airlines = get_most_used_airlines()
-    context['total_most_used_airlines'] = len(most_used_airlines)
-    context['most_used_airlines'] = most_used_airlines
-
-    context['passenger_by_month'] = get_passenger_by_month()
-
-    context['passenger_of_today'] = get_passenger_of_today()
-
-    context['passenger_of_the_month'] = get_passenger_of_the_month()
-
     
-    
+    context['all_data_user'] = get_stat_user_comment()
+    context['all_data_user_pnr'] = get_stat_user_pnr()
+
     return render(request, 'stat/user_stat.html', context)  
 
 
 def get_stat_airlines():
-    # month = datetime.datetime.now().month
-    month = 3
+
     all_year = PnrAirSegments.objects.annotate(year=ExtractYear('departuretime')).values('year').distinct()
     all_data_by_month = []
 
@@ -721,7 +678,7 @@ def get_stat_airlines():
                     FROM v_pnr_passenger
                     WHERE EXTRACT(MONTH FROM departuretime) = %s
                     AND EXTRACT(YEAR FROM departuretime) = %s
-                    GROUP BY servicecarrier_id;
+                    GROUP BY servicecarrier_id order by total desc;
                 """, [month,element['year']])
                     
                     # Récupérer les résultats
@@ -737,6 +694,73 @@ def get_stat_airlines():
         all_data_by_month.append(all_data)
     return all_data_by_month
     
+def get_stat_user_comment():
+    
+    all_year = PnrAirSegments.objects.annotate(year=ExtractYear('departuretime')).values('year').distinct()
+    all_data_by_month = []
+
+    for month in range(1, 13):
+        all_data = {}
+        all_data['month'] = month
+        all_data['data'] = []
+        with connection.cursor() as cursor:
+            for element in all_year:
+                if element['year'] is not None:
+                    data = {}
+                    cursor.execute("""
+                    select username, count(*) as total from v_comment_user vcu 
+                    WHERE EXTRACT(MONTH FROM creation_date) = %s
+                    AND EXTRACT(YEAR FROM creation_date) = %s
+                    GROUP BY username order by total desc;
+                """, [month,element['year']])
+                    
+                    # Récupérer les résultats
+                    results = cursor.fetchall()
+
+                    data['year']=(str(element['year']))
+                    data['data'] = []
+                    for result in results:
+                        data['data'].append({"y":result[1],"label":result[0]}) 
+                        
+                    all_data['data'].append(data)
+        all_data_by_month.append(all_data)
+    return all_data_by_month
+
+def get_stat_user_pnr():
+
+    all_year = PnrAirSegments.objects.annotate(year=ExtractYear('departuretime')).values('year').distinct()
+
+    all_data_by_month = []
+
+    for month in range(1, 13):
+        all_data = {}
+        all_data['month'] = month
+        all_data['data'] = []
+        with connection.cursor() as cursor:
+            for element in all_year:
+                if element['year'] is not None:
+                    data = {}
+                    cursor.execute("""
+                    select agent_id, count(*) as total from t_pnr tp 
+                    WHERE EXTRACT(MONTH FROM system_creation_date) = %s
+                    AND EXTRACT(YEAR FROM system_creation_date) = %s
+                    GROUP BY agent_id order by total desc;
+                """, [month,element['year']])
+                    
+                    # Récupérer les résultats
+                    results = cursor.fetchall()
+
+                    data['year']=(str(element['year']))
+                    data['data'] = []
+                    for result in results:
+                        if result[0] is not None:
+                            user = User.objects.get(pk = result[0])
+                            data['data'].append({"y":result[1],"label":user.username}) 
+                        
+                    all_data['data'].append(data)
+        all_data_by_month.append(all_data)
+    return all_data_by_month
+  
 
 def get_destination_by_month():
     
@@ -753,12 +777,12 @@ def get_destination_by_month():
                     data = {}
 
                     cursor.execute("""
-                        SELECT codedest_id, COUNT(*) AS total
+                        SELECT municipality, COUNT(*) AS total
                         FROM v_pnr_passenger
                         WHERE EXTRACT(MONTH FROM departuretime) = %s
                         AND EXTRACT(YEAR FROM departuretime) = %s
-                        GROUP BY codedest_id
-                        HAVING COUNT(*) > 20;
+                        GROUP BY municipality
+                        HAVING COUNT(*) > 20 order by total desc;
                     """, [month,element['year']])
 
                     # Récupérer les résultats
@@ -766,13 +790,19 @@ def get_destination_by_month():
 
                     data['year']=(str(element['year']))
                     data['data'] = []
-                    for results in results:
-                        airport = Airport.objects.get(iata_code = results[0])
+                    for result in results:
+                        # airport = Airport.objects.get(iata_code = results[0])
                         
-                        if airport.name is not None:
-                            data['data'].append({"y":results[1],"label":airport.name})
-                        if airport.name is None:
-                            data['data'].append({"y":results[1],"label":results[0]}) 
+                        # if airport.name is not None:
+                        #     data['data'].append({"y":results[1],"label":airport.name})
+                        # if airport.name is None:
+                        #     data['data'].append({"y":results[1],"label":results[0]}) 
+                        
+                        if result[0] is None:
+                            data['data'].append({"y":result[1],"label":"Inconnu"})
+                        else:
+                            data['data'].append({"y":result[1],"label":result[0]})
+
                     all_data['data'].append(data)
         all_data_by_month.append(all_data)
 
@@ -793,12 +823,12 @@ def get_origin_by_month():
                     data = {}
 
                     cursor.execute("""
-                        SELECT codeorg_id, COUNT(*) AS total
+                        SELECT municipality, COUNT(*) AS total
                         FROM v_pnr_passenger
                         WHERE EXTRACT(MONTH FROM departuretime) = %s
                         AND EXTRACT(YEAR FROM departuretime) = %s
-                        GROUP BY codeorg_id
-                        HAVING COUNT(*) > 20;
+                        GROUP BY municipality
+                        HAVING COUNT(*) > 20 order by total desc;
                     """, [month,element['year']])
 
                     # Récupérer les résultats
@@ -806,13 +836,13 @@ def get_origin_by_month():
 
                     data['year']=(str(element['year']))
                     data['data'] = []
-                    for results in results:
-                        airport = Airport.objects.get(iata_code = results[0])
+                    for result in results:
+                        if result[0] is None:
+                            data['data'].append({"y":result[1],"label":"Inconnu"})
+                        else:
+                            data['data'].append({"y":result[1],"label":result[0]})
+
                         
-                        if airport.name is not None:
-                            data['data'].append({"y":results[1],"label":airport.name})
-                        if airport.name is None:
-                            data['data'].append({"y":results[1],"label":results[0]}) 
                     all_data['data'].append(data)
         all_data_by_month.append(all_data)
    
@@ -837,13 +867,7 @@ def get_passenger_by_age():
         if item['lower_designation'] in ['enfant','inf','chd']:
             total_chd += item['total']
 
-        if item['lower_designation'] in ['yth']:
-            data.append({ "label": "Jeune", "y": (item['total'] * 100)/total })
-
-        if item['lower_designation'] is None:
-            data.append({ "label": "Inconnu", "y": (item['total'] * 100)/total })
-
-        if item['lower_designation'] in ['mrs','ms','mlle','adt','m.','mme','mr','mstr','dr','cnn']:
+        if item['lower_designation'] in ['mrs','ms','mlle','adt','m.','mme','mr','mstr','dr','cnn','Inconnu','yth']:
             total_adt += item['total'] 
         
         

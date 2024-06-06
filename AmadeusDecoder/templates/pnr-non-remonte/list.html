@@ -184,7 +184,7 @@
                                     <td>{{unremounted_pnr.emitter.username}}</td>
                                     
                                     {% if unremounted_pnr.state == 0 %}
-                                        <td><button class="btn btn-danger py-0" name="anomaly_state">Non Traitée</button></td>
+                                        <td><button class="btn btn-danger py-0" name="anomaly_state">Attente de validation</button></td>
                                     {% endif %}
                                     {% if unremounted_pnr.state == 2 %}
                                         <td><button class="btn btn-primary py-0" name="anomaly_state">Refusée</button></td>

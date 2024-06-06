@@ -953,3 +953,12 @@ function showPassword(inputId){
     }
 }
 
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    var passwordFields = document.getElementsByClassName("passwordconfig");
+    for (var i = 0; i < passwordFields.length; i++) {
+        var maskedPassword = "*".repeat(passwordFields[i].textContent.length);
+        passwordFields[i].textContent = maskedPassword;
+    }
+});

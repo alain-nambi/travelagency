@@ -69,7 +69,7 @@
                         <div class="row" style="display:flex; justify-content: space-between;margin-bottom:1rem;color:#007bff">
                             <button type="button" class="btn btn-danger md-block" id="Cancel_customer_update_info" hidden>Annuler</button>
                             <a class="btn btn-dark " id="customer_update_info"><b>Modifier</b></a>
-                            <a class="btn btn-success" hidden id="confirm_customer_update_info"  data-toggle="modal" data-target="#modalConfirmUpdate" data-user="{{customer.id}}" data-connected-user="{{request.customer.id}}"><b>Confirmer</b></a>
+                            <a class="btn btn-success" hidden id="confirm_customer_update_info"  data-toggle="modal" data-target="#modalConfirmUpdate" data-customer="{{customer.id}}" data-connected-user="{{request.user.id}}"><b>Confirmer</b></a>
                         </div>
                       
                 
@@ -101,13 +101,13 @@
 				<span>Veuillez entrer votre mot de passe</span>
 				<input type="password" class="form form-control w-50" id="password" required />
 				<input type="hidden" id="connected_user" />
-				<input type="hidden" id="user" />
+				<input type="hidden" id="customer" />
 
 
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
-				<button type="button" class="btn btn-success" id="UpdateInfo" data-dismiss="modal">Confirmer
+				<button type="button" class="btn btn-success" id="UpdateCutomer" data-dismiss="modal">Confirmer
 				</button>
 			</div>
 		</div>

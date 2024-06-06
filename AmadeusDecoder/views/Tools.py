@@ -232,9 +232,14 @@ def pnr_to_excel(request,pnr_id):
             emitter = User.objects.get(pk=ticket.emitter_id).username
         else:
             emitter = " "
+            
+        if ticket.issuing_date is not None:
+            ticket_issuing_date = ticket.issuing_date.strftime("%d/%m/%y")
+        else:
+            ticket_issuing_date= ''
 
         # Define data for each cell in the row
-        ticket_row = [ticket.ticket_type,ticket.number,'',ticket.transport_cost,ticket.tax,ticket.total,'',ticket.issuing_date.strftime("%d/%m/%y"),'','',emitter]
+        ticket_row = [ticket.ticket_type,ticket.number,'',ticket.transport_cost,ticket.tax,ticket.total,'',ticket_issuing_date,'','',emitter]
 
         # Assign data to the Passenger/Trajet column
         if ticket.ticket_type == 'EMD' and pnr.type == 'EWA':

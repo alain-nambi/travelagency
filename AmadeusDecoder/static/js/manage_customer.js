@@ -107,47 +107,48 @@ $(document).ready(function(){
 
     $('#confirm_customer_update_info').click(function(){
       // Pass all the data to the modal
-        $('#action').val($(this).data('action'));
         $('#connected_user').val($(this).data('connected-user'));
-        $('#user').val($(this).data('user'));
+        $('#customer').val($(this).data('customer'));
 
     })
     
 });
 
-$('#UpdateInfo').click(function () {
+$('#UpdateCutomer').click(function () {
+  console.log('coucoucoucou');
   // get all the data from the modal
-    var password = $('#password').val();
-    var user = $('#user').val(); 
+    var customer_id = $('#customer').val(); 
     var connected_user = $('#connected_user').val();
 
     // Update all info
-    var ville = customer_ville_update.val();
-    var departement = customer_departement_update.val();
-    var sode_postal = customer_postal_update.val();
-    var pays = customer_pays_update.val();
-    var email = customer_email_update.val();
-    var intitule = customer_intitule_update.val();
-    var phone = customer_phone_update.val();
-    var adress = customer_adress_update.val();
-    var adress2 = customer_adress2_update.val();
+    var ville = customer_ville_update.value;
+    var departement = customer_departement_update.value;
+    var code_postal = customer_postal_update.value;
+    var pays = customer_pays_update.value;
+    var email = customer_email_update.value;
+    var intitule = customer_intitule_update.value;
+    var phone = customer_phone_update.value;
+    var adress = customer_adress_update.value;
+    var adress2 = customer_adress2_update.value;
 
       var password = $('#password').val();
-      var user = $('#user').val(); 
-      var connected_user = $('#connected_user').val();
-
       $.ajax({
         type: 'POST',
-        url: '/user/updateInfo',
+        url: '/customer/updateInfo',
         dataType: "json",
         data : {
-          name : name,
-          first_name : first_name,
-          email : email,
-          role : role,
-          password : password,
-          user : user,
+          Id:customer_id,
+          City : ville,
+          Adress : adress,
+          Adress2 : adress2,
+          Code_postal : code_postal,
+          Country : pays,
+          Email : email,
+          Departement: departement,
+          intitule:intitule,
+          Phone:phone,
           connected_user : connected_user,
+          password: password,
           csrfmiddlewaretoken : csrftoken,
         },
         success : function(data){

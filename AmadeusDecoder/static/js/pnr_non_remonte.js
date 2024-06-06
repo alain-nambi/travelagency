@@ -327,7 +327,7 @@ if(pnrNumber, ticketNumber,ticketCost, ticketTax, PassengerName, flightNumber, s
     })
 
     AddTicketButton.addEventListener('click', function(event){
-        $('#collapseTicketData').collapse("show");
+        $(ticketData).collapse("show");
         generalFooter.hidden= true;
         ticketDataFooter.hidden = false;
     });
@@ -349,7 +349,7 @@ if(pnrNumber, ticketNumber,ticketCost, ticketTax, PassengerName, flightNumber, s
     });
 
     AddPassengerButton.addEventListener('click', function(event){
-        $('#collapsePassengerData').collapse("show");
+        $(passengerData).collapse("show");
         generalFooter.hidden= true;
         PassengerDataFooter.hidden = false;
         ticketDataFooter.hidden = true;
@@ -834,7 +834,7 @@ function closePassengerSection(){
 }
 
 function showSegmentSection(){
-    $('#collapseSegmentData').collapse('show');
+    $(SegmentData).collapse('show');
     SegmentDataFooter.hidden = false;
     generalFooter.hidden= true;
     ticketDataFooter.hidden = true;

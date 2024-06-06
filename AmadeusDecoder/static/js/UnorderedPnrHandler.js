@@ -35,7 +35,6 @@ function searchUnorderedPnrFunction() {
           $("#spinnerLoadingSearch").hide();
 
 
-
           $(".request-pnr-counter").text(SEARCH_RESULT.length);
           $("#unorderedpnrCounterOnSearch").val(" / " + SEARCH_RESULT.length);
 
@@ -131,17 +130,13 @@ function UnorderedPnrfilterFunction(filter,data_search){
         success : function(data){
             if (data.status == 200){
                 let SEARCH_RESULT = data.results;
-                console.log('COUCOU : ',data.results);
   
                 if (SEARCH_RESULT.length > 0) {
-                        console.log('data_results : ',data.results);
                         document.querySelector("#all-unordered-pnr-after-search").innerHTML = "";
 
                         $("#all-unordered-pnr-after-search").show();
                         $("#initialPagination").hide();
                         $("#spinnerLoadingSearch").hide();
-
-
 
                         $(".request-pnr-counter").text(SEARCH_RESULT.length);
                         $("#unorderedpnrCounterOnSearch").val(" / " + SEARCH_RESULT.length);
@@ -232,7 +227,6 @@ $('#buttonFilterByCancellationDateUnorderedPnr').on('click', () =>{
 $('#buttonFilterByMotifUnorderedPnr').on('click', () =>{
     filter = 'motif'
     data_search = $('#MotifFilterInputUnorderedPnr').val();
-    console.log('data_search : ',data_search);
     UnorderedPnrfilterFunction(filter,data_search);
     CloseUnorderedPnrFilter();
 })
@@ -284,16 +278,12 @@ function UnorderedPnrAdvancedSearch(date,motif,createur){
         success: function (data) {
             if(data.status == 200){
                 let SEARCH_RESULT = data.results;
-                console.log('COUCOU : ',data.results);
                 if (SEARCH_RESULT.length > 0) {
-                        console.log('data_results : ',data.results);
                         document.querySelector("#all-unordered-pnr-after-search").innerHTML = "";
 
                         $("#all-unordered-pnr-after-search").show();
                         $("#initialPagination").hide();
                         $("#spinnerLoadingSearch").hide();
-
-
 
                         $(".request-pnr-counter").text(SEARCH_RESULT.length);
                         $("#unorderedpnrCounterOnSearch").val(" / " + SEARCH_RESULT.length);

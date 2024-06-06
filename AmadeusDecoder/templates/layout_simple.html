@@ -3,6 +3,8 @@
 <html lang="en">
 {% load static %}
 {% load pnr_details %}
+{% load pnr_comments %}
+
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, maximum-scale=10">
@@ -21,9 +23,15 @@
     .tr-danger:hover {
       color: red !important;
     }
+    .tr-warning {
+      color: #D2691E !important;
+    }
+
+    .tr-warning:hover {
+      color: #D2691E !important;
+    }
   </style>
-  <!-- table -->
-  <link rel="stylesheet" href="{% static 'css/table.css' %}">
+
   <link rel="stylesheet" href="{% static 'css/multi-insert.css' %}">
 
   <!--fontawesome-->
@@ -33,6 +41,8 @@
   <!-- <link rel="stylesheet" href="{% static 'css/adminlte.css' %}"> -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/css/adminlte.min.css" integrity="sha512-IuO+tczf4J43RzbCMEFggCWW5JuX78IrCJRFFBoQEXNvGI6gkUw4OjuwMidiS4Lm9Q2lILzpJwZuMWuSEeT9UQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
+ 
+
   <!-- Toastr -->
   <!-- <link rel="stylesheet" href="{% static 'plugins/toastr/toastr.min.css' %}"> -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" integrity="sha512-6S2HWzVFxruDlZxI3sXOZZ4/eJ8AcxkQH1+JjSe/ONCEqR9L4Ysq5JdT5ipqtzU7WHalNwzwBv+iE51gNHJNqQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -40,22 +50,35 @@
   <!-- <link rel="stylesheet" href="{% static 'css/jquery-ui.css' %}"> -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.5.0/pagination.min.css" integrity="sha512-K1k7jSn9RDKEcn/ugqVVvWYu0bcS3q1w6m/5pQSnrj0bCfIqF6Wk49lkmckSb4wglvTP9V17LtS0q0XxYccXbg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <!-- style -->
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+  <link rel="stylesheet" href="{% static 'css/pnr-non-remonte.css' %}">
+
+
   <!-- tablesort-->
   <link href="{% static 'css/theme.default.css' %}" rel="stylesheet">
+
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0/css/select2.min.css" rel="stylesheet" />
+
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/css/selectize.css" integrity="sha512-Y+AaVWdRf6zsGm7eV+EGOIuqYZoi2wUQ7wF8oHbnLy8k2zdVGSxyjn2qDUMFkLRy/9mqOAE5BeyEqx1yxDTQIw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
   {% endblock %}
 
 </head>
 
-<body class="hold-transition sidebar-mini layout-fixed layout-footer-fixed sidebar-collapse" id="pushed-content">
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed sidebar-collapse" id="pushed-content">
   {% block body %}
   <!--old>
     src="{% static 'image/logo-issoufali.png' %}"
     src="{% static 'image/profile.webp' %}"
 old -->
 <div class="wrapper">
-  <nav class="main-header navbar navbar-expand navbar-white navbar-light shadow">
+  <nav class="main-header navbar navbar-expand navbar-white navbar-light" id="layoutHomeMenu">
     <form method='POST' action=''>
           <!-- Left navbar links -->
       <ul class="navbar-nav">
@@ -64,20 +87,41 @@ old -->
             <!-- <i class="fas fa-bars"></i> -->
           </a>   
         </li>
-        <li class="nav-item ml-5">
-          <button 
-                type="button" 
-                class="btn btn-outline-success zenith" 
-                data-toggle="modal" 
-                data-target="#modalListeCommandes" 
-                title="Liste des commandes Amadeus" 
-                id = "liste_commandes"
-              ><span>Liste des commandes Amadeus</span>
-              </button>
+        <li class="nav-item">
+          {% include "commandes_modal.html" %}
         </li>
-        <li class="nav-item ml-5">
-          <span id="mail-user" data-mail="issoufali.pnr@outlook.com;{{request.user.email}}">issoufali.pnr@outlook.com;{{request.user.email}}</span>
-          <a type="button" class="btn btn-outline-primary zenith" onclick="copymailuser()">Zenith</a>  
+        <li class="nav-item ml-5 d-flex align-items-center" style="gap: 0.5rem;">
+          <div class="align-items-center">
+            <span id="mail-user" data-mail="issoufali.pnr@outlook.com;{{request.user.email}}">issoufali.pnr@outlook.com;{{request.user.email}}</span>
+            <a type="button" class="btn btn-outline-primary" onclick="copymailuser()">Zenith</a> 
+            
+          </div>
+
+          <div class="align-items-center">
+            <!--- Button pour afficher les autres listes de commandes -->
+            <button 
+              id="showOtherCommandsMenu" 
+              type="button" 
+              class="btn btn-outline-success"
+            >
+              <span>Afficher autres commandes</span>
+            </button>
+          </div>
+
+            <div id="pnrNotUpdated">
+              <button 
+                type="button" 
+                class="btn btn-outline-danger" 
+                data-toggle="modal" 
+                data-target="#modalPnrNotUpdated" 
+                title="Pnr non remonté"
+                id = "pnr-not-fetched"
+              >
+                <i class="fa fa-upload"></i>
+                Pnr non remonté
+              </button>
+            </div>
+
         </li>
       </ul>
     </form>
@@ -134,7 +178,7 @@ old -->
           </div>
         </li>
       </ul>
-    </nav>
+  </nav>
     <!-- /.navbar -->
     <!-- Main Sidebar Container -->
     <aside class="main-sidebar sidebar-dark-primary elevation-4 shadow">
@@ -253,6 +297,12 @@ old -->
                 <p>Anomalies PNR</p>
               </a>
             </li>
+            <li class="nav-item">
+              <a href="{% url 'graph_view' %}" class="nav-link">
+                <i class="fas fa-chart-bar nav-icon"></i>
+                <p>Statistiques</p>
+              </a>
+            </li>
             {% endif %}
             <!--menu agent comptoir role_id=3-->
             {% if request.user.role_id == 3 %}
@@ -312,6 +362,7 @@ old -->
         <span class="spinner-text">Chargement...</span>
         <span class="spinner"></span>
       </div>
+    </div>
       {% endif %}
       {% block content %} {% endblock content %}
       <!-- Control Sidebar -->
@@ -332,11 +383,8 @@ old -->
         <div class="info-footer-pnr">
           <div class="row d-flex align-items-center">
             
-            <div class="col-md-10">
-
-              <div id="pagination"></div>
-              {% include "pagination.html" %}
-
+    
+              
             </div>
           </div>
         </div>
@@ -345,10 +393,13 @@ old -->
     </div>
     <!-- ./wrapper -->
     {% block scripts %}
+
+
     <!-- jQuery -->
     <!-- <script src="{% static 'js/jquery.min.js' %}"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha512-+NqPlbbtM1QqiK8ZAo4Yrj2c4lNQoGv8P79DPtKzj++l5jnN39rHA/xsqn8zE9l0uSoxaCdrOgFs6yjyfbBxSg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
+    
+    <script script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0/js/select2.min.js"></script>
     <!-- Bootstrap 4 -->
     <!-- <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.1/js/bootstrap.bundle.min.js" integrity="sha512-mULnawDVcCnsk9a4aG1QLZZ6rcce/jSzEGqUkeOLy0b6q0+T6syHrxlsAGH7ZVoqC93Pd0lBqd6WguPWih7VHA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -368,22 +419,44 @@ old -->
 
     <!-- <script src="{% static 'js/jquery.tablesorter.pager.min.js' %}"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.17.8/addons/pager/jquery.tablesorter.pager.min.js" integrity="sha512-XPtB1jKozWRGiBUT7iaM6Gd60MTDr6mqa/cBUocrCZ5BjpZUiIvRxwS7wo1gEIqKiMPpSdf4hcpY0WupaPmrSQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+    
+
+    {% comment %} chart js {% endcomment %}
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    
     <!-- <script src="{% static 'plugins/toastr/toastr.min.js' %}"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.5.0/pagination.min.js" integrity="sha512-To905O3HNAHQVrN6xCie4dwDWV0OO3lwZl4rqtCvf+4lfkbx9XlyLmSiLosdi1WWBcW+VMy4Lmu/M10R+FsOPA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/comment.js' %}"></script>
+    <script src="{% static 'js/gdsCommandHandler.js' %}"></script>
+    <script src="{% static 'js/invoice_unorder.js' %}"></script>
+    <script src="{% static 'js/UnorderedPnrHandler.js' %}"></script>
+    <script src="{% static 'js/config.js' %}"></script>
+    <script src="{% static 'js/manage_user.js' %}"></script>
+    <script src="{% static 'js/canvasjs.min.js' %}"></script>
+    <script src="{% static 'js/anomalie.js' %}"></script>
+    <script src="{% static 'js/pnr_non_remonte.js' %}"></script>
+    <script src="{% static 'js/test_parsing.js' %}"></script>
+
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+    <script script type="text/javascript" src="https://cdn.canvasjs.com/canvasjs.min.js"></script> 
+ 
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/colresizable/1.6.0/colResizable-1.6.min.js" integrity="sha512-pMZ2rgWRGMywzbRAVwGk+auTREN0ldKKjACUSB4cneTgD3kn/6pu//Lxi4l8xSRkY83HENr1vztTnGDySWs0Mg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/js/selectize.min.js" integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-    <script src="{% static 'js/main.js' %}"></script>
-    <script src="{% static 'js/comment.js' %}"></script>
-    <script src="{% static 'js/anomalie.js' %}"></script>
-    <script src="{% static 'js/config.js' %}"></script>
-    <script src="{% static 'js/test_parsing.js' %}"></script>
-
-    <script src="{% static 'js/gdsCommandHandler.js' %}"></script>
-    <script src="{% static 'js/validateReduceFee.js' %}"></script>
+    <script src=" https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js "></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" integrity="sha512-2ImtlRlf2VVmiGZsjm9bEyhjGW4dU7B6TNwh/hx/iSByxNENtj3WVE6o/9Lj4TJeVXPi4bnOIMXFIJJAeufa0A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
     {% if messages %}
     {% for message in messages %}
     {% if message.tags == 'success'%}
@@ -398,15 +471,47 @@ old -->
     {% endfor %}
     {% endif %}
     <script>
+      $(function(){
+        $("#all-pnr").colResizable({
+          liveDrag: true,
+          gripInnerHtml:"<div class='grip'></div>", 
+          draggingClass:"dragging", 
+          resizeMode:'fit'
+        });  
+
+        $("#all-pnr-after-search").colResizable({
+          liveDrag: true,
+          gripInnerHtml:"<div class='grip'></div>", 
+          draggingClass:"dragging", 
+          resizeMode:'fit'
+        }); 
+      });
+
       $('.tooltips.state_1').append("<span></span>");
       $('.tooltips:not([tooltip-position])').attr('tooltip-position', 'bottom');
       $(".tooltips.state_1").mouseenter(function () {
         $(this).find('span').empty().append("Envoi de mail pnr manquants");
       });
-      $('.tooltips.state_2').append("<span></span>");
-      $('.tooltips:not([tooltip-position])').attr('tooltip-position', 'bottom');
-      $(".tooltips.state_2").mouseenter(function () {
-        $(this).find('span').empty().append("Envoi de mail tarification billet manquants");
+      $('.tooltips.state_2').each(function () {
+        $('.tooltips.state_2').append("<span></span>");
+        $('.tooltips:not([tooltip-position])').attr('tooltip-position', 'bottom');
+        $(".tooltips.state_2").mouseenter(function () {
+          const info = $(this).data("info");
+          if (info!=""){
+            $(this).find('span').empty().append("Envoi de mail tarification billet manquants " +"("+info+")");
+          }
+          else{
+            $(this).find('span').empty().append("Envoi de mail tarification billet manquants");
+          }
+        });
+      })
+      $('.tooltips.comment-state-0').append("<span></span>");
+      $(".tooltips.comment-state-0").mouseenter(function () {
+        $(this).find('span').empty().append("Anomalie non traitée");
+      });
+      $('.tooltips.comment-state-1').append("<span></span>");
+      $(".tooltips.comment-state-1").mouseenter(function () {
+        $(this).find('span').empty().append("Anomalie traitée");
       });
     </script>
     {% endblock scripts %}

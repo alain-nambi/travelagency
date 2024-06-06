@@ -73,24 +73,33 @@ $(document).ready(function(){
 
     $('#Cancel_customer_update_info').click(function(){
       // hide all input
-        customer_ville_label.hidden = true;
-        customer_departement_update.hidden = true;
-        customer_postal_label.hidden = true;
-        customer_pays_update.hidden = true;
-
+      customer_ville_update.hidden = true;
+      customer_departement_update.hidden = true;
+      customer_postal_update.hidden = true;
+      customer_pays_update.hidden = true;
+      customer_email_update.hidden = true;
+      customer_intitule_update.hidden = true;
+      customer_phone_update.hidden = true;
+      customer_adress_update.hidden = true;
+      customer_adress2_update.hidden = true;
       // show all informations
-        customer_email_label.hidden = false;
-        customer_ville_label.hidden = false;
-        customer_postal_update.hidden = false;
-        customer_pays_label.hidden = false;
+      customer_email_label.hidden = false;
+      customer_ville_label.hidden = false;
+      customer_postal_label.hidden = false;
+      customer_pays_label.hidden = false;
+      customer_intitule_label.hidden = false;
+      customer_phone_label.hidden = false;
+      customer_adress_label.hidden = false;
+      customer_adress2_label.hidden = false;
+      customer_departement_label.hidden = false;
 
       // hide update cancel button
-        Cancel_update_info.hidden = true;
+      Cancel_update_info.hidden = true;
       
       // show Update informations button 
-        update_info.hidden = false;
+      customer_update_info.hidden = false;
       // hide Confirm update info button  
-        confirm_customer_update_info.hidden = true;
+      confirm_customer_update_info.hidden = true;
 
     })
 
@@ -113,12 +122,16 @@ $('#UpdateInfo').click(function () {
     var connected_user = $('#connected_user').val();
 
     // Update all info
-      var name = $('#user_name_update').val();
-      var first_name = $('#user_first_name_update').val();
-      var email = $('#user_email_update').val();
-      var role = $('#customer-type-int-input').val();
-      
-      var action = $('#action').val();
+    var ville = customer_ville_update.val();
+    var departement = customer_departement_update.val();
+    var sode_postal = customer_postal_update.val();
+    var pays = customer_pays_update.val();
+    var email = customer_email_update.val();
+    var intitule = customer_intitule_update.val();
+    var phone = customer_phone_update.val();
+    var adress = customer_adress_update.val();
+    var adress2 = customer_adress2_update.val();
+
       var password = $('#password').val();
       var user = $('#user').val(); 
       var connected_user = $('#connected_user').val();

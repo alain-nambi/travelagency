@@ -2197,9 +2197,9 @@ def unorder_pnr(request):
                     # Change the staus od is_invoiced of the corresponding other fee if it exist to falser
                     OthersFee.objects.filter(id=passenger_invoice.other_fee_id).update(is_invoiced=False)
 
-                if passenger_invoice.ticket_id or passenger_invoice.other_fee_id or passenger_invoice.fee_id:
+                if passenger_invoice.ticket_id or passenger_invoice.other_fee_id :
                     # save in the InvoicesCanceled
-                    invoices_canceled = InvoicesCanceled(pnr_id=pnr.id,invoice_number=invoice_number,motif=motif,ticket_id=passenger_invoice.ticket_id, other_fee_id = passenger_invoice.other_fee_id,user_id=user_id, fee_id=passenger_invoice.fee_id) 
+                    invoices_canceled = InvoicesCanceled(invoice_date=passenger_invoice.date_creation, pnr_id=pnr.id,invoice_number=invoice_number,motif=motif,ticket_id=passenger_invoice.ticket_id, other_fee_id = passenger_invoice.other_fee_id,user_id=user_id) 
                     invoices_canceled.save()
                 
         
@@ -2238,8 +2238,7 @@ def uncheck_ticket_in_passenger_invoiced(request):
 @login_required(login_url="index")
 def get_all_pnr_unordered(request):
     context = {}
-    invoices_canceled_list = InvoicesCanceled.objects.all().distinct('pnr_id')
-    
+    invoices_canceled_list = InvoicesCanceled.objects.all()
     users = []
     invoice_canceled = InvoicesCanceled.objects.all().distinct('user')      
     for invoice in invoice_canceled:
@@ -2275,41 +2274,39 @@ def unordered_pnr_research(request):
         if pnr_results.exists():
             for p1 in pnr_results :
                 search_results.append(p1)
-        print(search_results)
         
-        # _passengers = Passenger.objects.all().filter(Q(name__icontains=pnr_research) | Q(surname__icontains=pnr_research) )
+        _passengers = Passenger.objects.all().filter(Q(name__icontains=pnr_research) | Q(surname__icontains=pnr_research) )
         
-        # for p in _passengers :
+        for p in _passengers :
             
-        #     pnr_passenger = PnrPassenger.objects.all().filter(passenger=p).first()
-        #     if pnr_passenger is not None :
-        #         pnr_object = InvoicesCanceled.objects.all().filter(pnr_id=pnr_passenger.pnr.pk).distinct()
+            pnr_passenger = PnrPassenger.objects.all().filter(passenger=p).first()
+            if pnr_passenger is not None :
+                pnr_object = InvoicesCanceled.objects.all().filter(pnr_id=pnr_passenger.pnr.pk).distinct()
                 
-        #         if pnr_object.exists() and pnr_object not in search_results and pnr_object is not None :
-        #             search_results.extend(pnr_object)
-        # print(search_results)
+                if pnr_object.exists() and pnr_object not in search_results and pnr_object is not None :
+                    search_results.extend(pnr_object)
         
-        # # Search with customer
-        # _customers = Client.objects.all().filter(Q(intitule__icontains=pnr_research) )
+        # Search with customer
+        _customers = Client.objects.all().filter(Q(intitule__icontains=pnr_research) )
         
-        # for c in _customers :
-        #     pnr_passenger_invoice = PassengerInvoice.objects.all().filter(client=c).first()
-        #     if pnr_passenger_invoice is not None :
-        #         pnr_cobject = InvoicesCanceled.objects.all().filter(pnr_id=pnr_passenger_invoice.pnr.pk).distinct()
+        for c in _customers :
+            pnr_passenger_invoice = PassengerInvoice.objects.all().filter(client=c).first()
+            if pnr_passenger_invoice is not None :
+                pnr_cobject = InvoicesCanceled.objects.all().filter(pnr_id=pnr_passenger_invoice.pnr.pk).distinct()
                 
-        #         if pnr_cobject.exists() and pnr_cobject not in search_results and pnr_cobject is not None :
-        #             search_results.extend(pnr_cobject)
+                if pnr_cobject.exists() and pnr_cobject not in search_results and pnr_cobject is not None :
+                    search_results.extend(pnr_cobject)
                 
-        # _users = User.objects.all().filter(Q(username__icontains=pnr_research))        
-        # for user in _users:
-        #     pnr_invoices = InvoicesCanceled.objects.all().filter(user_id=user.pk).distinct()
+        _users = User.objects.all().filter(Q(username__icontains=pnr_research))        
+        for user in _users:
+            pnr_invoices = InvoicesCanceled.objects.all().filter(user_id=user.pk).distinct()
             
-        #     if pnr_invoices.exists() and pnr_invoices not in search_results and pnr_invoices is not None :
-        #         search_results.extend(pnr_invoices)
+            if pnr_invoices.exists() and pnr_invoices not in search_results and pnr_invoices is not None :
+                search_results.extend(pnr_invoices)
                     
         print(search_results)
         if pnr_results.exists():
-            results = get_data_unordered_pnr_from_query_set(search_results)
+            results = get_data_unordered_pnr_from_query_set(request,search_results)
             context['results'] = results
             context['status'] = 200
         else:
@@ -2434,7 +2431,9 @@ def unordered_pnr_filter(request):
 # ------------ transform a list of queryset to table specialy for the canceled ticket search
 @login_required(login_url="index")
 def get_data_unordered_pnr_from_query_set(request,search_results):
+
     results = []
+
     for invoice in search_results:
         
         values = {}
@@ -2444,6 +2443,7 @@ def get_data_unordered_pnr_from_query_set(request,search_results):
         values['motif'] = invoice.motif
         values['date'] = (invoice.date).strftime("%d/%m/%Y, %H:%M:%S")
         values['user'] = invoice.user.username
+        print(values['user'])
         results.append(values)
     return results
 
@@ -2453,7 +2453,6 @@ def unordered_pnr_advanced_search(request):
     search_results = []
     if request.method == 'POST':
         try:
-            print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
             date = request.POST.get('date')
             motif = request.POST.get('motif')
             createur = request.POST.get('createur')

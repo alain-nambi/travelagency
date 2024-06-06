@@ -12,14 +12,14 @@
             <div>
               <div class="row align-items-center" style="margin:2px 0 2px 0;">
                 <div class="col-md-2 float-left">
-                <h4 class="text-primary title-all-pnr mt-1 mb-0">PNR non remonté</h4>
+                <h4 class="text-primary title-all-pnr mt-1 mb-0">PNR Décommandés</h4>
                 </div>
                 <div class="col-md-10 float-right">
                   <div class="row d-flex align-items-center">
                     <div class="col-md-3 d-flex">
                       <div class="col-md-8 mr-4 px-0 d-flex align-items-center justify-content-center">
                         <div class="input-group input-group float-sm-right mt-1 mb-1" style="position: relative;">
-                          <input type="text" name="table_search" id="input-canceled-ticket" class="form-control form-control-sm"
+                          <input type="text" name="table_search" id="input-unordered-pnr" class="form-control form-control-sm"
                             placeholder="Recherche">
                           <div 
                             id="spinnerLoadingSearch" 
@@ -31,7 +31,7 @@
                             <span class="sr-only">Loading...</span>
                           </div>
                           <div class="input-group-append">
-                            <button type="submit" id="canceled-ticket-research" class="btn btn-default py-0" title="Bouton de recherche">
+                            <button type="submit" id="unordered_pnr-research" class="btn btn-default py-0" title="Bouton de recherche">
                               <i class="fas fa-search text-primary"></i>
                             </button>
                           </div>
@@ -202,12 +202,17 @@
 
                   <tr id="tr-all-pnr">
                     <th>Numéro</th>
+                    <th>Numéro du billet</th>
                     <th>Numéro de commande</th> 
+                    <th class="pnr-creation-date" style="cursor: pointer;">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
+                        Date du commande
+                      </div>
+                    </th>
 
                     <th class="pnr-creation-date" style="cursor: pointer;">
                       <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
                         Date du décommande
-                      
                       </div>
                     </th>
 
@@ -216,9 +221,7 @@
                     
                     <th class="pnr-creator-list">
                       <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
-                        Créateur
-                        
-                      </div>
+                        Créateur </div>
                     </th>
                   </tr>
                 </thead>
@@ -241,7 +244,9 @@
 
 
                       </td>
+                      <td>{% if invoices.ticket %}{{invoices.ticket.number}} {% else %} {{invoices.other_fee.designation}}{% endif %}</td>
                       <td> {{invoices.invoice_number}} </td>
+                      <td> {{ invoices.invoice_date|date:"d/m/y H:i" }}</td>
 
                       <td>{{ invoices.date|date:"d/m/y H:i" }}</td>
                       <td>{{ invoices.motif }}</td>

@@ -453,6 +453,7 @@ def save_ticket_anomalie(request):
 @login_required(login_url='index')
 def get_all_anomalies(request):
     anomalies = Anomalie.objects.exclude(status=3)
+    pnr_count = anomalies.count()
     context = {}
     context['anomalies'] = anomalies
     object_list = context['anomalies']
@@ -466,7 +467,7 @@ def get_all_anomalies(request):
     except EmptyPage:
         page_obj = paginator.page(paginator.num_pages)
         
-    context = {'page_obj': page_obj, 'row_num': row_num}
+    context = {'page_obj': page_obj, 'row_num': row_num, 'pnr_count' : pnr_count}
     
     return render(request,'anomalie/list.html',context)
 
@@ -474,8 +475,10 @@ def get_all_anomalies(request):
 def anomaly_details(request, pnr_id):
     context={}
     anomalie = Anomalie.objects.filter(pnr_id=pnr_id).exclude(status=3)
+    pnr = Pnr.objects.get(pk=pnr_id)
     context['anomalies'] = anomalie
     context['pnr_id'] = pnr_id
+    context['pnr_number'] = pnr.number
     return render(request, 'anomalie/details.html', context)
 
 # updating or saving ticket from anomalie 'Billet non remonté'
@@ -1050,9 +1053,49 @@ def unremounted_pnr_research(request):
         
     return JsonResponse(context)
 
+# --------------- recherche et filtre billet non remonte -----------------------------
+# ------------------ recherche simple ------------------------------------------------
+@login_required(login_url="index")
+def unremounted_ticket_research(request):
+    context = {}
+    
+    if request.method == 'POST' and request.POST.get('ticket_research'):
+        search_results = []
+        
+        ticket_research = request.POST.get('ticket_research')
+        ticket_research_lower = ticket_research.lower()
+        pnr_results = Anomalie.objects.all().filter(Q(pnr__number__icontains=ticket_research_lower) | Q(infos__ticket_number__contains=ticket_research_lower) | Q(infos__type__contains=ticket_research_lower))
+        
+        if pnr_results.exists():
+            for p1 in pnr_results :
+                search_results.append(p1)
+        print(search_results)
+          
+        results = get_data_unremounted_ticket_from_query_set(request,search_results)
+        
+        ticket_count = len(results)
+        
+        context = {'results' : results, 'ticket_count' :  ticket_count, 'searchTitle' : ticket_research}
+    return JsonResponse(context)
 
+# ------------ transform a list of queryset to table specialy for the canceled ticket search
+@login_required(login_url="index")
+def get_data_unremounted_ticket_from_query_set(request,search_results):
+    results = []
+    for ticket in search_results:
+        
+        values = {}
+        values['pnr_id'] = ticket.pnr.id
+        values['pnr_number'] = ticket.pnr.number
+        values['categorie'] = ticket.categorie.name
+        values['ticket_number'] = ticket.infos.get('ticket_number')
+        values['montant_total'] = float(ticket.infos.get('montant')) + float(ticket.infos.get('taxe'))
+        values['creation_date'] = (ticket.creation_date + timedelta(hours=3)).strftime("%d/%m/%Y")
+        values['issuing_user'] = ticket.issuing_user.username
+        values['status'] = ticket.status
 
-
+        results.append(values)
+    return results
 
 
 

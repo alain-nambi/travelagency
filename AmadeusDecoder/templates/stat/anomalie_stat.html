@@ -96,7 +96,7 @@
             animationEnabled: true,
             theme: "light1",
             title: {
-                text: "Anomalie par mois"
+                text: "Fréquence des anomalies par mois"
               },
             axisY: {
               title: "Nombre de PNR",
@@ -105,6 +105,7 @@
               labelFontColor: "#4F81BC",
               tickColor: "#4F81BC",
               includeZero: true
+              
             },
             axisY2: {
               title: "Clicks",
@@ -112,6 +113,10 @@
               lineColor: "#C0504E",
               labelFontColor: "#C0504E",  
               tickColor: "#C0504E"
+            },
+            axisX:{
+                interval: 1, // Afficher chaque étiquette sur l'axe des X
+              labelAngle: -45 // Incliner les étiquettes si nécessaire
             },
             toolTip: {
               shared: true
@@ -137,9 +142,11 @@
             toolTip: {
               shared: true
             },
+            
             axisY: {
-              title: "Anomalie par utilisateur",
+              title: "Nombre d'anomalies par utilisateur",
               valueFormatString: "#,###"
+              
             },
             legend: {
               cursor: "pointer",
@@ -191,62 +198,39 @@
     {% block body %}
 
     <div class="wrapper">
-        <nav class="main-header navbar navbar-expand navbar-white navbar-light shadow" id="layoutHomeMenu">
-            <form method='POST' action=''>
-                    <!-- Left navbar links -->
-                <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" id="pushed-sidebar" data-widget="pushmenu" href="#" role="button"><i
-                        class="fas fa-bars"></i></a>   
-                </li>
-                <li class="nav-item">
-                    {% include "commandes_modal.html" %}
-                </li>
-                <li class="nav-item ml-5 d-flex" style="gap: 0.5rem;">
-                    <div class="align-items-center">
-                    <span id="mail-user" data-mail="issoufali.pnr@outlook.com;{{request.user.email}}">issoufali.pnr@outlook.com;{{request.user.email}}</span>
-                    <a type="button" class="btn btn-outline-primary zenith" onclick="copymailuser()">Zenith</a> 
-                    
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light" id="layoutHomeMenu">
+            <div class="card-header justify-content-between py-0" >
+                <div class="row" style="padding:10px;">
+                    <div class=" float-left">
+                        <h3 class="text-primary title-all-pnr mt-1 mb-0">Etat d'Analyse et Statistiques</h3>
                     </div>
-                    <div id="pnrNotUpdated">
-                        <button 
-                        type="button" 
-                        class="btn btn-outline-danger zenith" 
-                        data-toggle="modal" 
-                        data-target="#modalPnrNotUpdated" 
-                        title="Pnr non remonté"
-                        id = "pnr-not-fetched"
-                        >
-                        <i class="fa fa-upload"></i>
-                        Pnr non remonté
-                        </button>
-                    </div>
-        
-                </li>
-                </ul>
-            </form>
-    
+                </div>
+            </div>
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
-            
-            <li class="nav-item">
+                <!-- Navbar Search -->
+
                 
-            </li>
-            <li class="nav-item dropdown">
+                <li class="nav-item">
+                {% comment %} <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+                    <i class="fas fa-expand-arrows-alt"></i>
+                </a> {% endcomment %}
+                </li>
+                <li class="nav-item dropdown">
                 <a class="nav-link" data-toggle="dropdown" href="#">
-                <i class="far fa-user"></i> {{request.user.username}}
+                    <i class="far fa-user"></i> {{request.user.username}}
                 </a>
                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                <a href="{% url 'account' %}" class="dropdown-item">
+                    <a href="{% url 'account' %}" class="dropdown-item">
                     Mon compte
-                </a>
-                <div class="dropdown-divider"></div>
-                <a href="{% url 'logout' %}" class="dropdown-item">
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="{% url 'logout' %}" class="dropdown-item">
                     <i class="fa fa-sign-out" aria-hidden="true"></i>
                     Se déconnecter
-                </a>
+                    </a>
                 </div>
-            </li>
+                </li>
             </ul>
         </nav>
         <!-- /.navbar -->
@@ -441,13 +425,7 @@
                         <div class="row">
                             <div class="col-12">
                                 <div class="card card-primary card-outline" style="margin-top: 4rem !important;">
-                                    <div class="card-header justify-content-between py-0" >
-                                        <div class="row" style="padding:1rem;">
-                                            <div class="col-md-6 float-left">
-                                                <h3 class="text-primary title-all-pnr mt-1 mb-0">Etat d'Analyse et Statistiques</h3>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    
                                     <div class="card-body">
                                         <div class="col-md-12" style="">
                                             <div class="row"  style="justify-content:space-between;">
@@ -478,12 +456,12 @@
                                                             <div class=" py-4 card-body">
                                                                 <div class="row align-items-center m-l-0">
                                                                     <div class="col-auto">
-                                                                        <i class="fa fa-file-text text-info" style="font-size:70px;"></i>
+                                                                        <i class="fa fa-file-text text-info" style="font-size:55px;"></i>
                                                                     </div>
                     
                                                                     <div class="col-auto" style="margin-left:3rem">
-                                                                        <h2 class="text-muted m-b-10" style="margin-left:2rem;">Anolmalie</h2>
-                                                                        <h2 class="m-b-0" style="margin-left:1rem;">{{total_anomaly }}</h2>
+                                                                        <h2 class="text-muted m-b-10" style="margin-left:2rem;">Anolmalies</h2>
+                                                                        <h2 class="m-b-0" style="margin-left:3rem;">{{total_anomaly }}</h2>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -498,13 +476,13 @@
                                                                     <div class="row align-items-center m-l-0">
 
                                                                         <div class="col-auto">
-                                                                            <i class="fa fa-comments" style="font-size:70px;color:#C3FF93;"></i>
+                                                                            <i class="fa fa-comments" style="font-size:55px;color:#C3FF93;"></i>
                                                                             
                                                                         </div>
     
-                                                                        <div class="col-auto" style="margin-left:3rem">
+                                                                        <div class="col-auto" style="margin-left:1rem">
                                                                             <h3 class="mb-2">{{anomaly_of_this_month}}</h3>
-                                                                            <p class="mb-2">Anomalie signalé ce mois-ci</p>
+                                                                            <p class="mb-2">Anomalies signalées ce mois-ci</p>
                                                                             {% comment %} <div class="mb-0">
                                                                                 <span class="text-success text-sm font-weight-bolder"></span>
                                                                                 <span class="text-muted">depuis hier</span>
@@ -525,13 +503,13 @@
                                                                 <div class="row align-items-center m-l-0">
 
                                                                     <div class="col-auto">
-                                                                        <i class="fa fa-comments" style="font-size:70px;color:#FFF455;"></i>
+                                                                        <i class="fa fa-comments" style="font-size:55px;color:#FFF455;"></i>
                                                                         
                                                                     </div>
 
-                                                                    <div class="col-auto" style="margin-left:3rem">
+                                                                    <div class="col-auto" style="margin-left:1rem">
                                                                         <h3 class="mb-2">{{anomaly_of_today}}</h3>
-                                                                        <p class="mb-2">Anomalie signalé aujourd'hui</p>
+                                                                        <p class="mb-2">Anomalies signalées aujourd'hui</p>
                                                                         {% comment %} <div class="mb-0">
                                                                             <span class="text-success text-sm font-weight-bolder"></span>
                                                                             <span class="text-muted">depuis hier</span>
@@ -552,13 +530,13 @@
                                                                 <div class="row align-items-center m-l-0">
 
                                                                     <div class="col-auto">
-                                                                        <i class="fa fa-check-square " style="font-size:70px;color:#C3FF93;"></i>
+                                                                        <i class="fa fa-check-square " style="font-size:55px;color:#C3FF93;"></i>
                                                                         
                                                                     </div>
 
-                                                                    <div class="col-auto" style="margin-left:3rem">
+                                                                    <div class="col-auto" style="margin-left:1rem">
                                                                         <h3 class="mb-2">{{anomaly_non_traite}}</h3>
-                                                                        <p class="mb-2">Anomalie non traité </p>
+                                                                        <p class="mb-2">Anomalie non traitée </p>
                                                                         {% comment %} <div class="mb-0">
                                                                             <span class="text-success text-sm font-weight-bolder"></span>
                                                                             <span class="text-muted">depuis le dernier mois</span>
@@ -593,7 +571,7 @@
                                                             <div class="card-header" style="position:sticky !important;">
                                                                 
                                                                 <h3 class="card-title align-items-start flex-column">
-                                                                    <span class="card-label  text-gray-800 fs-2" style="font-weight:bolder;">Anomalie par utilisateur</span>
+                                                                    <span class="card-label  text-gray-800 fs-2" style="font-weight:bolder;">Fréquence des anomalies par utilisateur</span>
                                                                 </h3>
                     
                                                                 <div class="dropdown" style="float:right;">

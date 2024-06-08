@@ -1,6 +1,4 @@
-function closeCollapse() {
-    $('#collapseExample').collapse('hide');
-}
+
 
 const liElements = $(".filter-menu > .list");
 const $pnrMenu = $(".pnr-menu");

@@ -1,4 +1,4 @@
-{% extends "simple_layout.html" %} 
+{% extends "layout_simples.html" %} 
 {% block content %}
 <div class="content-wrapper" style="margin-top: 8rem;">
   <section class="content-header p-0" style="margin-top: 8rem;">
@@ -38,7 +38,7 @@
                           <input type="text" class="form form-control w-50" id="customer_email_update" required hidden/>
                         </li>
                         <li class="list-group-item">
-                          <b>Téléphone :</b> <a class="pull-right" id="customer_phone_label" >{{customer.telephonee}}</a>
+                          <b>Téléphone :</b> <a class="pull-right" id="customer_phone_label" >{{customer.telephone}}</a>
                           <input type="text" class="form form-control w-50" id="customer_phone_update" required hidden/>
                         </li>
                         <li class="list-group-item mb-2">

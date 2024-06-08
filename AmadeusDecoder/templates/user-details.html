@@ -1,4 +1,4 @@
-{% extends "simple_layout.html" %} 
+{% extends "layout_simple.html" %} 
 {% block content %}
 <div class="content-wrapper" style="margin-top: 8rem;">
   <section class="content-header p-0" style="margin-top: 8rem;">
@@ -107,7 +107,7 @@
                             </div>
                           </div>
                           <div class="row" style="display:flex; justify-content: space-between;">
-                            <button type="button" class="btn btn-danger md-block" onclick="closeCollapse()">Annuler</button>
+                            <button type="button" class="btn btn-danger md-block" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">Annuler</button>
                             <button type="button" class="btn btn-success md-block" id="ConfirmNewPassword" data-toggle="modal" data-target="#modalConfirmUpdate" data-action="update_password" data-user="{{user.id}}" data-connected-user="{{request.user.id}}">Confirmer</button>
                           </div>
                           

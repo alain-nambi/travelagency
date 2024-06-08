@@ -667,7 +667,7 @@ def user_graph_view(request):
 
 def get_stat_airlines():
 
-    all_year = PnrAirSegments.objects.annotate(year=ExtractYear('departuretime')).values('year').distinct()
+    all_year = PnrAirSegments.objects.annotate(year=ExtractYear('departuretime')).values('year').distinct().filter(year__gte=datetime(2023, 1, 1).year).order_by('year')
     all_data_by_month = []
 
     for month in range(1, 13):
@@ -701,7 +701,7 @@ def get_stat_airlines():
     
 def get_stat_user_comment():
     
-    all_year = PnrAirSegments.objects.annotate(year=ExtractYear('departuretime')).values('year').distinct()
+    all_year = PnrAirSegments.objects.annotate(year=ExtractYear('departuretime')).values('year').distinct().filter(year__gte=datetime(2023, 1, 1).year).order_by('year')
     all_data_by_month = []
 
     for month in range(1, 13):
@@ -733,7 +733,7 @@ def get_stat_user_comment():
 
 def get_stat_user_pnr():
 
-    all_year = PnrAirSegments.objects.annotate(year=ExtractYear('departuretime')).values('year').distinct()
+    all_year = PnrAirSegments.objects.annotate(year=ExtractYear('departuretime')).values('year').distinct().filter(year__gte=datetime(2023, 1, 1).year).order_by('year')
 
     all_data_by_month = []
 
@@ -769,7 +769,7 @@ def get_stat_user_pnr():
 
 def get_destination_by_month():
     
-    all_year = PnrAirSegments.objects.annotate(year=ExtractYear('departuretime')).values('year').distinct()
+    all_year = PnrAirSegments.objects.annotate(year=ExtractYear('departuretime')).values('year').distinct().filter(year__gte=datetime(2023, 1, 1).year).order_by('year')
     all_data_by_month = []
 
     for month in range(1, 13):
@@ -782,12 +782,18 @@ def get_destination_by_month():
                     data = {}
 
                     cursor.execute("""
-                        SELECT municipality, COUNT(*) AS total
-                        FROM v_pnr_passenger
-                        WHERE EXTRACT(MONTH FROM departuretime) = %s
-                        AND EXTRACT(YEAR FROM departuretime) = %s
-                        GROUP BY municipality
-                        HAVING COUNT(*) > 20 order by total desc;
+                        SELECT ta.municipality, SUM(g.total) ::INTEGER AS total_passengers
+                            FROM (
+                                SELECT codedest_id, COUNT(*) AS total
+                                FROM v_pnr_passenger
+                                WHERE EXTRACT(MONTH FROM departuretime) = %s
+                                AND EXTRACT(YEAR FROM departuretime) = %s
+                                GROUP BY codedest_id
+                                HAVING COUNT(*) > 20
+                            ) g
+                            JOIN t_airports ta ON g.codedest_id = ta.iata_code
+                            GROUP BY ta.municipality
+                            ORDER BY total_passengers DESC;
                     """, [month,element['year']])
 
                     # Récupérer les résultats
@@ -796,12 +802,6 @@ def get_destination_by_month():
                     data['year']=(str(element['year']))
                     data['data'] = []
                     for result in results:
-                        # airport = Airport.objects.get(iata_code = results[0])
-                        
-                        # if airport.name is not None:
-                        #     data['data'].append({"y":results[1],"label":airport.name})
-                        # if airport.name is None:
-                        #     data['data'].append({"y":results[1],"label":results[0]}) 
                         
                         if result[0] is None:
                             data['data'].append({"y":result[1],"label":"Inconnu"})
@@ -815,7 +815,7 @@ def get_destination_by_month():
 
 def get_origin_by_month():
     # month = datetime.datetime.now().month
-    all_year = PnrAirSegments.objects.annotate(year=ExtractYear('departuretime')).values('year').distinct()
+    all_year = PnrAirSegments.objects.annotate(year=ExtractYear('departuretime')).values('year').distinct().filter(year__gte=datetime(2023, 1, 1).year).order_by('year')
     all_data_by_month = []
 
     for month in range(1, 13):
@@ -828,12 +828,19 @@ def get_origin_by_month():
                     data = {}
 
                     cursor.execute("""
-                        SELECT municipality, COUNT(*) AS total
+                        SELECT ta.municipality, SUM(g.total) ::INTEGER AS total_passengers
+                        FROM (
+                        SELECT codeorg_id, COUNT(*) AS total
                         FROM v_pnr_passenger
                         WHERE EXTRACT(MONTH FROM departuretime) = %s
                         AND EXTRACT(YEAR FROM departuretime) = %s
-                        GROUP BY municipality
-                        HAVING COUNT(*) > 20 order by total desc;
+                        GROUP BY codeorg_id
+                        HAVING COUNT(*) > 20
+                        ) g
+                        JOIN t_airports ta ON g.codeorg_id = ta.iata_code
+                        GROUP BY ta.municipality
+                        ORDER BY total_passengers DESC;
+
                     """, [month,element['year']])
 
                     # Récupérer les résultats
@@ -919,7 +926,7 @@ def get_total_pnr_for_week():
 
 def get_passenger_by_month():
     
-    all_year = PnrAirSegments.objects.annotate(year=ExtractYear('departuretime')).values('year').distinct()
+    all_year = PnrAirSegments.objects.annotate(year=ExtractYear('departuretime')).values('year').distinct().filter(year__gte=datetime(2023, 1, 1).year).order_by('year')
     all_data = []
     
 
@@ -1078,8 +1085,8 @@ def get_pnr_difference():
     context = {}
     today_date = datetime.today().date()
     # formatted_date = today_date.strftime('%Y-%m-%d')
-    formatted_date= '2024-04-22'
-    yesterday_date= '2024-04-21'
+    formatted_date= '2023-06-22'
+    yesterday_date= '2023-06-21'
 
     # yesterday_date = today_date - timedelta(days=1)
 
@@ -1107,7 +1114,7 @@ def get_pnr_difference():
     return context
 
 def get_pnr_invoices_by_month():
-    all_year = Pnr.objects.annotate(year=ExtractYear('system_creation_date')).values('year').distinct()
+    all_year = Pnr.objects.annotate(year=ExtractYear('system_creation_date')).values('year').distinct().filter(year__gte=datetime(2023, 1, 1).year).order_by('year')
     all_data = []
     
 
@@ -1154,7 +1161,7 @@ def get_pnr_invoices_by_month():
 
 
 def get_pnr_created_by_month():
-    all_year = Pnr.objects.annotate(year=ExtractYear('system_creation_date')).values('year').distinct()
+    all_year = Pnr.objects.annotate(year=ExtractYear('system_creation_date')).values('year').distinct().filter(year__gte=datetime(2023, 1, 1).year).order_by('year')
     all_data = []
     
 
@@ -1198,7 +1205,7 @@ def get_pnr_created_by_month():
     return all_data
 
 def get_anomaly_created_by_month():
-    all_year = Comment.objects.annotate(year=ExtractYear('creation_date')).values('year').distinct()
+    all_year = Comment.objects.annotate(year=ExtractYear('creation_date')).values('year').distinct().filter(year__gte=datetime(2023, 1, 1).year).order_by('year')
     all_data = []
     
 
@@ -1242,7 +1249,7 @@ def get_anomaly_created_by_month():
     return all_data
 
 def get_anomaly_created_by_user():
-    all_year = Comment.objects.annotate(year=ExtractYear('creation_date')).values('year').distinct()
+    all_year = Comment.objects.annotate(year=ExtractYear('creation_date')).values('year').distinct().filter(year__gte=datetime(2023, 1, 1).year).order_by('year')
     all_data_by_month = []
 
     for month in range(1, 13):

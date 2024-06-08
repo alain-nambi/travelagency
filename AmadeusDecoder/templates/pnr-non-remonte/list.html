@@ -151,7 +151,7 @@
                         <div class="d-flex float-right mt-4" style="gap: 2rem; margin-left: 4rem !important;">
                           
                             <span class="px-2 py-1 bg-green">Traitée : {{unremounted_pnr_state.true}} </span>
-                            <span class="px-2 py-1 bg-red">Non traitée : {{unremounted_pnr_state.false}} </span>
+                            <span class="px-2 py-1 bg-red">En attente de validation : {{unremounted_pnr_state.false}} </span>
                           
                         </div>
                       </div>
@@ -185,7 +185,7 @@
                                     <td>{{unremounted_pnr.emitter.username}}</td>
                                     
                                     {% if unremounted_pnr.state == 0 %}
-                                        <td><button class="btn btn-danger py-0" name="anomaly_state">Attente de validation</button></td>
+                                        <td><button class="btn btn-danger py-0" name="anomaly_state">En attente de validation</button></td>
                                     {% endif %}
                                     {% if unremounted_pnr.state == 2 %}
                                         <td><button class="btn btn-primary py-0" name="anomaly_state">Refusée</button></td>

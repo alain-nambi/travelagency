@@ -74,6 +74,12 @@ urlpatterns = [
     path('home/drop-anomaly',drop_anomaly, name='drop_anomaly'),
     path('home/update-anomaly', updateAnomaly, name='update_anomaly'),
     path('home/ticket-delete',ticket_delete,name='ticket_delete'),
+    path('home/pnr-non-remonte',pnr_non_remonte,name='pnr_non_remonte'),
+    path('home/unremounted-pnr',all_unremounted_pnr,name='all_unremounted_pnr'),
+    path('home/unremounted-pnr-details/<int:unremounted_pnr_id>',unremounted_pnr_details,name='unremounted_pnr_details'),
     path('comment/get-unshowed-tickets',get_unshowed_tickets, name='get_unshowed_tickets'),
     path('check-uninvoiced-status/', uncheck_ticket_in_passenger_invoiced, name='uncheck_ticket_in_passenger_invoiced')
+    path('anomaly/accept/unremounted-pnr',accept_unremounted_pnr, name='accept_unremounted_pnr'),
+    path('anomaly/refuse/unremounted-pnr',refuse_unremounted_pnr, name='refuse_unremounted_pnr'),
+
 ]

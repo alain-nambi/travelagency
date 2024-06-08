@@ -19,8 +19,10 @@ from django.forms.models import model_to_dict
 from django.conf import settings
 from AmadeusDecoder.models.invoice.TicketPassengerSegment import OtherFeeSegment, TicketPassengerSegment
 
-from AmadeusDecoder.models.pnr.Pnr import Pnr
+from AmadeusDecoder.models.pnr.Pnr import Pnr, UnremountedPnr, unRemountedPnrPassenger, unRemountedPnrSegment, unRemountedPnrTickets
 from AmadeusDecoder.models.pnr.PnrPassenger import PnrPassenger
+from AmadeusDecoder.models.pnrelements.Airline import Airline
+from AmadeusDecoder.models.pnrelements.Airport import Airport
 from AmadeusDecoder.models.user.Users import User, UserCopying
 from AmadeusDecoder.models.invoice.Clients import Client
 from AmadeusDecoder.models.utilities.Comments import Comment, Response
@@ -28,7 +30,7 @@ from AmadeusDecoder.models.invoice.Ticket import Ticket
 from AmadeusDecoder.models.invoice.Fee import Fee, ReducePnrFeeRequest, OthersFee
 from AmadeusDecoder.models.invoice.Invoice import Invoice, InvoicesCanceled
 from AmadeusDecoder.models.invoice.InvoiceDetails import InvoiceDetails
-from AmadeusDecoder.models.pnr.Passenger import Passenger
+from AmadeusDecoder.models.pnr.Passenger import Passenger, PassengerType
 from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
 from AmadeusDecoder.models.invoice.Fee import Product
 from AmadeusDecoder.models.pnrelements.PnrAirSegments import PnrAirSegments
@@ -304,6 +306,10 @@ def home(request):
             print("PNR COUNT")
             print(pnr_count)
 
+        offices = Airport.objects.all()
+        passengerTypes = PassengerType.objects.all()
+        airlines = Airline.objects.filter(iata__isnull=False).all()
+
         row_num = request.GET.get('paginate_by', 50) or 50
         page_num = request.GET.get('page', 1)
         paginator = Paginator(pnr_list, row_num)
@@ -317,7 +323,11 @@ def home(request):
             'page_obj': page_obj, 
             'row_num': row_num,
             'pnr_count': pnr_count,
-            'users': users
+            'users': users,
+            'passengerTypes': passengerTypes,
+            'offices' : offices,
+            'airlines' : airlines
+
         }
         return render(request,'home.html', context)
 
@@ -420,6 +430,9 @@ def home(request):
         # Compute count of Pnrs in the list
         pnr_count = len(pnr_list)
 
+        offices = Airport.objects.all()
+        passengerTypes = PassengerType.objects.all()
+        airlines = Airline.objects.filter(iata__isnull=False).all()
 
         row_num = request.GET.get('paginate_by', 50) or 50
         page_num = request.GET.get('page', 1)
@@ -434,7 +447,10 @@ def home(request):
             'page_obj': page_obj, 
             'row_num': row_num,
             'pnr_count': pnr_count,
-            'users': users
+            'users': users,
+            'passengerTypes': passengerTypes,
+            'offices' : offices,
+            'airlines' : airlines
         }
         return render(request,'home.html', context)
     else:
@@ -603,6 +619,10 @@ def home(request):
 
             print('no creator')
 
+        offices = Airport.objects.all()
+        passengerTypes = PassengerType.objects.all()
+        airlines = Airline.objects.filter(iata__isnull=False).all()
+
         row_num = request.GET.get('paginate_by', 50) or 50
         page_num = request.GET.get('page', 1)
         paginator = Paginator(pnr_list, row_num)
@@ -616,7 +636,10 @@ def home(request):
             'page_obj': page_obj, 
             'row_num': row_num,
             'pnr_count': pnr_count,
-            'users': users
+            'users': users,
+            'offices': offices,
+            'passengerTypes' : passengerTypes,
+            'airlines' : airlines
         }
         return render(request,'home.html', context)
 
@@ -718,6 +741,18 @@ def pnr_details(request, pnr_id):
             elif not __ticket_not_ordered.exists() and not __other_fee_not_ordered.exists() and not __ticket_no_adc_not_ordered.exists():
                 pnr_detail.is_invoiced = True
                 pnr_detail.save()
+
+
+        ticket = Ticket.objects.get(pk=88395)
+        segments = ''
+        for passengerSegment in ticket.ticket_parts.all().order_by('segment__id'):
+            segments += passengerSegment.segment.segmentorder + '-'
+            print('--------------------------------- ticket segment -------------------------------')
+            print(segments)
+        for ssrs in  ticket.ticket_ssrs.all():
+            segments += ssrs.ssr.order_line + '-'
+            print('with ssrs')
+            print(segments)
 
     return render(request,'pnr-details.html', context)
 
@@ -2207,7 +2242,7 @@ def get_all_pnr_unordered(request):
     
     context['pnr_list'] = invoices_canceled_list
     object_list = context['pnr_list']
-    row_num = request.GET.get('paginate_by', 20) or 20
+    row_num = request.GET.get('paginate_by', 30) or 30
     page_num = request.GET.get('page', 1)
     paginator = Paginator(object_list, row_num)
     try:

@@ -1,0 +1,224 @@
+{% extends "layout-all-pnr.html" %}
+{% load pnr_comments %}
+{% load ticket_segments %}
+{% block content %}
+    
+<div class="content-wrapper" >
+	<section class="content-header p-0">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-sm-6" style="padding:1rem;">
+					<h1 class="text-primary">Détail du PNR non remonté</h1>
+				</div>
+            </section>
+	<section class="content">
+
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-md-12 mt-1">
+						<div class="card card-primary card-outline">
+                            
+                                <div class="card-body p-0" id="card-anomaly-{{unremounted_pnr.id}}" style="margin-top:10px;margin-left:10px;">
+                                        <div class="row">
+                                            <div class="card text-white bg-light mb-3" style="width: 20rem;margin:0 30px 0 30px;">
+                                                <div ><h3 style="font-weight:bold;">Détail PNR</h3></div>
+                                                <div class="card-body">
+                                                    {% if  unremounted_pnr.state == 1 %}
+                                                        <h5><span class="text-primary" style="text-decoration: underline;">Numéro </span>: <a href =""> {{ unremounted_pnr.number }}</a></h5>
+                                                    {% else %}
+                                                        <h5><span class="text-primary" style="text-decoration: underline;">Numéro </span>:  {{ unremounted_pnr.number }}</h5>
+                                                    {% endif %}
+                                                    
+                                                    <h5><span class="text-primary" style="text-decoration: underline;">Type </span>: {{ unremounted_pnr.type }}</h5>
+                                                    
+                                                </div>
+                                            </div>
+
+                                            <div class="card text-white bg-light mb-3" style="max-width: 38rem;margin-left:30px;">
+                                                <div ><h3 style="font-weight:bold;">Emission</h3></div>
+                                                <div class="card-body">
+                                                    <h5><span class="text-primary" style="text-decoration: underline;">Emis par </span>: {{ unremounted_pnr.emitter.username }}</h5>
+                                                    <h5><span class="text-primary" style="text-decoration: underline;">Mail </span>: {{ unremounted_pnr.emitter.email }}</h5>
+                                                    <h5><span class="text-primary" style="text-decoration: underline;">le </span>: {{unremounted_pnr.creation_date| correct_datetime}}</h5>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        
+
+                                        <div class="col-md-8" style="margin:20px 0 0 16px;">
+                                            <div>
+                                                <h4>Liste des billets</h4>
+                                            </div>
+                                            <table class="table table-primary" style="font-weight:300;" >
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text-center" scope="col">Numéro</th>
+                                                        <th class="text-center" scope="col">Type</th>
+                                                        <th class="text-center" scope="col">Frais de service</th>
+                                                        <th class="text-center" scope="col">Montant</th>
+                                                        <th class="text-center" scope="col">Taxe</th>
+                                                        <th class="text-center" scope="col">Passager</th>
+                                                        <th class="text-center" scope="col">Segment</th>
+                                                        {% comment %} {% if unremounted_pnr.state == 0 %}
+                                                        <th class="text-center" scope="col">Action</th>  
+                                                        {% endif %} {% endcomment %}
+                                                         
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for ticket in tickets %}
+                                                        <tr style="justify-content:center;" data-ticket-id="{{ticket.id}}" >
+                                                            <td class="text-center">{{ ticket.number }}</td>
+                                                            <td class="text-center"> {{ticket.type}} </td>
+                                                            <td class="text-center">{% if ticket.fee %} <span><input class="form-check-input" type="checkbox" checked  disabled></span> {% endif %}</td>
+                                                            <td class="text-center"> {{ticket.transport_cost | floatformat:2}} </td>
+                                                            <td class="text-center"> {{ticket.tax | floatformat:2}} </td>
+                                                            <td class="text-center"> {{ticket.passenger.order}} / {{ticket.passenger.name}} {% if ticket.passenger.surname %}{{ticket.passenger.surname}}{% endif %} </td>
+                                                            <td class="text-center">{% with ticket.id|get_unremounted_ticket_segment as segment_order %} {{segment_order}} {% endwith %}</td>
+                                                            {% comment %} {% if unremounted_pnr.state == 0 %}
+                                                            <td class="text-center">
+                                                                <span><input class="form-check-input ticketCheck" type="checkbox" checked></span>
+                                                                <span style="margin-left:10px;"><i class="fa fa-pencil" title="Modifier" style="font-size: 15px;color:green;"></i></span>
+                                                                <span style="margin-left:10px;"><i class="fa fa-x" title="Modifier" style="font-size: 15px;color:red;"></i></span>
+                                                            </td>
+                                                            {% endif %} {% endcomment %}
+                                                        </tr>
+                                                    {% endfor %}
+                                                
+                                                
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div class="col-md-8" style="margin:20px 0 0 16px;">
+                                            <div>
+                                                <h4>Liste des passagers</h4>
+                                            </div>
+                                            <table class="table table-primary" style="font-weight:300;" >
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text-center" scope="col">Ordre</th>
+                                                        <th class="text-center" scope="col">Nom</th>
+                                                        <th class="text-center" scope="col">Prénom</th>
+                                                        <th class="text-center" scope="col">Désignation</th>
+                                                        <th class="text-center" scope="col">Passeport</th>
+                                                        <th class="text-center" scope="col">Type</th>
+                                                        {% comment %} {% if unremounted_pnr.state == 0 %}
+                                                        <th class="text-center" scope="col">Action</th>  
+                                                        {% endif %} {% endcomment %}
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for passenger in passengers %}
+                                                        <tr style="justify-content:center;" data-passenger-id="{{passenger.id}}">
+                                                            <td class="text-center"> {{passenger.order}}</td>
+                                                            <td class="text-center">{{ passenger.name }}</td>
+                                                            <td class="text-center"> {{passenger.surname}} </td>
+                                                            <td class="text-center">{{passenger.designation}}</td>
+                                                            <td class="text-center"> {{passenger.passeport}} </td>
+                                                            <td class="text-center"> {{passenger.type.name}} </td>
+                                                            {% comment %} {% if unremounted_pnr.state == 0 %}
+                                                            <td class="text-center">
+                                                                
+                                                                <span style="margin-left:10px;"><i class="fa fa-pencil" title="Modifier" style="font-size: 15px;color:green;"></i></span>
+                                                                <span style="margin-left:10px;"><i class="fa fa-x" title="Modifier" style="font-size: 15px;color:red;"></i></span>
+                                                            </td>
+                                                            {% endif %} {% endcomment %}
+                                                        </tr>
+                                                    {% endfor %}
+                                                
+                                                
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div class="col-md-8" style="margin:20px 0 0 16px;">
+                                            <div>
+                                                <h4>Liste des segments</h4>
+                                            </div>
+                                            <table class="table table-primary" style="font-weight:300;" >
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text-center" scope="col">Ordre</th>
+                                                        <th class="text-center" scope="col">Numéro de vol</th>
+                                                        <th class="text-center" scope="col">Date et heure de départ</th>
+                                                        <th class="text-center" scope="col">Date et heure d'arrivée</th>
+                                                        <th class="text-center" scope="col">Départ</th>
+                                                        <th class="text-center" scope="col">Arrivée</th>
+                                                        {% comment %} {% if unremounted_pnr.state == 0 %}
+                                                        <th class="text-center" scope="col">Action</th>  
+                                                        {% endif %} {% endcomment %}
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for segment in segments %}
+                                                        <tr style="justify-content:center;">
+                                                            <td class="text-center">{{segment.order}}</td>
+                                                            <td class="text-center">{{ segment.flightno }}</td>
+                                                            <td class="text-center"> {{segment.departuretime}} </td>
+                                                            <td class="text-center">{{segment.arrivaltime}}</td>
+                                                            <td class="text-center"> {{segment.codeorg.iata_code}} </td>
+                                                            <td class="text-center"> {{segment.codedest.iata_code}} </td>
+                                                            {% comment %} {% if unremounted_pnr.state == 0 %}
+                                                            <td class="text-center">
+                                                                
+                                                                <span style="margin-left:10px;"><i class="fa fa-pencil" title="Modifier" style="font-size: 15px;color:green;"></i></span>
+                                                                <span style="margin-left:10px;"><i class="fa fa-x" title="Modifier" style="font-size: 15px;color:red;"></i></span>
+                                                            </td>
+                                                            {% endif %} {% endcomment %}
+                                                        </tr>
+                                                    {% endfor %}
+                                                
+                                                
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                </div>		
+                                <div class="card-footer" >
+                                    <div class="row" style="justify-content:space-between;">
+                                        <div class="back-button" onclick="backButton" >
+                                            <div class="arrow-wrap">
+                                            <span class="arrow-part-1"></span>
+                                            <span class="arrow-part-2"></span>
+                                            <span class="arrow-part-3"></span>
+                                            </div>
+                                        </div>
+                                        <div style="float:right;" >
+                                            {% if unremounted_pnr.state == 0 %}
+                                                <button class="btn btn-success py-0" onclick="acceptToRemountPnr('{{unremounted_pnr.id}}')" >Accepter</button>
+                                                        
+                                                <button class="btn btn-danger py-0" onclick="refuseToRemountPnr('{{unremounted_pnr.id}}')" >Refuser</button>
+                                            {% endif %}
+
+                                            {% if unremounted_pnr.state == 1 %}
+                                                <button class="btn btn-success py-0" >Traité</button>
+                                            
+                                            {% endif %}
+
+
+                                            {% if unremounted_pnr.state == 2 %}
+                                                <button class="btn btn-danger py-0" >Refusé</button>
+                                            
+                                            {% endif %}
+                                        </div>
+
+							    </div>
+							
+							
+							</div>
+
+						</div>
+					</div>
+				</div>
+
+
+			</div>
+			
+		</section>
+
+</div>
+
+
+
+{% endblock content %}

@@ -648,6 +648,8 @@ def test_parsing_zenith(request):
                 segments_data.append(values)
 
             context['segments'] = segments_data
+            print('££££££££££££££££££££££££££££££££££')
+            print(context['segments'])
 
             # get data ticket
             tickets = pnr_data.tickets.filter(Q(ticket_status=1) | Q(is_invoiced=True)).filter(Q(total__gt=0) | Q(is_no_adc=True) | (Q(is_refund=True) & Q(total__lt=0))).all().order_by('number')
@@ -883,6 +885,8 @@ def test_parsing_text(request):
                                 segments_data.append(values)
 
                             context['segments'] = segments_data
+                            print('£££££££££££££££££££££££££££££££££')
+                            print(context['segments'])
 
                             # get data ticket
                             tickets = pnr_data.tickets.filter(Q(ticket_status=1) | Q(is_invoiced=True)).filter(Q(total__gt=0) | Q(is_no_adc=True) | (Q(is_refund=True) & Q(total__lt=0))).all().order_by('number')

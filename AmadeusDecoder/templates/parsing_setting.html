@@ -1,6 +1,6 @@
-{% extends "layout.html" %} 
+{% extends "layout_simple.html" %} 
 {% block content %}
-  <div class="content-wrapper" style="margin-top: 8rem;">
+  <div class="content-wrapper" >
     <section class="content-header p-0" >
       <div class="container-fluid">
         <div class="row mb-2">
@@ -36,15 +36,19 @@
               <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                 
                 <li class="nav-item">
-                    <a class="nav-link active" id="pills-pnrparsing-tab" data-toggle="pill" href="#pills-pnrparsing" role="tab" aria-controls="pills-pnrparsing" aria-selected="false"><h5 class="m-0">PNR</h5></a>
+                    <a class="nav-link active" id="pills-pnrparsing-tab" data-toggle="pill" href="#pills-pnrparsing" role="tab" aria-controls="pills-pnrparsing" aria-selected="false"><h5 class="m-0">ALTEA - PNR</h5></a>
                 </li>
                   
                 <li class="nav-item">
-                    <a class="nav-link" id="pills-ticket-tab" data-toggle="pill" href="#pills-ticket" role="tab" aria-controls="pills-ticket" aria-selected="false"><h5 class="m-0">TICKET</h5></a>
+                    <a class="nav-link" id="pills-ticket-tab" data-toggle="pill" href="#pills-ticket" role="tab" aria-controls="pills-ticket" aria-selected="false"><h5 class="m-0">ALTEA - TICKET</h5></a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" id="pills-tst-tab" data-toggle="pill" href="#pills-tst" role="tab" aria-controls="pills-tst" aria-selected="false"><h5 class="m-0">TST</h5></a>
+                    <a class="nav-link" id="pills-tst-tab" data-toggle="pill" href="#pills-tst" role="tab" aria-controls="pills-tst" aria-selected="false"><h5 class="m-0">ALTEA - TST</h5></a>
+                </li>
+
+                <li class="nav-item">
+                  <a class="nav-link " id="pills-emd-tab" data-toggle="pill" href="#pills-emd" role="tab" aria-controls="pills-emd" aria-selected="true"><h5 class="m-0">ALTEA - EMD</h5></a>
                 </li>
 
                 <li class="nav-item">
@@ -59,9 +63,7 @@
                     <a class="nav-link" id="pills-receipt-tab" data-toggle="pill" href="#pills-receipt" role="tab" aria-controls="pills-receipt" aria-selected="false"><h5 class="m-0">ZENITH RECEIPT</h5></a>
                 </li>
 
-                <li class="nav-item">
-                  <a class="nav-link " id="pills-emd-tab" data-toggle="pill" href="#pills-emd" role="tab" aria-controls="pills-emd" aria-selected="true"><h5 class="m-0">EMD</h5></a>
-                </li>
+                
 
               </ul>
 

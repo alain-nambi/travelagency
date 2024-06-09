@@ -7,7 +7,7 @@
 <div style="display:flex;justify-content: space-between; margin-right: 1rem;margin-top:1rem; ">
     <div style="display: flex; flex-direction: column;">
 
-         <div class="card " style="width: 48rem;height:auto; margin:70px 120px 0 20px;" id="add-zenith-parsing-card" {% if zenith_state != "vide" %}hidden{% endif %}>
+         <div class="card " style="width: 48rem;height:auto; margin:70px 20px 0 20px;" id="add-zenith-parsing-card" {% if zenith_state != "vide" %}hidden{% endif %}>
             <div class="card-header">
                 <h2 class="card-title">Zenith Parser Tools </h2>
                 <i class="fa fa-x" style="float: right; cursor:pointer;" aria-hidden="true" onclick="HideCard('add-zenith-parsing-card')" {% if zenith_state == "vide" %}hidden{% endif %}></i>
@@ -44,7 +44,7 @@
         </div>
 
         {% if zenith_state == "complet" or zenith_passenger_config %}
-            <div class="card " style="width: 48rem;height:auto; margin:0 120px 0 20px;">
+            <div class="card " style="width: 48rem;height:auto; margin:0 20px 0 20px;">
                 <div class="card-header-tools-identifiant">
                     <h2 class="card-title">Passager </h2>
                     <h4 class="card-description"></h4>
@@ -84,7 +84,7 @@
 
     <div style="display: flex; flex-direction: column;">
         {% if zenith_state == "complet" or zenith_config %}
-            <div class="card " style="width: 48rem;height:auto; margin:0 120px 0 20px;">
+            <div class="card " style="width: 48rem;height:auto; margin:0 20px 0 20px;">
                 <div class="card-header-tools-identifiant">
                     <h2 class="card-title">Identifiants (1) </h2>
                     <h4 class="card-description"></h4>

@@ -15,7 +15,8 @@ $('#comment-ticket').on('click', ()=> {
     get_unshowed_ticket(pnr_id,container)
     $('#comment-ticket-next-button').hide();
     $('#comment-form').hide();
-    $('#comment-ticket').hide();  
+    $('#comment-ticket').hide();
+    hideTicketInput();
 })
 
 function createButton(container, ticketNumber) {
@@ -87,7 +88,7 @@ function get_unshowed_ticket(pnr_id,container){
 
                 // Ajouter un titre au modal
                 var title = document.createElement("h3");
-                title.innerHTML = "Billets non remonté";
+                title.innerHTML = "Billets non remontés";
                 title.style.margin = '10px 0 0 0';
                 container.appendChild(title);
 

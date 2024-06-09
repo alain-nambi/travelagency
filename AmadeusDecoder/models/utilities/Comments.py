@@ -54,7 +54,7 @@ class Anomalie(models.Model):
         ordering = ['-creation_date']
         
     pnr = models.ForeignKey(Pnr, on_delete=models.CASCADE)
-    categorie = models.ForeignKey(CategorieAnomalie, on_delete=models.CASCADE)
+    categorie = models.CharField(max_length=250)
     infos = HStoreField(null=False)
     creation_date = models.DateTimeField(null=False)
     issuing_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='issuing_user', null=True)

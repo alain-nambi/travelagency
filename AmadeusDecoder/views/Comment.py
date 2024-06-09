@@ -433,19 +433,20 @@ def save_ticket_anomalie(request):
         
         user = User.objects.filter(id= user_id).first()
 
-        categorie = CategorieAnomalie.objects.get(pk=1)
-        anomalie = Anomalie(pnr=pnr, categorie=categorie, infos=info, issuing_user = user, creation_date=timezone.now())
+        # categorie = CategorieAnomalie.objects.get(pk=1)
+        anomalie = Anomalie(pnr=pnr, categorie="Billet non remonte", infos=info, issuing_user = user, creation_date=timezone.now())
         anomalie.save()   
         anomalie_id = anomalie.id
         response_data = {'status':'ok','anomalie_id':anomalie_id}
 
-        # if user.role.id in [1, 2]:
-        #     response_data['accept'] = True
-        # else:
-        #     response_data['accept'] = False
+        if user.role.id in [1, 2] or pnr.is_archived:
+            response_data['accept'] = True
+        else:
+            response_data['accept'] = False
+        
         
         # Accepter les demandes pour les billets archivés pour toutes les utilisateurs
-        response_data['accept'] = True
+        # response_data['accept'] = True
         
         return JsonResponse(response_data,safe=False)
 

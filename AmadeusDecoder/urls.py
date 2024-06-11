@@ -136,5 +136,4 @@ urlpatterns = [
     path('customer/details/<int:customer_id>',customer_details,name="customer_details"),
     path('home/unremounted-ticket-research', unremounted_ticket_research, name= 'unremounted_ticket_research'),
     path('customer/updateInfo',modify_customer,name='modify_customer'),
-    
 ]

@@ -868,7 +868,6 @@ function acceptToRemountPnr(unremountedPnrId){
         url : '/anomaly/accept/unremounted-pnr',
         dataType : 'json',
         data : {
-            ticketIds : JSON.stringify(ticketIds),
             unremountedPnrId : unremountedPnrId,
             csrfmiddlewaretoken : csrftoken
         },

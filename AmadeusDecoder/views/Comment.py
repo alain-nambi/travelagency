@@ -911,8 +911,10 @@ def accept_unremounted_pnr(request):
     context = {}
     if request.method == 'POST':
         print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
-        ticketIds = json.loads(request.POST.get('ticketIds'))
+        # ticketIds = json.loads(request.POST.get('ticketIds'))
         unremountedPnrId =  request.POST.get('unremountedPnrId')
+        ticketIds = unRemountedPnrTickets.objects.filter(unremountedPnr__id = unremountedPnrId).all()
+
         Segments = []
 
         unremountedPnr = UnremountedPnr.objects.get(pk=unremountedPnrId)
@@ -925,8 +927,8 @@ def accept_unremounted_pnr(request):
             context['message'] = 'Ce PNR existe déjà'
             return JsonResponse(context)
 
-        for id in ticketIds:
-            ticket_segments = unRemountedPnrTicketSegment.objects.filter(ticket__id=id).all()
+        for ticket in ticketIds:
+            ticket_segments = unRemountedPnrTicketSegment.objects.filter(ticket__id=ticket_id).all()
             for ticket_segment in ticket_segments:
                 print(ticket_segments)
                 for ticket_segment in ticket_segments:
@@ -943,8 +945,8 @@ def accept_unremounted_pnr(request):
             segment.save()
             remounted_segment.append(segment)
 
-        for id in ticketIds:
-            ticket = unRemountedPnrTickets.objects.get(pk=id)
+        for ticketids in ticketIds:
+            ticket = unRemountedPnrTickets.objects.get(pk=ticketids.id)
 
             # save passenger
             passenger = Passenger(name=ticket.passenger.name, surname=ticket.passenger.surname, designation=ticket.passenger.designation,passeport=ticket.passenger.passeport,types=ticket.passenger.type.name,order=ticket.passenger.order)

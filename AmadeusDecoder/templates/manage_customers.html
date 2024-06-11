@@ -2,25 +2,20 @@
 {% block content %}
 <div class="content-wrapper">
   <section class="content-header p-0">
-    <div class="container-fluid">
+    <!-- <div class="container-fluid">
       <div class="row">
         <div class="col-sm-6">
-          <h1 class="text-primary mb-2">Gestion clients</h1>
+          <h1 class="text-primary mt-4">Gestion clients</h1>
         </div>
-        <!--div class="col-sm-6">
-          <ol class="breadcrumb float-sm-right">
-            <li class="breadcrumb-item active">Retour</li>
-          </ol>
-        </div-->
       </div>
-    </div><!-- /.container-fluid -->
-  </section>
-  <section class="content" style="margin-top: 2.6rem;">
+    </div>
+  </section>--->
+  <section class="content">
     <div class="container-fluid">
       <div class="row ">
         <div class="col-12">
-          <div class="card card-primary card-tabs">
-            <div class="card-header p-0 pt-1">
+          <div class="card card-primary card-tabs manage-customers-container">
+            <div class="card-header p-0 pt-1" style="position: sticky; top: 4rem; z-index: 999;">
               <ul class="nav nav-tabs" id="custom-tabs-one-tab" role="tablist">
                 <li class="nav-item">
                   <a class="nav-link active" id="custom-tabs-one-home-tab" data-toggle="pill" href="#list_users"
@@ -46,7 +41,7 @@
               <div class="tab-content" id="custom-tabs-one-tabContent">
                 <div class="tab-pane fade active show" id="list_users" role="tabpanel"
                   aria-labelledby="custom-tabs-one-home-tab">
-                  <div class="table-adapted-to-screen-height card-body table-responsive p-0">
+                  <div class="table-adapted-to-screen-height card-body table-responsive p-0" style="max-height: calc(100vh - 225px);">
                     <table class="table table-bordered table-head-fixed text-nowrap all-customer">
                       <thead class="bg-info">
                         <tr>

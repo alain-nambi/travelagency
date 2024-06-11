@@ -1054,22 +1054,25 @@ var $toggleButton = $("#pushed-sidebar");
 var $pushSelectors = $("#pushed-content");
 var sidebarIsOpen;
 var openSidebarOnLoad = false;
-function toggleSidebar() {
-  sidebarIsOpen = !sidebarIsOpen;
-  if ($pushSelectors.hasClass("sidebar-collapse")) {
-    $pushSelectors.removeClass("sidebar-collapse");
-  }
-  if (sidebarIsOpen) {
-    $pushSelectors.addClass("sidebar-collapse");
-    localStorage.setItem("sidebar", "opened");
-  } else {
-    $pushSelectors.removeClass("sidebar-collapse");
-    localStorage.setItem("sidebar", "closed");
-  }
-}
+// function toggleSidebar() {
+//   sidebarIsOpen = !sidebarIsOpen;
+//   if ($pushSelectors.hasClass("sidebar-collapse")) {
+//     $pushSelectors.removeClass("sidebar-collapse");
+//   }
+//   if (sidebarIsOpen) {
+//     $pushSelectors.addClass("sidebar-collapse");
+//     localStorage.setItem("sidebar", "opened");
+//   } else {
+//     $pushSelectors.removeClass("sidebar-collapse");
+//     localStorage.setItem("sidebar", "closed");
+//   }
+// }
 if (localStorage.getItem("sidebar") === null) {
   sidebarIsOpen = openSidebarOnLoad;
 } 
+
+localStorage.setItem("sidebar", "closed")
+
 // else {
 //   if (localStorage.getItem("sidebar") === "opened") {
 //     sidebarIsOpen = true;
@@ -1077,10 +1080,10 @@ if (localStorage.getItem("sidebar") === null) {
 //     sidebarIsOpen = false;
 //   }
 // }
-if (sidebarIsOpen) {
-  $pushSelectors.removeClass("sidebar-collapse");
-}
-$toggleButton.on("click", toggleSidebar);
+// if (sidebarIsOpen) {
+//   $pushSelectors.removeClass("sidebar-collapse");
+// }
+// $toggleButton.on("click", toggleSidebar);
 
 // //sort table in all-pnr
 // $(function () {

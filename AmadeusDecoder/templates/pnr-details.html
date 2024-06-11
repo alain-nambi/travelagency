@@ -899,6 +899,7 @@
 															</td>
 														{% endif %}
 														<td></td>
+														
 														{% if other_fees_orders or temp_other_fee.is_invoiced.is_invoiced %}
 														<td class="checkbox"><input type="checkbox" class="to-hide-when-cancel other-fees-check p-checkbox other-fees-checkboxes check{{ temp_other_fee.id }} checkbox-line-below" id="passagers-check" data-other-fees-id = "{{temp_other_fee.id}}" data-id="{{ temp_other_fee.id }}" data-commune-id = "{{temp_other_fee.id}}" data-amount-total="{{ temp_other_fee.total|floatformat:'2' }}" data-type="other-fee" checked hidden></td>
 														{% else %}
@@ -1077,7 +1078,7 @@
 												{% endif %}
 
 												<td>
-													<!---- only if other_fee is not already invoiced that yan can remove it ----->
+													<!-- only if other_fee is not already invoiced that yan can remove it -->
 													
 													{% if not other_fee.is_invoiced %}
 													{% comment %} {{other_fee.is_invoiced}} {% endcomment %}
@@ -1102,7 +1103,7 @@
 														</button>
 													
 													{% endif %}
-													<!---------------------- remove other_fee buttons --------------------------->
+													<!-- remove other_fee buttons -->
 												</td>
 												{% if other_fees_orders is not None or other_fee_cancel_void_status or other_fee.ticket is not None or other_fee.other_fee is not None or other_fee.is_invoiced%}
 												<td class="checkbox"><input type="checkbox" class="to-hide-when-cancel other-fees-check p-checkbox other-fees-checkboxes check{{ other_fee.id }} checkbox-line-below" id="passagers-check" data-other-fees-id = "{{other_fee.id}}" data-id="{{ other_fee.id }}" data-commune-id = "{{other_fee.id}}" data-amount-total="{{ other_fee.total|floatformat:'2' }}" data-type="other-fee" checked hidden></td>
@@ -1247,6 +1248,7 @@
 														<i class="fas fa-save"></i>
 													</button>
 												</td>
+												<td></td>
 												<td>
 													<a 
 														role="button" 
@@ -1454,25 +1456,23 @@
 			</div>
 				<div class="modal-body">
 					
-					{% if user.role_id == 1 or pnr.is_archived%}
+					
 					<div style="margin-bottom:5px;">
 						<button class="btn btn-info" id="comment-ticket" enabled>Billet non remonté</button>
 					</div>
-					{% endif %}
+					
 						
 					<div>
 						<div id="comment-ticket-form">
 							{% csrf_token %}
 							<div id='list-ticket' ></div>
 
-							<div id='ticket_input' hidden>
+							<div id='ticket_input' {% if request.user.role_id != 1 %}hidden{% endif %} >
 								<label for="ticket_number" class="col-form-label">Numero du Billet:</label>
 								<input type='text' maxlength='16' name="ticket_number" class="form-control" id="ticket_number">
 								<input type='hidden' name="pnr_id" value="{{pnr.id}}" class="form-control" id="pnr-id" >
 								
 							</div>
-
-							
 
 							<div id='info'>
 								<label for="montant_hors_taxe" class="col-form-label">Montant Hors Taxe</label>
@@ -1496,7 +1496,7 @@
 									<label class="form-check-label" for="flexCheckDefault">
 										frais de service
 									</label>
-								  </div>
+								</div>
 								
 								<div>
 									<label for="selectPassenger" class="col-form-label">Passenger</label>
@@ -1504,7 +1504,7 @@
 									</select>
 								</div>
 								<div>
-									<label for="selectSegment" id="SegmentLabel" class="col-form-label">Segment</label>
+									<label for="selectSegment" id='SegmentLabel' class="col-form-label">Segment</label>
 									<br>
 									<select id="selectSegment" multiple name="native-select" placeholder="Segment" data-search="false" data-silent-initial-value-set="true" >	
 									</select>
@@ -1648,7 +1648,7 @@
 										{% for key,value in history.items %}
 											{% autoescape off %}
 											{% if key == 'modification_date' %}
-												<td> {{ value | date:"d/m/y H:i" }} </td>
+												<td> {{ value |add_hours_plus_three| date:"d/m/y H:i" }} </td>
 											{% else %}
 												<td> {{ value | safe }} </td>
 											{% endif %}
@@ -2393,8 +2393,13 @@
 					Voulez-vous vraiment annuler le billet
 					<span id="ticketNumber"></span> ?
 				</span>
+				<div class="form-group">
+					<label for="exampleInputEmail1">Motif</label>
+					<input type="text" class="form-control" id="ticket_motif" placeholder="..." required>
+				</div>
 				<input type="hidden" id="ticketId" />
 				<input type="hidden" id="ticketTable" />
+				<input type='hidden' id="user_id" value="{{ user.id }}" ></input>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
@@ -2404,5 +2409,6 @@
 		</div>
 	</div>
 </div>
+
 
 {% endblock content %}

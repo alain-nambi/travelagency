@@ -10,52 +10,59 @@ const ButtonNpArchived = document.getElementById("button-np-archived")
 // const ButtonNlbe = document.getElementById('button-nlbe');
 // const ButtonNlse = document.getElementById('button-nlse');
 
-ButtonNp.addEventListener('click', (e) => {
-    e.preventDefault();
-    // console.log(Np.value.replace(/[^A-Z0-9]/ig, ''));
-    const pnr_number = Np.value.replace(/[^A-Z0-9]/ig, '');
-    if (pnr_number.length == 6) {
-        $.ajax({
-            type: 'POST',
-            url: '/home/get-pnr-user-copying/',
-            dataType: 'json',
-            data: {
-                DocumentNumber: Np.value,
-                csrfmiddlewaretoken: csrftoken,
-            },
-            success: (response) => {
-                console.info("PNR has been copied: " + pnr_number.toUpperCase());
-                console.log(response);
-            },
-            error: (response) => {
-                console.log(response);
-            }
-        })
-    }
-});
+if (ButtonNp) {
+    ButtonNp.addEventListener('click', (e) => {
+        e.preventDefault();
+        // console.log(Np.value.replace(/[^A-Z0-9]/ig, ''));
+        const pnr_number = Np.value.replace(/[^A-Z0-9]/ig, '');
+        if (pnr_number.length == 6) {
+            $.ajax({
+                type: 'POST',
+                url: '/home/get-pnr-user-copying/',
+                dataType: 'json',
+                data: {
+                    DocumentNumber: Np.value,
+                    csrfmiddlewaretoken: csrftoken,
+                },
+                success: (response) => {
+                    console.info("PNR has been copied: " + pnr_number.toUpperCase());
+                    console.log(response);
+                },
+                error: (response) => {
+                    console.log(response);
+                }
+            })
+        }
+    });
+}
 
-ButtonNpArchived.addEventListener('click', (e) => {
-    e.preventDefault();
-    const pnr_number = NpArchived.value.replace(/[^A-Z0-9]/ig, '');
-    if (pnr_number.length == 6) {
-        $.ajax({
-            type: 'POST',
-            url: '/home/get-pnr-user-copying/',
-            dataType: 'json',
-            data: {
-                DocumentNumber: NpArchived.value,
-                csrfmiddlewaretoken: csrftoken,
-            },
-            success: (response) => {
-                console.info("PNR archived has been copied: " + pnr_number.toUpperCase());
-                console.log(response);
-            },
-            error: (response) => {
-                console.log(response);
-            }
-        })
-    }
-});
+if (ButtonNpArchived) {
+    ButtonNpArchived.addEventListener('click', (e) => {
+        e.preventDefault();
+        const pnr_number = NpArchived.value.replace(/[^A-Z0-9]/ig, '');
+        if (pnr_number.length == 6) {
+            $.ajax({
+                type: 'POST',
+                url: '/home/get-pnr-user-copying/',
+                dataType: 'json',
+                data: {
+                    DocumentNumber: NpArchived.value,
+                    csrfmiddlewaretoken: csrftoken,
+                },
+                success: (response) => {
+                    console.info("PNR archived has been copied: " + pnr_number.toUpperCase());
+                    console.log(response);
+                },
+                error: (response) => {
+                    console.log(response);
+                }
+            })
+        }
+    });
+}
+
+
+
 
 
 // ButtonNt.addEventListener('click', (e) => {

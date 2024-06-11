@@ -1,0 +1,146 @@
+{% if zenith_state == "incomplet" %}
+    <div class="">
+        <a class="btn btn-outline-primary  py-0 px-2" title="Ajouter une ligne" role="button" onclick="OpenCard('add-zenith-parsing-card')">
+            <i class="fa fa-pen" aria-hidden="true"></i>Ajouter une ligne</a>
+    </div>
+{% endif %}
+<div style="display:flex;justify-content: space-between; margin-right: 1rem;margin-top:1rem; ">
+    <div style="display: flex; flex-direction: column;">
+
+         <div class="card " style="width: 48rem;height:auto; margin:70px 20px 0 20px;" id="add-zenith-parsing-card" {% if zenith_state != "vide" %}hidden{% endif %}>
+            <div class="card-header">
+                <h2 class="card-title">Zenith Parser Tools </h2>
+                <i class="fa fa-x" style="float: right; cursor:pointer;" aria-hidden="true" onclick="HideCard('add-zenith-parsing-card')" {% if zenith_state == "vide" %}hidden{% endif %}></i>
+
+            </div>
+
+            <div class="card-body"  >
+                <div>
+                    <label for="currency_name"class="col-form-label col-4">Value Name</label>
+                    <select class="form-control "  data-placeholder="Altea" >
+                        {% for value_name in zenith_value_name %}
+                            <option value="{{value_name.id}}">{{value_name.value_name}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="multiInsertwrapper" style="margin-top:10px;">
+                    <label for="currency_name"class="col-form-label col-6" >Valeur</label>
+                    <div class="multiInsertcontent" >
+                        <ul class="multiInsertul" >
+                            <input type="text"  id="multiInsert" class="form-control" />
+                        </ul>
+                    </div>
+                    <div class="multiInsertdetail">
+                        <button type="button" class="btn btn-primary removaAllButton" >Effacer</button>
+                    </div>
+                </div>
+            
+            </div>
+
+            <div class="card-footer" >
+                <button type="button" id="saveIt" class="btn btn-success" onclick="CreateParsing('zenith-parsing-create','add-zenith-parsing-card')" style="margin-top: 20px;float:right;">Ajouter</button>
+            </div>
+        </div>
+
+        {% if zenith_state == "complet" or zenith_passenger_config %}
+            <div class="card " style="width: 48rem;height:auto; margin:0 20px 0 20px;">
+                <div class="card-header-tools-identifiant">
+                    <h2 class="card-title">Passager </h2>
+                    <h4 class="card-description"></h4>
+                    
+                </div>
+
+                <div class="card-body" >
+                    <table class="table table-bordered table-head-fixed text-wrap ">
+                        <thead class="bg-info">
+                        <tr>
+                            <th scope="col" style="background: #fff !important;color: #000 !important;">Nom de la valeur</th>
+                            <th scope="col" style="background: #fff !important;color: #000 !important;">Valeur</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for config in zenith_passenger_config %}
+                                <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
+                                    <td>{{config.value_name}}</td>
+                                    <td>
+                                        <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                                            {% for element in config.array_value %}
+                                                <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{element}}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        {% endif %}
+
+    </div>
+
+    <div style="display: flex; flex-direction: column;">
+        {% if zenith_state == "complet" or zenith_config %}
+            <div class="card " style="width: 48rem;height:auto; margin:0 20px 0 20px;">
+                <div class="card-header-tools-identifiant">
+                    <h2 class="card-title">Identifiants (1) </h2>
+                    <h4 class="card-description"></h4>
+                    
+                </div>
+
+                <div class="card-body" >
+                    <table class="table table-bordered table-head-fixed text-wrap ">
+                        <thead class="bg-info">
+                        <tr>
+                            <th scope="col" style="background: #fff !important;color: #000 !important;">Nom de la valeur</th>
+                            <th scope="col" style="background: #fff !important;color: #000 !important;">Valeur</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for config in zenith_config|slice:':10' %}
+                                {% if config.value_name == "Itinerary header possible format" %}
+                                    <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_of_array_value}}" style="cursor: pointer;" class="trModalInsert">
+                                        <td>{{config.value_name}}</td>
+                                        <td>
+                                            <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                                                {% for array in config.array_of_array_value %}
+                                                    
+                                                    <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">
+                                                        {% for element in array %}
+                                                            {{ element }}{% if not forloop.last %},{% endif %}
+                                                        {% endfor %}
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                
+                                {% else %}
+                                    <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
+                                        <td>{{config.value_name}}</td>
+                                        <td>
+                                            <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                                                {% for element in config.array_value %}
+                                                    <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{element}}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        {% endif %}
+
+       
+
+    </div>
+</div>
+        <button type="button" class="btn btn-success w-25" style="margin-top: 20px;float:right;margin-bottom:20px;" onclick="redirectToTab('pills-zenith-suite-tab')">Suivant</button>

@@ -251,11 +251,33 @@ old -->
               </a>
             </li>
             <li class="nav-item">
-              <a href="{% url 'get_all_anomalies' %}" class="nav-link">
+              <a href="{% url 'all_unremounted_pnr' %}" class="nav-link">
                 <i class="fas fa-clock nav-icon"></i>
-                <p>Anomalie en attente</p>
+                <p>PNR Non remontés</p>
               </a>
             </li>
+
+            <li class="nav-item">
+              <a href="{% url 'get_all_canceled_ticket' %}" class="nav-link">
+                <i class="fas fa-ban nav-icon"></i>
+                <p>Billets annulés</p>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a href="{% url 'get_all_anomalies' %}" class="nav-link">
+                <i class="fas fa-clock nav-icon"></i>
+                <p>Billets non remontés</p>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a href="{% url 'graph_view' %}" class="nav-link">
+                <i class="fas fa-chart-bar nav-icon"></i>
+                <p>Statistiques</p>
+              </a>
+            </li>
+            
             {% endif %}
             <!--menu direction role_id=2-->
             {% if request.user.role_id == 2 %} 
@@ -641,9 +663,20 @@ old -->
       </div> -->
       <div class="d-flex justify-content-between align-items-center">
         <div class="d-none d-sm-block">
-          <strong class="text-center">© 2023 <a href="https://phidia.fr">Phidia</a>.</strong> Tous droits réservés.
+          <strong class="text-center">© 2024 <a href="https://phidia.fr">Phidia</a>.</strong> Tous droits réservés.
           <b>Version</b> 1.6.12
+          <input type="hidden" value="{{pnr.id}}" id="layout_pnr_id">
         </div>
+
+        <button 
+            type="button" 
+            class="btn btn-warning mr-2" id='ExcelUpload' onclick="location.href='{% url 'pnr_to_excel' pnr.id %}'"
+            style="padding: 0.1rem 0.5rem !important">
+            <i class="fa fa-upload text-white" data-toggle="tooltip" data-placement="top"  title="Exporter en CSV"></i>
+            <span class="text-white">To Excel</span>
+        </button>
+
+
         {% with pnr|pnr_comment_state as pnr_comment_state %} 
           <!-- -1: pas d'anomalie, 0: non traitée, 1: traitée -->
           <button 

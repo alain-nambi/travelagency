@@ -1,0 +1,375 @@
+{% extends 'simple_layout.html' %}
+{% load pnr_details %}
+{% load pnr_comments %}
+{% block content %}
+<div class="content-wrapper">
+    <section class="content" style="margin-top: 2rem">
+      <div class="container-fluid">
+        <div class="row ">
+          <div class="col-12">
+            <div class="card card-primary card-outline" style="margin-top: 1rem !important;">
+              <div>
+                <div class="row align-items-center" style="margin:2px 0 2px 0;">
+                  <div class="col-md-2 float-left">
+                  <h4 class="text-primary title-all-pnr mt-1 mb-0">Billets non remonté</h4>
+                  </div>
+                  <div class="col-md-10 float-right">
+                    <div class="row d-flex align-items-center">
+                      <div class="col-md-3 d-flex">
+                        <div class="col-md-8 mr-4 px-0 d-flex align-items-center justify-content-center">
+                          <div class="input-group input-group float-sm-right mt-1 mb-1" style="position: relative;">
+                            <input type="text" name="table_search" id="input-unremounted-ticket" class="form-control form-control-sm"
+                              placeholder="Recherche">
+                            <div 
+                              id="spinnerLoadingSearch" 
+                              class="spinner-border" 
+                              role="status" 
+                              style="width: 14px; height: 14px; position: absolute; right: 48px; bottom: 6px; z-index: 9999"
+                              title="Recherche en cours"
+                            >
+                              <span class="sr-only">Loading...</span>
+                            </div>
+                            <div class="input-group-append">
+                              <button type="submit" id="unremounted-ticket-research" class="btn btn-default py-0" title="Bouton de recherche">
+                                <i class="fas fa-search text-primary"></i>
+                              </button>
+                            </div>
+                          </div>
+                        </div> 
+  
+                      </div>
+  
+                      <button type="submit" class="d-flex align-items-center mt-1 mb-1 px-2 py-0" id="buttonMenuFilter" cy-data="button-menu-filter" >
+                        <i class="fa fa-filter mr-2 open-button-filter"></i>
+                        <span>Filtres</span>
+                      </button>
+                      <div class="wrapper-menu-filter" style="margin-left:29rem ! important;">
+                        <div class="content">
+                          <ul class="filter-menu">
+  
+                            <!-- Add tarif range filter -->
+                            <li class="list list-two mb-1">
+                              <div class="filter-menu list" id="showDateRangePicker">
+                                <i class="fa-sharp fa-solid fa-calendar-days" style="padding-left: 1px !important;"></i>
+                                <span>Montant</span>
+                              </div>
+                              <i class="fa-solid fa-angle-right"></i>
+                            </li>
+
+                            <!-- Add creator filter -->
+                            <li class="list list-three mb-1" cy-data="show-creator-filter">
+                              <div class="filter-menu list" id="showFilterByCreator">
+                                <i class="fa-regular fa-user" style="padding-left: 1px !important;"></i>
+                                <span>Créateur</span>
+                              </div>
+                              <i class="fa-solid fa-angle-right"></i>
+                            </li>
+
+                            
+                            <!-- Add status filter -->
+                            <li class="list list-four mb-1">
+                              <div class="filter-menu list" id="showFilterByPnrStatus">
+                                <i class="fas fa-sliders-h" style="padding-left: 1px !important;"></i>
+                                <span>Statut</span>
+                              </div>
+                              <i class="fa-solid fa-angle-right"></i>
+                            </li>
+
+                            <li class="list list-six mb-1">
+                              <div class="filter-menu list" id="">
+                                <i class="fas fa-users" style="padding-left: 1px !important;"></i>
+                                <span>Date de création</span>
+                              </div>
+                              <i class="fa-solid fa-angle-right"></i>
+                            </li>
+
+  
+                            
+                            <li class="list list-five bg-danger justify-content-center " id="CloseCanceledTicketFilter">
+                              <div class="filter-menu list">
+                                <i class="fas fa-close" style="padding-left: 1px !important; font-size: 14px !important"></i>
+                                <span>Aucun</span>
+                              </div>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+  
+                      
+  
+                      <div class="creator-group-menu absolute" style="margin-left:29rem !important;">
+                        <div class="creator-group content d-flex flex-column">
+                          <span class="text-sm font-weight-bold">Créateur</span>
+                          <select id="FilterCreatorSelect" class="form-control form-control-sm">
+                          <span class="text-md font-weight-bold mb-1">Créer par</span>
+                            <option value="">Sélectionner le créateur...</option>
+                            {% if request.user.role_id != 3 and request.user.id != 4 and request.user.id != 5 %}
+                              {% for user in issuing_users %}
+                                <option value="{{user.id}}">{{user.username}}</option>
+                              {% endfor %}                          
+                            {% endif %}
+                          </select>
+                        </div>
+                        <div class="d-flex justify-content-end" style="gap: 5px;">
+                          <button type="submit" class="btn btn-primary d-flex align-items-center" style="margin-top :10px;" id="buttonFilterByCreator" cy-data="button-filter-menu-creator">
+                            <span class="text-sm">Afficher</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div class="date-range-menu absolute" style="margin-left:29rem !important;">
+                        <div class="date-range content">
+                          <div>
+                            <span class="text-sm font-weight-bold">Montant min</span>
+                            <div class="form-group">
+                              <input type="number" class="form-control" id="cancelationDatInput" >
+                            </div>
+
+                            <!-- Alert date range -->
+                            <div class="alert-report-range-begin"></div>
+                            <span class="text-sm font-weight-bold">Montant max</span>
+                            <div class="form-group">
+                              <input type="number" class="form-control" id="cancelationDatInput" >
+                            </div>
+                          </div>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                          <button type="submit" class="d-flex align-items-center mt-1 px-2 py-0" id="buttonMenuFilterByCreationDateRange">
+                            <span class="text-sm">Afficher</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div class="agency-list-menu absolute" style="margin-left:29rem !important;">
+                        <div class="agency-list content">
+                          <div>
+                            <span class="text-sm font-weight-bold">Date de création</span>
+                            <div class="form-group">
+                              <input type="date" class="form-control" id="cancelationDatInput" >
+                            </div>
+  
+                          </div>
+                          <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary d-flex align-items-center" id="buttonFilterByCancellationDate">
+                              <span class="text-sm">Afficher</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="pnr-status absolute" style="margin-left:29rem !important;">
+                        <div class="content">
+                          <ul class="filter-menu">
+                            <li class="pnr-list list-one mb-1">
+                              <div class="filter-menu list" id="showIssuedPnr">
+                                <i class="fa fa-check"></i>
+                                <span>traitée</span>
+                              </div>
+                            </li>
+                            <li class="pnr-list list-one mb-1">
+                              <div class="filter-menu list" id="showNotIssuedPnr">
+                                <i class="fa fa-check"></i>
+                                <span>Non traitée</span>
+                              </div>
+                            </li>
+                            <li class="pnr-list list-two">
+                              <div class="filter-menu list active" id="">
+                                <i class="fa fa-check"></i>
+                                <span>Refusée</span>
+                              </div>
+                            </li>
+                            <li class="pnr-list list-three">
+                              <div class="filter-menu list active" id="showAllPnrWithoutIssuing">
+                                <i class="fa fa-check"></i>
+                                <span>Tous</span>
+                              </div>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+
+                      <div class="col-md-4 mt-1 mb-1" style="margin-left:50px;">
+                        <button class="btn btn-outline-primary btn-sm" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                          Recherche avancée
+                        </button>
+                      </div>
+                  
+                      
+                    </div>
+                  </div>
+                </div>
+              </div><hr>
+              
+              {% anomaly_state as anomaly_state %}
+              {% comment %} <div class="row d-flex" style="justify-content:space-between !important;">
+                <div class="d-flex mt-4" style="gap: 2rem; margin-left: 4rem !important">
+                  <a class="btn btn-outline-success" data-toggle="modal" data-target="#modalCategory" ><i class="fas fa-plus"></i>
+                    Ajouter une catégorie
+                  </a>
+                </div>
+                
+                <div class="d-flex mt-4" style="gap: 2rem; margin-right: 4rem !important; float:right !important;">
+                  
+                    <span class="px-2 py-1 bg-green">Traitée : {{anomaly_state.false}} </span>
+                    <span class="px-2 py-1 bg-red">Non traitée : {{anomaly_state.true}} </span>
+                  
+                </div>
+              </div> {% endcomment %}
+              
+              <div class="card-body">
+                  {% csrf_token %}
+                      <div class="table-adapted-to-screen-height card-body table-responsive p-0">
+                        <div class="collapse flex-row-reverse" id="collapseExample">
+                          <div class="row" style="margin: 2px 0 0 2px;">
+                            <div class="col-md-2">
+                              <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                  <label class="input-group-text">Date d'anomalie</label>
+                                </div>
+                                <input type="date" class="form-control" id="AnomalyDateInput" aria-describedby="basic-addon3">
+                              </div>
+                            </div> 
+
+                            <div class="col-md-2 ">
+                              <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                  <label class="input-group-text" for="inputGroupSelect01">Statut</label>
+                                </div>
+                                <select class="custom-select" id="CreatorSelector">
+                                  <option value="1">Billet non remonté</option>
+                                  <option value="2">Billet non remonté PNR archivé</option>
+                                  <option value="0">Tous</option>
+                                </select>
+                              </div>
+                            </div>
+                            
+                            <div class="col-md-2">
+                              <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                  <label class="input-group-text">Montant min</label>
+                                </div>
+                                <input type="number" class="form-control" id="Montantmin" aria-describedby="basic-addon3">
+                              </div>
+                            </div>
+                            <div class="col-md-2">
+                              <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                  <label class="input-group-text">Montant max</label>
+                                </div>
+                                <input type="number" class="form-control" id="Montantmax" aria-describedby="basic-addon3">
+                              </div>
+                            </div>
+                            
+                            
+                            <div class="col-md-2 ">
+                              <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                  <label class="input-group-text" for="inputGroupSelect01">Créateur</label>
+                                </div>
+                                <select class="custom-select" id="CreatorSelector">
+                                  <option></option>
+                                  {% for user in issuing_users %}
+                                    <option value={{user.id}}>{{user.username}}</option>
+                                  {% endfor %}
+                                  
+                                </select>
+                              </div>
+                            </div>
+                            <div class="col-md-1 ">
+                              <div class="input-group mb-2">
+                                <div class="input-group-prepend">
+                                  <label class="input-group-text" for="inputGroupSelect01">Statut</label>
+                                </div>
+                                <select class="custom-select" id=" +
+                                ">
+                                  <option value="0">En attente de validation</option>
+                                  <option value="1">Traitée</option>
+                                  <option value="2">Refusée</option>
+                                </select>
+                              </div>
+                            </div>
+    
+                            <div class="col-md-1">
+                              <button class="btn btn-success" type="button" id="UnremountedTicketAdvancedSearch">
+                                <i class="fas fa-search" style="padding-left: 1px !important;"></i>
+                              </button>
+                            </div>
+                          </div>
+                          
+                        </div>
+                        <table class="table table-bordered table-head-fixed text-nowrap " id="all-unremounted-ticket">
+                          <thead class="bg-info">
+                            <tr>
+                              <th width="5%" class="text-white">PNR</th>
+                              <th width="20%" class="text-white">Catégorie</th>
+                              <th width="10%" class="text-white">N° Billet</th>
+                              <th width="10%" class="text-white">Montant total</th>
+                              <th width="7%" class="text-white">Date d'anomalie</th>
+                              <th width="8%" class="text-white">Signalée par</th>
+                              <th width="5%" class="text-white">Statut</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for anomalie in page_obj %}
+                            {% with anomalie.id|get_total as montant_total %}
+                              <tr class="constat-class" onclick="location.href='{% url 'anomaly_details' anomalie.pnr_id %}'" style="cursor: pointer;">
+
+                                    <td>{{anomalie.pnr.number }}</td>
+                                    <td>{{anomalie.categorie}}</td>
+                                    <td>{{anomalie.infos.ticket_number}}</td>
+                                    <td>{{ montant_total }}</td>
+                                    <td>{{anomalie.creation_date| correct_datetime}}</td>
+                                    <td>{{anomalie.issuing_user.username}}</td>
+                                    
+                                    {% if anomalie.status == 0 %}
+                                        <td><button class="btn btn-danger py-0" name="anomaly_state">En attente de validation</button></td>
+                                    {% endif %}
+                                    {% if anomalie.status == 2 %}
+                                        <td><button class="btn btn-primary py-0" name="anomaly_state">Refusée</button></td>
+                                    {% endif %}
+                                    {% if anomalie.status == 1 %}
+                                        <td><button class="btn btn-success py-0" name="anomaly_state" >Traitée</button></td>
+                                    {% endif %}
+                                    
+                                </tr>
+                          {% endwith %} 
+
+                            {% endfor %}
+                          </tbody>
+                        </table>
+                        <div id='SearchTicketTitle' class="text-primary" style="margin:10px 0 5px 10px;"></div>
+                        <table class="table table-bordered table-head-fixed table-hover text-nowrap" id="all-unremounted-ticket-after-search"></table>
+                      </div>
+              </div>
+            </div>
+          </div>
+        </div>
+    </section>
+
+    <div class="modal fade show" id="modalCategory" style="display: none;" aria-modal="true" role="dialog">
+      <div class="modal-dialog modal-md">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" >Ajouter une Categorie</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="exampleInputEmail1">Nom</label>
+              <input type="text" class="form-control" id="category_name" placeholder="...">
+            </div>
+            
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+            <button type="button" class="btn btn-success" id="addCategory" >Ajouter
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+{% endblock content %}

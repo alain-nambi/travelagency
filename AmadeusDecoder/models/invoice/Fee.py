@@ -3,6 +3,7 @@ Created on 27 Aug 2022
 
 @author: Famenontsoa, Ra-Sam
 '''
+import datetime
 from django.db import models
 from AmadeusDecoder.models.BaseModel import BaseModel
 

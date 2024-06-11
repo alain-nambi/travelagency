@@ -72,3 +72,10 @@ class Passenger(models.Model, BaseModel):
         if self.designation is not None:
             displayed_name += ' ' + self.designation
         return displayed_name
+    
+
+class PassengerType(models.Model):
+    class Meta:
+        db_table = 't_passenger_type'
+
+    name = models.CharField(max_length=100, null=False)

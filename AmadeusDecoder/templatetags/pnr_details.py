@@ -3,13 +3,14 @@ Created on 29 Sep 2022
 
 @author: Famenontsoa
 '''
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from django import template
 from django.db.models import Q
 import json
 import traceback
 from AmadeusDecoder.models.invoice.Fee import OthersFee
 
+from AmadeusDecoder.models.utilities.Comments import Anomalie
 import AmadeusDecoder.utilities.configuration_data as configs
 
 from AmadeusDecoder.models.pnr.Pnr import Pnr
@@ -1774,3 +1775,19 @@ def get_check_passenger_missing(pnr_id, client_id):
     return count_passenger_missing
 
 
+
+@register.filter(name="add_hours_plus_three")
+def set_add_hours_plus_three(date):
+    return date + timedelta(hours=3)
+
+# get all the undisplayed tickets
+@register.filter(name="get_undisplayed_tickets")
+def get_undisplayed_tickets(pnr_id):
+    tickets = Ticket.objects.filter(pnr_id=pnr_id).filter( (Q(ticket_status=0) | Q(ticket_status=3))).all()
+    return tickets
+
+@register.filter(name="get_total")
+def add(anomalie_id):
+    anomalie = Anomalie.objects.get(pk=anomalie_id)
+
+    return float(anomalie.infos.get('montant')) + float(anomalie.infos.get('taxe'))

@@ -400,3 +400,138 @@ class TicketOnlyParser():
                 error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
                 traceback.print_exc(file=error_file)
                 error_file.write('\n')
+
+
+# parse ticket data for the parsing test
+    def test_parse_ticket(self, file_contents, email_date):
+        print('TICKET FILE DETECTED')
+        ticket = Ticket()
+        
+        ticket_info_line = ''
+        fare_line = ''
+        tax_line = ''
+        total_line = ''
+        
+        for line in file_contents:
+            if line.startswith(TICKET_IDENTIFIER[0]):
+                ticket_info_line = line
+            elif line.startswith(COST_DETAIL_IDENTIFIER[0]):
+                fare_line = line
+            elif line.startswith(COST_DETAIL_IDENTIFIER[1]):
+                tax_line = line
+            elif line.startswith(COST_DETAIL_IDENTIFIER[2]):
+                total_line = line
+        
+        # save or update ticket
+        pnr, ticket_number, ticket_state = self.check_pnr(ticket_info_line, email_date)
+        fare, fare_type, tax, total, is_no_adc = self.get_fares(fare_line, tax_line, total_line)
+        # set total to the sum of fare and tax
+        total = fare + tax
+        gp_status = self.get_ticket_gp_status(file_contents)
+        issuing_date = self.get_ticket_issuing_date(file_contents)
+        passenger_type = self.get_passenger_type(file_contents)
+        
+        ticket.number = ticket_number
+        ticket.pnr = pnr
+        ticket.transport_cost = fare
+        ticket.fare_type = fare_type
+        ticket.tax = tax
+        ticket.total = total
+        ticket.doccurrency = COMPANY_CURRENCY
+        ticket.farecurrency = COMPANY_CURRENCY
+        ticket.state = ticket_state
+        ticket.ticket_type = TICKET_IDENTIFIER[0]
+        ticket.ticket_gp_status = gp_status
+        ticket.issuing_date = issuing_date
+        ticket.is_no_adc = is_no_adc
+        if passenger_type is not None:
+            ticket.passenger_type = passenger_type
+        
+        temp_ticket = Ticket.objects.filter(number=ticket_number).first()
+        if temp_ticket is None:
+            try:
+                # check prime status
+                self.check_ticket_prime_status(file_contents, ticket)
+                # check is_subjected_to_fees status
+                self.check_is_subjected_to_fees(file_contents, ticket)
+                # prime
+                if not ticket.is_no_adc and ticket.transport_cost == 0 and fare_type != IT_FARE_IDENTIFIER[0]:
+                    ticket.is_prime = True
+                # gp
+                self.check_gp_status(file_contents, ticket)
+            except:
+                pass
+            ticket.save()
+            # update is regional status
+            ticket.get_set_regional_status()
+        else:
+            # get TST if exists on IT fare
+            transport_cost = fare
+            ticket_tax = tax
+            # ticket_total = total
+            if fare_type == IT_FARE_IDENTIFIER[0]:
+                try:
+                    temp_tst_passenger = TicketPassengerTST.objects.filter(passenger__id=temp_ticket.passenger.id).all()
+                    if len(temp_tst_passenger) == 1:
+                        temp_tst_ticket = Ticket.objects.filter(ticket__id=temp_tst_passenger[0].ticket.id).first()
+                        if temp_tst_ticket is not None:
+                            transport_cost = temp_tst_ticket.transport_cost
+                            ticket_tax = temp_tst_ticket.tax
+                            # ticket_total = temp_tst_ticket.total
+                except:
+                    print('IT not found')
+            
+            # prime
+            # if not temp_ticket.is_no_adc and temp_ticket.transport_cost == 0 and fare_type != 'IT':
+            #    temp_ticket.is_prime = True
+            if (temp_ticket.transport_cost == 0 or pnr.is_archived) and (decimal.Decimal(temp_ticket.total) != decimal.Decimal(total) or temp_ticket.is_prime):
+                temp_ticket.transport_cost = transport_cost
+                temp_ticket.tax = ticket_tax
+                temp_ticket.total = decimal.Decimal(temp_ticket.transport_cost) + decimal.Decimal(temp_ticket.tax)
+            if temp_ticket.fare_type == IT_FARE_IDENTIFIER[0]:
+                temp_ticket.fare_type = fare_type
+            # if tax > 0:
+            temp_ticket.state = ticket_state
+            temp_ticket.ticket_type = TICKET_IDENTIFIER[0]
+            temp_ticket.ticket_gp_status = gp_status
+            temp_ticket.issuing_date = issuing_date
+            temp_ticket.is_no_adc = is_no_adc
+            if passenger_type is not None:
+                temp_ticket.passenger_type = passenger_type
+            try:
+                # check prime status
+                self.check_ticket_prime_status(file_contents, temp_ticket)
+                # prime
+                if not temp_ticket.is_no_adc and temp_ticket.transport_cost == 0 and fare_type != IT_FARE_IDENTIFIER[0]:
+                    temp_ticket.is_prime = True
+                # check is_subjected_to_fees status
+                self.check_is_subjected_to_fees(file_contents, temp_ticket)
+                # update is regional status
+                temp_ticket.get_set_regional_status()
+                # GP
+                self.check_gp_status(file_contents, temp_ticket)
+            except:
+                pass
+            temp_ticket.save()
+            ticket = temp_ticket
+        
+        # update ticket status based on is_issued_outside status
+        self.update_status_outside(ticket)
+        ticket.save()
+        
+        self.update_pnr_state(pnr)
+        pnr.save()
+        
+        # save raw data
+        try:
+            RawData().save_raw_data(file_contents, pnr, ticket)
+        except:
+            with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
+                error_file.write('{}: \n'.format(datetime.datetime.now()))
+                error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                traceback.print_exc(file=error_file)
+                error_file.write('\n')
+
+        context = {'pnr':pnr,'ticket':ticket}
+
+        return context

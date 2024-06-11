@@ -381,3 +381,32 @@ class Ticket(models.Model, BaseModel):
         
     def __str__(self):
         return self.number
+    
+
+class TicketCanceled(models.Model, BaseModel):
+    class Meta:
+        db_table = 't_ticket_canceled'
+
+    pnr = models.ForeignKey(
+        "AmadeusDecoder.Pnr",
+        on_delete=models.CASCADE
+    )
+    
+    ticket = models.ForeignKey(
+        "AmadeusDecoder.Ticket",
+        on_delete= models.CASCADE,
+        null = True
+    )
+
+    other_fee = models.ForeignKey(
+        "AmadeusDecoder.OthersFee",
+        on_delete=models.CASCADE,
+        null=True
+    )
+
+    date = models.DateField(auto_now_add=True, null=False)
+    issuing_user = models.ForeignKey(
+        'AmadeusDecoder.User',
+        on_delete=models.CASCADE
+    ) 
+    motif = models.CharField(max_length=200, null=False)

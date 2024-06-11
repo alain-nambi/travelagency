@@ -3,11 +3,11 @@ from . import views
 
 from .views import home
 from .views.Dashboard import dashboard
-from .views.Manage_customers import customers, create_customer, modify_customer_info, modify_customer_in_passenger_invoice, delete_customer
-from .views.Manage_users import users, register
+from .views.Manage_customers import *
+from .views.Manage_users import *
 from .views.Account import account
 from .views.Tools import *
-from .views.Setting import setting
+from .views.Setting import *
 from .views.Login import *
 from .views.Home import *
 from .views.Comment import *
@@ -73,7 +73,68 @@ urlpatterns = [
     path('home/refuse-anomaly', refuse_anomaly, name='refuse_anomaly'),
     path('home/drop-anomaly',drop_anomaly, name='drop_anomaly'),
     path('home/update-anomaly', updateAnomaly, name='update_anomaly'),
+    path('setting/email',email_setting, name='email_setting'),
+    path('setting/parsing',parsing_setting, name='parsing_setting'),
+    path('setting/ftp',ftp_setting, name='ftp_setting'),
+    path('setting/general-update',updateGeneralSetting, name='updateGeneralSetting'),
+    path('setting/saving-protocol-update',saving_protocol_update, name='saving_protocol_update'),
+    path('setting/email-pnr-update',email_pnr_update,name='email_pnr_update'),
+    path('setting/email-notif-sender-update',email_notif_sender_update,name='email_notif_sender_update'),
+    path('setting/email-notif-update',email_notif_update,name='email_notif_update'),
+    path('setting/email-fees-update',email_fees_update,name='email_fees_update'),
+    path('setting/email-fee-sender-update',email_fee_sender_update, name='email_fee_sender_update'),
+    path('setting/parsing-update',parsing_update,name='parsing_update'),
+    path('setting/general-information-create',general_information_create,name='general_information_create'),
+    path('setting/general-file-protocol-create',general_file_protocol_create,name='general_file_protocol_create'),
+    path('setting/email-pnr-create',email_pnr_create,name='email_pnr_create'),
+    path('setting/email-notification-recipients-create',email_notification_recipients_create,name='email_notification_recipients_create'),
+    path('setting/email-notification-sender-create',email_notification_sender_create,name='email_notification_sender_create'),
+    path('setting/email-fee-sender-create',email_fee_sender_create,name='email_fee_sender_create'),
+    path('setting/email-fee-recipient-create',email_fee_recipient_create,name='email_fee_recipient_create'),
+    path('setting/pnr-parsing-create',pnr_parsing_create,name='pnr_parsing_create'),
+    path('setting/ticket-parsing-create',ticket_parsing_create,name='ticket_parsing_create'),
+    path('setting/tst-parsing-create',tst_parsing_create,name='tst_parsing_create'),
+    path('setting/zenith-parsing-create',zenith_parsing_create,name='zenith_parsing_create'),
+    path('setting/zenith-receipt-parsing-create',zenith_receipt_parsing_create,name='zenith_receipt_parsing_create'),
+    path('setting/emd-parsing-create',emd_parsing_create,name='emd_parsing_create'),
+    path('setting/emd-statues-update',emd_statues_update,name='emd_statues_update'),
+    path('setting/test-parsing',test_parsing,name='test_parsing'),
+    path('setting/test-parsing-zenith',test_parsing_zenith,name='test_parsing_zenith'),
+    path('setting/test-parsing-text',test_parsing_text,name='test_parsing_text'),
     path('home/ticket-delete',ticket_delete,name='ticket_delete'),
+    path('setting/test-parsing-upload-file',test_parsing_upload_file,name='test_parsing_upload_file'),
+    path('comment/reply-comment',reply_comment,name='reply_comment'),
+    path('pnr/to/excel/<int:pnr_id>/',pnr_to_excel, name='pnr_to_excel'),
+    path('pnr/list/to/excel',pnr_list_to_excel, name='pnr_list_to_excel'),
+    path('user/details/<int:user_id>/',user_details,name='user_details'),
+    path('user/archive',archive_user, name="archive_user"),
+    path('user/reactive',reactive_user, name="reactive_user"),
+    path('user/UpdatePassword',update_password, name='update_password'),
+    path('user/updateInfo',update_info,name='update_info'),
+    path('home/user-research', user_research, name= 'user_research'),
+    path('home/user-filter', user_filter, name= 'user_filter'),
+    path('stat/',graph_view, name='graph_view'),
+    path('stat/passenger',passenger_graph_view, name='passenger_graph_view'),
+    path('stat/anomaly',anomaly_graph_view, name='anomaly_graph_view'),
+    path('stat/user',user_graph_view, name='user_graph_view'),
     path('comment/get-unshowed-tickets',get_unshowed_tickets, name='get_unshowed_tickets'),
-    path('check-uninvoiced-status/', uncheck_ticket_in_passenger_invoiced, name='uncheck_ticket_in_passenger_invoiced')
+    path('check-uninvoiced-status/', uncheck_ticket_in_passenger_invoiced, name='uncheck_ticket_in_passenger_invoiced'),
+    path('anomaly/add-category',add_anomaly_category,name="add_anomaly_category"),
+    path('anomaly/all-canceled-ticket',get_all_canceled_ticket,name="get_all_canceled_ticket"),
+    path('anomaly/canceled-ticket-detail/<int:pnr_id>',get_canceled_ticket_detail,name="get_canceled_ticket_detail"),
+    path('home/canceled-ticket-research', canceled_ticket_research, name= 'canceled_ticket_research'),
+    path('home/canceled-ticket-filter', canceled_ticket_filter, name= 'canceled_ticket_filter'),
+    path('home/canceled-ticket-advanced-research', canceled_ticket_advanced_search, name= 'canceled_ticket_advanced_search'),
+    path('home/unordered-pnr-filter', unordered_pnr_filter, name= 'unordered_pnr_filter'),
+    path('home/unordered-pnr-advanced-research', unordered_pnr_advanced_search, name= 'unordered_pnr_advanced_search'),
+    path('home/pnr-non-remonte',pnr_non_remonte,name='pnr_non_remonte'),
+    path('home/unremounted-pnr',all_unremounted_pnr,name='all_unremounted_pnr'),
+    path('home/unremounted-pnr-details/<int:unremounted_pnr_id>',unremounted_pnr_details,name='unremounted_pnr_details'),
+    path('anomaly/accept/unremounted-pnr',accept_unremounted_pnr, name='accept_unremounted_pnr'),
+    path('anomaly/refuse/unremounted-pnr',refuse_unremounted_pnr, name='refuse_unremounted_pnr'),
+    path('home/unremounted-pnr-research', unremounted_pnr_research, name= 'unremounted_pnr_research'),
+    path('customer/details/<int:customer_id>',customer_details,name="customer_details"),
+    path('home/unremounted-ticket-research', unremounted_ticket_research, name= 'unremounted_ticket_research'),
+    path('customer/updateInfo',modify_customer,name='modify_customer'),
+    
 ]

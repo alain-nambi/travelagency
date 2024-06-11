@@ -1,0 +1,281 @@
+{% extends "layout-all-pnr.html" %}
+{% load pnr_details %}
+{% block content %}
+<!-- Main content -->
+<div class="content-wrapper">
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row ">
+        <div class="col-12"> 
+          <div class="card card-primary card-outline content-all-pnr" id="pnrManagementMenu">
+            <!-- /.card-header -->
+            <div>
+              <div class="row align-items-center" style="margin:2px 0 2px 0;">
+                <div class="col-md-2 float-left">
+                <h4 class="text-primary title-all-pnr mt-1 mb-0">Billets annulés</h4>
+                </div>
+                <div class="col-md-10 float-right">
+                  <div class="row d-flex align-items-center">
+                    <div class="col-md-3 d-flex">
+                      <div class="col-md-8 mr-4 px-0 d-flex align-items-center justify-content-center">
+                        <div class="input-group input-group float-sm-right mt-1 mb-1" style="position: relative;">
+                          <input type="text" name="table_search" id="input-canceled-ticket" class="form-control form-control-sm"
+                            placeholder="Recherche">
+                          <div 
+                            id="spinnerLoadingSearch" 
+                            class="spinner-border" 
+                            role="status" 
+                            style="width: 14px; height: 14px; position: absolute; right: 48px; bottom: 6px; z-index: 9999"
+                            title="Recherche en cours"
+                          >
+                            <span class="sr-only">Loading...</span>
+                          </div>
+                          <div class="input-group-append">
+                            <button type="submit" id="canceled-ticket-research" class="btn btn-default py-0" title="Bouton de recherche">
+                              <i class="fas fa-search text-primary"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </div> 
+
+                    </div>
+
+                    <button type="submit" class="d-flex align-items-center mt-1 mb-1 px-2 py-0" id="buttonMenuFilter" cy-data="button-menu-filter" >
+                      <i class="fa fa-filter mr-2 open-button-filter"></i>
+                      <span>Filtres</span>
+                    </button>
+                    <div class="wrapper-menu-filter" style="margin-left:29rem ! important;">
+                      <div class="content">
+                        <ul class="filter-menu">
+                          
+                          <!-- Add pnr filter -->
+                          <li class="list list-one mb-1">
+                            <div class="filter-menu list">
+                              <i class="fa fa-eye"></i>
+                              <span>Motif</span>
+                            </div>
+                            <i class="fa-solid fa-angle-right"></i>
+                          </li>
+
+                          <!-- Add date range filter -->
+                          <li class="list list-two mb-1">
+                            <div class="filter-menu list" id="showDateRangePicker">
+                              <i class="fa-sharp fa-solid fa-calendar-days" style="padding-left: 1px !important;"></i>
+                              <span>Date d'annulation</span>
+                            </div>
+                            <i class="fa-solid fa-angle-right"></i>
+                          </li>
+                          
+                          <!-- Add creator filter -->
+                          <li class="list list-three mb-1" cy-data="show-creator-filter">
+                            <div class="filter-menu list" id="showFilterByCreator">
+                              <i class="fa-regular fa-user" style="padding-left: 1px !important;"></i>
+                              <span>Créateur</span>
+                            </div>
+                            <i class="fa-solid fa-angle-right"></i>
+                          </li>
+                          
+                          <li class="list list-five bg-danger justify-content-center " id="CloseCanceledTicketFilter">
+                            <div class="filter-menu list">
+                              <i class="fas fa-close" style="padding-left: 1px !important; font-size: 14px !important"></i>
+                              <span>Aucun</span>
+                            </div>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div class="pnr-menu absolute" style="margin-left:29rem !important;">
+                        <div class="date-range content">
+                          <div>
+                            <span class="text-sm font-weight-bold">Motif</span>
+                            <div id="motif" class="my-2">
+                              <div class="form-group">
+                                <input type="text" class="form-control" id="MotifFilterInput" placeholder="test ...">
+                              </div>
+                            </div>
+  
+                          </div>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                          <button type="submit" class="btn btn-primary d-flex align-items-center" id="buttonFilterByMotif">
+                            <span class="text-sm">Afficher</span>
+                          </button>
+                        </div>
+                    </div>
+
+                    <div class="creator-group-menu absolute" style="margin-left:29rem !important;margin-top:2rem;">
+                      <div class="creator-group content d-flex flex-column">
+                        <span class="text-sm font-weight-bold">Créateur</span>
+                        <select id="FilterCreatorSelect" class="form-control form-control-sm">
+                        <span class="text-md font-weight-bold mb-1">Créer par</span>
+                          <option value="">Sélectionner le créateur...</option>
+                          {% if request.user.role_id != 3 and request.user.id != 4 and request.user.id != 5 %}
+                            {% for user in issuing_users %}
+                              <option value="{{user.id}}">{{user.username}}</option>
+                            {% endfor %}                          
+                          {% endif %}
+                        </select>
+                      </div>
+                      <div class="d-flex justify-content-end" style="gap: 5px;">
+                        <button type="submit" class="btn btn-primary d-flex align-items-center" style="margin-top :10px;" id="buttonFilterByCreator" cy-data="button-filter-menu-creator">
+                          <span class="text-sm">Afficher</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="date-range-menu absolute" style="margin-left:29rem !important;margin-top:2rem;">
+                      <div class="date-range content">
+                        <div>
+                          <span class="text-sm font-weight-bold">Date d'annulation</span>
+                          <div class="form-group">
+                            <input type="date" class="form-control" id="cancelationDatInput" >
+                          </div>
+
+                        </div>
+                      </div>
+                      <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary d-flex align-items-center" id="buttonFilterByCancellationDate">
+                          <span class="text-sm">Afficher</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="col-md-4 mt-1 mb-1" style="margin-left:50px;">
+                      <button class="btn btn-outline-primary btn-sm" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                        Recherche avancée
+                      </button>
+                    </div>
+                
+                    
+                  </div>
+                </div>
+              </div>
+            </div><hr>
+            <div class="card-body p-0" id="showTableForAllPnr">
+
+                  <div class="collapse flex-row-reverse" id="collapseExample">
+                      <div class="row" style="margin: 20px 0 0 90px;">
+                        <div class="col-md-4">
+                          <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">Date d'annulation</label>
+                            </div>
+                            <input type="date" class="form-control" id="cancellationDateInput" aria-describedby="basic-addon3">
+                          </div>
+                        </div>
+                        
+                        <div class="col-md-3">
+                          <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text">Motif</label>
+                            </div>
+                            <input type="text" class="form-control" id="MotifInput" aria-describedby="basic-addon3">
+                          </div>
+                        </div>
+                        
+                        <div class="col-md-3">
+                          <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                              <label class="input-group-text" for="inputGroupSelect01">Créateur</label>
+                            </div>
+                            <select class="custom-select" id="CreatorSelector">
+                              <option></option>
+                              {% for user in issuing_users %}
+                                <option value={{user.id}}>{{user.username}}</option>
+                              {% endfor %}
+                              
+                            </select>
+                          </div>
+                        </div>
+
+                        <div class="col-md-2">
+                          <button class="btn btn-success" type="button" id="CanceledTicketAdvancedSearch">
+                            Rechercher
+                          </button>
+                        </div>
+                      </div>
+                      
+                  </div>
+
+              <table class="table table-bordered table-head-fixed table-hover text-nowrap" id="all-canceled-ticket">
+                <thead id="thead-all-pnr">
+
+                  <tr id="tr-all-pnr">
+                    <th>Numéro du PNR</th>
+                    <th>Numéro du Billet</th> 
+
+                    <th class="pnr-creation-date" style="cursor: pointer;">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
+                        Date d'annulation
+                      </div>
+                    </th>
+
+                    <th>Motif</th>
+                    
+                    
+                    <th class="pnr-creator-list">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
+                        Créateur
+                        
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody class="tbody-unordered-pnr">
+                  {% for tickets in page_obj %}
+                  
+                  
+                  <tr onclick="location.href='{% url 'get_canceled_ticket_detail' tickets.pnr.id %}'"
+                      style="cursor: pointer;" class="trAllCanceledTicket" data-ticket-canceled-id={{ tickets.id }}>
+                      <td class="d-flex align-items-center justify-content-between" style="gap:5px">
+                        <span class="pnr-num-class">{{ tickets.pnr.number }}</span>
+                          
+                      </td>
+                      {% if tickets.ticket%}
+                        <td> {{tickets.ticket.number}} </td>
+                      {% else %}
+                        <td> {{tickets.other_fee.designation}} </td>
+                      {% endif %}
+                      
+
+                      <td>{{ tickets.date|date:"d/m/y " }}</td>
+                      <td>{{ tickets.motif }}</td>
+                      
+                      <td>
+                          {{ tickets.issuing_user.username}}
+                      </td>
+                      
+                    </tr>
+                  
+                  {% endfor %}
+                </tbody>
+
+              </table>
+              
+              <div id='SearchTitle' class="text-primary" style="margin:10px 0 5px 10px;"></div>
+
+              <table class="table table-bordered table-head-fixed table-hover text-nowrap" id="all-canceled-ticket-after-search"></table>
+            </div>
+            
+
+            <!-- /.card-body -->
+          </div>
+          <!-- /.card -->
+        </div>
+
+        <a class="" onclick="eraseCache()" role="button" title="Actualiser"><i class="fa fa-refresh fa-2x reload"
+            aria-hidden="true"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="loading">
+  <div class="spinner-wrapper">
+    <span class="spinner-text">Chargement...</span>
+    <span class="spinner"></span>
+  </div>
+</div>
+{% endblock content %}

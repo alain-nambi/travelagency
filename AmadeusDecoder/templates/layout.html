@@ -24,6 +24,8 @@
   </style>
   <!-- table -->
   <link rel="stylesheet" href="{% static 'css/table.css' %}">
+  <link rel="stylesheet" href="{% static 'css/multi-insert.css' %}">
+
   <!--fontawesome-->
   <!-- <link rel="stylesheet" href="{% static 'font/css/all.min.css' %}"> -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -198,9 +200,30 @@ old -->
               </a>
             </li>
             <li class="nav-item">
+              <a href="{% url 'all_unremounted_pnr' %}" class="nav-link">
+                <i class="fas fa-clock nav-icon"></i>
+                <p>PNR Non remontés</p>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a href="{% url 'get_all_canceled_ticket' %}" class="nav-link">
+                <i class="fas fa-ban nav-icon"></i>
+                <p>Billets annulés</p>
+              </a>
+            </li>
+
+            <li class="nav-item">
               <a href="{% url 'get_all_anomalies' %}" class="nav-link">
                 <i class="fas fa-clock nav-icon"></i>
-                <p>Anomalie en attente</p>
+                <p>Billets non remontés</p>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a href="{% url 'graph_view' %}" class="nav-link">
+                <i class="fas fa-chart-bar nav-icon"></i>
+                <p>Statistiques</p>
               </a>
             </li>
             {% endif %}
@@ -303,7 +326,7 @@ old -->
       <!-- Main Footer -->
       <footer class="main-footer p-1">
         <div class="d-none d-sm-block float-right ">
-          <strong class="text-center">&copy; 2023 <a href="https://phidia.fr">Phidia</a>.</strong> Tous droits réservés.
+          <strong class="text-center">&copy; 2024 <a href="https://phidia.fr">Phidia</a>.</strong> Tous droits réservés.
           <b>Version</b> 1.6.12 
         </div>
         <div class="info-footer-pnr">
@@ -356,7 +379,8 @@ old -->
     <script src="{% static 'js/main.js' %}"></script>
     <script src="{% static 'js/comment.js' %}"></script>
     <script src="{% static 'js/anomalie.js' %}"></script>
-    <script src="{% static 'js/client.js' %}"></script>
+    <script src="{% static 'js/config.js' %}"></script>
+    <script src="{% static 'js/test_parsing.js' %}"></script>
 
     <script src="{% static 'js/gdsCommandHandler.js' %}"></script>
     <script src="{% static 'js/validateReduceFee.js' %}"></script>

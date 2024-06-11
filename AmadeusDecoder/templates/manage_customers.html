@@ -54,7 +54,8 @@
                       </thead>
                       <tbody>
                         {% for client in page_obj %}
-                        <tr class="client-list">
+                        <tr class="client-list" 
+                        onclick="location.href='{% url 'customer_details' client.id %}'" style="cursor:pointer;">
                           <td>{{ client.last_name }}</td>
                           <td>{{ client.first_name }}</td>
                           <td>{{ client.address_1 }}</td>

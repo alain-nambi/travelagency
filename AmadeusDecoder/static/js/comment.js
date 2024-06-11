@@ -34,12 +34,12 @@ $('#send-comment').on('click',function(e) {
             pnr_id: pnrId,
             csrfmiddlewaretoken: csrftoken,
         },
-        success: (response) => {
-            console.log(response.comment);
+        success: function (data) {
+            console.log(data.comment);
             toastr.success('Votre constat été envoyé avec succès');
         },
-        error: (response) => {
-            console.log(response)
+        error: function (data) {
+            console.log(data)
         }
     });
     $("#comment-form").get(0).reset();
@@ -55,14 +55,14 @@ const updateState = (event, commentId)=> {
             comment_id: commentId,
             csrfmiddlewaretoken: csrftoken,
         },
-        success: (response) =>{
-            console.log(response.comment);
+        success: (data) =>{
+            console.log(data.comment);
             event.target.classList.remove('btn-danger');
             event.target.classList.add('btn-success');
             event.target.textContent = 'Traitée';
         },
-        error: (response) =>{
-            console.log(response);
+        error: (data) =>{
+            console.log(data);
         }
     });
 };
@@ -76,18 +76,88 @@ const updateStateDetail = (event, commentId)=> {
             comment_id: commentId,
             csrfmiddlewaretoken: csrftoken,
         },
-        success: (response) =>{
-            console.log(response.comment);
+        success: (data) =>{
+            console.log(data.comment);
             event.target.classList.remove('btn-danger');
             event.target.classList.add('btn-success');
             event.target.textContent = 'Traitée';
+            location.reload();
         },
-        error: (response) =>{
-            console.log(response);
+        error: (data) =>{
+            console.log(data);
         }
     });
 };
 
+$(document).ready(function(){
+    $('#commentButton').on('click',function(){
+        $('#comment_id').val($(this).data('comment-id'));
+        $("#modalResponseConfirmation").modal('show');
+    });
+})
+
+function comment_reply(state){
+    var comment_id = $('#comment_id').val();
+    var commentButton = document.getElementById('commentButton');
+    console.log(state);
+
+    // without automatic response
+    // Update the comment state
+    if (state == 0) {
+        $.ajax({
+            type: 'POST',
+            url: 'update-comment-state/',
+            dataType : 'json',
+            data: {
+                comment_id : comment_id,
+                csrfmiddlewaretoken: csrftoken
+            },
+            success: function (data){
+                console.log(data);
+                commentButton.classList.remove('btn-danger');
+                commentButton.classList.add('btn-success');
+                commentButton.textContent = 'Traitée';
+            },
+            error: function (data){
+                console.log(data);
+            }
+
+        })
+        
+    }
+    // with automatic response 
+    if (state != 0) {
+        $.ajax({
+            type: 'POST',
+            url: '/comment/reply-comment',
+            dataType : 'json',
+            data : {
+                comment_id:comment_id,
+                state:state,
+                csrfmiddlewaretoken: csrftoken
+            },
+            success: function (data){
+                console.log(data);
+                commentButton.classList.remove('btn-danger');
+                commentButton.classList.add('btn-success');
+                commentButton.textContent = 'Traitée';
+                location.reload();
+            },
+            error: function (data){
+                console.log(data);
+            }
+        })
+    }
+
+}
+
+
+// Reply comment not automatic
+$(document).ready(function(){
+    $('#comment-response-button').click(function(){
+        
+    })
+});
 
 // Sélection des éléments DOM
 const showOtherCommandsMenu = document.getElementById("showOtherCommandsMenu");

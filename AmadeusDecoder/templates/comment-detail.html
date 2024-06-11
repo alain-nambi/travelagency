@@ -10,7 +10,7 @@
 				</div>
 	</section>
 	<section class="content">
-		<form method='POST' action=''>
+		{% comment %} <form method='POST' action=''> {% endcomment %}
 			{% csrf_token %}
 			<div class="container-fluid">
 				<div class="row">
@@ -50,9 +50,9 @@
 								<button type="submit" class="btn btn-success" id="comment-response-button"><i class="fas fa-paper-plane"></i>
 									Repondre</button>
 								{% if comments.state == False  %}
-								<button class="btn btn-danger" name="comment_state" id="comment-state" onclick="event.stopPropagation(); event.preventDefault(); updateStateDetail(event, {{comments.id}});"><i class="fas fa-question"></i> Non traité</button>
+								<button class="btn btn-danger" id='commentButton' data-toggle="modal" data-target="modalResponseConfirmation" data-comment-id="{{comments.id}}" ><i class="fas fa-question"></i> Non traité</button>
 								{% else %}
-								<button class="btn btn-success" name="comment_state" id="comment-state" onclick="event.stopPropagation(); event.preventDefault(); updateStateDetail(event, {{comments.id}});">Traité</button>
+								<button class="btn btn-success">Traité</button>
 								{% endif %}
 							</div>
 							</div>
@@ -72,7 +72,33 @@
 			</div>
 			
 		</section>
-	</form>
+	{% comment %} </form> {% endcomment %}
+</div>
+<div class="modal fade show" id="modalResponseConfirmation"  aria-modal="true" role="dialog">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Réponse automatique</h4>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">×</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<span>
+					Utiliser la réponse automatique avec envoie d'email
+					<span id="comment_id"></span> ?
+				</span>
+				<input type="hidden" id="ticketId" />
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal" onclick="comment_reply(0)">Non</button>
+				<button type="button" class="btn btn-success" onclick="comment_reply(1)" data-dismiss="modal">Oui
+				<button type="button" class="btn btn-warning" onclick="comment_reply(2)" data-dismiss="modal">Sans email
+
+				</button>
+			</div>
+		</div>
+	</div>
 </div>
 
 

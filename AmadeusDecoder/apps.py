@@ -59,7 +59,7 @@ def process_data_control() :
 
     
 
-# 'Function checking call every second that will whech in ftp if there are new csv of products'
+'Function checking call every second that will whech in ftp if there are new csv of products'
 # def running_product_synhcro():
 #     from AmadeusDecoder.utilities.FtpConnection import download_file
 #     product_dir = '/export/products'
@@ -99,12 +99,23 @@ def checking_pnr_not_sent_to_odoo():
     
     # ==================== PNR not sent to Odoo checking ====================
     MailNotification.pnr_not_sent_to_odoo(now)
+
+    
+def checking_pnr_with_fee_decrease_request():
+    from AmadeusDecoder.utilities.MailNotificationParser import MailNotification
+    now = datetime.now(timezone.utc).replace(microsecond=0) + timedelta(hours=3)
+    print('---------------------------- COUCOU ------------------------------')
+    print(now)
+    # ====================== PNR with fee decrease request ======================
+    MailNotification.fee_decrease_request(now)
+    
     
 def load_config(configs):
     print('Loading configurations ...')
     # assign current company to local variable 'session_variable'
     import AmadeusDecoder.utilities.session_variables as session_variables
     from AmadeusDecoder.utilities.ConfigReader import ConfigReader
+    
     # session_variables.current_company = ConfigReader.get_company()
     
     apps.get_models()
@@ -123,7 +134,7 @@ def load_config(configs):
     # assign current company to local variable 'session_variable'
     session_variables.current_company = configs.COMPANY_NAME
     print('Configurations loaded ...')
-
+    
 class AmadeusdecoderConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'AmadeusDecoder'
@@ -141,10 +152,15 @@ class AmadeusdecoderConfig(AppConfig):
         
         # sleep(2)
         
+        # load_configs = Thread(target=load_config, args=(configs, ))
+        # load_configs.start()
+        
+        # sleep(2)
+        
         # print(configs.FEE_REQUEST_RESPONSE_RECIPIENT)
         
-        # now = datetime.now()
-        # repeat_timer_for_pnr_upload_notification = 0
+        now = datetime.now()
+        repeat_timer_for_pnr_upload_notification = 0
         #
         # def pnr_upload_repeat_timer(repeat_timer_for_pnr_upload_notification):
         #     print("📢 Mail notification for pnr not updated in pnr management...")
@@ -176,11 +192,11 @@ class AmadeusdecoderConfig(AppConfig):
         # print('Daily Pnr created starting')
         # timer_schedule = RepeatTimer(60, start_pnr_daily_report_schedule)
         # timer_schedule.start()
-        #
+        
         # print('Pnr unissued OPC checking is running...')
         # timer = RepeatTimer(60, pnr_unissued_opc_checking)  
         # timer.start()
-        #
+        
         # print('Product synchronisation is starting')
         # timer_synchro = RepeatTimer(5, running_product_synhcro)
         # timer_synchro.start()

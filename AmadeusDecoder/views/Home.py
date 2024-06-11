@@ -19,16 +19,18 @@ from django.forms.models import model_to_dict
 from django.conf import settings
 from AmadeusDecoder.models.invoice.TicketPassengerSegment import OtherFeeSegment, TicketPassengerSegment
 
-from AmadeusDecoder.models.pnr.Pnr import Pnr
+from AmadeusDecoder.models.pnr.Pnr import Pnr, UnremountedPnr, unRemountedPnrPassenger, unRemountedPnrSegment, unRemountedPnrTickets
 from AmadeusDecoder.models.pnr.PnrPassenger import PnrPassenger
+from AmadeusDecoder.models.pnrelements.Airline import Airline
+from AmadeusDecoder.models.pnrelements.Airport import Airport
 from AmadeusDecoder.models.user.Users import User, UserCopying
 from AmadeusDecoder.models.invoice.Clients import Client
 from AmadeusDecoder.models.utilities.Comments import Comment, Response
-from AmadeusDecoder.models.invoice.Ticket import Ticket
+from AmadeusDecoder.models.invoice.Ticket import Ticket, TicketCanceled
 from AmadeusDecoder.models.invoice.Fee import Fee, ReducePnrFeeRequest, OthersFee
 from AmadeusDecoder.models.invoice.Invoice import Invoice, InvoicesCanceled
 from AmadeusDecoder.models.invoice.InvoiceDetails import InvoiceDetails
-from AmadeusDecoder.models.pnr.Passenger import Passenger
+from AmadeusDecoder.models.pnr.Passenger import Passenger, PassengerType
 from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
 from AmadeusDecoder.models.invoice.Fee import Product
 from AmadeusDecoder.models.pnrelements.PnrAirSegments import PnrAirSegments
@@ -39,6 +41,11 @@ from AmadeusDecoder.utilities.FtpConnection import upload_file
 from AmadeusDecoder.utilities.SendMail import Sending
 import traceback
 
+from openpyxl import Workbook
+from openpyxl.styles import *
+from django.shortcuts import redirect
+
+
 import AmadeusDecoder.utilities.configuration_data as configs
 
 # FEE_REQUEST_SENDER = {"port":587, "smtp":"smtp.gmail.com", "address":"feerequest.issoufali.pnr@gmail.com", "password":"tnkunwvygtdkxfxg"}
@@ -46,6 +53,8 @@ import AmadeusDecoder.utilities.configuration_data as configs
 
 FEE_REQUEST_SENDER = configs.FEE_REQUEST_SENDER
 FEE_REQUEST_RECIPIENT = configs.FEE_REQUEST_RECIPIENT
+
+
 
 @login_required(login_url='index')
 def home(request): 
@@ -304,6 +313,10 @@ def home(request):
             print("PNR COUNT")
             print(pnr_count)
 
+        offices = Airport.objects.all()
+        passengerTypes = PassengerType.objects.all()
+        airlines = Airline.objects.filter(iata__isnull=False).all()
+
         row_num = request.GET.get('paginate_by', 50) or 50
         page_num = request.GET.get('page', 1)
         paginator = Paginator(pnr_list, row_num)
@@ -317,7 +330,11 @@ def home(request):
             'page_obj': page_obj, 
             'row_num': row_num,
             'pnr_count': pnr_count,
-            'users': users
+            'users': users,
+            'passengerTypes': passengerTypes,
+            'offices' : offices,
+            'airlines' : airlines
+
         }
         return render(request,'home.html', context)
 
@@ -420,6 +437,9 @@ def home(request):
         # Compute count of Pnrs in the list
         pnr_count = len(pnr_list)
 
+        offices = Airport.objects.all()
+        passengerTypes = PassengerType.objects.all()
+        airlines = Airline.objects.filter(iata__isnull=False).all()
 
         row_num = request.GET.get('paginate_by', 50) or 50
         page_num = request.GET.get('page', 1)
@@ -434,7 +454,10 @@ def home(request):
             'page_obj': page_obj, 
             'row_num': row_num,
             'pnr_count': pnr_count,
-            'users': users
+            'users': users,
+            'passengerTypes': passengerTypes,
+            'offices' : offices,
+            'airlines' : airlines
         }
         return render(request,'home.html', context)
     else:
@@ -603,6 +626,10 @@ def home(request):
 
             print('no creator')
 
+        offices = Airport.objects.all()
+        passengerTypes = PassengerType.objects.all()
+        airlines = Airline.objects.filter(iata__isnull=False).all()
+
         row_num = request.GET.get('paginate_by', 50) or 50
         page_num = request.GET.get('page', 1)
         paginator = Paginator(pnr_list, row_num)
@@ -616,7 +643,10 @@ def home(request):
             'page_obj': page_obj, 
             'row_num': row_num,
             'pnr_count': pnr_count,
-            'users': users
+            'users': users,
+            'offices': offices,
+            'passengerTypes' : passengerTypes,
+            'airlines' : airlines
         }
         return render(request,'home.html', context)
 
@@ -718,6 +748,9 @@ def pnr_details(request, pnr_id):
             elif not __ticket_not_ordered.exists() and not __other_fee_not_ordered.exists() and not __ticket_no_adc_not_ordered.exists():
                 pnr_detail.is_invoiced = True
                 pnr_detail.save()
+
+
+        
 
     return render(request,'pnr-details.html', context)
 
@@ -935,6 +968,7 @@ def reduce_fee(request) :
     from AmadeusDecoder.utilities.ServiceFeesDecreaseRequest import ServiceFeesDecreaseRequest
     context = {}
     if request.method == 'POST' and request.POST.get('pnrId') and request.POST.get('feeId'):
+        print("hey")
         pnrId = request.POST.get('pnrId')
         feeId = request.POST.get('feeId')
         feeAmount = request.POST.get('feeAmount')
@@ -2149,20 +2183,20 @@ def unorder_pnr(request):
                 PassengerInvoice.objects.filter(id=passenger_invoice.id).delete()
                 
                 if passenger_invoice.ticket_id:
-                    #  delete the corresponding ticket if it exist
+                    #  Change the staus od is_invoiced of the corresponding ticket if it exist to falser
                     Ticket.objects.filter(id=passenger_invoice.ticket_id).update(is_invoiced=False)
                 
                 if passenger_invoice.fee_id:
-                    #  delete the corresponding fee if it exist
+                    #  Change the staus od is_invoiced of the corresponding fee if it exist to falser
                     Fee.objects.filter(id=passenger_invoice.fee_id).update(is_invoiced=False)
                     
                 if passenger_invoice.other_fee_id:
-                    # delete the corresponding other fee if it exist
+                    # Change the staus od is_invoiced of the corresponding other fee if it exist to falser
                     OthersFee.objects.filter(id=passenger_invoice.other_fee_id).update(is_invoiced=False)
 
-                if passenger_invoice.ticket_id or passenger_invoice.other_fee_id or passenger_invoice.fee_id:
+                if passenger_invoice.ticket_id or passenger_invoice.other_fee_id :
                     # save in the InvoicesCanceled
-                    invoices_canceled = InvoicesCanceled(pnr_id=pnr.id,invoice_number=invoice_number,motif=motif,ticket_id=passenger_invoice.ticket_id, other_fee_id = passenger_invoice.other_fee_id,user_id=user_id, fee_id=passenger_invoice.fee_id) 
+                    invoices_canceled = InvoicesCanceled(invoice_date=passenger_invoice.date_creation, pnr_id=pnr.id,invoice_number=invoice_number,motif=motif,ticket_id=passenger_invoice.ticket_id, other_fee_id = passenger_invoice.other_fee_id,user_id=user_id) 
                     invoices_canceled.save()
                 
         
@@ -2201,13 +2235,17 @@ def uncheck_ticket_in_passenger_invoiced(request):
 @login_required(login_url="index")
 def get_all_pnr_unordered(request):
     context = {}
-    invoices_canceled_list = InvoicesCanceled.objects.all().distinct('pnr_id')
+    invoices_canceled_list = InvoicesCanceled.objects.all()
+    users = []
+    invoice_canceled = InvoicesCanceled.objects.all().distinct('user')      
+    for invoice in invoice_canceled:
+        users.append(invoice.user)
     
     pnr_count = invoices_canceled_list.count()
     
     context['pnr_list'] = invoices_canceled_list
     object_list = context['pnr_list']
-    row_num = request.GET.get('paginate_by', 20) or 20
+    row_num = request.GET.get('paginate_by', 30) or 30
     page_num = request.GET.get('page', 1)
     paginator = Paginator(object_list, row_num)
     try:
@@ -2216,7 +2254,7 @@ def get_all_pnr_unordered(request):
         page_obj = paginator.page(1)
     except EmptyPage:
         page_obj = paginator.page(paginator.num_pages)
-    context = {'page_obj': page_obj, 'row_num': row_num, 'pnr_count' : pnr_count}
+    context = {'page_obj': page_obj, 'row_num': row_num, 'pnr_count' : pnr_count, 'issuing_users' : users}
     
     return render(request,'unordered_pnr.html', context)
 
@@ -2233,7 +2271,6 @@ def unordered_pnr_research(request):
         if pnr_results.exists():
             for p1 in pnr_results :
                 search_results.append(p1)
-        print(search_results)
         
         _passengers = Passenger.objects.all().filter(Q(name__icontains=pnr_research) | Q(surname__icontains=pnr_research) )
         
@@ -2245,7 +2282,6 @@ def unordered_pnr_research(request):
                 
                 if pnr_object.exists() and pnr_object not in search_results and pnr_object is not None :
                     search_results.extend(pnr_object)
-        print(search_results)
         
         # Search with customer
         _customers = Client.objects.all().filter(Q(intitule__icontains=pnr_research) )
@@ -2266,35 +2302,32 @@ def unordered_pnr_research(request):
                 search_results.extend(pnr_invoices)
                     
         print(search_results)
-        
-        results = []
-        for invoice in search_results:
+        if pnr_results.exists():
+            results = get_data_unordered_pnr_from_query_set(request,search_results)
+            context['results'] = results
+            context['status'] = 200
+        else:
+            context['status'] = 404
+            context['message'] = 'Aucun résultat trouvé.'
             
-            values = {}
-            values['pnr_id'] = invoice.pnr.id
-            values['pnr_number'] = invoice.pnr.number
-            values['invoice_number'] = invoice.invoice_number
-            values['motif'] = invoice.motif
-            values['date'] = invoice.date
-            values['user'] = invoice.user.username
-            results.append(values)
         pnr_count = len(results)
         
-        context = {'results' : results, 'pnr_count' :  pnr_count}
     return JsonResponse(context)
-        
+     
 def liste_commandes(request):
     return render(request,'commandes_modal.html') 
-
 # Supprimer les tickets non commandés
 def ticket_delete(request):
     if request.method == 'POST':
         ticketId = request.POST.get('ticketId')
         ticketTable = request.POST.get('ticketTable')
         ticketNumber = request.POST.get('ticketNumber')
+        connected_user_id = request.POST.get('connected_user_id')
+        motif = request.POST.get('motif')
 
-        print('------------------------------------------------------')
-        print(ticketId)
+
+        connected_user = User.objects.get(pk=connected_user_id)
+
         
         # for ticket
         if ticketTable == 'ticket':
@@ -2319,6 +2352,10 @@ def ticket_delete(request):
                     passenger_invoice_fee = PassengerInvoice.objects.filter(fee_id=fee.id)
                     passenger_invoice_fee.delete()
 
+            # save it in the ticketCanceled table
+            ticket_canceled = TicketCanceled(ticket=ticket,issuing_user=connected_user,motif=motif,pnr=ticket.pnr)
+            ticket_canceled.save()
+
 
         # for other fees
         else:
@@ -2340,6 +2377,128 @@ def ticket_delete(request):
                     print('FEE VAR')
                     passenger_invoice_fee = PassengerInvoice.objects.filter(fee_id=fee.id)
                     passenger_invoice_fee.delete()
+            
+            # save it in the ticketCanceled table
+            ticket_canceled = TicketCanceled(other_fee=other_fee,issuing_user=connected_user,motif=motif,pnr=other_fee.pnr)
+            ticket_canceled.save()
 
 
         return JsonResponse({'status':'ok'})
+
+@login_required(login_url='index')
+def unordered_pnr_filter(request):
+    context ={}
+    search_results = []
+    if request.method == 'POST':
+        try:
+            filtre = request.POST.get('filter')
+            data_search = request.POST.get('data_search')
+            title = ""
+            if filtre == 'motif':
+                invoice_canceled = InvoicesCanceled.objects.filter(motif__icontains=data_search).all()
+                title += " motif - "+data_search
+
+            if filtre == 'date':
+                invoice_canceled = InvoicesCanceled.objects.filter(date__date=data_search).all()
+                title += " date - "+data_search
+
+            if filtre == 'creator':
+                invoice_canceled = InvoicesCanceled.objects.filter(user__id=data_search).all()
+                title += " créateur - "+ User.objects.get(pk=data_search).username
+                
+            if invoice_canceled.exists():
+                print(invoice_canceled)
+                for ticket in invoice_canceled :
+                    search_results.append(ticket)
+        
+                results = get_data_unordered_pnr_from_query_set(request,search_results)
+                context['status'] = 200
+                context['results'] = results
+                context['searchTitle'] = title
+            else:
+                context['status'] = 404
+                context['message'] = 'Aucun résultat trouvé.'
+        except:
+            context['status'] = 100
+            context['message'] = "Une erreur s'est produite."
+
+
+    return JsonResponse(context)
+
+# ------------ transform a list of queryset to table specialy for the canceled ticket search
+@login_required(login_url="index")
+def get_data_unordered_pnr_from_query_set(request,search_results):
+
+    results = []
+
+    for invoice in search_results:
+        
+        values = {}
+        values['pnr_id'] = invoice.pnr.id
+        values['pnr_number'] = invoice.pnr.number
+        values['invoice_number'] = invoice.invoice_number
+        values['motif'] = invoice.motif
+        values['date'] = (invoice.date).strftime("%d/%m/%Y, %H:%M:%S")
+        values['user'] = invoice.user.username
+        print(values['user'])
+        results.append(values)
+    return results
+
+@login_required(login_url='index')
+def unordered_pnr_advanced_search(request):
+    context ={}
+    search_results = []
+    if request.method == 'POST':
+        try:
+            date = request.POST.get('date')
+            motif = request.POST.get('motif')
+            createur = request.POST.get('createur')
+
+            print('motif : ', motif)
+            print('date : ', date)
+            print('createur : ', createur)
+
+
+            filter_conditions = {}
+            title = ""
+
+            # Ajouter les conditions de filtre pour les variables non-None
+            if date is not None and date != "":
+                filter_conditions['date__date'] = date
+                title = " date - "+ date
+            if motif is not None and motif != "":
+                filter_conditions['motif__icontains'] = motif
+                title += " motif - " + motif
+            if createur is not None and createur != "":
+                filter_conditions['user__id'] = createur
+                title += " créateur - "+ User.objects.get(pk=createur).username
+
+            # Créer un objet Q pour combiner les conditions de filtre
+            query_filter = Q(**filter_conditions)
+
+            # Exécuter la requête avec les conditions de filtre
+            invoice_canceled = InvoicesCanceled.objects.filter(query_filter).all()
+                
+
+            if invoice_canceled.exists():
+                print(invoice_canceled)
+                for ticket in invoice_canceled :
+                    search_results.append(ticket)
+                    print(ticket)
+        
+                results = get_data_unordered_pnr_from_query_set(request,search_results)
+                context['status'] = 200
+                context['results'] = results
+                context['searchTitle'] = title
+            else:
+                context['status'] = 404
+                context['message'] = 'Aucun résultat trouvé.'
+        except:
+            context['status'] = 100
+            context['message'] = "Une erreur s'est produite."
+
+
+    return JsonResponse(context)
+
+
+

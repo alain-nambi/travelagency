@@ -410,6 +410,7 @@ reduceFeeRequest.addEventListener("click", (e) => {
     url: `/home/reduce-fee-request`,
     data: {
       csrfmiddlewaretoken: csrftoken,
+      userId: user_id,
       pnrId: pnrIdNew,
       userId:user_id,
       feeId: fee_id,
@@ -1432,6 +1433,9 @@ $(document).ready(function(){
     var ticketId = $('#ticketId').val();
     var ticketTable = $('#ticketTable').val();
     var ticketNumber = $('#ticketNumber').val();
+    var connected_user_id = $('#user_id').val();
+    var motif = $('#ticket_motif').val();
+
 
     $.ajax({
       type: "POST",
@@ -1441,6 +1445,8 @@ $(document).ready(function(){
           ticketId: ticketId,
           ticketNumber: ticketNumber,
           ticketTable: ticketTable,
+          connected_user_id: connected_user_id,
+          motif: motif,
           csrfmiddlewaretoken: csrftoken,
       },
       success: function (data) {
@@ -1455,3 +1461,4 @@ $(document).ready(function(){
     });
   });
 });
+

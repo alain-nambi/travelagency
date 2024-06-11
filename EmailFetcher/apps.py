@@ -222,8 +222,8 @@ class EmailfetcherConfig(AppConfig):
         # load_configs.start()
         #
         
-        email_thread_once = Thread(target=fetch_email)
-        email_thread_once.start()
+        # email_thread_once = Thread(target=fetch_email)
+        # email_thread_once.start()
 
         now = datetime.now()
         repeat_timer_for_pnr_upload_notification = 0

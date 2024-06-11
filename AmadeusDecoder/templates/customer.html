@@ -1,0 +1,119 @@
+{% extends "layout_simple.html" %} 
+{% block content %}
+<div class="content-wrapper" style="margin-top: 8rem;">
+  <section class="content-header p-0" style="margin-top: 8rem;">
+    <div class="container-fluid" style="padding-top: 0.75rem;">
+      <div class="row">
+        <div class="col-sm-6">
+          <h1 class="text-primary">Gestion Client</h1>
+        </div>
+        
+      </div>
+    </div><!-- /.container-fluid -->
+  </section>
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row ">
+        <div class="col-12">
+          <div class="card card-tabs">
+            <div style="background-color:#A0DEFF;">
+                <div class="col text-center align-items-center">
+                    <h3 class="profile-username"><i class="fas fa-user-circle fa-2x"></i></h3>
+                    <h3 class="profile-username">{{customer.intitule}}</h3>
+                </div>
+            </div><hr>
+            <div class="card-body">
+                <div class="card card-primary card-outline px-4 w-50">
+                    <div class="box-body box-profile">
+                      <input type="hidden" id="customer_id" value="{{customer.id}}" />
+                      
+                      <ul class="list-group list-group-unbordered">
+                        <li class="list-group-item">
+                          <b>Intitulé :</b> <a class="pull-right" id="customer_intitule_label">{{customer.intitule}}</a>
+                          <input type="text" class="form form-control w-50" id="customer_intitule_update" required hidden/>
+                            
+                        </li>
+                        <li class="list-group-item">
+                          <b>E-mail :</b> <a class="pull-right" id="customer_email_label" >{{customer.email}}</a>
+                          <input type="text" class="form form-control w-50" id="customer_email_update" required hidden/>
+                        </li>
+                        <li class="list-group-item">
+                          <b>Téléphone :</b> <a class="pull-right" id="customer_phone_label" >{{customer.telephone}}</a>
+                          <input type="text" class="form form-control w-50" id="customer_phone_update" required hidden/>
+                        </li>
+                        <li class="list-group-item mb-2">
+                            <b>Adresse :</b> <a class="pull-right" id="customer_adress_label" >{{customer.address_1}}</a>
+                            <input type="text" class="form form-control w-50" id="customer_adress_update" required hidden/>
+                        </li>
+                        <li class="list-group-item mb-2">
+                            <b>Adresse Secondaire:</b> <a class="pull-right" id="customer_adress2_label" >{{customer.address_2}}</a>
+                            <input type="text" class="form form-control w-50" id="customer_adress2_update" required hidden/>
+                        </li>
+                        <li class="list-group-item mb-2">
+                            <b>Code postal :</b> <a class="pull-right" id="customer_postal_label" >{{customer.code_postal}}</a>
+                            <input type="text" class="form form-control w-50" id="customer_postal_update" required hidden/>
+                        </li>
+                        <li class="list-group-item mb-2">
+                            <b>Ville :</b> <a class="pull-right" id="customer_ville_label" >{{customer.city}}</a>
+                            <input type="text" class="form form-control w-50" id="customer_ville_update" required hidden/>
+                        </li>
+                        <li class="list-group-item mb-2">
+                            <b>Département :</b> <a class="pull-right" id="customer_departement_label" >{{customer.departement}}</a>
+                            <input type="text" class="form form-control w-50" id="customer_departement_update" required hidden/>
+                        </li>
+                        <li class="list-group-item mb-2">
+                            <b>Pays :</b> <a class="pull-right" id="customer_pays_label" >{{customer.country}}</a>
+                            <input type="text" class="form form-control w-50" id="customer_pays_update" required hidden/>
+                        </li>
+                      </ul>
+                        <div class="row" style="display:flex; justify-content: space-between;margin-bottom:1rem;color:#007bff">
+                            <button type="button" class="btn btn-danger md-block" id="Cancel_customer_update_info" hidden>Annuler</button>
+                            <a class="btn btn-dark " id="customer_update_info"><b>Modifier</b></a>
+                            <a class="btn btn-success" hidden id="confirm_customer_update_info"  data-toggle="modal" data-target="#modalConfirmUpdate" data-customer="{{customer.id}}" data-connected-user="{{request.user.id}}"><b>Confirmer</b></a>
+                        </div>
+                      
+                
+                      
+                    </div>
+        
+                  </div>
+            </div>
+
+            <a class="btn btn-primary"  href="" style="width:100px;margin:0 0 10px 10px;" title='Retour' type="button"   >
+              <b>Retour</b>
+            </a>
+            <!-- /.card -->
+          </div>
+        </div>
+      </div>
+  </section>
+
+  <div class="modal fade show" id="modalConfirmUpdate" style="display: none;" aria-modal="true" role="dialog">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Modifier informations</h4>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">×</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<span>Veuillez entrer votre mot de passe</span>
+				<input type="password" class="form form-control w-50" id="password" required />
+				<input type="hidden" id="connected_user" />
+				<input type="hidden" id="customer" />
+
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+				<button type="button" class="btn btn-success" id="UpdateCutomer" data-dismiss="modal">Confirmer
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+
+
+{% endblock content %}

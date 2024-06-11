@@ -5,19 +5,26 @@ from django.http import JsonResponse
 
 
 from django.contrib.auth.decorators import login_required
+from AmadeusDecoder.models.invoice.Fee import OthersFee
 from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
-from AmadeusDecoder.models.invoice.TicketPassengerSegment import TicketPassengerSegment
-from AmadeusDecoder.models.pnr.Passenger import Passenger
+from AmadeusDecoder.models.invoice.TicketPassengerSegment import OtherFeeSegment, TicketPassengerSegment
+from AmadeusDecoder.models.pnr.Passenger import Passenger, PassengerType
 
-from AmadeusDecoder.models.pnr.Pnr import Pnr
+from AmadeusDecoder.models.pnr.Pnr import Pnr, UnremountedPnr, unRemountedPnrPassenger, unRemountedPnrSegment, unRemountedPnrTicketSegment, unRemountedPnrTickets
+from AmadeusDecoder.models.pnr.PnrPassenger import PnrPassenger
+from AmadeusDecoder.models.pnrelements.Airline import Airline
+from AmadeusDecoder.models.pnrelements.Airport import Airport
 from AmadeusDecoder.models.pnrelements.PnrAirSegments import PnrAirSegments 
-from AmadeusDecoder.models.utilities.Comments import Anomalie, Comment, Response, NotFetched
+from AmadeusDecoder.models.utilities.Comments import Anomalie, CategorieAnomalie, Comment, Response, NotFetched
 from AmadeusDecoder.models.user.Users import User, UserCopying
 from AmadeusDecoder.utilities.SendMail import Sending
-from AmadeusDecoder.models.invoice.Ticket import Ticket
+from AmadeusDecoder.models.invoice.Ticket import Ticket, TicketCanceled
 
 from datetime import date, timedelta
 from django.utils import timezone
+
+from AmadeusDecoder.utilities.SendMail import Sending
+from django.shortcuts import render
 
 from django.db.models import Q
 from django.core.serializers import serialize
@@ -59,19 +66,18 @@ def comment(request):
                     </html>
                 """.format(comment_value, pnr_element.number, user_element.username)
 
-    Sending.send_email(
-        "anomalie.issoufali.pnr@gmail.com",
-        [
-            "pp@phidia.onmicrosoft.com",
-            "tahina@phidia.onmicrosoft.com",
-            "alain@phidia.onmicrosoft.com",
-            "maphiesarobidy@outlook.fr",
-            "naval@phidia.onmicrosoft.com",
-            "olyviahasina.razakamanantsoa@outlook.fr",
-        ],
-         subject,
-         message
-    )
+    # Sending.send_email(
+    #     "anomalie.issoufali.pnr@gmail.com",
+    #     ["nasolo@phidia.onmicrosoft.com",
+    #     "pp@phidia.onmicrosoft.com",
+    #     "tahina@phidia.onmicrosoft.com",
+    #     "alain@phidia.onmicrosoft.com",
+    #     "anjaranaivo464@gmail.com",
+    #     "olyviahasina.razakamanantsoa@outlook.fr",
+    #     "mathieu@phidia.onmicrosoft.com"],
+    #      subject,
+    #      message
+    # )
 
     return JsonResponse({'comment': 'Data successfully sent to database'})
 
@@ -136,20 +142,20 @@ def comment_detail(request, comment_id):
                         </html>
                     """.format(comments.comment, comments.pnr_id.number, comments.user_id.username, comment_response)
 
-            Sending.send_email(
-                "anomalie.issoufali.pnr@gmail.com",
-                [   
-                    comments.user_id.email,
-                    "maphiesarobidy@outlook.fr",
-                    "naval@phidia.onmicrosoft.com",
-                    "alain@phidia.onmicrosoft.com",
-                    "olyviahasina.razakamanantsoa@outlook.fr",
-                    "pp@phidia.onmicrosoft.com",
-                    "tahina@phidia.onmicrosoft.com"
-                ],
-                subject,
-                message
-            )
+            # Sending.send_email(
+            #     "anomalie.issoufali.pnr@gmail.com",
+            #     [comments.user_id.email,
+            #         "nasolo@phidia.onmicrosoft.com",
+            #         "alain@phidia.onmicrosoft.com",
+            #         "anjaranaivo464@gmail.com",
+            #         "olyviahasina.razakamanantsoa@outlook.fr",
+            #         "mathieu@phidia.onmicrosoft.com",
+            #         "pp@phidia.onmicrosoft.com",
+            #         "tahina@phidia.onmicrosoft.com"
+            #     ],
+            #     subject,
+            #     message
+            # )
             return redirect('comment-list')
     context['responses'] = Response.objects.filter(pnr_id=int(comments.pnr_id.id))
 
@@ -164,6 +170,49 @@ def update_comment_state(request):
             comment_id = request.POST.get('comment_id')
             comment = Comment.objects.filter(pk=int(comment_id))
             comment.update(state=True)
+
+    context['comment'] = list(comment.values())
+    return JsonResponse(context)
+
+def reply_comment(request):
+    context = {}
+    if request.method == 'POST':
+        comment_id = request.POST.get('comment_id')
+        state = request.POST.get('state')
+        print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+        print(state)
+
+        # reply automatic with email automatic
+
+        comment_response = "Votre demande a été traité. Merci"
+        comments = Comment.objects.get(pk=int(comment_id))
+        user_id = User.objects.get(pk=int(request.user.id))
+        pnr = Pnr.objects.get(pk=int(comments.pnr_id.id))
+        response = Response(pnr_id=pnr, user_id=user_id, response=comment_response)
+        response.save()
+
+
+        # reply automatic without email 
+        if state == '1':
+            # Send email
+            print('SEND EMAIL ------------------------------')
+
+            from AmadeusDecoder.utilities.configuration_data import ANOMALY_EMAIL_SENDER
+
+            subject = f"Réponse pour l'anomalie"                    
+            message = f"Bonjour, votre demande par rapport au PNR {pnr.number} a été traité.\nCordialement,"
+
+            # Envoyer le mail pour les administrateurs d'Isssoufali 
+            Sending.send_email(
+                ANOMALY_EMAIL_SENDER["address"], 
+                ["maaphlixx@gmail.com"],
+                subject, 
+                message
+            )
+
+        comment_id = request.POST.get('comment_id')
+        comment = Comment.objects.filter(pk=int(comment_id))
+        comment.update(state=True)
 
     context['comment'] = list(comment.values())
     return JsonResponse(context)
@@ -246,32 +295,29 @@ def verif_ticket(request):
     if request.method == 'POST':
         ticket_number = request.POST.get('ticket_number')
         pnr_id = request.POST.get('pnr_id')
-
         ticket = Ticket.objects.filter(number=ticket_number).first()
         
-        verif = 'False'
-        if ticket is not None:
-            if ticket.pnr_id == pnr_id:
-                if ticket.is_no_adc == False:
-                    verif='True'
-                if ticket.is_no_adc == True and ticket.total != 0:
-                    verif= 'is_no_adc'
-                if ticket.is_no_adc == True and ticket.total == 0:
-                    verif= 'is_no_adc'
-            elif ticket.pnr_id == pnr_id and ticket.total > 0:
-                verif = 'ticket_already_exist'
-                # ticket existant mais pour un autre pnr
-            else:
-                if ticket.pnr_id:
-                    verif = {
-                        'exist': True,
-                        'pnr': ticket.pnr.number,
-                    }
-                else: 
-                    verif = 'pnr'
-
+        response = {'verif': 'False'}
         
-    return JsonResponse({'verif': verif})
+        if ticket is not None:
+            if int(ticket.pnr_id) == int(pnr_id):
+                if ticket.is_no_adc:
+                    response['verif'] = 'is_no_adc'
+                elif ticket.total > 0 and ticket.ticket_status == 1:
+                    response['verif'] = 'ticket_already_exist'
+                else:
+                    response['verif'] = 'True'
+            else:
+                response['verif'] = {
+                    'exist': True,
+                    'pnr': ticket.pnr.number,
+                }
+        else:
+            response['verif'] = 'False'
+
+        return JsonResponse(response)
+    else:
+        return JsonResponse({'error': 'Invalid request'})
 
 # get by pnr
 @login_required(login_url='index')
@@ -387,18 +433,20 @@ def save_ticket_anomalie(request):
         
         user = User.objects.filter(id= user_id).first()
 
-        anomalie = Anomalie(pnr=pnr, categorie='Billet non remonté', infos=info, issuing_user = user, creation_date=timezone.now())
+        # categorie = CategorieAnomalie.objects.get(pk=1)
+        anomalie = Anomalie(pnr=pnr, categorie="Billet non remonte", infos=info, issuing_user = user, creation_date=timezone.now())
         anomalie.save()   
         anomalie_id = anomalie.id
         response_data = {'status':'ok','anomalie_id':anomalie_id}
 
-        # if user.role.id in [1, 2]:
-        #     response_data['accept'] = True
-        # else:
-        #     response_data['accept'] = False
+        if user.role.id in [1, 2] or pnr.is_archived:
+            response_data['accept'] = True
+        else:
+            response_data['accept'] = False
+        
         
         # Accepter les demandes pour les billets archivés pour toutes les utilisateurs
-        response_data['accept'] = True
+        # response_data['accept'] = True
         
         return JsonResponse(response_data,safe=False)
 
@@ -406,10 +454,11 @@ def save_ticket_anomalie(request):
 @login_required(login_url='index')
 def get_all_anomalies(request):
     anomalies = Anomalie.objects.exclude(status=3)
+    pnr_count = anomalies.count()
     context = {}
     context['anomalies'] = anomalies
     object_list = context['anomalies']
-    row_num = request.GET.get('paginate_by', 20) or 20
+    row_num = request.GET.get('paginate_by', 30) or 30
     page_num = request.GET.get('page', 1)
     paginator = Paginator(object_list, row_num)
     try:
@@ -419,17 +468,19 @@ def get_all_anomalies(request):
     except EmptyPage:
         page_obj = paginator.page(paginator.num_pages)
         
-    context = {'page_obj': page_obj, 'row_num': row_num}
+    context = {'page_obj': page_obj, 'row_num': row_num, 'pnr_count' : pnr_count}
     
-    return render(request,'anomalies-list.html',context)
+    return render(request,'anomalie/list.html',context)
 
 @login_required(login_url='index')
 def anomaly_details(request, pnr_id):
     context={}
     anomalie = Anomalie.objects.filter(pnr_id=pnr_id).exclude(status=3)
+    pnr = Pnr.objects.get(pk=pnr_id)
     context['anomalies'] = anomalie
     context['pnr_id'] = pnr_id
-    return render(request, 'anomalie-details.html', context)
+    context['pnr_number'] = pnr.number
+    return render(request, 'anomalie/details.html', context)
 
 # updating or saving ticket from anomalie 'Billet non remonté'
 @login_required(login_url='index')
@@ -447,6 +498,9 @@ def update_ticket(request):
             ticket.transport_cost = anomalie.infos.get('montant')
             ticket.tax = anomalie.infos.get('taxe')
             ticket.total = float(anomalie.infos.get('montant')) + float(anomalie.infos.get('taxe'))
+            # set is_no_adc if total = 0
+            if ticket.total == 0:
+                ticket.is_no_adc = True
             ticket.ticket_status = 1
             ticket.emitter = None
             ticket.issuing_date = datetime.now()
@@ -459,6 +513,9 @@ def update_ticket(request):
             ticket.number=anomalie.infos.get('ticket_number')
             ticket.tax=anomalie.infos.get('taxe')
             ticket.total = float(anomalie.infos.get('montant')) + float(anomalie.infos.get('taxe'))
+            # set is_no_adc if total = 0
+            if ticket.total == 0:
+                ticket.is_no_adc = True
             ticket.ticket_status=1
             ticket.pnr_id=anomalie.pnr_id
             ticket.passenger_id=anomalie.infos.get('passenger_id')
@@ -496,6 +553,7 @@ def update_ticket(request):
 
 @login_required(login_url='index')        
 def refuse_anomaly(request):
+    # update anomaly status to 2
     if request.method == 'POST':
         anomalie_id = request.POST.get('anomalie_id')
         anomalie = Anomalie.objects.get(pk=anomalie_id)
@@ -507,6 +565,7 @@ def refuse_anomaly(request):
             
 @login_required(login_url='index')        
 def drop_anomaly(request):
+    # update anomaly status to 3
     if request.method == 'POST':
         anomalie_id = request.POST.get('anomalie_id')
         anomalie = Anomalie.objects.get(pk=anomalie_id)
@@ -517,6 +576,7 @@ def drop_anomaly(request):
     
 @login_required(login_url='index')
 def updateAnomaly(request):
+    # Update details in t_anomalie
     if request.method == 'POST':
         ticket = request.POST.get('ticket')
         montant = request.POST.get('montant')
@@ -531,4 +591,530 @@ def updateAnomaly(request):
         
         anomaly.save()
         return JsonResponse('ok',safe=False)
+
+    
+    
+# ------------------ Add Anomalie Categorie ----------------------
+
+@login_required(login_url='index')
+def add_anomaly_category(request):
+    context = {}
+
+    if request.method == 'POST':
+        try:
+            category_name = request.POST.get('category_name')
+            category = CategorieAnomalie(name=category_name)
+            category.save()
+            context['status'] = 200
+        except:
+            context['status'] = 100
+
+    return JsonResponse(context)
+
+# --------------------- Canceled ticket -----------------------------------------------------------
+
+@login_required(login_url='index')
+def get_all_canceled_ticket(request):
+    tickets = TicketCanceled.objects.all()
+    context = {'tickets':tickets}
+    issuing_users= []
+
+    tickets_issuing_users = TicketCanceled.objects.all().distinct('issuing_user')      
+    for tickets_user in tickets_issuing_users:
+        print(tickets_user.issuing_user) 
+        issuing_users.append(tickets_user.issuing_user)
+    
+    pnr_count = tickets.count()
+    
+    context['tickets'] = tickets
+    object_list = context['tickets']
+    row_num = request.GET.get('paginate_by', 20) or 20
+    page_num = request.GET.get('page', 1)
+    paginator = Paginator(object_list, row_num)
+    try:
+        page_obj = paginator.page(page_num)
+    except PageNotAnInteger: 
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+
+    context = {'page_obj': page_obj, 'row_num': row_num, 'pnr_count' : pnr_count,'issuing_users':issuing_users}
+
+    return render(request,'ticket_canceled/ticket_canceled.html',context)
+
         
+
+@login_required(login_url='index')
+def get_canceled_ticket_detail(request,pnr_id):
+    tickets_canceled = TicketCanceled.objects.filter(pnr__id=pnr_id).all()
+    pnr = Pnr.objects.get(pk=pnr_id)
+    context={'tickets_canceled' : tickets_canceled,'pnr':pnr}
+
+    return render(request,'ticket_canceled/ticket_details.html',context)
+
+# ------------ transform a list of queryset to table specialy for the canceled ticket search
+@login_required(login_url="index")
+def get_data_ticket_from_query_set(request,search_results):
+    results = []
+    for canceled_ticket in search_results:
+        
+        values = {}
+        values['pnr_id'] = canceled_ticket.pnr.id
+        values['pnr_number'] = canceled_ticket.pnr.number
+        if canceled_ticket.ticket:
+            values['ticket_number'] = canceled_ticket.ticket.number
+        else:
+            values['other_fee'] = canceled_ticket.other_fee.designation
+        values['motif'] = canceled_ticket.motif
+        values['date'] = (canceled_ticket.date).strftime("%d/%m/%Y")
+        values['issuing_user'] = canceled_ticket.issuing_user.username
+        results.append(values)
+    return results
+    
+# ------------------ recherche simple ------------------------------------------------
+@login_required(login_url="index")
+def canceled_ticket_research(request):
+    context = {}
+    
+    if request.method == 'POST' and request.POST.get('ticket_research'):
+        print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+        search_results = []
+        
+        ticket_research = request.POST.get('ticket_research')
+        print(ticket_research)
+        pnr_results = TicketCanceled.objects.all().filter(Q(pnr__number__icontains=ticket_research) | Q(ticket__number__icontains=ticket_research)| Q(other_fee__designation__icontains=ticket_research) )
+        
+        if pnr_results.exists():
+            for p1 in pnr_results :
+                search_results.append(p1)
+        print(search_results)
+          
+        results = get_data_ticket_from_query_set(request,search_results)
+        
+        ticket_count = len(results)
+        
+        context = {'results' : results, 'ticket_count' :  ticket_count, 'searchTitle' : ticket_research}
+    return JsonResponse(context)
+  
+#-----------------------  filtre ( motif, date d'annulation, créateur) --------------------------------------------
+@login_required(login_url='index')
+def canceled_ticket_filter(request):
+    context ={}
+    search_results = []
+    if request.method == 'POST':
+        try:
+            
+            filtre = request.POST.get('filter')
+            data_search = request.POST.get('data_search')
+            title = ""
+            if filtre == 'motif':
+                canceled_tickets = TicketCanceled.objects.filter(motif__icontains=data_search).all()
+                title += " motif - "+data_search
+
+            if filtre == 'date':
+                canceled_tickets = TicketCanceled.objects.filter(date=data_search).all()
+                title += " date - "+data_search
+
+            if filtre == 'creator':
+                canceled_tickets = TicketCanceled.objects.filter(issuing_user__id=data_search).all()
+                title += " créateur - "+ User.objects.get(pk=data_search).username
+
+            if canceled_tickets.exists():
+                print(canceled_tickets)
+                for ticket in canceled_tickets :
+                    search_results.append(ticket)
+        
+                results = get_data_ticket_from_query_set(request,search_results)
+                context['status'] = 200
+                context['results'] = results
+                context['searchTitle'] = title
+            else:
+                context['status'] = 404
+                context['message'] = 'Aucun résultat trouvé.'
+        except:
+            context['status'] = 100
+            context['message'] = "Une erreur s'est produite."
+
+
+    return JsonResponse(context)
+
+# --------------------------- recherche multi-critère (date, motif, créateur) ------------------------------------------
+@login_required(login_url='index')
+def canceled_ticket_advanced_search(request):
+    context ={}
+    search_results = []
+    if request.method == 'POST':
+        try:
+            print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+            date = request.POST.get('date')
+            motif = request.POST.get('motif')
+            createur = request.POST.get('createur')
+
+            print('motif : ', motif)
+            print('date : ', date)
+            print('createur : ', createur)
+
+
+            filter_conditions = {}
+            title = ""
+
+            # Ajouter les conditions de filtre pour les variables non-None
+            if date is not None and date != "":
+                filter_conditions['date'] = date
+                title = " date - "+ date
+            if motif is not None and motif != "":
+                filter_conditions['motif__icontains'] = motif
+                title += " motif - " + motif
+            if createur is not None and createur != "":
+                filter_conditions['issuing_user__id'] = createur
+                title += " créateur - "+ User.objects.get(pk=createur).username
+
+            # Créer un objet Q pour combiner les conditions de filtre
+            query_filter = Q(**filter_conditions)
+
+            # Exécuter la requête avec les conditions de filtre
+            canceled_tickets = TicketCanceled.objects.filter(query_filter).all()
+                
+
+            if canceled_tickets.exists():
+                print(canceled_tickets)
+                for ticket in canceled_tickets :
+                    search_results.append(ticket)
+                    print(ticket)
+        
+                results = get_data_ticket_from_query_set(request,search_results)
+                context['status'] = 200
+                context['results'] = results
+                context['searchTitle'] = title
+            else:
+                context['status'] = 404
+                context['message'] = 'Aucun résultat trouvé.'
+        except:
+            context['status'] = 100
+            context['message'] = "Une erreur s'est produite."
+
+
+    return JsonResponse(context)
+
+
+# ------------------------- PNR non remonté -----------------------------------
+
+# save pnr non remonte
+@login_required(login_url='index')
+def pnr_non_remonte(request):
+    context={}
+    try:
+        pnrNumber = request.POST.get('pnrNumber')
+        pnrType = request.POST.get('pnrType')
+        tickets = json.loads(request.POST.get('tickets'))
+        passengers = json.loads(request.POST.get('passengers'))
+        segments = json.loads(request.POST.get('segments'))  
+        user_id = request.POST.get('user_id')
+        emitter = User.objects.get(pk=user_id)
+
+        verif_pnr = Pnr.objects.filter(number=pnrNumber).all()
+        if verif_pnr.exists():
+            context['message'] = 'Ce PNR existe déjà'
+            return JsonResponse(context)
+
+        else:
+            
+            # save unremounted pnr
+            unremounted_pnr = UnremountedPnr(number=pnrNumber,type=pnrType,emitter=emitter)
+            unremounted_pnr.save()
+
+            # save segment data
+            for segment in segments:
+
+                codeorg = Airport.objects.get(pk=segment['origin'])
+                codedest = Airport.objects.get(pk=segment['destination'])
+                airline = Airline.objects.get(pk=segment['airline'])
+                
+                # combine departure/arrival date and time to create a datetime value
+                departuretime=datetime.combine(datetime.strptime(segment['departureDate'], "%Y-%m-%d").date(),datetime.strptime(segment['departureTime'], "%H:%M").time())
+                arrivaltime=datetime.combine(datetime.strptime(segment['arrivalDate'], "%Y-%m-%d").date(),datetime.strptime(segment['arrivalTime'], "%H:%M").time())
+
+                unremounted_pnr_segment = unRemountedPnrSegment(servicecarrier=airline ,order=segment['order'],flightno=segment['flightNumber'],departuretime=departuretime,unremountedPnr=unremounted_pnr,arrivaltime=arrivaltime, codeorg=codeorg, codedest=codedest)
+                unremounted_pnr_segment.save()
+
+            # save passenger data
+            for passenger in passengers:
+                passenger_type = PassengerType.objects.get(pk=passenger['PassengerType'])
+                unremounted_pnr_passenger = unRemountedPnrPassenger(unremountedPnr=unremounted_pnr,name=passenger['PassengerName'],surname=passenger['PassengerSurname'], designation=passenger['PassengerDesignation'],type=passenger_type, passeport=passenger['Passeport'], order=passenger['PassengerOrder'])
+                unremounted_pnr_passenger.save()
+
+            # save ticket data
+            for ticket in tickets:
+                    
+                passenger = unRemountedPnrPassenger.objects.get(order=ticket['ticketPassenger'], unremountedPnr=unremounted_pnr)
+
+                # check if it's a ticket or otherFee
+                if ticket['ticket_type'] == 1:
+                    unremounted_pnr_ticket = unRemountedPnrTickets(ticket_type=1,fee=ticket['fee'],unremountedPnr=unremounted_pnr,number=ticket['designation'],type=ticket['ticketType'],transport_cost=ticket['ticketCost'],tax=ticket['ticketTax'],passenger=passenger)
+                else:
+                    unremounted_pnr_ticket = unRemountedPnrTickets(ticket_type=0,fee=ticket['fee'],unremountedPnr=unremounted_pnr,number=ticket['ticketNumber'],type=ticket['ticketType'],transport_cost=ticket['ticketCost'],tax=ticket['ticketTax'],passenger=passenger)
+                unremounted_pnr_ticket.save()
+
+                segment_labels =  ticket['ticketSegment']
+                print('----------- SEGMENT LABEL ---------------- : ',segment_labels)
+                
+                # save unremonted pnr ticket segment
+                for segment_label in segment_labels:
+                    segment = unRemountedPnrSegment.objects.get(order=segment_label,unremountedPnr=unremounted_pnr)
+                    ticket_segment = unRemountedPnrTicketSegment(ticket=unremounted_pnr_ticket,segment=segment)
+                    ticket_segment.save()
+
+            context['message'] = "Votre demande a été envoyée."
+    except(RuntimeError, TypeError, NameError) as e:
+        print(str(e))
+        context['message'] = str(e)
+    return JsonResponse(context)
+
+@login_required(login_url='index')
+def all_unremounted_pnr(request):
+    UnremountedPnrList = UnremountedPnr.objects.all()
+
+    context = {}
+    context['unremounted_pnr'] = UnremountedPnrList
+    object_list = context['unremounted_pnr']
+    row_num = request.GET.get('paginate_by', 30) or 30
+    page_num = request.GET.get('page', 1)
+    paginator = Paginator(object_list, row_num)
+    try:
+        page_obj = paginator.page(page_num)
+    except PageNotAnInteger: 
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+        
+    context = {'page_obj': page_obj, 'row_num': row_num}
+    
+    return render(request,'pnr-non-remonte/list.html',context)
+
+@login_required(login_url='index')
+def unremounted_pnr_details(request,unremounted_pnr_id):
+    context = {}
+    unremountedPnr = UnremountedPnr.objects.get(pk=unremounted_pnr_id)
+    context['unremounted_pnr'] = unremountedPnr
+    tickets = unRemountedPnrTickets.objects.filter(unremountedPnr__id = unremountedPnr.id).all()
+    passengers = unRemountedPnrPassenger.objects.filter(unremountedPnr__id= unremountedPnr.id).all()
+    segments = unRemountedPnrSegment.objects.filter(unremountedPnr__id= unremountedPnr.id).all()
+    context['tickets'] = tickets
+    context['passengers'] = passengers
+    context['segments'] = segments
+
+    return render(request,'pnr-non-remonte/details.html',context)
+
+
+@login_required(login_url='index')
+def accept_unremounted_pnr(request):
+    context = {}
+    if request.method == 'POST':
+        print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+        ticketIds = json.loads(request.POST.get('ticketIds'))
+        unremountedPnrId =  request.POST.get('unremountedPnrId')
+        Segments = []
+
+        unremountedPnr = UnremountedPnr.objects.get(pk=unremountedPnrId)
+        
+        verif_pnr = Pnr.objects.filter(number=unremountedPnr.number).all()
+        if not verif_pnr.exists():
+            pnr = Pnr(number=unremountedPnr.number, type=unremountedPnr.type,system_creation_date=datetime.now())
+            pnr.save()
+        else:
+            context['message'] = 'Ce PNR existe déjà'
+            return JsonResponse(context)
+
+        for id in ticketIds:
+            ticket_segments = unRemountedPnrTicketSegment.objects.filter(ticket__id=id).all()
+            for ticket_segment in ticket_segments:
+                print(ticket_segments)
+                for ticket_segment in ticket_segments:
+                    if ticket_segment.segment.id not in Segments:
+                        print(Segments)
+                        Segments.append(ticket_segment.segment.id)
+
+        # save segment
+        remounted_segment = []
+        for segment_id in Segments:
+            print('segment_id in Segments : ',segment_id)
+            unremountedSegment = unRemountedPnrSegment.objects.get(pk=int(segment_id))
+            segment = PnrAirSegments(segmentorder=unremountedSegment.order,pnr=pnr, flightno=unremountedSegment.flightno, departuretime=unremountedSegment.departuretime,arrivaltime=unremountedSegment.arrivaltime,codeorg=unremountedSegment.codeorg,codedest=unremountedSegment.codedest,servicecarrier=unremountedSegment.servicecarrier )
+            segment.save()
+            remounted_segment.append(segment)
+
+        for id in ticketIds:
+            ticket = unRemountedPnrTickets.objects.get(pk=id)
+
+            # save passenger
+            passenger = Passenger(name=ticket.passenger.name, surname=ticket.passenger.surname, designation=ticket.passenger.designation,passeport=ticket.passenger.passeport,types=ticket.passenger.type.name,order=ticket.passenger.order)
+            passenger.save()
+
+            # save ticket
+            total = ticket.transport_cost +ticket.tax
+
+            # check if it's a ticket or an otherFee
+            if ticket.ticket_type == 0: # it's a ticket
+                new_ticket = Ticket(pnr = pnr,passenger=passenger,emitter=unremountedPnr.emitter,number=ticket.number,transport_cost=ticket.transport_cost,tax=ticket.tax,ticket_type=ticket.type,total=total)
+                new_ticket.save()
+
+                #save the relation between ticket and segment
+                ticket_segments = unRemountedPnrTicketSegment.objects.filter(ticket__id=ticket.id).all()
+                for ticket_segment in ticket_segments:
+                    for segment in remounted_segment:
+                        if ticket_segment.segment.order == segment.segmentorder:
+                            ticket_passenger_segment = TicketPassengerSegment(ticket=new_ticket,segment=segment)
+                            ticket_passenger_segment.save()
+
+                
+            else: # it's an otherFee
+                new_otherFee = OthersFee(pnr = pnr,passenger=passenger,emitter=unremountedPnr.emitter,designation=ticket.number,cost=ticket.transport_cost,tax=ticket.tax,fee_type=ticket.type,total=total)
+                new_otherFee.save()
+
+                #save the relation between otherFee and segment
+                ticket_segments = unRemountedPnrTicketSegment.objects.filter(ticket__id=ticket.id).all()
+                for ticket_segment in ticket_segments:
+                    for segment in remounted_segment:
+                        if ticket_segment.segment.order == segment.segmentorder:
+                            otherFee_segment = OtherFeeSegment(other_fee=new_otherFee,segment=segment,passenger=passenger)
+                            otherFee_segment.save()
+
+            # save pnr_passsenger
+            pnr_passenger = PnrPassenger(pnr=pnr,passenger=passenger)
+            pnr_passenger.save()
+
+            # update state of unremounted pnr to 1 -> accepted
+            unremountedPnr.state=1
+            unremountedPnr.save()
+
+            # add the document and the emitter to UserCopying
+            user_copying = UserCopying(document=unremountedPnr.number,user_id=unremountedPnr.emitter)
+            user_copying.save()
+
+        context['message'] = 'PNR remonté'
+    
+    return JsonResponse(context)
+
+@login_required(login_url='index')
+def refuse_unremounted_pnr(request):
+    context = {}
+    if request.method == 'POST':
+        unremountedPnrId =  request.POST.get('unremountedPnrId')
+        unremountedPnr = UnremountedPnr.objects.get(pk=unremountedPnrId)
+
+        # update state of unremounted pnr to 2 -> rejected
+        unremountedPnr.state=2
+        unremountedPnr.save()
+        context['message'] = 'Demande refusée'
+
+    return JsonResponse(context)
+
+# ------------ transform a list of queryset to table specialy for the canceled ticket search
+@login_required(login_url="index")
+def get_data_unremounted_pnr_from_query_set(request,search_results):
+    results = []
+    for pnr in search_results:
+        
+        values = {}
+        values['id'] = pnr.id
+        values['number'] = pnr.number
+        values['type'] = pnr.type
+        values['emitter'] = pnr.emitter
+        values['date'] = (pnr.creation_date).strftime("%d/%m/%Y, %H:%M:%S")
+        values['state'] = pnr.user.username
+        results.append(values)
+    return results
+
+
+@login_required(login_url="index")
+def unremounted_pnr_research(request):
+    context = {}
+    
+    if request.method == 'POST' and request.POST.get('pnr_research'):
+        search_results = []
+        
+        pnr_research = request.POST.get('pnr_research')
+        pnr_results = UnremountedPnr.objects.all().filter(Q(number__icontains=pnr_research) | Q(type__icontains=pnr_research)| Q(state__icontains=pnr_research) )
+        
+        if pnr_results.exists():
+            for p1 in pnr_results :
+                search_results.append(p1)
+        print(search_results)
+                    
+        print(search_results)
+        if pnr_results.exists():
+            results = get_data_unremounted_pnr_from_query_set(search_results)
+            context['results'] = results
+            context['status'] = 200
+        else:
+            context['status'] = 404
+            context['message'] = 'Aucun résultat trouvé.'
+            
+        pnr_count = len(results)
+        
+    return JsonResponse(context)
+
+# --------------- recherche et filtre billet non remonte -----------------------------
+# ------------------ recherche simple ------------------------------------------------
+@login_required(login_url="index")
+def unremounted_ticket_research(request):
+    context = {}
+    
+    if request.method == 'POST' and request.POST.get('ticket_research'):
+        search_results = []
+        
+        ticket_research = request.POST.get('ticket_research')
+        ticket_research_lower = ticket_research.lower()
+        pnr_results = Anomalie.objects.all().filter(Q(pnr__number__icontains=ticket_research_lower) | Q(infos__ticket_number__contains=ticket_research_lower) | Q(infos__type__contains=ticket_research_lower))
+        
+        if pnr_results.exists():
+            for p1 in pnr_results :
+                search_results.append(p1)
+        print(search_results)
+          
+        results = get_data_unremounted_ticket_from_query_set(request,search_results)
+        
+        ticket_count = len(results)
+        
+        context = {'results' : results, 'ticket_count' :  ticket_count, 'searchTitle' : ticket_research}
+    return JsonResponse(context)
+
+# ------------ transform a list of queryset to table specialy for the canceled ticket search
+@login_required(login_url="index")
+def get_data_unremounted_ticket_from_query_set(request,search_results):
+    results = []
+    for ticket in search_results:
+        
+        values = {}
+        values['pnr_id'] = ticket.pnr.id
+        values['pnr_number'] = ticket.pnr.number
+        values['categorie'] = ticket.categorie.name
+        values['ticket_number'] = ticket.infos.get('ticket_number')
+        values['montant_total'] = float(ticket.infos.get('montant')) + float(ticket.infos.get('taxe'))
+        values['creation_date'] = (ticket.creation_date + timedelta(hours=3)).strftime("%d/%m/%Y")
+        values['issuing_user'] = ticket.issuing_user.username
+        values['status'] = ticket.status
+
+        results.append(values)
+    return results
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

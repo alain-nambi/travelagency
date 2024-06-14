@@ -147,6 +147,14 @@ $(document).ready(function(){
 
     if('passengers' in sessionStorage){
         let session_passengers = JSON.parse(sessionStorage.getItem('passengers'));
+
+        // Ajouter les passagers contenu dans session storage en tant qu'option de selectSegment
+        session_passengers.forEach(element => {
+            var option = document.createElement('option');
+            option.value = element['PassengerOrder']; // Définir la valeur de l'option
+            option.text = element['PassengerName'] +" " +element['PassengerSurname'];
+            passengerSelect.appendChild(option);
+        });
         
         // Create ticket table
     
@@ -179,7 +187,7 @@ $(document).ready(function(){
 
     if('segments' in sessionStorage){
         let session_segments = JSON.parse(sessionStorage.getItem('segments'));
-        
+
         // Create segment table
     
         var html = `<table class="table table-striped">
@@ -564,8 +572,6 @@ ConfirmAddPassengerButton.addEventListener('click', function(event){
         }
     }
     
-
-
     // verifier si une liste de passagers se trouve dans session storage
     if('passengers' in sessionStorage){
         let session_passengers = JSON.parse(sessionStorage.getItem('passengers'));
@@ -635,8 +641,6 @@ ConfirmAddPassengerButton.addEventListener('click', function(event){
             <td>${Passenger['PassengerName']} ${Passenger['PassengerSurname']}</td>
             <td>${Passenger['PassengerTypeLabel']}</td>
             </tr>`;
-    
-
     
         html += `</tbody>
         </table>`;

@@ -2,15 +2,15 @@
 {% load pnr_comments %}
 {% block content %}
 <div class="content-wrapper">
-    <section class="content" style="margin-top: 4.7rem">
+    <section class="content" style="">
       <div class="container-fluid">
         <div class="row ">
           <div class="col-12">
-            <div class="card card-primary card-outline" style="margin-top: 4rem !important;">
+            <div class="card card-primary card-outline" style="">
               <div>
-                <div class="row align-items-center" style="margin:2px 0 2px 0;">
-                  <div class="col-md-2 float-left">
-                  <h4 class="text-primary title-all-pnr mt-1 mb-0">PNR non remonté</h4>
+                <div class="row align-items-center" style="">
+                  <div class="col-md-2 float-left" >
+                    <h4 class="text-primary title-all-pnr mt-1 mb-0">PNR non remonté</h4>
                   </div>
                   <div class="col-md-10 float-right">
                     <div class="row d-flex align-items-center">
@@ -59,7 +59,7 @@
                             <li class="list list-two mb-1">
                               <div class="filter-menu list" id="showDateRangePicker">
                                 <i class="fa-sharp fa-solid fa-calendar-days" style="padding-left: 1px !important;"></i>
-                                <span>Date d'annulation</span>
+                                <span>Date de signalement</span>
                               </div>
                               <i class="fa-solid fa-angle-right"></i>
                             </li>
@@ -86,12 +86,14 @@
                       <div class="pnr-menu absolute" style="margin-left:29rem !important;">
                           <div class="date-range content">
                             <div>
-                              <span class="text-sm font-weight-bold">Motif</span>
-                              <div id="motif" class="my-2">
-                                <div class="form-group">
-                                  <input type="text" class="form-control" id="MotifFilterInput" placeholder="test ...">
-                                </div>
-                              </div>
+                              <span class="text-sm font-weight-bold">Type</span>
+                              <select id="FilterCreatorSelect" class="form-control form-control-sm">
+                                <span class="text-md font-weight-bold mb-1">Créer par</span>
+                                  <option value="">Sélectionner le type...</option>
+                                  <option value="0">Altea</option>
+                                  <option value="1">Zénith </option>
+
+                                </select>
     
                             </div>
                           </div>
@@ -144,8 +146,16 @@
                           Recherche avancée
                         </button>
                       </div>
+                      {% unremounted_pnr_state as unremounted_pnr_state %}
+                      <div class="row d-flex" style="float:right;justify-content:space-between !important;margin : 0  1rem 0 0;">
                   
-                      
+                        <div class="d-flex float-right mt-4" style="gap: 2rem; margin-left: 4rem !important;">
+                          
+                            <span class="px-2 py-1 bg-green" style="border-radius:2px;">Traitée : {{unremounted_pnr_state.true}} </span>
+                            <span class="px-2 py-1 bg-red"  style="border-radius:2px;">En attente de validation : {{unremounted_pnr_state.false}} </span>
+                          
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -153,7 +163,7 @@
               
               
               <div class="card-body">
-                {% unremounted_pnr_state as unremounted_pnr_state %}
+                
                 <div class="collapse flex-row-reverse" id="collapseExample">
                   <div class="row" style="margin: 20px 0 0 90px;">
                     <div class="col-md-2">
@@ -203,15 +213,7 @@
                   </div>
                   
               </div>
-                <div class="row d-flex" style="float:right;justify-content:space-between !important;margin : 0  2rem 2rem 0;">
-                  
-                  <div class="d-flex float-right mt-4" style="gap: 2rem; margin-left: 4rem !important;">
-                    
-                      <span class="px-2 py-1 bg-green">Traitée : {{unremounted_pnr_state.true}} </span>
-                      <span class="px-2 py-1 bg-red">Non traitée : {{unremounted_pnr_state.false}} </span>
-                    
-                  </div>
-                </div>
+                
                       <div class="table-adapted-to-screen-height card-body table-responsive p-0">
                         <table class="table table-bordered table-head-fixed text-nowrap all-comment" id="tableAnomaly">
                           <thead class="bg-info">
@@ -233,7 +235,7 @@
                                     <td>{{unremounted_pnr.emitter.username}}</td>
                                     
                                     {% if unremounted_pnr.state == 0 %}
-                                        <td><button class="btn btn-danger py-0" name="anomaly_state">Non Traitée</button></td>
+                                        <td><button class="btn btn-danger py-0" name="anomaly_state">En attente de validation</button></td>
                                     {% endif %}
                                     {% if unremounted_pnr.state == 2 %}
                                         <td><button class="btn btn-primary py-0" name="anomaly_state">Refusée</button></td>

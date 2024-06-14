@@ -614,6 +614,7 @@ def pnr_non_remonte(request):
 def all_unremounted_pnr(request):
     UnremountedPnrList = UnremountedPnr.objects.all()
 
+    pnr_count = UnremountedPnrList.count()
     context = {}
     context['unremounted_pnr'] = UnremountedPnrList
     object_list = context['unremounted_pnr']
@@ -627,7 +628,7 @@ def all_unremounted_pnr(request):
     except EmptyPage:
         page_obj = paginator.page(paginator.num_pages)
         
-    context = {'page_obj': page_obj, 'row_num': row_num}
+    context = {'page_obj': page_obj, 'row_num': row_num, 'pnr_count': pnr_count}
     
     return render(request,'pnr-non-remonte/list.html',context)
 

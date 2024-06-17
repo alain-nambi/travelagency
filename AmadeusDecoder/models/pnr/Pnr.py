@@ -364,6 +364,7 @@ class UnremountedPnr(models.Model):
     emitter = models.ForeignKey(
         'AmadeusDecoder.User',
         on_delete=models.CASCADE,
+        null=True
     )
 
     creation_date = models.DateTimeField(auto_now=True)
@@ -434,6 +435,7 @@ class unRemountedPnrTickets(models.Model):
     passenger = models.ForeignKey(
         'AmadeusDecoder.unRemountedPnrPassenger',
         on_delete=models.CASCADE,
+        null= True
     )
 
 class unRemountedPnrTicketSegment(models.Model):

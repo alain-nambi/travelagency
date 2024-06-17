@@ -560,7 +560,7 @@ def pnr_non_remonte(request):
         else:
             
             # save unremounted pnr
-            unremounted_pnr = UnremountedPnr(number=pnrNumber,type=pnrType,emitter=emitter)
+            unremounted_pnr = UnremountedPnr(number=pnrNumber,type=pnrType)
             unremounted_pnr.save()
 
             # save segment data
@@ -586,14 +586,24 @@ def pnr_non_remonte(request):
             # save ticket data
             for ticket in tickets:
                     
-                passenger = unRemountedPnrPassenger.objects.get(order=ticket['ticketPassenger'], unremountedPnr=unremounted_pnr)
+                passenger = unRemountedPnrPassenger.objects.filter(order=ticket['ticketPassenger'], unremountedPnr=unremounted_pnr).all()
+                if passenger.exists():
 
-                # check if it's a ticket or otherFee
-                if ticket['ticket_type'] == 1:
-                    unremounted_pnr_ticket = unRemountedPnrTickets(ticket_type=1,fee=ticket['fee'],unremountedPnr=unremounted_pnr,number=ticket['designation'],type=ticket['ticketType'],transport_cost=ticket['ticketCost'],tax=ticket['ticketTax'],passenger=passenger)
+                    # check if it's a ticket or otherFee
+                    if ticket['ticket_type'] == 1:
+                        unremounted_pnr_ticket = unRemountedPnrTickets(ticket_type=1,fee=ticket['fee'],unremountedPnr=unremounted_pnr,number=ticket['designation'],type=ticket['ticketType'],transport_cost=ticket['ticketCost'],tax=ticket['ticketTax'],passenger=passenger)
+                    else:
+                        unremounted_pnr_ticket = unRemountedPnrTickets(ticket_type=0,fee=ticket['fee'],unremountedPnr=unremounted_pnr,number=ticket['ticketNumber'],type=ticket['ticketType'],transport_cost=ticket['ticketCost'],tax=ticket['ticketTax'],passenger=passenger)
+                    unremounted_pnr_ticket.save()
+
                 else:
-                    unremounted_pnr_ticket = unRemountedPnrTickets(ticket_type=0,fee=ticket['fee'],unremountedPnr=unremounted_pnr,number=ticket['ticketNumber'],type=ticket['ticketType'],transport_cost=ticket['ticketCost'],tax=ticket['ticketTax'],passenger=passenger)
-                unremounted_pnr_ticket.save()
+                    # check if it's a ticket or otherFee
+                    if ticket['ticket_type'] == 1:
+                        unremounted_pnr_ticket = unRemountedPnrTickets(ticket_type=1,fee=ticket['fee'],unremountedPnr=unremounted_pnr,number=ticket['designation'],type=ticket['ticketType'],transport_cost=ticket['ticketCost'],tax=ticket['ticketTax'])
+                    else:
+                        unremounted_pnr_ticket = unRemountedPnrTickets(ticket_type=0,fee=ticket['fee'],unremountedPnr=unremounted_pnr,number=ticket['ticketNumber'],type=ticket['ticketType'],transport_cost=ticket['ticketCost'],tax=ticket['ticketTax'])
+                    unremounted_pnr_ticket.save()
+
 
                 segment_labels =  ticket['ticketSegment']
                 print('----------- SEGMENT LABEL ---------------- : ',segment_labels)
@@ -687,17 +697,24 @@ def accept_unremounted_pnr(request):
         for ticketids in ticketIds:
             ticket = unRemountedPnrTickets.objects.get(pk=ticketids.id)
 
-            # save passenger
-            passenger = Passenger(name=ticket.passenger.name, surname=ticket.passenger.surname, designation=ticket.passenger.designation,passeport=ticket.passenger.passeport,types=ticket.passenger.type.name,order=ticket.passenger.order)
-            passenger.save()
+            if ticket.passenger:
+                # save passenger
+                passenger = Passenger(name=ticket.passenger.name, surname=ticket.passenger.surname, designation=ticket.passenger.designation,passeport=ticket.passenger.passeport,types=ticket.passenger.type.name,order=ticket.passenger.order)
+                passenger.save()
 
             # save ticket
             total = ticket.transport_cost +ticket.tax
 
             # check if it's a ticket or an otherFee
             if ticket.ticket_type == 0: # it's a ticket
-                new_ticket = Ticket(pnr = pnr,passenger=passenger,emitter=unremountedPnr.emitter,number=ticket.number,transport_cost=ticket.transport_cost,tax=ticket.tax,ticket_type=ticket.type,total=total)
+                if ticket.passenger:
+                    new_ticket = Ticket(pnr = pnr,passenger=passenger,emitter=unremountedPnr.emitter,number=ticket.number,transport_cost=ticket.transport_cost,tax=ticket.tax,ticket_type=ticket.type,total=total)
+                
+                else:
+                    new_ticket = Ticket(pnr = pnr,emitter=unremountedPnr.emitter,number=ticket.number,transport_cost=ticket.transport_cost,tax=ticket.tax,ticket_type=ticket.type,total=total)
+                
                 new_ticket.save()
+                
 
                 #save the relation between ticket and segment
                 ticket_segments = unRemountedPnrTicketSegment.objects.filter(ticket__id=ticket.id).all()
@@ -709,7 +726,11 @@ def accept_unremounted_pnr(request):
 
                 
             else: # it's an otherFee
-                new_otherFee = OthersFee(pnr = pnr,passenger=passenger,emitter=unremountedPnr.emitter,designation=ticket.number,cost=ticket.transport_cost,tax=ticket.tax,fee_type=ticket.type,total=total)
+                if ticket.passenger:
+                    new_otherFee = OthersFee(pnr = pnr,passenger=passenger,emitter=unremountedPnr.emitter,designation=ticket.number,cost=ticket.transport_cost,tax=ticket.tax,fee_type=ticket.type,total=total)
+                else:
+                    new_otherFee = OthersFee(pnr = pnr,emitter=unremountedPnr.emitter,designation=ticket.number,cost=ticket.transport_cost,tax=ticket.tax,fee_type=ticket.type,total=total)
+                
                 new_otherFee.save()
 
                 #save the relation between otherFee and segment
@@ -721,16 +742,17 @@ def accept_unremounted_pnr(request):
                             otherFee_segment.save()
 
             # save pnr_passsenger
-            pnr_passenger = PnrPassenger(pnr=pnr,passenger=passenger)
-            pnr_passenger.save()
+            if ticket.passenger:
+                pnr_passenger = PnrPassenger(pnr=pnr,passenger=passenger)
+                pnr_passenger.save()
 
             # update state of unremounted pnr to 1 -> accepted
             unremountedPnr.state=1
             unremountedPnr.save()
 
             # add the document and the emitter to UserCopying
-            user_copying = UserCopying(document=unremountedPnr.number,user_id=unremountedPnr.emitter)
-            user_copying.save()
+            # user_copying = UserCopying(document=unremountedPnr.number,user_id=unremountedPnr.emitter)
+            # user_copying.save()
 
         context['message'] = 'PNR remonté'
     
@@ -752,11 +774,52 @@ def refuse_unremounted_pnr(request):
 
     return JsonResponse(context)
 
+# ------------------- UNREMOUNTED PNR SEARCH -----------------------------
+
+# ------------ transform a list of queryset to table specialy for the canceled ticket search
+@login_required(login_url="index")
+def get_data_unremounted_pnr_from_query_set(search_results):
+    results = []
+    for pnr in search_results:
+        
+        values = {}
+        values['id'] = pnr.id
+        values['number'] = pnr.number
+        values['type'] = pnr.type
+        values['emitter'] = pnr.emitter.username
+        values['date'] = (pnr.creation_date).strftime("%d/%m/%Y, %H:%M:%S")
+        values['state'] = pnr.status
+        results.append(values)
+    return results
 
 
-
-
-
+@login_required(login_url="index")
+def unremounted_pnr_research(request):
+    context = {}
+    
+    
+    if request.method == 'POST' and request.POST.get('pnr_research'):
+        search_results = []
+        
+        pnr_research = request.POST.get('pnr_research')
+        pnr_results = UnremountedPnr.objects.all().filter(Q(number__icontains=pnr_research) | Q(type__icontains=pnr_research)| Q(state__icontains=pnr_research) )
+        
+        if pnr_results.exists():
+            for p1 in pnr_results :
+                search_results.append(p1)
+        print(search_results)
+                    
+        print(search_results)
+        if pnr_results.exists():
+            results = get_data_unremounted_pnr_from_query_set(search_results)
+            context['results'] = results
+            context['status'] = 200
+        else:
+            context['status'] = 404
+            context['message'] = 'Aucun résultat trouvé.'
+            
+        
+    return JsonResponse(context)
 
 
 

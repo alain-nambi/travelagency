@@ -1052,4 +1052,88 @@ function updateStatus(input_value){
     }
 }
 
+// ------------------------- SEARCH ------------------------------------------------
 
+$('#unremounted-pnr-research').on('click', () => {
+    searchUnremoutedPnrFunction();
+})
+
+
+// recherche simple
+function searchUnremoutedPnrFunction() {
+    
+    var pnr_research = $("#input-unremounted-pnr").val();
+    if (pnr_research.trim() != "") {
+      $("#spinnerLoadingSearch").show();
+      $.ajax({
+        type: "POST",
+        url: "/home/unremounted-pnr-research",
+        dataType: "json",
+        data: {
+          pnr_research: pnr_research,
+          csrfmiddlewaretoken: csrftoken,
+        },
+        success: function (data) {
+            $("#spinnerLoadingSearch").hide();
+
+          let SEARCH_RESULT = data.results;
+        
+          if (SEARCH_RESULT.length > 0) {
+            document.querySelector("#all-canceled-ticket-after-search").innerHTML = "";
+            $(".request-pnr-counter").text(SEARCH_RESULT.length);
+            $("#all-canceled-ticket-after-search").show();
+            
+            // $("tbody.tbody-canceled-ticket").remove();
+            $("#all-canceled-ticket").remove();
+  
+            var html = `<thead class="bg-info">
+                    <tr>
+                        <th width="5%" class="text-white">PNR</th>
+                        <th width="5%" class="text-white">Type</th>
+                        <th width="5%" class="text-white">Date de signalement</th>
+                        <th width="8%" class="text-white">Signalée par</th>
+                        <th width="5%" class="text-white">Statut</th>
+                    </tr>
+                    </thead>
+                <tbody class="tbody-unremounted-pnr-after-search">`;
+            SEARCH_RESULT.forEach(pnr => {
+                html += `
+                <tr onclick="location.href='/home/unremounted-pnr-details/${pnr.id}/'" 
+                    style="cursor: pointer;" role="row">
+                    <td>${pnr.number}</td>
+                    <td>${pnr.type}</td>
+                    <td>${pnr.date}</td>
+                    <td>${pnr.emitter}</td>
+                </tr>`;
+            });
+            html += `</tbody>`;
+            $("all-unremounted-pnr-after-search").html(html); // Mise à jour du contenu de la table
+            $("#all-unremounted-pnr-after-search").html(html).trigger("update");
+
+            //  add a title
+            var content = document.querySelector('#SearchTitle');
+            var existingTitle = document.getElementById('titleSearch');
+            if (existingTitle) {
+                // Supprimer l'élément existant s'il est trouvé
+                content.removeChild(existingTitle);
+            }
+            var title = document.createElement("h4");
+            title.textContent = "Résultat de la recherche : "+ data.searchTitle;
+            title.id = "titleSearch";
+            content.appendChild(title);
+  
+          } else {
+            $("#spinnerLoadingSearch").hide();
+            const input__searchValue = $("#input-unremounted-pnr").val();
+            $("#input-unremounted-pnr").val("");
+            toastr.error(
+              `Aucun Billet ne correspondant à la recherche ~ ${input__searchValue} ~`
+            );
+          }
+        },
+      });
+    } else {
+      $("#spinnerLoadingSearch").hide();
+      toastr.warning(`La recherche ne doit pas être vide`);
+    }
+  }

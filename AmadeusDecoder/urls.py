@@ -79,5 +79,6 @@ urlpatterns = [
     path('comment/get-unshowed-tickets',get_unshowed_tickets, name='get_unshowed_tickets'),
     path('anomaly/accept/unremounted-pnr',accept_unremounted_pnr, name='accept_unremounted_pnr'),
     path('anomaly/refuse/unremounted-pnr',refuse_unremounted_pnr, name='refuse_unremounted_pnr'),
+    path('home/unremounted-pnr-research', unremounted_pnr_research, name= 'unremounted_pnr_research'),
 
 ]

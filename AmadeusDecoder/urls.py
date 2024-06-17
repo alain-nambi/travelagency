@@ -11,6 +11,7 @@ from .views.Setting import setting
 from .views.Login import *
 from .views.Home import *
 from .views.Comment import *
+from .views.FileUpload import upload_file
 
 
 urlpatterns = [
@@ -74,5 +75,6 @@ urlpatterns = [
     path('home/update-anomaly', updateAnomaly, name='update_anomaly'),
     path('home/ticket-delete',ticket_delete,name='ticket_delete'),
     path('comment/get-unshowed-tickets',get_unshowed_tickets, name='get_unshowed_tickets'),
-    path('check-uninvoiced-status/', uncheck_ticket_in_passenger_invoiced, name='uncheck_ticket_in_passenger_invoiced')
+    path('check-uninvoiced-status/', uncheck_ticket_in_passenger_invoiced, name='uncheck_ticket_in_passenger_invoiced'),
+    path('upload-csv', upload_file, name='upload_file'),
 ]

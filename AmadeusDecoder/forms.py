@@ -22,3 +22,7 @@ class UserForm(UserCreationForm):
         super().__init__(*args, **kwargs)
         self.fields['password1'].widget = forms.PasswordInput(attrs={'required':True, 'class':'form-control'})
         self.fields['password2'].widget = forms.PasswordInput(attrs={'required':True, 'class':'form-control'})
+        
+        
+class UploadFileForm(forms.Form):
+    file = forms.FileField()

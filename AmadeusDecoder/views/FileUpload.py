@@ -10,6 +10,8 @@ from AmadeusDecoder.models.pnr.Pnr import Pnr
 from ..forms import UploadFileForm
 from AmadeusDecoder.models.user.Users import User
 
+from django.contrib.auth.decorators import login_required
+
 def handle_uploaded_file(f):
     """
     Handles the uploaded file by saving it to the specified directory.
@@ -44,57 +46,105 @@ def parse_csv(file_path):
     Returns:
     - list of dict: A list of dictionaries containing the parsed data.
     """
-    data = []
-
-    # Open the CSV file for reading
+    # Collect all existed PNR in databases 
+    pnr_exists = []
+    
+    # Collect all no founded PNR
+    pnr_not_found_set = set()
+    
+    
+    # Match username in csv to existing user in database
+    user_match = {
+        'Korotimi': 'Koro'
+    }
+    
+    # Collect PNR in uploaded CSV file
+    pnr_numbers = []
+    
+    # Collect unduplicated emitter value in uploaded CSV file
+    emitter_criteria_set = set()
+    
+    # First pass: collect PNR numbers and emitter criteria for batch querying
     with open(file_path, newline='', encoding='utf-8') as csvfile:
-        reader = csv.DictReader(csvfile)  # Use DictReader to read rows as dictionaries
-
-        user_match = {
-            'Korotimi': 'Koro'
-        }
+        # Use DictReader to read rows as dictionaries
+        reader = csv.DictReader(csvfile)
         
+        # Iterate each row in reader
         for row in reader:
             try:
                 # Parse and clean each field
-                issuing_date = datetime.strptime(row['DateEmission'], '%d/%m/%Y').date()
                 pnr_number = row['NPnr'].strip()
-                total = float(row['Total'].replace(',', '.'))
-                ticket_number = row['Nbillet'].strip()
-
-                # Get emitter criteria and find the user
                 emitter_criteria = row['Emetteur'].strip()
+
+                # print(pnr_number, emitter_criteria)
                 
-                # Use the mapping dictionary to get the correct criteria for filtering
-                filter_criteria = user_match.get(emitter_criteria, emitter_criteria)
-                
-                pnr = Pnr.objects.filter(number__icontains=pnr_number).first()
-                user = User.objects.filter(Q(username__icontains=filter_criteria.lower()) | Q(gds_id__icontains=filter_criteria.lower())).first()
-
-                # Prepare the emitter dictionary
-                emitter = {
-                    'id': user.id if user else '',
-                    'username': user.username if user else emitter_criteria,
-                    'email': user.email if user else ''
-                }
-
-                # Append the cleaned and parsed data to the list
-                data.append({
-                    'issuing_date': issuing_date,    # Date when the ticket was issued
-                    'pnr_number': pnr_number,       # Passenger Name Record number
-                    'total': total,                 # Total amount
-                    'ticket_number': ticket_number, # Ticket number
-                    'emitter': emitter,             # Emitter information
-                    'emitter_criteria': filter_criteria,  # Emitter criteria for matching
-                    'is_exist': pnr
-                })
-
+                # Collect PNR numbers and emitter criteria for batch querying ** Ask ChatGPT what is this ?
+                pnr_numbers.append(pnr_number)
+                filtered_criteria = user_match.get(emitter_criteria, emitter_criteria)
+                emitter_criteria_set.add(filtered_criteria.lower())
             except Exception as ex:
-                # Print an error message if parsing fails for a row
-                print(f"Error parsing pnr number: {pnr_number}: {ex}")
+                # Log the error without interrupting the flow
+                print(f'Error reading row : {row} {ex}')
+    
+    # Perform batch querying
+    pnrs = Pnr.objects.filter(number__in=pnr_numbers, system_creation_date__year__gte=2023).values('number', 'system_creation_date')
+    
+    user_query = Q()
+    for criteria in emitter_criteria_set:
+        # The |= operator updates user_query to include the new OR condition. 
+        # This means the final user_query will be a combination of all the OR conditions.
+        user_query |= Q(username__icontains=criteria) | Q(gds_id__icontains=criteria)
+        
+    users = User.objects.filter(user_query).values('id', 'username', 'email', 'gds_id')
+        
+    pnr_dict = {pnr['number']: pnr for pnr in pnrs}
+    user_dict = {user['username'].lower(): user for user in users}
+    
+    # Second pass: process the CSV again to create the final output
+    with open(file_path, newline='', encoding='utf-8') as csvfile:
+        # Use DictReader to read rows as dictionaries
+        reader = csv.DictReader(csvfile)
+        
+        # Iterate each row in reader
+        for row in reader:
+            try:
+                pnr_number = row['NPnr'].strip()
+                emitter_criteria = row['Emetteur'].strip()
+                filtered_criteria = user_match.get(emitter_criteria, emitter_criteria).lower()
+                
+                ticket_issuing_date = datetime.strptime(row['DateEmission'], '%d/%m/%Y').date()    
+                ticket_total = float(row['Total'].replace(',', '.'))
+                ticket_number = row['Nbillet'].strip()
+                
+                pnr = pnr_dict.get(pnr_number)
+                user = user_dict.get(filtered_criteria)
+                
+                ticket_emitter = {
+                    'username': user['username'] if user else emitter_criteria,
+                    'email': user['email'] if user else '',
+                }
+                
+                if pnr is not None:
+                    # Append the cleaned data to the final output
+                    pnr_exists.append({
+                        'pnr': {'number': pnr['number'], 'system_creation_date': pnr['system_creation_date']},
+                        'ticket': {
+                            'issuing_date': ticket_issuing_date,
+                            'total': ticket_total,
+                            'number': ticket_number,
+                            'emitter': ticket_emitter,
+                        },
+                    })
+                else:
+                    pnr_not_found_set.add(pnr_number)
+            except Exception as ex:
+                # Log the error without interrupting the flow
+                print(f'Error reading row with PNR number : {pnr_number} {ex}')
+    
+    return pnr_exists, pnr_not_found_set
 
-    return data
 
+@login_required(login_url='index')
 def upload_file(request):
     """
     Handles the file upload and parsing process.
@@ -106,19 +156,25 @@ def upload_file(request):
     - HttpResponse: The response object.
     """
     if request.method == 'POST':
-        form = UploadFileForm(request.POST, request.FILES)
-        if form.is_valid():
-            # Handle the uploaded file and save it
-            file_path = handle_uploaded_file(request.FILES['file'])
-            # Parse the uploaded CSV file
-            parsed_data = parse_csv(file_path)
+        try:
+            form = UploadFileForm(request.POST, request.FILES)
+            if form.is_valid():
+                # Handle the uploaded file and save it
+                file = request.FILES['file_upload']
+                file_path = handle_uploaded_file(file)
+                # Parse the uploaded CSV file
+                pnr_exists, pnr_not_found_set = parse_csv(file_path)
+                
+                # Convert the set of PNR numbers not found to a list of dictionaries
+                pnr_not_found = [{'pnr_number': pnr_number} for pnr_number in pnr_not_found_set]
 
-            # Example: Process parsed_data (save to database, display in template, etc.)
-            return JsonResponse({'parsed_data': parsed_data}, safe=True)
-            
-            # Uncomment the next line to redirect to a success page after processing
-            # return HttpResponseRedirect('/success/')
+                # Example: Process parsed_data (save to database, display in template, etc.)
+                return JsonResponse({'pnr_exists': pnr_exists, 'pnr_not_found': pnr_not_found}, safe=True)
+            else:
+                return render(request, 'upload-csv.html', {'form': form})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
     else:
         form = UploadFileForm()
     
-    return render(request, 'upload.html', {'form': form})
+    return render(request, 'upload-csv.html', {'form': form})

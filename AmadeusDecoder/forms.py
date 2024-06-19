@@ -25,4 +25,11 @@ class UserForm(UserCreationForm):
         
         
 class UploadFileForm(forms.Form):
-    file = forms.FileField()
+    file_upload = forms.FileField()
+    
+    def clean_file_upload(self):
+        file = self.cleaned_data.get('file_upload')
+        if file:
+            if not file.name.endswith('.csv'):
+                raise forms.ValidationError("Only CSV files are allowed.")
+        return file

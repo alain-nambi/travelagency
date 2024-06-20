@@ -1103,7 +1103,6 @@ function searchUnremoutedPnrFunction() {
                     <td>${pnr.number}</td>
                     <td>${pnr.type}</td>
                     <td>${pnr.date}</td>
-                    <td>${pnr.emitter}</td>
                 </tr>`;
             });
             html += `</tbody>`;

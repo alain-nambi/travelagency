@@ -786,7 +786,6 @@ def get_data_unremounted_pnr_from_query_set(search_results):
         values['id'] = pnr.id
         values['number'] = pnr.number
         values['type'] = pnr.type
-        values['emitter'] = pnr.emitter.username
         values['date'] = (pnr.creation_date).strftime("%d/%m/%Y, %H:%M:%S")
         values['state'] = pnr.status
         results.append(values)

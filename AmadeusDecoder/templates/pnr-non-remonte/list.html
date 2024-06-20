@@ -8,11 +8,11 @@
           <div class="col-12">
             <div class="card card-primary card-outline" style="">
               <div>
-                <div class="row align-items-center" style="">
-                  <div class="col-md-2 float-left" >
+                <div class="row align-items-center" style="margin-top:20px;justify-content:between;" >
+                  <div class="col-md-2 float-left" style="margin-left:10px;" >
                     <h4 class="text-primary title-all-pnr mt-1 mb-0">PNR non remonté</h4>
                   </div>
-                  <div class="col-md-10 float-right">
+                  <div class="col-md-8 float-right">
                     <div class="row d-flex align-items-center">
                       <div class="col-md-3 d-flex">
                         <div class="col-md-8 mr-4 px-0 d-flex align-items-center justify-content-center">
@@ -38,17 +38,17 @@
   
                       </div>
   
-                      <button type="submit" class="d-flex align-items-center mt-1 mb-1 px-2 py-0" id="buttonMenuFilter" cy-data="button-menu-filter" >
+                      {% comment %} <button type="submit" class="d-flex align-items-center mt-1 mb-1 px-2 py-0" id="buttonUpnrMenuFilter" cy-data="button-menu-filter" >
                         <i class="fa fa-filter mr-2 open-button-filter"></i>
                         <span>Filtres</span>
                       </button>
-                      <div class="wrapper-menu-filter" style="margin-left:29rem ! important;">
+                      <div class="wrapper-upnr-menu-filter">
                         <div class="content">
-                          <ul class="filter-menu">
+                          <ul class="upnr-filter-menu">
                             
                             <!-- Add pnr filter -->
-                            <li class="list list-one mb-1">
-                              <div class="filter-menu list">
+                            <li class="list upnr-list-one mb-1">
+                              <div class="upnr-filter-menu list">
                                 <i class="fa fa-eye"></i>
                                 <span>Type</span>
                               </div>
@@ -56,8 +56,8 @@
                             </li>
   
                             <!-- Add date range filter -->
-                            <li class="list list-two mb-1">
-                              <div class="filter-menu list" id="showDateRangePicker">
+                            <li class="list upnr-list-two mb-1">
+                              <div class="upnr-filter-menu list" id="showDateRangePicker">
                                 <i class="fa-sharp fa-solid fa-calendar-days" style="padding-left: 1px !important;"></i>
                                 <span>Date de signalement</span>
                               </div>
@@ -65,16 +65,16 @@
                             </li>
                             
                             <!-- Add status filter -->
-                            <li class="list list-four mb-1">
-                              <div class="filter-menu list" id="showFilterByPnrStatus">
+                            <li class="list upnr-list-four mb-1">
+                              <div class="upnr-filter-menu list" id="showFilterByPnrStatus">
                                 <i class="fas fa-sliders-h" style="padding-left: 1px !important;"></i>
                                 <span>Statut</span>
                               </div>
                               <i class="fa-solid fa-angle-right"></i>
                             </li>
                             
-                            <li class="list list-five bg-danger justify-content-center " id="CloseCanceledTicketFilter">
-                              <div class="filter-menu list">
+                            <li class="list upnr-list-five bg-danger justify-content-center " id="CloseCanceledTicketFilter">
+                              <div class="close-button-upnr-filter">
                                 <i class="fas fa-close" style="padding-left: 1px !important; font-size: 14px !important"></i>
                                 <span>Aucun</span>
                               </div>
@@ -83,7 +83,7 @@
                         </div>
                       </div>
   
-                      <div class="pnr-menu absolute" style="margin-left:29rem !important;">
+                      <div class="upnr-menu ">
                           <div class="date-range content">
                             <div>
                               <span class="text-sm font-weight-bold">Type</span>
@@ -103,23 +103,23 @@
                           </div>
                       </div>
   
-                      <div class="pnr-status absolute">
+                      <div class="upnr-status ">
                         <div class="content">
-                          <ul class="filter-menu">
+                          <ul class="upnr-filter-menu">
                             <li class="pnr-list list-one mb-1">
-                              <div class="filter-menu list" id="showIssuedPnr">
+                              <div class="upnr-filter-menu list" id="showIssuedPnr">
                                 <i class="fa fa-check"></i>
                                 <span>En attente de validation</span>
                               </div>
                             </li>
                             <li class="pnr-list list-two">
-                              <div class="filter-menu list active" id="showNotIssuedPnr">
+                              <div class="upnr-filter-menu list active" id="showNotIssuedPnr">
                                 <i class="fa fa-check"></i>
                                 <span>Non Traitée</span>
                               </div>
                             </li>
                             <li class="pnr-list list-three">
-                              <div class="filter-menu list active" id="showAllPnrWithoutIssuing">
+                              <div class="upnr-filter-menu list active" id="showAllPnrWithoutIssuing">
                                 <i class="fa fa-check"></i>
                                 <span>Refusée</span>
                               </div>
@@ -128,7 +128,7 @@
                         </div>
                       </div>
   
-                      <div class="date-range-menu absolute" style="margin-left:29rem !important;margin-top:2rem;">
+                      <div class="upnr-date-range-menu" >
                         <div class="date-range content">
                           <div>
                             <span class="text-sm font-weight-bold">Date de signalement</span>
@@ -149,11 +149,11 @@
                         <button class="btn btn-outline-primary btn-sm" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
                           Recherche avancée
                         </button>
-                      </div>
+                      </div> {% endcomment %}
                       {% unremounted_pnr_state as unremounted_pnr_state %}
-                      <div class="row d-flex" style="float:right;justify-content:space-between !important;margin : 0  1rem 0 0;">
+                      <div class=" col-md-5" >
                   
-                        <div class="d-flex float-right mt-4" style="gap: 2rem; margin-left: 4rem !important;">
+                        <div class="row d-flex" style="gap: 2rem;">
                           
                             <span class="px-2 py-1 bg-green" style="border-radius:2px;">Traitée : {{unremounted_pnr_state.true}} </span>
                             <span class="px-2 py-1 bg-red"  style="border-radius:2px;">En attente de validation : {{unremounted_pnr_state.false}} </span>

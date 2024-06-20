@@ -622,7 +622,7 @@ def pnr_non_remonte(request):
 
 @login_required(login_url='index')
 def all_unremounted_pnr(request):
-    UnremountedPnrList = UnremountedPnr.objects.all()
+    UnremountedPnrList = UnremountedPnr.objects.all().order_by('creation_date')
 
     pnr_count = UnremountedPnrList.count()
     context = {}

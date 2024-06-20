@@ -1137,3 +1137,113 @@ function searchUnremoutedPnrFunction() {
       toastr.warning(`La recherche ne doit pas être vide`);
     }
   }
+
+
+// ----------- Affichage Filtre -------------------------
+const $wrapperUpnrMenuFilter = $(".wrapper-upnr-menu-filter");
+  const $closeButtonUpnrFilter = $(".close-button-upnr-filter");
+  const $upnrMenu = $(".upnr-menu");
+  const $upnrStatus = $(".upnr-status");
+  const $upnrDateRangeMenu = $(".upnr-date-range-menu");
+  const liElements = $(".upnr-filter-menu > .list");
+  const $upnrLiElements = $(".upnr-menu .upnr-list");
+  const $upnrStatusLiElements = $(".upnr-status .upnr-list");
+
+  $wrapperUpnrMenuFilter.hide();
+  $upnrMenu.hide();
+  $upnrStatus.hide();
+  $upnrDateRangeMenu.hide();
+
+  $closeButtonUpnrFilter.on("click", function (e) {
+    isMenuOpen = !isMenuOpen;
+    isMenuOpen ? $wrapperUpnrMenuFilter.show() : $wrapperUpnrMenuFilter.hide();
+    $(this).toggleClass("active", isMenuOpen);
+    liElements.removeClass("active");
+    $upnrMenu.hide();
+    $upnrStatus.hide();
+    $upnrDateRangeMenu.hide();
+  })
+
+  // Initialise des variables booléennes pour suivre l'état des menus ouverts et les filtres sélectionnés.
+  let isMenuOpen = false;
+
+  // Attache un gestionnaire d'événements pour afficher/cacher le menu de filtre lorsqu'on clique sur le bouton Menu Filter. Il bascule également la classe CSS active sur le bouton pour refléter son état.
+  $("#buttonUpnrMenuFilter").click(function (e) {
+    isMenuOpen = !isMenuOpen;
+    isMenuOpen ? $wrapperUpnrMenuFilter.show() : $wrapperUpnrMenuFilter.hide();
+    $(this).toggleClass("active", isMenuOpen);
+    liElements.removeClass("active");
+    $upnrMenu.hide();
+    $upnrStatus.hide();
+    $upnrDateRangeMenu.hide();
+  });
+
+  document.addEventListener('click', function (event) {
+    // console.log(event.target);
+
+    // Vérifie si la variable isMenuOpen est définie et est de type boolean
+    if (typeof isMenuOpen === 'boolean') {
+      // Vérifie si le menu est ouvert (isMenuOpen est true) et si l'élément cliqué se trouve en dehors du menu
+      if (isMenuOpen && !event.target.closest("#buttonMenuFilter, .wrapper-menu-filter, .pnr-menu, .pnr-status, .date-range-menu, .creator-group-menu, .filter-menu > .list, .pnr-menu .pnr-list, .pnr-status .pnr-list, #reportrange, .daterangepicker, .next, .prev, .creator-group-menu, .agency-list, .agency-list-menu.absolute")) {
+        // Si les conditions sont remplies, cela signifie que vous avez cliqué en dehors du menu, donc le menu doit être fermé
+
+        // Inverse la valeur de isMenuOpen (true devient false, et vice versa)
+        isMenuOpen = !isMenuOpen;
+
+        // Vérifie si les variables sont définies avant de les utiliser
+        if ($wrapperUpnrMenuFilter && $upnrMenu && $upnrStatus && $upnrDateRangeMenu && $creatorMenu && $agencyMenu) {
+          // Masque les éléments suivants pour les rendre invisibles sur la page
+          $wrapperUpnrMenuFilter.hide();
+          $upnrMenu.hide();
+          $upnrStatus.hide();
+          $upnrDateRangeMenu.hide();
+          $creatorMenu.hide();
+          $agencyMenu.hide();
+        } else {
+          console.error('Une ou plusieurs variables ne sont pas définies.');
+        }
+      }
+    } else {
+      console.error('La variable isMenuOpen doit être définie et de type boolean.');
+    }
+
+    // console.log(isMenuOpen);
+  });
+
+    // Attache un gestionnaire d'événements pour chaque élément de menu de filtre afin de sélectionner/désélectionner les filtres et d'afficher/cacher les menus correspondants.
+    liElements.click(function (li) {
+        liElements.removeClass("active");
+    
+        if (this.classList.contains("list-one")) {
+          $upnrMenu.show();
+          $upnrDateRangeMenu.hide();
+          $upnrStatus.hide();
+        }
+    
+        if (this.classList.contains("list-two")) {
+          $upnrDateRangeMenu.show();
+          $upnrMenu.hide();
+          $upnrStatus.hide();
+        }
+    
+        if (this.classList.contains("list-three")) {
+          $upnrDateRangeMenu.hide();
+          $upnrMenu.hide();
+          $upnrStatus.hide();
+        }
+    
+        if (this.classList.contains("list-four")) {
+          $upnrDateRangeMenu.hide();
+          $upnrMenu.hide();
+          $upnrStatus.show();
+        }
+    
+        if (this.classList.contains("list-six")) {
+          $upnrDateRangeMenu.hide();
+          $upnrMenu.hide();
+          $upnrStatus.hide();
+        }
+    
+        this.classList.add("active");
+      });
+    

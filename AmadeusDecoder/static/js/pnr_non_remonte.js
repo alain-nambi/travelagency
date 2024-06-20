@@ -147,6 +147,14 @@ $(document).ready(function(){
 
     if('passengers' in sessionStorage){
         let session_passengers = JSON.parse(sessionStorage.getItem('passengers'));
+
+        // Ajouter les passagers contenu dans session storage en tant qu'option de selectSegment
+        session_passengers.forEach(element => {
+            var option = document.createElement('option');
+            option.value = element['PassengerOrder']; // Définir la valeur de l'option
+            option.text = element['PassengerName'] +" " +element['PassengerSurname'];
+            passengerSelect.appendChild(option);
+        });
         
         // Create ticket table
     
@@ -179,7 +187,7 @@ $(document).ready(function(){
 
     if('segments' in sessionStorage){
         let session_segments = JSON.parse(sessionStorage.getItem('segments'));
-        
+
         // Create segment table
     
         var html = `<table class="table table-striped">
@@ -564,8 +572,6 @@ ConfirmAddPassengerButton.addEventListener('click', function(event){
         }
     }
     
-
-
     // verifier si une liste de passagers se trouve dans session storage
     if('passengers' in sessionStorage){
         let session_passengers = JSON.parse(sessionStorage.getItem('passengers'));
@@ -635,8 +641,6 @@ ConfirmAddPassengerButton.addEventListener('click', function(event){
             <td>${Passenger['PassengerName']} ${Passenger['PassengerSurname']}</td>
             <td>${Passenger['PassengerTypeLabel']}</td>
             </tr>`;
-    
-
     
         html += `</tbody>
         </table>`;
@@ -1048,4 +1052,205 @@ function updateStatus(input_value){
     }
 }
 
+// ------------------------- SEARCH ------------------------------------------------
 
+$('#unremounted-pnr-research').on('click', () => {
+    searchUnremoutedPnrFunction();
+})
+
+
+// recherche simple
+function searchUnremoutedPnrFunction() {
+    
+    var pnr_research = $("#input-unremounted-pnr").val();
+    if (pnr_research.trim() != "") {
+      $("#spinnerLoadingSearch").show();
+      $.ajax({
+        type: "POST",
+        url: "/home/unremounted-pnr-research",
+        dataType: "json",
+        data: {
+          pnr_research: pnr_research,
+          csrfmiddlewaretoken: csrftoken,
+        },
+        success: function (data) {
+            $("#spinnerLoadingSearch").hide();
+
+          let SEARCH_RESULT = data.results;
+        
+          if (SEARCH_RESULT.length > 0) {
+            document.querySelector("#all-unremounted-pnr-after-search").innerHTML = "";
+            $(".request-pnr-counter").text(SEARCH_RESULT.length);
+            $("#all-unremounted-pnr-after-search").show();
+            
+            // $("tbody.tbody-unremounted-pnr").remove();
+            $("#all-unremounted-pnr").remove();
+  
+            var html = `<thead class="bg-info">
+                    <tr>
+                        <th width="5%" class="text-white">PNR</th>
+                        <th width="5%" class="text-white">Type</th>
+                        <th width="5%" class="text-white">Date de signalement</th>
+                        <th width="5%" class="text-white">Statut</th>
+                    </tr>
+                    </thead>
+                <tbody class="tbody-unremounted-pnr-after-search">`;
+            SEARCH_RESULT.forEach(pnr => {
+                html += `
+                <tr onclick="location.href='/home/unremounted-pnr-details/${pnr.id}/'" 
+                    style="cursor: pointer;" role="row">
+                    <td>${pnr.number}</td>
+                    <td>${pnr.type}</td>
+                    <td>${pnr.date}</td>`;
+                if (pnr.state == 0){
+                    html += `<td><button class="btn btn-danger py-0" name="anomaly_state">En attente de validation</button></td></tr>`;
+                }
+                if (pnr.state == 2){
+                    html += `<td><button class="btn btn-primary py-0" name="anomaly_state">Refusée</button></td></tr>`;
+                } 
+                if (pnr.state == 1){
+                    html += `<td><button class="btn btn-success py-0" name="anomaly_state" >Traitée</button></tr>`;
+                }                   
+                
+            });
+            html += `</tbody>`;
+            $("all-unremounted-pnr-after-search").html(html); // Mise à jour du contenu de la table
+            $("#all-unremounted-pnr-after-search").html(html).trigger("update");
+
+            //  add a title
+            var content = document.querySelector('#SearchTitle');
+            var existingTitle = document.getElementById('titleSearch');
+            if (existingTitle) {
+                // Supprimer l'élément existant s'il est trouvé
+                content.removeChild(existingTitle);
+            }
+            var title = document.createElement("h4");
+            title.textContent = "Résultat de la recherche : "+ data.searchTitle;
+            title.id = "titleSearch";
+            content.appendChild(title);
+  
+          } else {
+            $("#spinnerLoadingSearch").hide();
+            const input__searchValue = $("#input-unremounted-pnr").val();
+            $("#input-unremounted-pnr").val("");
+            toastr.error(
+              `Aucun Billet ne correspondant à la recherche ~ ${input__searchValue} ~`
+            );
+          }
+        },
+      });
+    } else {
+      $("#spinnerLoadingSearch").hide();
+      toastr.warning(`La recherche ne doit pas être vide`);
+    }
+  }
+
+
+// ----------- Affichage Filtre -------------------------
+const $wrapperUpnrMenuFilter = $(".wrapper-upnr-menu-filter");
+  const $closeButtonUpnrFilter = $(".close-button-upnr-filter");
+  const $upnrMenu = $(".upnr-menu");
+  const $upnrStatus = $(".upnr-status");
+  const $upnrDateRangeMenu = $(".upnr-date-range-menu");
+  const liElements = $(".upnr-filter-menu > .list");
+  const $upnrLiElements = $(".upnr-menu .upnr-list");
+  const $upnrStatusLiElements = $(".upnr-status .upnr-list");
+
+  $wrapperUpnrMenuFilter.hide();
+  $upnrMenu.hide();
+  $upnrStatus.hide();
+  $upnrDateRangeMenu.hide();
+
+  $closeButtonUpnrFilter.on("click", function (e) {
+    isMenuOpen = !isMenuOpen;
+    isMenuOpen ? $wrapperUpnrMenuFilter.show() : $wrapperUpnrMenuFilter.hide();
+    $(this).toggleClass("active", isMenuOpen);
+    liElements.removeClass("active");
+    $upnrMenu.hide();
+    $upnrStatus.hide();
+    $upnrDateRangeMenu.hide();
+  })
+
+  // Initialise des variables booléennes pour suivre l'état des menus ouverts et les filtres sélectionnés.
+  let isMenuOpen = false;
+
+  // Attache un gestionnaire d'événements pour afficher/cacher le menu de filtre lorsqu'on clique sur le bouton Menu Filter. Il bascule également la classe CSS active sur le bouton pour refléter son état.
+  $("#buttonUpnrMenuFilter").click(function (e) {
+    isMenuOpen = !isMenuOpen;
+    isMenuOpen ? $wrapperUpnrMenuFilter.show() : $wrapperUpnrMenuFilter.hide();
+    $(this).toggleClass("active", isMenuOpen);
+    liElements.removeClass("active");
+    $upnrMenu.hide();
+    $upnrStatus.hide();
+    $upnrDateRangeMenu.hide();
+  });
+
+  document.addEventListener('click', function (event) {
+    // console.log(event.target);
+
+    // Vérifie si la variable isMenuOpen est définie et est de type boolean
+    if (typeof isMenuOpen === 'boolean') {
+      // Vérifie si le menu est ouvert (isMenuOpen est true) et si l'élément cliqué se trouve en dehors du menu
+      if (isMenuOpen && !event.target.closest("#buttonMenuFilter, .wrapper-menu-filter, .pnr-menu, .pnr-status, .date-range-menu, .creator-group-menu, .filter-menu > .list, .pnr-menu .pnr-list, .pnr-status .pnr-list, #reportrange, .daterangepicker, .next, .prev, .creator-group-menu, .agency-list, .agency-list-menu.absolute")) {
+        // Si les conditions sont remplies, cela signifie que vous avez cliqué en dehors du menu, donc le menu doit être fermé
+
+        // Inverse la valeur de isMenuOpen (true devient false, et vice versa)
+        isMenuOpen = !isMenuOpen;
+
+        // Vérifie si les variables sont définies avant de les utiliser
+        if ($wrapperUpnrMenuFilter && $upnrMenu && $upnrStatus && $upnrDateRangeMenu && $creatorMenu && $agencyMenu) {
+          // Masque les éléments suivants pour les rendre invisibles sur la page
+          $wrapperUpnrMenuFilter.hide();
+          $upnrMenu.hide();
+          $upnrStatus.hide();
+          $upnrDateRangeMenu.hide();
+          $creatorMenu.hide();
+          $agencyMenu.hide();
+        } else {
+          console.error('Une ou plusieurs variables ne sont pas définies.');
+        }
+      }
+    } else {
+      console.error('La variable isMenuOpen doit être définie et de type boolean.');
+    }
+
+    // console.log(isMenuOpen);
+  });
+
+    // Attache un gestionnaire d'événements pour chaque élément de menu de filtre afin de sélectionner/désélectionner les filtres et d'afficher/cacher les menus correspondants.
+    liElements.click(function (li) {
+        liElements.removeClass("active");
+    
+        if (this.classList.contains("list-one")) {
+          $upnrMenu.show();
+          $upnrDateRangeMenu.hide();
+          $upnrStatus.hide();
+        }
+    
+        if (this.classList.contains("list-two")) {
+          $upnrDateRangeMenu.show();
+          $upnrMenu.hide();
+          $upnrStatus.hide();
+        }
+    
+        if (this.classList.contains("list-three")) {
+          $upnrDateRangeMenu.hide();
+          $upnrMenu.hide();
+          $upnrStatus.hide();
+        }
+    
+        if (this.classList.contains("list-four")) {
+          $upnrDateRangeMenu.hide();
+          $upnrMenu.hide();
+          $upnrStatus.show();
+        }
+    
+        if (this.classList.contains("list-six")) {
+          $upnrDateRangeMenu.hide();
+          $upnrMenu.hide();
+          $upnrStatus.hide();
+        }
+    
+        this.classList.add("active");
+      });
+    

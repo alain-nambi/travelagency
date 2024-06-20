@@ -776,21 +776,6 @@ def refuse_unremounted_pnr(request):
 
 # ------------------- UNREMOUNTED PNR SEARCH -----------------------------
 
-# ------------ transform a list of queryset to table specialy for the canceled ticket search
-@login_required(login_url="index")
-def get_data_unremounted_pnr_from_query_set(search_results):
-    results = []
-    for pnr in search_results:
-        
-        values = {}
-        values['id'] = pnr.id
-        values['number'] = pnr.number
-        values['type'] = pnr.type
-        values['date'] = (pnr.creation_date).strftime("%d/%m/%Y, %H:%M:%S")
-        values['state'] = pnr.status
-        results.append(values)
-    return results
-
 
 @login_required(login_url="index")
 def unremounted_pnr_research(request):
@@ -810,12 +795,23 @@ def unremounted_pnr_research(request):
                     
         print(search_results)
         if pnr_results.exists():
-            results = get_data_unremounted_pnr_from_query_set(search_results)
+            results = []
+            for pnr in search_results:
+                
+                values = {}
+                values['id'] = pnr.id
+                values['number'] = pnr.number
+                values['type'] = pnr.type
+                values['date'] = (pnr.creation_date).strftime("%d/%m/%Y, %H:%M:%S")
+                values['state'] = pnr.state
+                results.append(values)
             context['results'] = results
             context['status'] = 200
+            context['searchTitle'] = pnr_research
         else:
             context['status'] = 404
             context['message'] = 'Aucun résultat trouvé.'
+            context['searchTitle'] = pnr_research
             
         
     return JsonResponse(context)

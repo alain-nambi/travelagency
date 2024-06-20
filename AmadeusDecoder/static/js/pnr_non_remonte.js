@@ -1079,19 +1079,18 @@ function searchUnremoutedPnrFunction() {
           let SEARCH_RESULT = data.results;
         
           if (SEARCH_RESULT.length > 0) {
-            document.querySelector("#all-canceled-ticket-after-search").innerHTML = "";
+            document.querySelector("#all-unremounted-pnr-after-search").innerHTML = "";
             $(".request-pnr-counter").text(SEARCH_RESULT.length);
-            $("#all-canceled-ticket-after-search").show();
+            $("#all-unremounted-pnr-after-search").show();
             
-            // $("tbody.tbody-canceled-ticket").remove();
-            $("#all-canceled-ticket").remove();
+            // $("tbody.tbody-unremounted-pnr").remove();
+            $("#all-unremounted-pnr").remove();
   
             var html = `<thead class="bg-info">
                     <tr>
                         <th width="5%" class="text-white">PNR</th>
                         <th width="5%" class="text-white">Type</th>
                         <th width="5%" class="text-white">Date de signalement</th>
-                        <th width="8%" class="text-white">Signalée par</th>
                         <th width="5%" class="text-white">Statut</th>
                     </tr>
                     </thead>
@@ -1102,8 +1101,17 @@ function searchUnremoutedPnrFunction() {
                     style="cursor: pointer;" role="row">
                     <td>${pnr.number}</td>
                     <td>${pnr.type}</td>
-                    <td>${pnr.date}</td>
-                </tr>`;
+                    <td>${pnr.date}</td>`;
+                if (pnr.state == 0){
+                    html += `<td><button class="btn btn-danger py-0" name="anomaly_state">En attente de validation</button></td></tr>`;
+                }
+                if (pnr.state == 2){
+                    html += `<td><button class="btn btn-primary py-0" name="anomaly_state">Refusée</button></td></tr>`;
+                } 
+                if (pnr.state == 1){
+                    html += `<td><button class="btn btn-success py-0" name="anomaly_state" >Traitée</button></tr>`;
+                }                   
+                
             });
             html += `</tbody>`;
             $("all-unremounted-pnr-after-search").html(html); // Mise à jour du contenu de la table

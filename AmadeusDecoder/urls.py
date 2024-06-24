@@ -133,7 +133,7 @@ urlpatterns = [
     path('anomaly/refuse/unremounted-pnr',refuse_unremounted_pnr, name='refuse_unremounted_pnr'),
     path('home/unremounted-pnr-research', unremounted_pnr_research, name= 'unremounted_pnr_research'),
     path('customer/details/<int:customer_id>',customer_details,name="customer_details"),
-    path('home/unremounted-ticket-research', unremounted_ticket_research, name= 'unremounted_ticket_research'),
+    path('home/unremounted-pnr-research', unremounted_pnr_research, name= 'unremounted_pnr_research'),
     path('customer/updateInfo',modify_customer,name='modify_customer'),
     
 ]

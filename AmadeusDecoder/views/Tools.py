@@ -77,4 +77,3 @@ def get_invoice_number(request,numeroPnr):
 #     return JsonResponse({'message': 'Le serveur NodeJS a été démarré'}, safe=False)
     
 
-    

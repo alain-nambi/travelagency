@@ -50,6 +50,8 @@
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
   <!-- tablesort-->
   <link href="{% static 'css/theme.default.css' %}" rel="stylesheet">
+  <link href="{% static 'css/notification.css' %}" rel="stylesheet">
+
 
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/css/selectize.css" integrity="sha512-Y+AaVWdRf6zsGm7eV+EGOIuqYZoi2wUQ7wF8oHbnLy8k2zdVGSxyjn2qDUMFkLRy/9mqOAE5BeyEqx1yxDTQIw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -278,6 +280,16 @@ old -->
                 <p>Clients</p>
               </a>
             </li>
+            <li class="nav-item">
+              <a href="" class="nav-link">
+                <div class="badge-container" id="badge">
+                  <i class="fas fa-bell nav-icon" style="position: relative;"></i>
+                  <input type="hidden" value="{{notif_number}}" id="notif_number"/>
+                  {% comment %} <span class="badge badge-light icon-hover" id="badge-envelope" style="position: absolute; top: -11px; right: -10px;">2</span> {% endcomment %}
+                  <p>Notifications</p>
+                </div>        
+              </a>
+            </li>
             {% endif %}
             <!--menu agent contrôle role_id=4-->
             {% if request.user.role_id == 4 %}
@@ -413,6 +425,8 @@ old -->
     <script src="{% static 'js/invoice_unorder.js' %}"></script>
     <script src="{% static 'js/UnorderedPnrHandler.js' %}"></script>
     <script src="{% static 'js/anomalie.js' %}"></script>
+    <script src="{% static 'js/notification.js' %}"></script>
+
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/colresizable/1.6.0/colResizable-1.6.min.js" integrity="sha512-pMZ2rgWRGMywzbRAVwGk+auTREN0ldKKjACUSB4cneTgD3kn/6pu//Lxi4l8xSRkY83HENr1vztTnGDySWs0Mg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 

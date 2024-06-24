@@ -1,0 +1,60 @@
+
+  .badge-container {
+    position:relative;
+    -webkit-perspective: 1000;
+    -webkit-backface-visibility: hidden;
+  }
+  .badge-num {
+    box-sizing:border-box;
+    font-family: 'Trebuchet MS', sans-serif;
+    background: #0099FF;
+    cursor:default;
+    border-radius: 50%;
+    color: #fff;
+    font-weight:bold;
+    font-size: 12px;
+    height: 15px;
+    line-height:1.55em;
+    top:-9px;
+    right:-11px;
+    border:2px solid #fff;
+    position: absolute;
+    text-align: center;
+    width: 15px;
+    box-shadow: 1px 1px 5px rgba(0,0,0, .2);
+    animation: pulse 1.5s 1;
+  }
+  .badge-num:after {
+    content: '';
+    position: absolute;
+    top:-2px;
+    left:-3px;
+    border:1px solid rgba(0,155,243,.5);
+    opacity:0;
+    border-radius: 50%;
+    width:17px;
+    height:17px;
+    animation: sonar 1.5s 1;
+  }
+  @keyframes sonar { 
+    0% {transform: scale(.9); opacity:1;}
+    100% {transform: scale(2);opacity: 0;}
+  }
+  @keyframes pulse {
+    0% {transform: scale(1);}
+    20% {transform: scale(1.4); }   
+    100% {transform: scale(1);}
+  }
+  #badge-envelope :before {
+    font-size:45px;
+    text-decoration: none;
+  }
+  .icon-hover {
+    color: fade(white, 40%);
+    transition: color 500ms ease;
+    cursor: pointer;
+    
+    &:hover {
+      color: fade(white, 70%);
+    }
+  }

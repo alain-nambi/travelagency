@@ -424,6 +424,8 @@ def home(request):
         row_num = request.GET.get('paginate_by', 50) or 50
         page_num = request.GET.get('page', 1)
         paginator = Paginator(pnr_list, row_num)
+
+        notif_number = get_pnr_created_today_not_invoiced()
         try:
             page_obj = paginator.page(page_num)
         except PageNotAnInteger:
@@ -434,7 +436,8 @@ def home(request):
             'page_obj': page_obj, 
             'row_num': row_num,
             'pnr_count': pnr_count,
-            'users': users
+            'users': users,
+            'notif_number':notif_number
         }
         return render(request,'home.html', context)
     else:
@@ -2346,3 +2349,19 @@ def ticket_delete(request):
 
 
         return JsonResponse({'status':'ok'})
+
+# ------- Notification ---------------------------------
+def get_pnr_created_today_not_invoiced():
+    today = datetime.now().date()
+    
+    start_date = datetime(today.year, today.month, today.day, 0, 0, 0, tzinfo=timezone.utc)
+    end_date = datetime(today.year, today.month, today.day, 23, 59, 59, tzinfo=timezone.utc)
+
+    print('start : ',start_date)
+    print('end : ', end_date)
+    pnrs = Pnr.objects.filter(system_creation_date__range=[start_date, end_date])
+    print('pnrs : ',pnrs)
+    nbre_pnr = pnrs.count()
+    print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+    print('nbre_pnr : ',nbre_pnr)
+    return nbre_pnr

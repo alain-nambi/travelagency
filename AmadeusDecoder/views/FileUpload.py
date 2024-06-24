@@ -174,7 +174,7 @@ def upload_file(request):
                 return render(request, 'upload-csv.html', {'form': form})
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
-    else:
-        form = UploadFileForm()
     
+    # Handle GET request (render the initial form)
+    form = UploadFileForm()
     return render(request, 'upload-csv.html', {'form': form})

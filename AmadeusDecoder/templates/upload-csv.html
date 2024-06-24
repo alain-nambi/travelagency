@@ -1,73 +1,178 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <title>Upload CSV File</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
-  
-  <style>
-    body {
-      font-family: "Roboto", sans-serif;
-      font-weight: 400;
-      font-style: normal;
-      background-color: #f9f9f9;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .container {
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-      padding: 20px;
-      width: auto;
-      min-width: 300px;
-      text-align: center;
-    }
-    h2 {
-      color: #333;
-      margin-bottom: 20px;
-    }
-    form {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    input[type="file"] {
-      margin-bottom: 20px;
-    }
-    button {
-      background-color: #007BFF;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h2>Upload CSV File</h2>
-    <form method="post" enctype="multipart/form-data">
-      {% csrf_token %} 
-      {{ form.file_upload }}
-      {% if form.errors %}
-        <div class="error-message">
-          {{ form.errors.erreur }}
-        </div>
-      {% endif %}
-      <button type="submit">Upload</button>
-    </form>
-  </div>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Upload CSV File</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+      body {
+        font-family: "Roboto", sans-serif;
+        background-color: #f9f9f9;
+        margin: 0;
+      }
+      .content {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        width: auto;
+        min-width: 300px;
+        text-align: center;
+      }
+      h2 {
+        color: #333;
+        margin-bottom: 20px;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+      input[type="file"] {
+        margin-bottom: 20px;
+      }
+      button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      .panel {
+        display: none;
+        flex-direction: column;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+      }
+      .panel-info {
+        padding: 10px;
+        border: 1px solid green;
+        color: green;
+      }
+      .panel-error {
+        padding: 10px;
+        border: 1px solid red;
+        color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="content">
+      <div class="form-content">
+        <h2>Upload CSV File</h2>
+        <form id="uploadForm" method="post" enctype="multipart/form-data">
+          {% csrf_token %} {{ form.file_upload }} {% if form.errors %}
+          <div class="error-message">{{ form.errors.erreur }}</div>
+          {% endif %}
+          <button type="button" id="uploadButton">Upload</button>
+        </form>
+      </div>
+
+      <div class="panel">
+        <div class="panel-info"></div>
+        <div class="panel-error"></div>
+      </div>
+
+      <div class="table" style="width: 100%"></div>
+    </div>
+
+    <!-- Include Axios library -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const fileUploadInput = document.getElementById("id_file_upload");
+        const uploadButton = document.getElementById("uploadButton");
+
+        fileUploadInput.value = "";
+
+        uploadButton.addEventListener("click", function () {
+          const form = document.getElementById("uploadForm");
+          const formData = new FormData(form);
+
+          const panelInfo = document.querySelector(".panel-info");
+          const panelError = document.querySelector(".panel-error");
+          const panel = document.querySelector(".panel");
+
+          const table =  document.querySelector(".table")
+
+          formData.append("csrfmiddlewaretoken", "{{ csrf_token }}");
+
+          axios
+            .post("/upload-csv", formData, {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            })
+            .then(function (response) {
+              console.log(response.data); // Log the response to console (for debugging)
+              // Handle the JSON response (update UI, show messages, etc.)
+              if (response.status === 200) {
+                const { pnr_exists, pnr_not_found } = response.data;
+                fileUploadInput.value = "";
+                panel.style.display = "flex";
+                panelInfo.textContent = `${pnr_exists.length} remboursements ont été remontées dans gestion PNR`;
+                panelError.textContent = `${pnr_not_found.length} PNR non remontées dans gestion PNR`;
+
+
+
+                // Table populating
+                const template = `
+                <div class="relative">
+                  <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                      <tr>
+                        <th scope="col" class="px-6 py-3">ID</th>
+                        <th scope="col" class="px-6 py-3">Numéro PNR</th>
+                        <th scope="col" class="px-6 py-3">Numéro de billet</th>
+                        <th scope="col" class="px-6 py-3">Montant</th>
+                        <th scope="col" class="px-6 py-3">Date d'émission</th>
+                        <th scope="col" class="px-6 py-3">Émetteur</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${pnr_exists.map((data, index) => `
+                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                          <td class="px-6 py-2">${index + 1}</td>
+                          <td scope="row" class="px-6 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                            ${data.pnr.number}
+                          </td>
+                          <td class="px-6 py-2">${data.ticket.number}</td>
+                          <td class="px-6 py-2">${data.ticket.total}</td>
+                          <td class="px-6 py-2">${data.ticket.issuing_date}</td>
+                          <td class="px-6 py-2">${data.ticket.emitter.username ? data.ticket.emitter.username : ''}</td>
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              `;
+
+                console.table(template)
+
+                table.innerHTML = template
+              }
+            })
+            .catch(function (error) {
+              console.error("Error:", error); // Log the error to console (for debugging)
+              // Handle errors or display error message
+            });
+        });
+      });
+    </script>
+  </body>
 </html>

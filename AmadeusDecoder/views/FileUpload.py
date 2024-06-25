@@ -6,9 +6,13 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect, JsonResponse
 from django.conf import settings
 
-from AmadeusDecoder.models.pnr.Pnr import Pnr
 from ..forms import UploadFileForm
+
+from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.user.Users import User
+from AmadeusDecoder.models.utilities.Refunds import Refunds
+from AmadeusDecoder.models.pnr.Pnr import Pnr
+from AmadeusDecoder.models.invoice.Ticket import Ticket
 
 from django.contrib.auth.decorators import login_required
 
@@ -52,10 +56,17 @@ def parse_csv(file_path):
     # Collect all no founded PNR
     pnr_not_found_set = set()
     
+    occurence_ticket_refund_existing = {
+        'exist': 0,
+        'not_exist': 0
+    }
+    
     
     # Match username in csv to existing user in database
     user_match = {
-        'Korotimi': 'Koro'
+        'Korotimi': 'Koro',
+        'Tafara': 'Fouadi',
+        'SI': 'Sity'
     }
     
     # Collect PNR in uploaded CSV file
@@ -125,6 +136,14 @@ def parse_csv(file_path):
                 }
                 
                 if pnr is not None:
+                    # Determine if the ticket refund exists
+                    existing_ticket_refund = check_ticket_refund_exists(ticket_number)
+                    
+                    if existing_ticket_refund:
+                        occurence_ticket_refund_existing['exist'] += 1
+                    else:
+                        occurence_ticket_refund_existing['not_exist'] += 1
+                    
                     # Append the cleaned data to the final output
                     pnr_exists.append({
                         'pnr': {'number': pnr['number'], 'system_creation_date': pnr['system_creation_date']},
@@ -133,6 +152,7 @@ def parse_csv(file_path):
                             'total': ticket_total,
                             'number': ticket_number,
                             'emitter': ticket_emitter,
+                            'is_ticket_refund_exist': True if existing_ticket_refund else False
                         },
                     })
                 else:
@@ -141,8 +161,12 @@ def parse_csv(file_path):
                 # Log the error without interrupting the flow
                 print(f'Error reading row with PNR number : {pnr_number} {ex}')
     
-    return pnr_exists, pnr_not_found_set
+    return pnr_exists, pnr_not_found_set, occurence_ticket_refund_existing
 
+# Check if a ticket refund exists
+def check_ticket_refund_exists(ticket_number):
+    # Replace this with your actual logic to check if the ticket refund exists
+    return Ticket.objects.filter(number=ticket_number).exists() 
 
 @login_required(login_url='index')
 def upload_file(request):
@@ -155,8 +179,6 @@ def upload_file(request):
     Returns:
     - HttpResponse: The response object.
     """
-    from AmadeusDecoder.models.utilities.Refunds import Refunds
-    from AmadeusDecoder.models.pnr.Pnr import Pnr
     
     if request.method == 'POST':
         try:
@@ -166,7 +188,7 @@ def upload_file(request):
                 file = request.FILES['file_upload']
                 file_path = handle_uploaded_file(file)
                 # Parse the uploaded CSV file
-                pnr_exists, pnr_not_found_set = parse_csv(file_path)
+                pnr_exists, pnr_not_found_set, occurence_ticket_refund_existing = parse_csv(file_path)
                 
                 # Convert the set of PNR numbers not found to a list of dictionaries
                 pnr_not_found = [{'pnr_number': pnr_number} for pnr_number in pnr_not_found_set]
@@ -177,17 +199,25 @@ def upload_file(request):
                         refund_objects_to_update = []
                         
                         for data in pnr_exists:
-                            # Check if a Refunds object with the same number already exists
-                            existing_refund = Refunds.objects.filter(number=data['ticket']['number']).first()
-                            
                             number = data['ticket']['number']
                             issuing_date = data['ticket']['issuing_date']
                             total = data['ticket']['total']
                             emitter = data['ticket']['emitter']
                             
+                            # Check if a Refunds object with the same number already exists
+                            existing_refund = Refunds.objects.filter(number=number).first()
+                            
+                            # Determine if the ticket refund exists
+                            existing_ticket_refund = check_ticket_refund_exists(number)
+                            
+                            # print({'existing_ticket_refund': existing_ticket_refund})
+                            
                             if existing_refund:
                                 # Update the existing refund total
                                 existing_refund.total = total
+                                existing_refund.emitter = emitter
+                                existing_refund.is_ticket_refund_exist = True if existing_ticket_refund else False
+                                
                                 refund_objects_to_update.append(existing_refund)
                             else:
                                 # Create a new refund with all needed info
@@ -199,9 +229,13 @@ def upload_file(request):
                                         issuing_date=issuing_date,
                                         total=total,
                                         emitter=emitter,  # Assign emitter field with the dictionary
+                                        is_ticket_refund_exist = True if existing_ticket_refund else False
                                     )
-                                    refund_objects_to_create.append(refund)
                                     
+                                    refund_objects_to_create.append(refund)
+                                
+                        # print(refund_objects_to_create)
+                        # print(refund_objects_to_update)
                                     
                         '''
                         Key Optimizations:
@@ -217,13 +251,13 @@ def upload_file(request):
                         
                         # Update existing refunds
                         if refund_objects_to_update:
-                            Refunds.objects.bulk_update(refund_objects_to_update, ['total'])
+                            Refunds.objects.bulk_update(refund_objects_to_update, ['total', 'emitter', 'is_ticket_refund_exist'])
 
                 except Exception as e:
                     print(e)
 
                 # Example: Process parsed_data (save to database, display in template, etc.)
-                return JsonResponse({'pnr_exists': pnr_exists, 'pnr_not_found': pnr_not_found}, safe=True)
+                return JsonResponse({'pnr_exists': pnr_exists, 'pnr_not_found': pnr_not_found, 'occurence_ticket_refund_existing': occurence_ticket_refund_existing}, safe=True)
             else:
                 return render(request, 'upload-csv.html', {'form': form})
         except Exception as e:

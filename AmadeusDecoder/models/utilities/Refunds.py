@@ -13,6 +13,7 @@ class Refunds(models.Model):
     total = models.DecimalField(max_digits=13, decimal_places=4, default=0.0)
     issuing_date = models.DateField(auto_now=False)
     emitter = HStoreField()
+    is_ticket_refund_exist = models.BooleanField(default=False)
     
     # Add timestamps
     created_at = models.DateTimeField(auto_now_add=True)

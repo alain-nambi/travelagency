@@ -40,18 +40,6 @@
       input[type="file"] {
         margin-bottom: 20px;
       }
-      button {
-        background-color: #007bff;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-      }
-      button:hover {
-        background-color: #0056b3;
-      }
       .panel {
         display: none;
         flex-direction: column;
@@ -78,7 +66,7 @@
           {% csrf_token %} {{ form.file_upload }} {% if form.errors %}
           <div class="error-message">{{ form.errors.erreur }}</div>
           {% endif %}
-          <button type="button" id="uploadButton">Upload</button>
+          <button type="button" id="uploadButton" class="bg-blue-600 hover:bg-blue-500 px-3 py-2 text-white text-sm rounded-lg">Upload</button>
         </form>
       </div>
 
@@ -122,11 +110,16 @@
               console.log(response.data); // Log the response to console (for debugging)
               // Handle the JSON response (update UI, show messages, etc.)
               if (response.status === 200) {
-                const { pnr_exists, pnr_not_found } = response.data;
+                const { pnr_exists, pnr_not_found, occurence_ticket_refund_existing } = response.data;
+
+                if (fileUploadInput.value != "") {
+                  panel.style.display = "flex";
+                }
+
                 fileUploadInput.value = "";
-                panel.style.display = "flex";
-                panelInfo.textContent = `${pnr_exists.length} remboursements ont été remontées dans gestion PNR`;
-                panelError.textContent = `${pnr_not_found.length} PNR non remontées dans gestion PNR`;
+                
+                panelInfo.textContent = `${occurence_ticket_refund_existing.exist} remboursements ont été remontées dans gestion PNR`;
+                panelError.textContent = `${occurence_ticket_refund_existing.not_exist} PNR non remontées dans gestion PNR`;
 
 
 
@@ -142,6 +135,7 @@
                         <th scope="col" class="px-6 py-3">Montant</th>
                         <th scope="col" class="px-6 py-3">Date d'émission</th>
                         <th scope="col" class="px-6 py-3">Émetteur</th>
+                        <th scope="col" class="px-6 py-3">Remonté dans gestion PNR</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -155,6 +149,7 @@
                           <td class="px-6 py-2">${data.ticket.total}</td>
                           <td class="px-6 py-2">${data.ticket.issuing_date}</td>
                           <td class="px-6 py-2">${data.ticket.emitter.username ? data.ticket.emitter.username : ''}</td>
+                          <td class="px-6 py-2">${data.ticket.is_ticket_refund_exist ? `<span class="bg-green-100 px-2 py-1 rounded-md text-sm">Oui</span>` : `<span class="bg-red-100 px-2 py-1 rounded-md text-sm">Non</span>` }
                         </tr>
                       `).join('')}
                     </tbody>

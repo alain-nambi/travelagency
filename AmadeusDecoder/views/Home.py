@@ -444,6 +444,10 @@ def home(request):
         row_num = request.GET.get('paginate_by', 50) or 50
         page_num = request.GET.get('page', 1)
         paginator = Paginator(pnr_list, row_num)
+
+        pnr_not_invoiced = get_pnr_created_today_not_invoiced(request)
+        notif_number = len(pnr_not_invoiced)
+
         try:
             page_obj = paginator.page(page_num)
         except PageNotAnInteger:
@@ -457,7 +461,9 @@ def home(request):
             'users': users,
             'passengerTypes': passengerTypes,
             'offices' : offices,
-            'airlines' : airlines
+            'airlines' : airlines,
+            'pnr_not_invoiced':pnr_not_invoiced,
+            'notif_number':notif_number
         }
         return render(request,'home.html', context)
     else:
@@ -680,7 +686,10 @@ def pnr_details(request, pnr_id):
     context['responses'] = Response.objects.filter(pnr_id=pnr_id)
     context['products'] = Product.objects.all()
     context['raw_data'] = pnr_detail.pnr_data.all().order_by('-data_datetime')
-
+    pnr_not_invoiced = get_pnr_created_today_not_invoiced(request)
+    context['pnr_not_invoiced'] = pnr_not_invoiced
+    context['notif_number'] = len(pnr_not_invoiced)
+    
     # PNR not invoiced 
     if pnr_detail.status_value == 0:
         __ticket_base = pnr_detail.tickets.filter(ticket_status=1).exclude(Q(total=0))
@@ -2505,3 +2514,14 @@ def unordered_pnr_advanced_search(request):
 
 
 
+# ------- Notification ---------------------------------
+def get_pnr_created_today_not_invoiced(request):
+    # get number of pnr not invoiced today
+    today = datetime.now().date()
+    
+    start_date = datetime(today.year, today.month, today.day, 0, 0, 0, tzinfo=timezone.utc)
+    end_date = datetime(today.year, today.month, today.day, 23, 59, 59, tzinfo=timezone.utc)
+
+    pnrs = Pnr.objects.filter(agent_id= request.user.id,system_creation_date__range=[start_date, end_date], is_invoiced= False)
+    nbre_pnr = pnrs.count()
+    return pnrs

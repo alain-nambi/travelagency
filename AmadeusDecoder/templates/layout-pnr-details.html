@@ -40,6 +40,7 @@
 
  <!-- style -->
  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+ <link rel="stylesheet" href="{% static 'css/notification.css' %}">
  <link rel="stylesheet" href="{% static 'css/select-custom.css' %}">
  <!-- tablesort-->
  <link href="{% static 'css/theme.default.css' %}" rel="stylesheet">
@@ -108,6 +109,22 @@ old -->
             </div>
           </li>
         {% endif %}
+
+        {% if pnr_not_invoiced != 0 %}
+            <div class="row" style=" margin-left:2rem;">
+                <p class="col-md-4 text-danger cde_blink">PNR non commandés </p>
+
+                <div class="col-md-3 notifwrapper">
+                  <div class="scrolling-items">
+                    
+                    {% for pnr in pnr_not_invoiced %}
+                      <a href="{% url 'pnr_details' pnr.id %}"><div class="scrolling-items__item" style="margin-left: 20px;">{{pnr.number}} </div></a>
+                    {% endfor %}
+                  
+                  </div> 
+                </div>
+            </div>
+            {% endif %}
           
         <li class="nav-item ml-1">
           <div class="input-group input-group float-sm-right mb-1">
@@ -318,6 +335,15 @@ old -->
               <a href="{% url 'customers' %}" class="nav-link">
                 <i class="fas fa-user-tie nav-icon"></i>
                 <p>Clients</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link">
+                <div class="badge-container" id="badge" >
+                  <i class="fas fa-bell nav-icon" style="position: relative;"></i>
+                  <input type="hidden" value="{{notif_number}}" id="notif_number"/>
+                  <p>PNR non commandés</p>
+                </div>
               </a>
             </li>
             {% endif %}
@@ -733,6 +759,7 @@ old -->
   <script src="{% static 'js/main.js' %}"></script>
   <script src="{% static 'js/comment.js' %}"></script>
   <script src="{% static 'js/anomalie.js' %}"></script>
+  <script src="{% static 'js/notification.js' %}"></script>
   <script src="{% static 'js/virtual-select.min.js' %}"></script>
   {% comment %} <script src="{% static 'js/virtual-select.js' %}"></script> {% endcomment %}
 

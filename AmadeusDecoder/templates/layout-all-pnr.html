@@ -59,6 +59,8 @@
 
   <!-- tablesort-->
   <link href="{% static 'css/theme.default.css' %}" rel="stylesheet">
+  <link href="{% static 'css/notification.css' %}" rel="stylesheet">
+
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" integrity="sha512-is1TN9d5Tt0OFxQTczhF1BPaJRaNzbSRKjk9yvExCHuCgfROU67TpE+67x35lbHEaQmbUxZ1Xjq18pIFpxGNmg==" crossorigin="anonymous">
 
@@ -121,6 +123,22 @@ old -->
                 Pnr non remonté
               </button>
             </div>
+            {% if pnr_not_invoiced != 0 %}
+            <div class="row" style=" margin-left:2rem;">
+                <p class="col-md-4 text-danger cde_blink">PNR non commandés </p>
+
+                <div class="col-md-3 notifwrapper">
+                  <div class="scrolling-items">
+                    
+                    {% for pnr in pnr_not_invoiced %}
+                      <a href="{% url 'pnr_details' pnr.id %}"><div class="scrolling-items__item" style="margin-left: 20px;">{{pnr.number}} </div></a>
+                    {% endfor %}
+                  
+                  </div> 
+                </div>
+            </div>
+            {% endif %}
+            
 
         </li>
       </ul>
@@ -326,10 +344,12 @@ old -->
               </a>
             </li>
             <li class="nav-item">
-              <a href="" class="nav-link">
-                <i class="fas fa-bell nav-icon" style="position: relative;"></i>
-                <span class="badge badge-light" style="position: absolute; top: -5px; right: 5px;">2</span>
-                <p>Notifications</p>
+              <a class="nav-link">
+                <div class="badge-container" id="badge">
+                  <i class="fas fa-bell nav-icon" style="position: relative;"></i>
+                  <input type="hidden" value="{{notif_number}}" id="notif_number"/>
+                  <p>PNR non commandés</p>
+                </div>        
               </a>
             </li>
             {% endif %}
@@ -495,6 +515,9 @@ old -->
     <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
     <script script type="text/javascript" src="https://cdn.canvasjs.com/canvasjs.min.js"></script> 
  
+    <script src="{% static 'js/notification.js' %}"></script>
+
+
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/colresizable/1.6.0/colResizable-1.6.min.js" integrity="sha512-pMZ2rgWRGMywzbRAVwGk+auTREN0ldKKjACUSB4cneTgD3kn/6pu//Lxi4l8xSRkY83HENr1vztTnGDySWs0Mg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 

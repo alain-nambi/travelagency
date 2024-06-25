@@ -11,8 +11,7 @@
           
           badgeNum = document.createElement('div'); 
         badgeNum.setAttribute('class','badge-num');
-             badgeNum.innerHTML = notif_number;
+             badgeNum.innerHTML = notif_number.value
           var insertedElement = badge.insertBefore(badgeNum,badge.firstChild); 
-        console.log(badge.children[0]);
     }
   })(document);

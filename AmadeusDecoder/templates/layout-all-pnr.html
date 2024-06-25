@@ -111,6 +111,10 @@ old -->
               </button>
             </div>
 
+            <div>
+              <h6>{{notif_number}} PNR non commandés</h6>
+            </div>
+
         </li>
       </ul>
     </form>
@@ -281,12 +285,11 @@ old -->
               </a>
             </li>
             <li class="nav-item">
-              <a href="" class="nav-link">
+              <a class="nav-link">
                 <div class="badge-container" id="badge">
                   <i class="fas fa-bell nav-icon" style="position: relative;"></i>
                   <input type="hidden" value="{{notif_number}}" id="notif_number"/>
-                  {% comment %} <span class="badge badge-light icon-hover" id="badge-envelope" style="position: absolute; top: -11px; right: -10px;">2</span> {% endcomment %}
-                  <p>Notifications</p>
+                  <p>PNR non commandés</p>
                 </div>        
               </a>
             </li>

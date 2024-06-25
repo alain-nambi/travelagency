@@ -653,7 +653,7 @@ def pnr_details(request, pnr_id):
     context['responses'] = Response.objects.filter(pnr_id=pnr_id)
     context['products'] = Product.objects.all()
     context['raw_data'] = pnr_detail.pnr_data.all().order_by('-data_datetime')
-
+    context['notif_number'] = get_pnr_created_today_not_invoiced()
     # PNR not invoiced 
     if pnr_detail.status_value == 0:
         __ticket_base = pnr_detail.tickets.filter(ticket_status=1).exclude(Q(total=0))
@@ -2352,16 +2352,13 @@ def ticket_delete(request):
 
 # ------- Notification ---------------------------------
 def get_pnr_created_today_not_invoiced():
+    # get number of pnr not invoiced today
+
     today = datetime.now().date()
     
     start_date = datetime(today.year, today.month, today.day, 0, 0, 0, tzinfo=timezone.utc)
     end_date = datetime(today.year, today.month, today.day, 23, 59, 59, tzinfo=timezone.utc)
 
-    print('start : ',start_date)
-    print('end : ', end_date)
-    pnrs = Pnr.objects.filter(system_creation_date__range=[start_date, end_date])
-    print('pnrs : ',pnrs)
+    pnrs = Pnr.objects.filter(system_creation_date__range=[start_date, end_date], is_invoiced= False)
     nbre_pnr = pnrs.count()
-    print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
-    print('nbre_pnr : ',nbre_pnr)
     return nbre_pnr

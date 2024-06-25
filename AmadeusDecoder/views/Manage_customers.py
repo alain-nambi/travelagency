@@ -171,7 +171,9 @@ def delete_customer(request, pnr_id):
 def customers(request):  
     context = {}
     context['clients'] = Client.objects.all()
-    context['notif_number'] = get_pnr_created_today_not_invoiced()
+    pnr_not_invoiced = get_pnr_created_today_not_invoiced(request)
+    context['pnr_not_invoiced'] = pnr_not_invoiced
+    context['notif_number'] = len(pnr_not_invoiced)
     
     object_list = context['clients']
     row_num = request.GET.get('paginate_by', 50) or 50
@@ -189,13 +191,13 @@ def customers(request):
     return render(request,'manage_customers.html', context)    
 
 # ------- Notification ---------------------------------
-def get_pnr_created_today_not_invoiced():
+def get_pnr_created_today_not_invoiced(request):
     # get number of pnr not invoiced today
     today = datetime.now().date()
     
     start_date = datetime(today.year, today.month, today.day, 0, 0, 0, tzinfo=timezone.utc)
     end_date = datetime(today.year, today.month, today.day, 23, 59, 59, tzinfo=timezone.utc)
 
-    pnrs = Pnr.objects.filter(system_creation_date__range=[start_date, end_date], is_invoiced= False)
+    pnrs = Pnr.objects.filter(agent_id= request.user.id,system_creation_date__range=[start_date, end_date], is_invoiced= False)
     nbre_pnr = pnrs.count()
-    return nbre_pnr
+    return pnrs

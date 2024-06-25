@@ -109,6 +109,22 @@ old -->
             </div>
           </li>
         {% endif %}
+
+        {% if pnr_not_invoiced != 0 %}
+            <div class="row" style=" margin-left:2rem;">
+                <p class="col-md-4 text-danger cde_blink">PNR non commandés </p>
+
+                <div class="col-md-3 notifwrapper">
+                  <div class="scrolling-items">
+                    
+                    {% for pnr in pnr_not_invoiced %}
+                      <a href="{% url 'pnr_details' pnr.id %}"><div class="scrolling-items__item" style="margin-left: 20px;">{{pnr.number}} </div></a>
+                    {% endfor %}
+                  
+                  </div> 
+                </div>
+            </div>
+            {% endif %}
           
         <li class="nav-item ml-1">
           <div class="input-group input-group float-sm-right mb-1">

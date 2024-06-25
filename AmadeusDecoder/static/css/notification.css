@@ -60,3 +60,25 @@
       color: fade(white, 70%);
     }
   }
+
+  @keyframes infiniteScroll {
+    from {transform: translateX(0)}
+    to {transform: translateX(-50%)}
+  }
+  .notifwrapper {
+    width: 100%;
+    overflow-x: hidden;
+  }
+  .scrolling-items {
+    display: flex;
+    font-size: 40px;
+    width: 200px;
+    margin-right: 3px;
+    animation-name: infiniteScroll;
+    animation-duration: 3s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+  }
+  .scrolling-items__item {
+    white-space: nowrap;
+  }

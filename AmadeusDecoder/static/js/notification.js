@@ -15,3 +15,16 @@
           var insertedElement = badge.insertBefore(badgeNum,badge.firstChild); 
     }
   })(document);
+
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    const scrollingItems = document.querySelector('.scrolling-items');
+
+    scrollingItems.addEventListener('mouseenter', function() {
+        scrollingItems.style.animationPlayState = 'paused';
+    });
+
+    scrollingItems.addEventListener('mouseleave', function() {
+        scrollingItems.style.animationPlayState = 'running';
+    });
+});

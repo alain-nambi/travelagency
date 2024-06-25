@@ -110,10 +110,22 @@ old -->
                 Pnr non remonté
               </button>
             </div>
+            {% if pnr_not_invoiced != 0 %}
+            <div class="row" style=" margin-left:2rem;">
+                <p class="col-md-4 text-danger cde_blink">PNR non commandés </p>
 
-            <div>
-              <h6>{{notif_number}} PNR non commandés</h6>
+                <div class="col-md-3 notifwrapper">
+                  <div class="scrolling-items">
+                    
+                    {% for pnr in pnr_not_invoiced %}
+                      <a href="{% url 'pnr_details' pnr.id %}"><div class="scrolling-items__item" style="margin-left: 20px;">{{pnr.number}} </div></a>
+                    {% endfor %}
+                  
+                  </div> 
+                </div>
             </div>
+            {% endif %}
+            
 
         </li>
       </ul>
@@ -431,6 +443,7 @@ old -->
     <script src="{% static 'js/notification.js' %}"></script>
 
 
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/colresizable/1.6.0/colResizable-1.6.min.js" integrity="sha512-pMZ2rgWRGMywzbRAVwGk+auTREN0ldKKjACUSB4cneTgD3kn/6pu//Lxi4l8xSRkY83HENr1vztTnGDySWs0Mg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
@@ -439,6 +452,8 @@ old -->
     <script src=" https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js "></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" integrity="sha512-2ImtlRlf2VVmiGZsjm9bEyhjGW4dU7B6TNwh/hx/iSByxNENtj3WVE6o/9Lj4TJeVXPi4bnOIMXFIJJAeufa0A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     
+
+
     {% if messages %}
     {% for message in messages %}
     {% if message.tags == 'success'%}

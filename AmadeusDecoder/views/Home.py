@@ -425,7 +425,9 @@ def home(request):
         page_num = request.GET.get('page', 1)
         paginator = Paginator(pnr_list, row_num)
 
-        notif_number = get_pnr_created_today_not_invoiced()
+        pnr_not_invoiced = get_pnr_created_today_not_invoiced(request)
+        notif_number = len(pnr_not_invoiced)
+
         try:
             page_obj = paginator.page(page_num)
         except PageNotAnInteger:
@@ -437,6 +439,7 @@ def home(request):
             'row_num': row_num,
             'pnr_count': pnr_count,
             'users': users,
+            'pnr_not_invoiced':pnr_not_invoiced,
             'notif_number':notif_number
         }
         return render(request,'home.html', context)
@@ -653,7 +656,10 @@ def pnr_details(request, pnr_id):
     context['responses'] = Response.objects.filter(pnr_id=pnr_id)
     context['products'] = Product.objects.all()
     context['raw_data'] = pnr_detail.pnr_data.all().order_by('-data_datetime')
-    context['notif_number'] = get_pnr_created_today_not_invoiced()
+    pnr_not_invoiced = get_pnr_created_today_not_invoiced(request)
+    context['pnr_not_invoiced'] = pnr_not_invoiced
+    context['notif_number'] = len(pnr_not_invoiced)
+    
     # PNR not invoiced 
     if pnr_detail.status_value == 0:
         __ticket_base = pnr_detail.tickets.filter(ticket_status=1).exclude(Q(total=0))
@@ -2351,14 +2357,13 @@ def ticket_delete(request):
         return JsonResponse({'status':'ok'})
 
 # ------- Notification ---------------------------------
-def get_pnr_created_today_not_invoiced():
+def get_pnr_created_today_not_invoiced(request):
     # get number of pnr not invoiced today
-
     today = datetime.now().date()
     
     start_date = datetime(today.year, today.month, today.day, 0, 0, 0, tzinfo=timezone.utc)
     end_date = datetime(today.year, today.month, today.day, 23, 59, 59, tzinfo=timezone.utc)
 
-    pnrs = Pnr.objects.filter(system_creation_date__range=[start_date, end_date], is_invoiced= False)
+    pnrs = Pnr.objects.filter(agent_id= request.user.id,system_creation_date__range=[start_date, end_date], is_invoiced= False)
     nbre_pnr = pnrs.count()
-    return nbre_pnr
+    return pnrs

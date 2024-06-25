@@ -155,6 +155,9 @@ def upload_file(request):
     Returns:
     - HttpResponse: The response object.
     """
+    from AmadeusDecoder.models.utilities.Refunds import Refunds
+    from AmadeusDecoder.models.pnr.Pnr import Pnr
+    
     if request.method == 'POST':
         try:
             form = UploadFileForm(request.POST, request.FILES)
@@ -167,6 +170,57 @@ def upload_file(request):
                 
                 # Convert the set of PNR numbers not found to a list of dictionaries
                 pnr_not_found = [{'pnr_number': pnr_number} for pnr_number in pnr_not_found_set]
+                
+                try:
+                    if pnr_exists:
+                        refund_objects_to_create = []
+                        refund_objects_to_update = []
+                        
+                        for data in pnr_exists:
+                            # Check if a Refunds object with the same number already exists
+                            existing_refund = Refunds.objects.filter(number=data['ticket']['number']).first()
+                            
+                            number = data['ticket']['number']
+                            issuing_date = data['ticket']['issuing_date']
+                            total = data['ticket']['total']
+                            emitter = data['ticket']['emitter']
+                            
+                            if existing_refund:
+                                # Update the existing refund total
+                                existing_refund.total = total
+                                refund_objects_to_update.append(existing_refund)
+                            else:
+                                # Create a new refund with all needed info
+                                pnr_instance = Pnr.objects.filter(number=data['pnr']['number']).first()
+                                if pnr_instance:
+                                    refund = Refunds(
+                                        pnr=pnr_instance,
+                                        number=number,
+                                        issuing_date=issuing_date,
+                                        total=total,
+                                        emitter=emitter,  # Assign emitter field with the dictionary
+                                    )
+                                    refund_objects_to_create.append(refund)
+                                    
+                                    
+                        '''
+                        Key Optimizations:
+
+                        Bulk Create: Using bulk_create to create multiple Refunds objects in a single database hit.
+                        Query Filtering: Fetching Pnr and User instances with filter().first() to avoid potential issues if the related objects do not exist.
+                        Field Access: Directly accessing the necessary fields from data to populate the Refunds objects.
+                        '''
+                        
+                        # Use bulk_create for efficiency
+                        if refund_objects_to_create:
+                            Refunds.objects.bulk_create(refund_objects_to_create)
+                        
+                        # Update existing refunds
+                        if refund_objects_to_update:
+                            Refunds.objects.bulk_update(refund_objects_to_update, ['total'])
+
+                except Exception as e:
+                    print(e)
 
                 # Example: Process parsed_data (save to database, display in template, etc.)
                 return JsonResponse({'pnr_exists': pnr_exists, 'pnr_not_found': pnr_not_found}, safe=True)

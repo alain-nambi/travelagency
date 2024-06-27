@@ -1,10 +1,11 @@
 import csv
-from datetime import datetime
+from datetime import datetime, date
 import os
 from django.db.models import Q
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, JsonResponse
 from django.conf import settings
+from django.utils import timezone
 
 from ..forms import UploadFileForm
 
@@ -13,8 +14,11 @@ from AmadeusDecoder.models.user.Users import User
 from AmadeusDecoder.models.utilities.Refunds import Refunds
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.invoice.Ticket import Ticket
+from AmadeusDecoder.models.invoice.Fee import OthersFee
+from AmadeusDecoder.models.pnr.PnrPassenger import PnrPassenger
 
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 
 def handle_uploaded_file(f):
     """
@@ -106,7 +110,7 @@ def parse_csv(file_path):
         # This means the final user_query will be a combination of all the OR conditions.
         user_query |= Q(username__icontains=criteria) | Q(gds_id__icontains=criteria)
         
-    users = User.objects.filter(user_query).values('id', 'username', 'email', 'gds_id')
+    users = User.objects.filter(user_query).values('username', 'email', 'gds_id')
         
     pnr_dict = {pnr['number']: pnr for pnr in pnrs}
     user_dict = {user['username'].lower(): user for user in users}
@@ -168,6 +172,12 @@ def check_ticket_refund_exists(ticket_number):
     # Replace this with your actual logic to check if the ticket refund exists
     return Ticket.objects.filter(number=ticket_number).exists() 
 
+def user_filter_query(emitter_criteria):
+    # The |= operator updates user_query to include the new OR condition. 
+    # This means the final user_query will be a combination of all the OR conditions.
+    user_query = Q(username__icontains=emitter_criteria) | Q(gds_id__icontains=emitter_criteria)
+    return user_query
+
 @login_required(login_url='index')
 def upload_file(request):
     """
@@ -194,72 +204,109 @@ def upload_file(request):
                 pnr_not_found = [{'pnr_number': pnr_number} for pnr_number in pnr_not_found_set]
                 
                 try:
+                    # Check if there are any PNRs that exist in the system.
                     if pnr_exists:
+                        # Initialize lists to collect refund objects to create and update.
                         refund_objects_to_create = []
                         refund_objects_to_update = []
-                        
+
+                        # Iterate over each data entry in the existing PNRs.
                         for data in pnr_exists:
+                            # Extract ticket information from the data.
                             number = data['ticket']['number']
                             issuing_date = data['ticket']['issuing_date']
+                            
+                            # Convert issuing_date to aware datetime if naive
+                            if isinstance(issuing_date, date) and not isinstance(issuing_date, datetime):
+                                # Convert date to datetime
+                                issuing_date = datetime.combine(issuing_date, datetime.min.time())
+                            if timezone.is_naive(issuing_date):
+                                issuing_date = timezone.make_aware(issuing_date, timezone.get_current_timezone())
+                            
                             total = data['ticket']['total']
                             emitter = data['ticket']['emitter']
                             
-                            # Check if a Refunds object with the same number already exists
+                            # Retrieve the existing refund object with the same ticket number, if it exists.
                             existing_refund = Refunds.objects.filter(number=number).first()
                             
-                            # Determine if the ticket refund exists
+                            # Check if a ticket refund exists for the given ticket number.
                             existing_ticket_refund = check_ticket_refund_exists(number)
                             
-                            # print({'existing_ticket_refund': existing_ticket_refund})
-                            
                             if existing_refund:
-                                # Update the existing refund total
+                                # Update the total, emitter, and ticket refund existence flag for the existing refund.
                                 existing_refund.total = total
                                 existing_refund.emitter = emitter
-                                existing_refund.is_ticket_refund_exist = True if existing_ticket_refund else False
+                                existing_refund.is_ticket_refund_exist = bool(existing_ticket_refund)
                                 
+                                # Add the existing refund to the list of objects to update.
                                 refund_objects_to_update.append(existing_refund)
+                                
+                                
+                                # Update OthersFee object total based on the ticket data.
+                                other_fee_instance = OthersFee.objects.filter(designation=number).first()
+                                other_fee_instance.cost = total
+                                other_fee_instance.tax = 0
+                                other_fee_instance.total = total
+                                other_fee_instance.save()
                             else:
-                                # Create a new refund with all needed info
+                                # Retrieve or create related PNR and User instances based on the ticket data.
                                 pnr_instance = Pnr.objects.filter(number=data['pnr']['number']).first()
+                                user_instance = User.objects.filter(user_filter_query(emitter['username'])).first()
+                                pnr_passenger_instance = PnrPassenger.objects.filter(pnr=pnr_instance).first()
+
                                 if pnr_instance:
                                     refund = Refunds(
                                         pnr=pnr_instance,
                                         number=number,
                                         issuing_date=issuing_date,
                                         total=total,
-                                        emitter=emitter,  # Assign emitter field with the dictionary
-                                        is_ticket_refund_exist = True if existing_ticket_refund else False
+                                        emitter=emitter,
+                                        is_ticket_refund_exist=bool(existing_ticket_refund)
                                     )
                                     
-                                    refund_objects_to_create.append(refund)
-                                
-                        # print(refund_objects_to_create)
-                        # print(refund_objects_to_update)
+                                    # Add the new refund to the list of objects to create.
+                                    refund_objects_to_create.append(refund)                             
                                     
-                        '''
-                        Key Optimizations:
+                                    try:
+                                        # Check if ticket refund is already exist on other_fee table
+                                        other_fee_instance = OthersFee.objects.filter(designation=number).first()
 
-                        Bulk Create: Using bulk_create to create multiple Refunds objects in a single database hit.
-                        Query Filtering: Fetching Pnr and User instances with filter().first() to avoid potential issues if the related objects do not exist.
-                        Field Access: Directly accessing the necessary fields from data to populate the Refunds objects.
-                        '''
+                                        # Create OthersFee object based on the ticket data.
+                                        if not other_fee_instance:
+                                            other_fee = OthersFee(
+                                                designation=number,
+                                                cost=total,
+                                                tax=0,
+                                                total=total,
+                                                pnr=pnr_instance,  # Ensure pnr_instance is a Pnr instance
+                                                is_subjected_to_fee=False,
+                                                fee_type='EMD',
+                                                other_fee_status=1,
+                                                emitter=user_instance,
+                                                passenger=pnr_passenger_instance.passenger if pnr_passenger_instance else None,
+                                                creation_date=issuing_date 
+                                            )
+                                            other_fee.save()
+                                    except Exception as e:
+                                        # Log the error and stop processing if an exception occurs.
+                                        print(f"Error updating or creating refund: {e}")                               
                         
-                        # Use bulk_create for efficiency
+                        # Use bulk_create to efficiently insert multiple refund objects into the database.
                         if refund_objects_to_create:
                             Refunds.objects.bulk_create(refund_objects_to_create)
                         
-                        # Update existing refunds
+                        # Use bulk_update to efficiently update multiple refund objects in the database.
                         if refund_objects_to_update:
                             Refunds.objects.bulk_update(refund_objects_to_update, ['total', 'emitter', 'is_ticket_refund_exist'])
 
                 except Exception as e:
-                    print(e)
+                    # Log any exception that occurs in the entire block.
+                    print(f"Error : {e}")
 
-                # Example: Process parsed_data (save to database, display in template, etc.)
+                # Return the results in a JSON response.
                 return JsonResponse({'pnr_exists': pnr_exists, 'pnr_not_found': pnr_not_found, 'occurence_ticket_refund_existing': occurence_ticket_refund_existing}, safe=True)
-            else:
-                return render(request, 'upload-csv.html', {'form': form})
+
+            return render(request, 'upload-csv.html', {'form': form})
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
     

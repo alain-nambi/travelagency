@@ -40,22 +40,6 @@
       input[type="file"] {
         margin-bottom: 20px;
       }
-      .panel {
-        display: none;
-        flex-direction: column;
-        gap: 0.5rem;
-        font-size: 0.75rem;
-      }
-      .panel-info {
-        padding: 10px;
-        border: 1px solid green;
-        color: green;
-      }
-      .panel-error {
-        padding: 10px;
-        border: 1px solid red;
-        color: red;
-      }
     </style>
   </head>
   <body>
@@ -70,9 +54,10 @@
         </form>
       </div>
 
-      <div class="panel">
-        <div class="panel-info"></div>
-        <div class="panel-error"></div>
+      <div class="panel flex gap-2 mb-3">
+        <div class="panel-success text-sm bg-green-50 text-green-500 rounded-md px-3 py-2"></div>
+        <div class="panel-error text-sm bg-red-50 text-red-500 rounded-md px-3 py-2"></div>
+        <div class="panel-info text-sm bg-blue-50 text-blue-500 rounded-md px-3 py-2"></div>
       </div>
 
       <div class="table" style="width: 100%"></div>
@@ -92,8 +77,9 @@
           const form = document.getElementById("uploadForm");
           const formData = new FormData(form);
 
-          const panelInfo = document.querySelector(".panel-info");
+          const panelSuccess = document.querySelector(".panel-success");
           const panelError = document.querySelector(".panel-error");
+          const panelInfo = document.querySelector(".panel-info");
           const panel = document.querySelector(".panel");
 
           const table =  document.querySelector(".table")
@@ -118,10 +104,9 @@
 
                 fileUploadInput.value = "";
                 
-                panelInfo.textContent = `${occurence_ticket_refund_existing.exist} remboursements ont été remontées dans gestion PNR`;
+                panelSuccess.textContent = `${occurence_ticket_refund_existing.exist} remboursements ont été remontées dans gestion PNR`;
                 panelError.textContent = `${occurence_ticket_refund_existing.not_exist} PNR non remontées dans gestion PNR`;
-
-
+                panelInfo.textContent = `${pnr_not_found.length} PNR ne se trouve pas encore sur gestion PNR`;
 
                 // Table populating
                 const template = `

@@ -168,9 +168,9 @@ def parse_csv(file_path):
     return pnr_exists, pnr_not_found_set, occurence_ticket_refund_existing
 
 # Check if a ticket refund exists
-def check_ticket_refund_exists(ticket_number):
+def check_ticket_refund_exists(number):
     # Replace this with your actual logic to check if the ticket refund exists
-    return Ticket.objects.filter(number=ticket_number).exists() 
+    return OthersFee.objects.filter(designation=number).exists() 
 
 def user_filter_query(emitter_criteria):
     # The |= operator updates user_query to include the new OR condition. 

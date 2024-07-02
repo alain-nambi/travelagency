@@ -50,7 +50,7 @@ FEE_REQUEST_SENDER = configs.FEE_REQUEST_SENDER
 FEE_REQUEST_RECIPIENT = configs.FEE_REQUEST_RECIPIENT
 
 @login_required(login_url='index')
-@cache_page(60 * 5)
+@cache_page(60 * 1)
 def home(request): 
     context = {}
 

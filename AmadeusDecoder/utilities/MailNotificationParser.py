@@ -63,7 +63,7 @@ class MailNotification():
                         """.format(pnr=pnr.number, segment=tickets_passenger_segment, date=pnr.system_creation_date.strftime("%d-%m-%Y %H-%M-%S"))
 
                 if pnr.agent is not None:
-                    recipients = [pnr.agent.email, "maphiesarobidy@outlook.fr", "naval@phidia.onmicrosoft.com", "alain@phidia.onmicrosoft.com"]
+                    recipients = [pnr.agent.email, "maphiesarobidy@outlook.fr", "naval@phidia.onmicrosoft.com", "alain@phidia.onmicrosoft.com", "haryzoely@phidia.onmicrosoft.com"]
 
                 Sending.send_email(
                         "issoufali.pnr@outlook.com",
@@ -99,7 +99,7 @@ class MailNotification():
                         """.format(pnr=pnr.number, date=pnr.system_creation_date.strftime("%d-%m-%Y %H-%M-%S"))
 
                 if pnr.agent_id is not None:
-                    recipient = [pnr.agent_id.email, "nasolo@phidia.onmicrosoft.com", "tahina@phidia.onmicrosoft.com", "maphiesarobidy@outlook.fr", "naval@phidia.onmicrosoft.com", "alain@phidia.onmicrosoft.com"]
+                    recipient = [pnr.agent_id.email, "nasolo@phidia.onmicrosoft.com", "tahina@phidia.onmicrosoft.com", "maphiesarobidy@outlook.fr", "naval@phidia.onmicrosoft.com", "alain@phidia.onmicrosoft.com", "haryzoely@phidia.onmicrosoft.com"]
                 Sending.send_email(
                         "issoufali.pnr@outlook.com",
                         recipient,
@@ -165,6 +165,7 @@ class MailNotification():
                                 "naval@phidia.onmicrosoft.com",
                                 "alain@phidia.onmicrosoft.com",
                                 "olyviahasina.razakamanantsoa@outlook.fr",
+                                "haryzoely@phidia.onmicrosoft.com"
                             ],
                             subject,
                             message
@@ -472,6 +473,7 @@ class MailNotification():
             "maphiesarobidy@outlook.fr",
             "naval@phidia.onmicrosoft.com",
             "alain@phidia.onmicrosoft.com",
+            "haryzoely@phidia.onmicrosoft.com"
         ]
         
         other_users_mail = [
@@ -757,6 +759,7 @@ class MailNotification():
             "maphieSarobidy@outlook.fr",
             "alainnambi@gmail.com",
             "naval@phidia.onmicrosoft.com",
+            "haryzoely@phidia.onmicrosoft.com"
         ]
         
         other_users_mail = [

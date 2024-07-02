@@ -41,6 +41,8 @@ import traceback
 
 import AmadeusDecoder.utilities.configuration_data as configs
 
+from django.views.decorators.cache import cache_page
+
 # FEE_REQUEST_SENDER = {"port":587, "smtp":"smtp.gmail.com", "address":"feerequest.issoufali.pnr@gmail.com", "password":"tnkunwvygtdkxfxg"}
 # FEE_REQUEST_RECIPIENT = ['superviseur@agences-issoufali.com','pp@phidia.onmicrosoft.com','mihaja@phidia.onmicrosoft.com','tahina@phidia.onmicrosoft.com']
 
@@ -48,6 +50,7 @@ FEE_REQUEST_SENDER = configs.FEE_REQUEST_SENDER
 FEE_REQUEST_RECIPIENT = configs.FEE_REQUEST_RECIPIENT
 
 @login_required(login_url='index')
+@cache_page(60 * 5)
 def home(request): 
     context = {}
 

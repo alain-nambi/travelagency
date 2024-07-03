@@ -860,16 +860,59 @@ def pnr_research(request):
 def pnr_search_by_pnr_number(request):
     context = {}
     maximum_timezone = "2023-01-01 01:00:00.000000+03:00"
+    
+    # Check if the request method is POST
     if request.method == 'POST':
-        pnr_number = request.POST.get('PnrNumber', None)
-        if pnr_number is not None:
-            pnr = Pnr.objects.all().filter(number=pnr_number).filter(Q(system_creation_date__gt=maximum_timezone)).first()
-            if pnr is not None:
-                context['pnr_id'] = pnr.id
-            else:
+        # Get the PnrNumber from the POST data
+        value = request.POST.get('PnrNumber', None)
+        
+        value_length = len(value)
+        
+        # Check if the value is not None
+        if value is not None:
+            try:
+                # If the value length is 6, search for a Pnr with this number
+                if value_length == 6:
+                    pnr = Pnr.objects.filter(number=value,
+                                             system_creation_date__gt=maximum_timezone).first()
+                    
+                    context['pnr_id'] = pnr.id if pnr else []
+                
+                # If the value length is 13 or more and is a digit, search for a Ticket or OthersFee with this number
+                elif value_length >= 13 and value.isdigit() or value_length == 16:
+                    # Search for a Ticket with this number
+                    ticket = Ticket.objects.filter(number__icontains=value,
+                                                   ticket_status=1,
+                                                   pnr__system_creation_date__gt=maximum_timezone).first()
+                    
+                    # Print the ticket for debugging
+                    print("TICKET => ", ticket)
+                    
+                    if ticket:
+                        context['pnr_id'] = ticket.pnr.id
+                    else:
+                        if value.isdigit():
+                            # If no ticket is found, search for an OthersFee with this designation
+                            other_fee = OthersFee.objects.filter(designation__icontains=value, 
+                                                                 other_fee_status=1,
+                                                                 pnr__system_creation_date__gt=maximum_timezone).first()
+                            
+                            # Print the other fee for debugging
+                            print("OTHER FEE => ", other_fee)
+                            
+                            context['pnr_id'] = other_fee.pnr.id if other_fee else []
+                else:
+                    # If the value length doesn't match the criteria, set pnr_id to an empty list
+                    context['pnr_id'] = []
+            except Exception as e:
+                # Log the exception for debugging purposes
+                print(f"Error occurred: {e}")
                 context['pnr_id'] = []
         else:
+            # If value is None, set pnr_id to an empty list
             context['pnr_id'] = []
+    
+    # Return the context as a JSON response
     return JsonResponse(context)
 
 # @login_required(login_url='index')

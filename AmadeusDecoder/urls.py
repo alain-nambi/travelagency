@@ -7,7 +7,7 @@ from .views.Manage_customers import customers, create_customer, modify_customer_
 from .views.Manage_users import users, register
 from .views.Account import account
 from .views.Tools import *
-from .views.Setting import setting
+from .views.Setting import *
 from .views.Login import *
 from .views.Home import *
 from .views.Comment import *
@@ -74,5 +74,35 @@ urlpatterns = [
     path('home/update-anomaly', updateAnomaly, name='update_anomaly'),
     path('home/ticket-delete',ticket_delete,name='ticket_delete'),
     path('comment/get-unshowed-tickets',get_unshowed_tickets, name='get_unshowed_tickets'),
-    path('check-uninvoiced-status/', uncheck_ticket_in_passenger_invoiced, name='uncheck_ticket_in_passenger_invoiced')
+    path('check-uninvoiced-status/', uncheck_ticket_in_passenger_invoiced, name='uncheck_ticket_in_passenger_invoiced'),
+    path('setting/email',email_setting, name='email_setting'),
+    path('setting/parsing',parsing_setting, name='parsing_setting'),
+    path('setting/ftp',ftp_setting, name='ftp_setting'),
+    path('setting/general-update',updateGeneralSetting, name='updateGeneralSetting'),
+    path('setting/saving-protocol-update',saving_protocol_update, name='saving_protocol_update'),
+    path('setting/email-pnr-update',email_pnr_update,name='email_pnr_update'),
+    path('setting/email-notif-sender-update',email_notif_sender_update,name='email_notif_sender_update'),
+    path('setting/email-notif-update',email_notif_update,name='email_notif_update'),
+    path('setting/email-fees-update',email_fees_update,name='email_fees_update'),
+    path('setting/email-fee-sender-update',email_fee_sender_update, name='email_fee_sender_update'),
+    path('setting/parsing-update',parsing_update,name='parsing_update'),
+    path('setting/general-information-create',general_information_create,name='general_information_create'),
+    path('setting/general-file-protocol-create',general_file_protocol_create,name='general_file_protocol_create'),
+    path('setting/email-pnr-create',email_pnr_create,name='email_pnr_create'),
+    path('setting/email-notification-recipients-create',email_notification_recipients_create,name='email_notification_recipients_create'),
+    path('setting/email-notification-sender-create',email_notification_sender_create,name='email_notification_sender_create'),
+    path('setting/email-fee-sender-create',email_fee_sender_create,name='email_fee_sender_create'),
+    path('setting/email-fee-recipient-create',email_fee_recipient_create,name='email_fee_recipient_create'),
+    path('setting/pnr-parsing-create',pnr_parsing_create,name='pnr_parsing_create'),
+    path('setting/ticket-parsing-create',ticket_parsing_create,name='ticket_parsing_create'),
+    path('setting/tst-parsing-create',tst_parsing_create,name='tst_parsing_create'),
+    path('setting/zenith-parsing-create',zenith_parsing_create,name='zenith_parsing_create'),
+    path('setting/zenith-receipt-parsing-create',zenith_receipt_parsing_create,name='zenith_receipt_parsing_create'),
+    path('setting/emd-parsing-create',emd_parsing_create,name='emd_parsing_create'),
+    path('setting/emd-statues-update',emd_statues_update,name='emd_statues_update'),
+    path('setting/test-parsing',test_parsing,name='test_parsing'),
+    path('setting/test-parsing-zenith',test_parsing_zenith,name='test_parsing_zenith'),
+    path('setting/test-parsing-text',test_parsing_text,name='test_parsing_text'),
+    path('setting/test-parsing-upload-file',test_parsing_upload_file,name='test_parsing_upload_file'),
+    
 ]

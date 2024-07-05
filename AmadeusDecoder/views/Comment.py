@@ -19,6 +19,9 @@ from AmadeusDecoder.models.invoice.Ticket import Ticket
 from datetime import date, timedelta
 from django.utils import timezone
 
+from django.core.mail import send_mail
+from django.shortcuts import render
+
 from django.db.models import Q
 from django.core.serializers import serialize
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger

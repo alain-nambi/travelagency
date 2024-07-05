@@ -1,0 +1,80 @@
+{% extends "layout-all-pnr.html" %} 
+{% block content %}
+<div class="content-wrapper" style="margin-top: 8rem;">
+  <section class="content-header p-0">
+    <!-- <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6" style="margin: 20px 0 10px 50px">
+          <h1 class="text-primary">Configurations</h1>
+        </div>
+      </div>
+    </div> -->
+    <!-- /.container-fluid -->
+  </section>
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+         
+          <nav class="navbar navbar-expand-lg" id="navbarSettingConfig">
+            <i class="fa fa-wrench" style="font-size:30px;" aria-hidden="true"></i>
+             <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div class="navbar-nav" style="gap: 0.25rem;"> 
+                  <a class="nav-item nav-link active ml-4 text-dark" href="{% url 'setting' %}"><h5>Générale</h5> </a>
+                  
+                  <a class="nav-item nav-link " href="{% url 'email_setting' %}"><h5>Email</h5></a>
+                  
+                  <a class="nav-item nav-link " href=" {% url 'parsing_setting' %} "><h5>Lecture de Fichier</h5></a>
+
+                  <a class="nav-item nav-link " href=" {% url 'test_parsing' %} "><h5>Test</h5></a>
+                  
+                  <a class="nav-item nav-link " href=" {% url 'ftp_setting' %} "><h5>FTP</h5></a>
+                </div>
+            </div>
+          </nav>
+          <div class="col-12" style="margin:30px 0 0 10px;">
+            {% include "setting_files/general.html" %}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+  <div class="modal fade" id="Multi-insert" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalPnrNotUpdatedTitle">
+            <i class="fa-solid fa-file-pen"></i>
+            Identifiant
+          </h5>
+          <button type="button" id="closeinsertmodal" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          {% comment %} <form method='POST'> {% endcomment %}
+              <div class="insertmodalwrapper">
+                  <label for="currency_name"class="col-form-label col-4" id="modalLabel"></label>
+                  <div class="insertmodalcontent">
+                      <ul id="insertmodalul">
+                          <input type="text" id="modalInsert" class="form-control" />
+                      </ul>
+                  </div>
+                  <div class="insertmodaldetail">
+                      <button type="button" class="btn btn-primary" onclick="removeAllModal()">Effacer</button>
+                  </div>
+              </div>
+
+
+          {% comment %} </form> {% endcomment %}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-success" >Modifier</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

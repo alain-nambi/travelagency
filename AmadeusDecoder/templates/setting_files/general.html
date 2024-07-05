@@ -1,0 +1,319 @@
+<div class="col-12">
+    
+    <div class="card col-md-5 px-0" style="width: 38rem; margin:0 0 0 10px; box-shadow: none; border-radius: 8px;">
+        <div class="card-header-company-info d-flex align-items-center justify-content-between">
+            <h1 class="card-title"><strong  style="font-size: 16px;">Company Information</strong></h1>
+            <button class="bg-transparent btn-update-general-info" onclick="updateGeneralInfo()">
+                <i class="fa fa-pencil" aria-hidden="true"></i>
+                <span>Update</span>
+            </button>
+        </div>
+        
+        {% if state == "true" %}
+            <div class="card-body" style="padding: 0.5rem 1.25rem 0.5rem 1.25rem;">
+                <div class="row">
+                    <label class="col-form-label col-4" >Name</label >
+                    <label class="col-form-label col-4" id="name_label">
+                    {{configs.COMPANY_NAME}}
+                    </label>
+                    <input name="name" value="{{configs.COMPANY_NAME}}" class="form-control" id="name" {% if state == "true" %}hidden{% endif %}/>
+                </div>
+                <hr style="margin-top: 6px; margin-bottom: 6px;">
+                <div class="row">
+                    <label class="col-form-label col-4">Currency Name</label>
+                    <label  class="col-form-label col-4" id="currency_name_label">
+                    {{configs.COMPANY_CURRENCY_NAME}}
+                    </label>
+                    <input name="currency_name" value="{{configs.COMPANY_CURRENCY_NAME}}" class="form-control" id="currency_name" {% if state == "true" %}hidden{% endif %}/>
+                </div>
+                <hr style="margin-top: 6px; margin-bottom: 6px;">
+                <div class="row">
+                    <label class="col-form-label col-4" >Currency Code</label >
+                    <label class="col-form-label col-4" id="currency_code_label">
+                    {{configs.COMPANY_CURRENCY_CODE}}
+                    </label>
+                    <input name="currency_code" value="{{configs.COMPANY_CURRENCY_CODE}}" class="form-control" id="currency_code" {% if state == "true" %}hidden{% endif %}/>
+                </div>
+                <hr style="margin-top: 6px; margin-bottom: 6px;">
+
+                <div class="row">
+                    <label  class="col-form-label col-4" >Language Code</label >
+                    <label  class="col-form-label col-4" id="language_code_label" >
+                    {{configs.COMPANY_LANGUAGE_CODE}}
+                    </label>
+                    <input name="language_code" value="{{configs.COMPANY_LANGUAGE_CODE}}" class="form-control" id="language_code" {% if state == "true" %}hidden{% endif %}/>
+                </div>
+                <hr style="margin-top: 6px; margin-bottom: 6px;">
+
+                <div class="row">
+                    <label class="col-form-label col-4" >Regional Countries</label >
+                    <div class="col-8">
+                        <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
+                            <td>
+                                <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                                    {% for country in configs.REGIONAL_COUNTRIES %}
+                                        <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{country}}</li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                        </tr>
+                   
+                    </div>
+
+                    <div class="col-12 insertmodalwrapper regional_country" id="regional_country" hidden>
+                        <label for="currency_name"class="col-form-label col-4" id="modalLabel"></label>
+                        <div class="insertmodalcontent">
+                            <ul class="insertmodalul">
+                                <input type="text" name="regional_country" id="modalInsert" class="form-control" />
+                            </ul>
+                        </div>
+                        <div class="insertmodaldetail d-flex align-items-center" style="gap: 0.5rem;">
+                            <button type="button" class="btn btn-primary" onclick="removeAllModal()" id="removeAllCountry">Remove All</button>
+                            <button type="button" id="GeneralInfoUpdate" class="btn btn-success">Validate the change</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer" id="modif_footer" hidden>
+                
+            </div>
+        {% endif %}
+        
+        
+            <div class="card-body" {% if state != "false" %}hidden{% endif %} >
+                <div class="row">
+                    <label for="name" class="col-form-label col-4" >Name</label>
+                    <input type="text"  class="form-control" id="create_name" />
+                </div>
+                <div class="row">
+                    <label for="currency_name"class="col-form-label col-4">Currency Name</label>
+                    <input type="text" class="form-control" id="create_currency_name"/>
+                </div>
+                <div class="row">
+                    <label for="currency_code" class="col-form-label col-4" >Currency Code</label >
+                    <input type="text" class="form-control" id="create_currency_code" />
+                </div>
+
+                <div class="row">
+                    <label for="language_code" class="col-form-label col-4" >Language Code</label >
+                    <input type="text" class="form-control" id="create_language_code" />
+                </div>
+
+                <div class="multiInsertwrapper">
+                    <label for="currency_name"class="col-form-label col-6" >Regional Contries</label>
+                    <div class="multiInsertcontent" >
+                        <ul class="multiInsertul" >
+                            <input type="text" id="regional_contry"  class="form-control" />
+                        </ul>
+                    </div>
+                    <div class="multiInsertdetail">
+                        <button type="button" class="btn btn-primary removaAllButton" >Remove</button>
+                    </div>
+                </div>
+            </div>
+             <div class="card-footer" {% if state != "false" %}hidden{% endif %}>
+                <button type="button" onclick="CreateCompany()" class="btn btn-success" style="margin-top: 20px;float:right;">Save</button>
+            </div>
+            
+    </div>
+
+    <div class="card col-md-10 h-auto px-0" style="height:auto;width:40rem; margin:70px 0 0 20px; box-shadow: none; border-radius: 8px; display: none;">
+        <div class="card-header-file-protocol">
+        <h2 class="card-title"><strong  style="font-size: 16px;">File Protocol</strong></h2>
+        <h4 class="card-description"></h4>
+        </div>
+
+        
+        {% if state_file_protocol == "true" %}
+            <div class="card-body">
+                <table class="table table-bordered table-head-fixed text-wrap" >
+                    <thead class="bg-info">
+                    <tr>
+                        <th scope="col" >Environement</th>
+                        <th scope="col" >Storage</th>
+                        <th scope="col" {% if configs.FILE_PROTOCOL.single_value == 'Local' %}hidden{% endif %} >Hostname</th>
+                        <th scope="col" {% if configs.FILE_PROTOCOL.single_value == 'Local' %}hidden{% endif %}>Port</th>
+                        <th scope="col" {% if configs.FILE_PROTOCOL.single_value == 'Local' %}hidden{% endif %}>Username</th>
+                        <th scope="col" {% if configs.FILE_PROTOCOL.single_value == 'Local' %}hidden{% endif %}>Password</th>
+                        <th scope="col" {% if configs.FILE_PROTOCOL.single_value == 'Local' %}hidden{% endif %}>Repository</th>
+                        <th scope="col">Link</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                        
+                        <tr data-toggle="modal" data-target="#SavingFileModal" data-env="{{configs.FILE_PROTOCOL.environment}}" data-link="{{configs.FILE_PROTOCOL.dict_value.link}}"  data-hostname="{{configs.FILE_PROTOCOL.dict_value.hostname}}" data-port="{{configs.FILE_PROTOCOL.dict_value.port}}" data-username="{{configs.FILE_PROTOCOL.dict_value.username}}" data-password="{{configs.FILE_PROTOCOL.dict_value.password}}" data-repository="{{configs.FILE_PROTOCOL.dict_value.repository}}" data-storage="{{configs.FILE_PROTOCOL.dict_value.single_value}}"style="cursor: pointer;" id="trSavingFileModal">
+                            <td>{{configs.FILE_PROTOCOL.environment}}</td>
+                            <td> {{configs.FILE_PROTOCOL.single_value}} </td>
+                            <td {% if configs.FILE_PROTOCOL.single_value == 'Local' %}hidden{% endif %}> {{configs.FILE_PROTOCOL.dict_value.hostname}} </td>
+                            <td {% if configs.FILE_PROTOCOL.single_value == 'Local' %}hidden{% endif %}> {{configs.FILE_PROTOCOL.dict_value.port}} </td>
+                            <td {% if configs.FILE_PROTOCOL.single_value == 'Local' %}hidden{% endif %}> {{configs.FILE_PROTOCOL.dict_value.username}} </td>
+                            <td {% if configs.FILE_PROTOCOL.single_value == 'Local' %}hidden{% endif %}> {{configs.FILE_PROTOCOL.dict_value.password}} </td>
+                            <td {% if configs.FILE_PROTOCOL.single_value == 'Local' %}hidden{% endif %}> {{configs.FILE_PROTOCOL.dict_value.repository}} </td>
+                            <td > {{configs.FILE_PROTOCOL.dict_value.link}} </td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+            
+        
+        {% if state_file_protocol == "false" %}
+            <div class="card-body" style="width:40rem;" >
+                <div class="form-group mb-3">
+                    <label id="env_label" class="col-form-label col-4">Environnement</label>
+                    <input type="text" readonly class="form-control" id="linkEnv" value="{{env}}" />
+                </div>
+
+                <div class="form-group mb-3">
+                    <label id="storage_label"  class="col-form-label col-4">Storage</label>
+                    <select class="form-control " id="create_storage">
+                      <option value="FTP">FTP</option>
+                      <option value="Local">Local</option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label id="hostname_label" class="col-form-label col-4">Hostname</label>
+                    <input type="text" name="hostname" id="create_hostname" class="form-control "/>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label id="port_label" class="col-form-label col-4">Port</label>
+                    <input type="text" name="port" id="create_port" class="form-control "/>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label id="username_label" class="col-form-label col-4">Username</label>
+                    <input type="text" name="username" id="create_username" class="form-control "/>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label id="password_label" class="col-form-label col-4">Password</label>
+                    <input type="password" name="password" id="create_password" class="form-control "/>
+                    <span class="fas fa-eye" onclick="showPassword('create_password')"  style="cursor: pointer;"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label id="repository_label" class="col-form-label col-4">Repository</label>
+                    <input type="text" name="repository" id="create_repository" class="form-control "/>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label id="link_label" class="col-form-label col-4">Link</label>
+                    <input type="text" name="link" id="create_link" class="form-control "/>
+                </div>
+            </div>
+            <div class="card-footer" id="">
+                <button type="button" onclick="CreateOdooLink()" class="btn btn-success" style="margin-top: 20px;float:right;">Save</button>
+            </div>
+        {% endif %}
+            
+        
+    </div>
+</div>
+
+<div class="modal fade" id="SavingFileModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalPnrNotUpdatedTitle">
+          <i class="fa fa-upload"></i>
+          Saving File Protocol 
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+            <div >
+                <label for="currency_name"class="col-form-label col-4">Environnement</label>
+                <input type="text" readonly id="modalLinkEnv" class="form-control "/>
+            </div>
+
+            <div class="form-group mb-0">
+                <label id="storage_label_modal"  class="col-form-label col-4">Storage</label>
+                <select class="form-control " id="modal_storage">
+                    <option value="FTP">FTP</option>
+                    <option value="Local">Local</option>
+                </select>
+            </div>
+
+            <div>
+                <label id="hostname_label_modal" class="col-form-label col-4">Hostname</label>
+                <input type="text" name="hostname" id="modal_hostname" class="form-control "/>
+            </div>
+
+            <div>
+                <label id="port_label_modal" class="col-form-label col-4">Port</label>
+                <input type="text" name="port" id="modal_port" class="form-control "/>
+            </div>
+
+            <div>
+                <label id="username_label_modal" class="col-form-label col-4">Username</label>
+                <input type="text" name="username" id="modal_username" class="form-control "/>
+            </div>
+
+            <div class="input-group">
+                <label id="password_label_modal" class="col-form-label col-4">Password</label>
+                <input type="password" name="password" id="modal_password" class="form-control "/>
+                <span class="fas fa-eye" onclick="showPassword('modal_password')"  style="cursor: pointer;"></span>
+            </div>
+
+            <div>
+                <label id="repository_label_modal" class="col-form-label col-4">Repository</label>
+                <input type="text" name="repository" id="modal_repository" class="form-control "/>
+            </div>
+
+            <div>
+                <label id="link_label_modal" class="col-form-label col-4">Link</label>
+                <input type="text" name="link" id="modal_link" class="form-control "/>
+            </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-success" id="buttonUpdateSavingFile">Update</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="Multi-insert" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="modalPnrNotUpdatedTitle">
+            <i class="fa-solid fa-file-pen"></i>
+            Identifiants
+        </h5>
+        <button type="button" id="closeinsertmodal" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+        <div class="modal-body">
+
+            <div class="insertmodalwrapper">
+                <label for="currency_name"class="col-form-label col-6" id="modalLabel"></label>
+                <div class="insertmodalcontent">
+                    <ul class="insertmodalul">
+                        <input type="text" class="form-control" />
+                    </ul>
+                </div>
+                <div class="insertmodaldetail">
+                    <button type="button" class="btn btn-primary" onclick="removeAllModal()">Remove All</button>
+                </div>
+            </div>
+
+
+
+        </div>
+        <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-success" onclick="UpdateMultiInput()">Update</button>
+        </div>
+    </div>
+    </div>
+</div>

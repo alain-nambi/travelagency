@@ -981,6 +981,7 @@ def reduce_fee(request) :
     from AmadeusDecoder.utilities.ServiceFeesDecreaseRequest import ServiceFeesDecreaseRequest
     context = {}
     if request.method == 'POST' and request.POST.get('pnrId') and request.POST.get('feeId'):
+        print("hey")
         pnrId = request.POST.get('pnrId')
         feeId = request.POST.get('feeId')
         feeAmount = request.POST.get('feeAmount')
@@ -1301,8 +1302,8 @@ def get_order(request, pnr_id):
     config = Configuration.objects.filter(name='Saving File Tools', value_name='File protocol', environment=settings.ENVIRONMENT)
 
     
-    file_dir = '/opt/odoo/issoufali-addons/import_saleorder/data/source'
-    customer_dir = '/opt/odoo/issoufali-addons/contacts_from_incadea/data/source'
+    file_dir = os.path.join(os.getcwd(), "EmailFetcher/utilities/attachments_dir/")
+    customer_dir = os.path.join(os.getcwd(), "EmailFetcher/utilities/attachments_dir/")
     
     fieldnames_order = [
         'LineID',

@@ -2646,24 +2646,12 @@ function searchFunction(pageSize, isDateOrderByAsc, isDateOrderByChecked, isSort
           $("tbody.tbody-pnr").remove();
           $("#all-pnr").remove();
           $("#all-pnr-after-search").show();
+          var html = "";
+          SEARCH_RESULT.forEach(pnr => {
 
-          var options = {
-            dataSource: SEARCH_RESULT, // La source de données pour la pagination (ici, les lignes de la table)
-            pageSize: pageSize || 50, // Le nombre de résultats par page
-            locator: "items",
-            showGoInput: true,
-            showGoButton: true,
-            showNavigator: true,
-            formatNavigator:
-              "<%= rangeStart %> - <%= rangeEnd %> sur <%= totalNumber %> résultat(s)",
-            callback: function (data, pagination) {
-              // La fonction de rappel pour mettre à jour les résultats affichés
-              var html = "";
-              $.each(data, function (index, pnr) {
-                // Boucle pour générer le HTML des résultats
                 let invoice_class = pnr.is_invoiced ? "tr-invoiced" : "";
 
-                let isEven = index % 2 === 0 ? "odd" : "even";
+                // let isEven = index % 2 === 0 ? "odd" : "even";
 
                 let state_class =
                   pnr.state == 1
@@ -2696,7 +2684,7 @@ function searchFunction(pageSize, isDateOrderByAsc, isDateOrderByChecked, isSort
 
                 html += `
                   <tr 
-                    class="pnr-class ${state_class} ${invoice_class} ${read_class} ${isEven}" 
+                    class="pnr-class ${state_class} ${invoice_class} ${read_class}" 
                     onclick="location.href='/home/pnr/${pnr.id}/'" 
                     style="cursor: pointer;" 
                     data-status="${pnr.status_value}" 
@@ -2734,13 +2722,12 @@ function searchFunction(pageSize, isDateOrderByAsc, isDateOrderByChecked, isSort
                     <td> ${pnrAgencyCode} </td>
                   </tr>
                 `;
-              });
+          });
               $("tbody.tbody-pnr-after-search").html(html); // Mise à jour du contenu de la table
               $("#all-pnr-after-search tbody").html(html).trigger("update");
-            },
-          };
+            
 
-          $("#pagination").pagination(options); // Initialisation de la pagination avec les options définies
+          // $("#pagination").pagination(options); // Initialisation de la pagination avec les options définies
 
           if (pnrFilteredByOrder != null) {
             for (let i = 0; i < pnrFilteredByOrder.options.length; i++) {

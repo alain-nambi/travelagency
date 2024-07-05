@@ -123,7 +123,7 @@ old -->
                 Pnr non remonté
               </button>
             </div>
-            {% if pnr_not_invoiced != 0 %}
+            {% if request.user.role_id == 3 and notif_number != 0 %}
             <div class="row" style=" margin-left:2rem;">
                 <p class="col-md-4 text-danger cde_blink">PNR non commandés </p>
 

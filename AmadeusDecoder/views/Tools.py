@@ -22,7 +22,7 @@ from AmadeusDecoder.utilities.ProductImportParser import ProductParser, Customer
 from AmadeusDecoder.models.configuration.Configuration import Configuration
 from django.db.models import Q
 
-from AmadeusDecoder.utilities.ZenithParser import ZenithParser
+from AmadeusDecoder.utilities.ZenithParser import ZenithParser, ReceiptException
 
 
 @login_required(login_url='index')

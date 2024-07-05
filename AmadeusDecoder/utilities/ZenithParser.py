@@ -2352,4 +2352,8 @@ class ZenithParser():
         
         context = {'pnr':pnr}
         return context
-    
+
+class ReceiptException(Exception):
+    def __init__(self, message, identifier):
+        super().__init__(message)
+        self.identifier = identifier

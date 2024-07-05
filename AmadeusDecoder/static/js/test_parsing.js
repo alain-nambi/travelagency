@@ -28,7 +28,7 @@ $(document).ready(function () {
 
         $.ajax({
             type: "POST",
-            url: "/setting/test-parsing-upload-file",
+            url: "/tools/test-parsing-upload-file",
             data: formData,
             contentType: false,  // Set content type to false for FormData
             processData: false,  // Prevent jQuery from processing the data
@@ -54,7 +54,7 @@ $(document).ready(function () {
         
         $.ajax({
             type: "POST",
-            url: "/setting/test-parsing-text",
+            url: "/tools/test-parsing-text",
             dataType: "json",
             data: {
                 data: data,
@@ -272,7 +272,7 @@ $(document).ready(function () {
         const file = fileInput.files[0];
         $.ajax({
             type: "POST",
-            url: "/setting/test-parsing-zenith",
+            url: "/tools/test-parsing-zenith",
             dataType: "json",
             data: {
                 uploaded_file_name: file.name,

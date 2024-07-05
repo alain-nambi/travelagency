@@ -591,8 +591,17 @@ def get_data_ticket_from_query_set(request,search_results):
         values['pnr_number'] = canceled_ticket.pnr.number
         if canceled_ticket.ticket:
             values['ticket_number'] = canceled_ticket.ticket.number
+            if canceled_ticket.ticket.issuing_date:
+                values['issuing_date'] = (canceled_ticket.ticket.issuing_date).strftime("%d/%m/%Y")
+            else:
+                values['issuing_date'] =''
         else:
             values['other_fee'] = canceled_ticket.other_fee.designation
+            if canceled_ticket.other_fee.creation_date:
+                values['issuing_date'] = (canceled_ticket.other_fee.creation_date).strftime("%d/%m/%Y")
+            else:
+                values['issuing_date'] ='Non émis'
+
         values['motif'] = canceled_ticket.motif
         values['date'] = (canceled_ticket.date).strftime("%d/%m/%Y")
         values['issuing_user'] = canceled_ticket.issuing_user.username

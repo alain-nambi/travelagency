@@ -236,6 +236,12 @@ old -->
                 <p>Anomalie en attente</p>
               </a>
             </li>
+            <li class="nav-item">
+              <a href="{% url 'get_all_canceled_ticket' %}" class="nav-link">
+                <i class="fas fa-ban nav-icon"></i>
+                <p>Billets annulés</p>
+              </a>
+            </li>
             {% endif %}
             <!--menu direction role_id=2-->
             {% if request.user.role_id == 2 %}
@@ -263,6 +269,7 @@ old -->
                 <p>Anomalies PNR</p>
               </a>
             </li>
+            
             {% endif %}
             <!--menu agent comptoir role_id=3-->
             {% if request.user.role_id == 3 %}

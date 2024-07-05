@@ -1,6 +1,9 @@
 
 {% extends "layout-all-pnr.html" %}
 {% load pnr_details %}
+{% load ticket_segments %}
+{% load pnr_comments %}
+{% load history %}
 {% block content %}
 <!-- Main content -->
 <div class="content-wrapper">
@@ -204,7 +207,13 @@
 
                   <tr id="tr-all-pnr">
                     <th>Numéro du PNR</th>
-                    <th>Numéro du Billet</th> 
+                    <th>Numéro du Billet</th>
+
+                    <th class="pnr-emission-date" style="cursor: pointer;">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
+                        Date d'émission
+                      </div>
+                    </th>
 
                     <th class="pnr-creation-date" style="cursor: pointer;">
                       <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
@@ -239,8 +248,23 @@
                       {% else %}
                         <td> {{tickets.other_fee.designation}} </td>
                       {% endif %}
-                      
-
+                      {% if tickets.ticket %}
+                        <td>
+                          {% if tickets.ticket.issuing_date is not None %}
+                              {{ tickets.ticket.issuing_date|date:"d/m/y" }}
+                          {% else %}
+                              {{ '' }}
+                          {% endif %}
+                        </td>
+                      {% else %}
+                        <td>
+                          {% if tickets.other_fee.creation_date is not None %}
+                              {{ tickets.other_fee.creation_date|date:"d/m/y" }}
+                          {% else %}
+                              {{ 'Non émis' }}
+                          {% endif %}
+                        </td>
+                      {% endif %}
                       <td>{{ tickets.date|date:"d/m/y " }}</td>
                       <td>{{ tickets.motif }}</td>
                       

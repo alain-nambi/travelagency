@@ -746,11 +746,8 @@ function searchCanceledTicketFunction() {
                     <th>Numéro du PNR</th>
                     <th>Numéro du Billet</th> 
 
-                    <th class="pnr-creation-date" style="cursor: pointer;">
-                    <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
-                        Date d'annulation
-                        <i class="fa fa-sm fa-solid" id="icon__pnrDateCreation"></i>
-                    </div>
+                    <th class="pnr-creation-date" style="cursor: pointer;"> Date d'émission</th>
+                    <th class="pnr-creation-date" style="cursor: pointer;"> Date d'annulation</th>
                     </th>
                     <th>Motif</th> 
                     <th class="pnr-creator-list">
@@ -778,6 +775,7 @@ function searchCanceledTicketFunction() {
                 }
 
                 html += `
+                        <td>${canceled_ticket.issuing_date}</td>
                         <td>${canceled_ticket.date}</td>
                         <td>${canceled_ticket.motif}</td>
                         <td>${canceled_ticket.issuing_user}</td>
@@ -847,11 +845,8 @@ function filterFunction(filter,data_search){
                                 <th>Numéro du PNR</th>
                                 <th>Numéro du Billet</th> 
         
-                                <th class="pnr-creation-date" style="cursor: pointer;">
-                                <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
-                                    Date d'annulation
-                                    <i class="fa fa-sm fa-solid" id="icon__pnrDateCreation"></i>
-                                </div>
+                                <th class="pnr-creation-date" style="cursor: pointer;"> Date d'émission</th>
+                                <th class="pnr-creation-date" style="cursor: pointer;"> Date d'annulation</th>
                                 </th>
                                 <th>Motif</th> 
                                 <th class="pnr-creator-list">
@@ -879,6 +874,7 @@ function filterFunction(filter,data_search){
                             }
 
                             html += `
+                                    <td>${canceled_ticket.issuing_date}</td>
                                     <td>${canceled_ticket.date}</td>
                                     <td>${canceled_ticket.motif}</td>
                                     <td>${canceled_ticket.issuing_user}</td>
@@ -992,13 +988,8 @@ function UnremountedTicketAdvancedSearch(date,motif,createur){
                             <tr id="tr-all-canceled-ticket">
                                 <th>Numéro du PNR</th>
                                 <th>Numéro du Billet</th> 
-        
-                                <th class="pnr-creation-date" style="cursor: pointer;">
-                                <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
-                                    Date d'annulation
-                                    <i class="fa fa-sm fa-solid" id="icon__pnrDateCreation"></i>
-                                </div>
-                                </th>
+                                <th class="pnr-creation-date" style="cursor: pointer;"> Date d'émission</th>
+                                <th class="pnr-creation-date" style="cursor: pointer;"> Date d'annulation</th>
                                 <th>Motif</th> 
                                 <th class="pnr-creator-list">
                                 <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
@@ -1025,6 +1016,7 @@ function UnremountedTicketAdvancedSearch(date,motif,createur){
                             }
 
                             html += `
+                                    <td>${canceled_ticket.issuing_date}</td>
                                     <td>${canceled_ticket.date}</td>
                                     <td>${canceled_ticket.motif}</td>
                                     <td>${canceled_ticket.issuing_user}</td>

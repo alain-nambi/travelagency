@@ -2,20 +2,28 @@
 Created on 8 Sep 2022
 
 '''
+import json
 import os
 import shlex
 import subprocess
 import time
+import traceback
 
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 import requests
+
 from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 
+from AmadeusDecoder.utilities.AmadeusParser import AmadeusParser
 from AmadeusDecoder.utilities.ProductImportParser import ProductParser, CustomerParser
 from AmadeusDecoder.models.configuration.Configuration import Configuration
+from django.db.models import Q
+
+from AmadeusDecoder.utilities.ZenithParser import ZenithParser
+
 
 @login_required(login_url='index')
 def tools(request):  
@@ -79,7 +87,7 @@ def get_invoice_number(request,numeroPnr):
 
 # ------------------------ TEST PARSING ---------------------------
 def test_parsing(request):
-    return render(request,'test_parsing.html')  
+    return render(request,'tools/test_parsing.html')  
 
 def test_parsing_txt(request):
     if request.method == 'POST':

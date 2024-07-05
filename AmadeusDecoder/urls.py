@@ -74,5 +74,11 @@ urlpatterns = [
     path('home/update-anomaly', updateAnomaly, name='update_anomaly'),
     path('home/ticket-delete',ticket_delete,name='ticket_delete'),
     path('comment/get-unshowed-tickets',get_unshowed_tickets, name='get_unshowed_tickets'),
-    path('check-uninvoiced-status/', uncheck_ticket_in_passenger_invoiced, name='uncheck_ticket_in_passenger_invoiced')
+    path('check-uninvoiced-status/', uncheck_ticket_in_passenger_invoiced, name='uncheck_ticket_in_passenger_invoiced'),
+    path('tools/test-parsing',test_parsing,name='test_parsing'),
+    path('tools/test-parsing-zenith',test_parsing_zenith,name='test_parsing_zenith'),
+    path('tools/test-parsing-text',test_parsing_text,name='test_parsing_text'),
+    path('tools/test-parsing-upload-file',test_parsing_upload_file,name='test_parsing_upload_file'),
+
+
 ]

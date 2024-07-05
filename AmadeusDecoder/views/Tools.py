@@ -19,7 +19,7 @@ from AmadeusDecoder.models.configuration.Configuration import Configuration
 
 @login_required(login_url='index')
 def tools(request):  
-    return render(request,'tools.html')
+    return render(request,'tools/tools.html')
 
 
 def call_product_import(request):

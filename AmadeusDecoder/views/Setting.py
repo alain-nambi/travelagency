@@ -7,4 +7,4 @@ from django.contrib.auth.decorators import login_required
 
 @login_required(login_url='index')
 def setting(request):  
-    return render(request,'setting.html')    
+    return render(request,'setting/setting.html')    

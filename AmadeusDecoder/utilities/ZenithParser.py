@@ -1959,4 +1959,397 @@ class ZenithParser():
                         Sending.send_email_pnr_parsing(str(file))
                     continue
                 
+        # save data for the parsing test
+    def test_parse_pnr(self, email_date):
+        sid = transaction.savepoint()
+        try:
+            content_parts = self.read_file()
+            for content in content_parts:
                 
+                pnr_number = content[3]
+                if len(content) == 0:
+                    raise Exception('File is empty or not in PDF format.')
+                
+                
+                if RECEIPT_IDENTIFIER[0] in content:
+                    from AmadeusDecoder.utilities.ZenithParserReceipt import ZenithParserReceipt
+                    ZenithParserReceipt(content).parseReceipt()
+                    raise ReceiptException('Receipt received', pnr_number)
+
+                
+                if ITINERARY_NAME[0] not in content and PASSENGER_IDENTIFIER[0] not in content and CUSTOMER_NAME_IDENTIFIER[0] not in content:
+                    raise Exception('File not EWA PNR.')
+                
+                pnr, is_saved = self.get_pnr_details(content, 'Emis', email_date)
+                pnr.save()
+                
+                if not is_saved:
+                    passengers, pnr_passengers, tickets = self.get_passengers_tickets(content, pnr)
+                    for passenger in passengers:
+                        passenger.save()
+                    for pnr_passenger in pnr_passengers:
+                        pnr_passenger.save()
+                        
+                    other_info_part = self.get_part(content, PAYMENT_RECEIPT_IDENTIFIER[0])
+                    payment_option, issuing_date, issuing_office, other_ancillaries, taxes = self.get_other_info(other_info_part)
+                    if issuing_office != '':
+                        pnr.agency_name = issuing_office
+                        pnr.save()
+                    
+                    ticket_status = 1
+                    # check issuing date and 
+                    if issuing_date is not None:
+                        try:
+                            issuing_date_day = issuing_date.strftime('%A')
+                            pnr_creation_date_day = pnr.system_creation_date.strftime('%A')
+                            date_difference = pnr.system_creation_date.date() - issuing_date.date()
+                            if date_difference.days > 4:
+                                ticket_status = 1
+                            # if (issuing_date.date() < pnr.system_creation_date.date() and issuing_date_day != 'Saturday' \
+                            #     and issuing_date_day != 'Sunday' and pnr_creation_date_day != 'Monday') or date_difference.days > 2 or len(other_ancillaries) > 0:
+                            #         ticket_status = 3
+                            
+                            # accept all from JAN 01
+                            first_accepted_date = datetime.datetime(2023, 1, 1).date()
+                            if issuing_date.date() < first_accepted_date:
+                                ticket_status = 3
+                        except:
+                            traceback.print_exc()
+                    
+                    # other ancillaries check
+                    modification_fee = 0.0
+                    if len(other_ancillaries) > 0:
+                        modification_fee = other_ancillaries[0].total / len(passengers);
+                    
+                    for ticket in tickets:
+                        if payment_option != '':
+                            ticket.payment_option = payment_option
+                        if issuing_date is not None:
+                            ticket.issuing_date = issuing_date
+                        ticket.ticket_status = ticket_status
+                        # set is_subjected_to_fees to False to prevent fee value error
+                        ticket.is_subjected_to_fees = False
+                        ticket.save()
+                        
+                    itinerary_part = self.get_part(content, ITINERARY_NAME[0])
+                    air_segments = self.get_itinerary(itinerary_part, pnr)
+                    for segment in air_segments:
+                        segment.save()
+                        
+                    cost_details_part = self.get_part(content, COST_DETAIL_IDENTIFIER[0])
+                    ticket_segments = self.get_ticket_segment_costs(cost_details_part, passengers, air_segments, pnr)
+                    for ticket_segment in ticket_segments:
+                        if len(other_ancillaries) > 0:
+                            ticket_segment.fare = 0
+                            ticket_segment.tax = 0
+                            ticket_segment.total = 0
+                        ticket_segment.save()
+                        
+                    # re-adjust is_subjected_to_fees to True to restore true fee
+                    for ticket in tickets:
+                        pre_saved_ticket = Ticket.objects.filter(number=ticket.number, pnr=pnr).first()
+                        if pre_saved_ticket is not None:
+                            pre_saved_ticket.is_subjected_to_fees = True
+                            pre_saved_ticket.save()
+                                            
+                    # update ticket fare on PNR update/modification
+                    if len(other_ancillaries) > 0:
+                        for ticket in tickets:
+                            temp_ticket_obj = Ticket.objects.filter(number=ticket.number).first()
+                            if pnr.agency_name is not None:
+                                for identifier in CURRENT_TRAVEL_AGENCY_IDENTIFIER:
+                                    if pnr.agency_name.find(identifier) > -1:
+                                        temp_ticket_obj.ticket_status = 1
+                                        break
+                                    else:
+                                        temp_ticket_obj.ticket_status = 3
+                            temp_ticket_obj.transport_cost = modification_fee
+                            temp_ticket_obj.tax = 0.0
+                            temp_ticket_obj.total = modification_fee
+                            temp_ticket_obj.ticket_description = 'modif'
+                            temp_ticket_obj.ticket_status = ticket_status
+                            temp_ticket_obj.is_subjected_to_fees = True
+                            # as the official information will be fetched from receipt, current modification will be set as void
+                            temp_ticket_obj.ticket_status = 0
+                            temp_ticket_obj.save()
+                    
+                    ancillaries_part = self.get_part(content, ANCILLARIES_IDENTIFIER[0])
+                    ancillaries, ancillaries_segment = self.get_ancillaries_zenith(ancillaries_part, pnr, passengers, air_segments)
+                    # if len(other_ancillaries) == 0:
+                    for ancillary in ancillaries:
+                        # if self.check_fee_subjection_status(date_time, pnr, ticket, other_fee)
+                        ancillary.save()
+                    for ancillary_segment in ancillaries_segment:
+                        ancillary_segment.save()
+                        
+                    # check if PNR has grouped passenger
+                    temp_pnr_invoice_detail = InvoiceDetails.objects.filter(invoice__pnr=pnr).first()
+                    if temp_pnr_invoice_detail is not None:
+                        if temp_pnr_invoice_detail.total == 0:
+                            shared_tax = taxes/(len(tickets))
+                            for ticket in tickets:
+                                temp_ticket = Ticket.objects.filter(number=ticket.number, pnr=pnr).first()
+                                temp_ticket.tax = shared_tax
+                                temp_ticket.save()
+                        
+                    # other ancillaries
+                    # for ancillary in other_ancillaries:
+                    #     ancillary.pnr = pnr
+                    #     ancillary.save()
+                # if PNR has already been saved and the previous status was 'Non émis'
+                # elif is_saved and pnr.status_value == 1:
+                elif is_saved:
+                    is_invoiced_status = pnr.is_invoiced
+                    psg_invoice_ticket_fee_other = []
+                    if is_invoiced_status:
+                        passenger_invoices = pnr.passenger_invoice.all()
+                        for invoice in passenger_invoices:
+                            temp_data = {}
+                            if invoice.ticket is not None:
+                                temp_data['psg_invoice'] = invoice
+                                temp_data['psg_invoice_ticket'] = invoice.ticket
+                                temp_data['psg_invoice_fee'] = None
+                                temp_data['psg_invoice_other'] = None
+                                temp_data['ticket_number'] = invoice.ticket.number
+                            if invoice.fee is not None:
+                                temp_data['psg_invoice'] = invoice
+                                temp_data['psg_invoice_ticket'] = None
+                                temp_data['psg_invoice_fee'] = invoice.fee
+                                temp_data['psg_invoice_other'] = None
+                                try:
+                                    temp_data['ticket_number'] = invoice.fee.ticket.number
+                                except:
+                                    temp_data['ticket_number'] = invoice.fee.other_fee.designation
+                            if invoice.other_fee is not None:
+                                temp_data['psg_invoice'] = invoice
+                                temp_data['psg_invoice_ticket'] = None
+                                temp_data['psg_invoice_fee'] = None
+                                temp_data['psg_invoice_other'] = invoice.other_fee
+                                temp_data['ticket_number'] = None
+                            psg_invoice_ticket_fee_other.append(temp_data)
+                        is_invoiced_status = True
+                    
+                    pnr.is_invoiced = is_invoiced_status
+                    
+                    '''
+                    # if not pnr.is_invoiced:
+                    # delete old data -- History needed --
+                    # passengers
+                    current_passengers = Passenger.objects.filter(passenger__pnr=pnr).all()
+                    current_passengers.delete()
+                    # air segments
+                    current_airsegments = PnrAirSegments.objects.filter(pnr=pnr).all()
+                    current_airsegments.delete()
+                    # ancillaries
+                    current_ancillaries = OthersFee.objects.filter(pnr=pnr).all()
+                    current_ancillaries.delete()'''
+                    
+                    # add new data
+                    passengers, pnr_passengers, tickets = self.get_passengers_tickets(content, pnr)
+                    # passengers
+                    # compare and delete
+                    try:
+                        Passenger().compare_and_delete(pnr, passengers)
+                    except:
+                        traceback.print_exc()
+                        # error_file.write('{}: \n'.format(datetime.now()))
+                        # error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                        # traceback.print_exc(file=error_file)
+                        # error_file.write('\n')
+                    for passenger in passengers:
+                        temp_passenger = passenger.get_passenger_by_pnr_passenger(pnr)
+                        if temp_passenger is None:
+                            passenger.save()
+                            try:
+                                passenger.update_ticket_passenger(pnr)
+                            except:
+                                traceback.print_exc()
+                                # error_file.write('{}: \n'.format(datetime.now()))
+                                # error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                                # traceback.print_exc(file=error_file)
+                                # error_file.write('\n')
+                            pnr_passenger = PnrPassenger(pnr=pnr, passenger=passenger)
+                            pnr_passenger.save()
+                        else:
+                            passenger = temp_passenger
+                    
+                    # for passenger in passengers:
+                    #     passenger.save()
+                    # for pnr_passenger in pnr_passengers:
+                    #     pnr_passenger.save()
+                        
+                    other_info_part = self.get_part(content, PAYMENT_RECEIPT_IDENTIFIER[0])
+                    payment_option, issuing_date, issuing_office, other_ancillaries, taxes= self.get_other_info(other_info_part)
+                    if issuing_office != '':
+                        pnr.agency_name = issuing_office
+                        pnr.save()
+                    
+                    ticket_status = 1
+                    # check issuing date and 
+                    if issuing_date is not None:
+                        try:
+                            issuing_date_day = issuing_date.strftime('%A')
+                            pnr_creation_date_day = pnr.system_creation_date.strftime('%A')
+                            date_difference = pnr.system_creation_date.date() - issuing_date.date()
+                            if date_difference.days > 4:
+                                ticket_status = 1
+                                
+                            # if (issuing_date.date() < pnr.system_creation_date.date() and issuing_date_day != 'Saturday' \
+                            #     and issuing_date_day != 'Sunday' and pnr_creation_date_day != 'Monday') or date_difference.days > 2 or len(other_ancillaries) > 0:
+                            #         ticket_status = 3
+                            
+                            # accept all from JAN 01
+                            first_accepted_date = datetime.datetime(2023, 1, 1).date()
+                            if issuing_date.date() < first_accepted_date:
+                                ticket_status = 3
+                        except:
+                            traceback.print_exc()
+                    
+                    # other ancillaries check
+                    modification_fee = 0
+                    if len(other_ancillaries) > 0:
+                        modification_fee = other_ancillaries[0].total / len(passengers);
+                    
+                    # update ticket status if the PNR has been reissued with different ticket(s)
+                    try:
+                        is_multiple_file = False
+                        if len(content_parts) > 1:
+                            is_multiple_file = True
+                        Ticket().update_ticket_status_PNR_reissued_EWA(pnr, tickets, is_multiple_file)
+                    except Exception:
+                        # error_file.write('{}: \n'.format(datetime.now()))
+                        # error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                        # traceback.print_exc(file=error_file)
+                        # error_file.write('\n')
+                        traceback.print_exc()
+                    
+                    for ticket in tickets:
+                        temp_ticket = Ticket.objects.filter(number=ticket.number).first()
+                        temp_passenger = Passenger.objects.filter(name=ticket.passenger.name, designation=ticket.passenger.designation, passenger__pnr=pnr).first()
+                    
+                        if temp_ticket is not None:
+                            ticket = temp_ticket
+                            
+                        if temp_passenger is not None:
+                            ticket.passenger = temp_passenger
+                        
+                        if payment_option != '':
+                            ticket.payment_option = payment_option
+                        if issuing_date is not None:
+                            ticket.issuing_date = issuing_date
+                        ticket.ticket_status = ticket_status
+                        ticket.save()
+                    
+                    itinerary_part = self.get_part(content, ITINERARY_NAME[0])
+                    air_segments = self.get_itinerary(itinerary_part, pnr)
+                    for segment in air_segments:
+                        try:
+                            temp_segment = segment.get_air_segment_by_air_segment(pnr)
+                            if temp_segment is None:
+                                segment.save()
+                            else:
+                                try:
+                                    temp_segment.departuretime = segment.departuretime if segment.departuretime is not None else None
+                                    temp_segment.arrivaltime = segment.arrivaltime if segment.arrivaltime is not None else None
+                                    temp_segment.air_segment_status = 1
+                                    temp_segment.segment_state = segment.segment_state
+                                    temp_segment.save()
+                                except:
+                                    traceback.print_exc()
+                                
+                        except Exception:
+                            traceback.print_exc()
+                        # segment.save()
+                        
+                    cost_details_part = self.get_part(content, COST_DETAIL_IDENTIFIER[0])
+                    ticket_segments = self.get_ticket_segment_costs(cost_details_part, passengers, air_segments, pnr)
+                    for ticket_segment in ticket_segments:
+                        temp_segment = PnrAirSegments.objects.filter(flightno=ticket_segment.segment.flightno, departuretime=ticket_segment.segment.departuretime, \
+                                                                      arrivaltime=ticket_segment.segment.arrivaltime, pnr=pnr, air_segment_status=1).first()
+                        temp_ticket = Ticket.objects.filter(number=ticket_segment.ticket.number).first()
+                        if temp_segment is not None:
+                            temp_ticket_passenger_segment = TicketPassengerSegment.objects.filter(segment=temp_segment, ticket=temp_ticket).first()
+                            if temp_ticket_passenger_segment is None:
+                                ticket_segment.segment = temp_segment
+                                ticket_segment.ticket = temp_ticket
+                                try:
+                                    if len(other_ancillaries) > 0:
+                                        ticket_segment.fare = 0
+                                        ticket_segment.tax = 0
+                                        ticket_segment.total = 0
+                                    ticket_segment.save()
+                                except Exception as e:
+                                    print(e)
+                                    traceback.print_exc()
+                        
+                    # update ticket fare on PNR update/modification
+                    if len(other_ancillaries) > 0:
+                        for ticket in tickets:
+                            temp_ticket_obj = Ticket.objects.filter(number=ticket.number).first()
+                            if pnr.agency_name is not None:
+                                for identifier in CURRENT_TRAVEL_AGENCY_IDENTIFIER:
+                                    if pnr.agency_name.find(identifier) > -1:
+                                        temp_ticket_obj.ticket_status = 1
+                                        break
+                                    else:
+                                        temp_ticket_obj.ticket_status = 3
+                            temp_ticket_obj.transport_cost = modification_fee;
+                            temp_ticket_obj.tax = 0.0;
+                            temp_ticket_obj.total = modification_fee;
+                            temp_ticket_obj.ticket_description = 'modif'
+                            temp_ticket_obj.ticket_status = ticket_status
+                            # as the official information will be fetched from receipt, current modification will be set as void
+                            temp_ticket_obj.ticket_status = 0
+                            temp_ticket_obj.save()
+                    
+                    ancillaries_part = self.get_part(content, ANCILLARIES_IDENTIFIER[0])
+                    ancillaries, ancillaries_segment = self.get_ancillaries_zenith(ancillaries_part, pnr, passengers, air_segments)
+                    # if len(other_ancillaries) == 0:
+                    for ancillary in ancillaries:
+                        temp_ancillary = None
+                        is_ancillary_saved = False
+                        for passenger in passengers:
+                            temp_passenger = passenger.get_passenger_by_pnr_passenger(pnr)
+                            temp_ancillary = OthersFee.objects.filter(designation=ancillary.designation, pnr=pnr, related_segments__passenger=temp_passenger).first()
+                            if temp_ancillary is not None:
+                                ancillary = temp_ancillary
+                                is_ancillary_saved = True
+                                break
+                        if not is_ancillary_saved:
+                            ancillary.passenger = ancillary.passenger.get_passenger_by_pnr_passenger(pnr)
+                        ancillary.save()
+                    for ancillary_segment in ancillaries_segment:
+                        current_airsegment = ancillary_segment.segment
+                        temp_segment = PnrAirSegments.objects.filter(flightno=current_airsegment.flightno,
+                                                                     departuretime=current_airsegment.departuretime,
+                                                                     arrivaltime=current_airsegment.arrivaltime,
+                                                                     codedest=current_airsegment.codedest,
+                                                                     codeorg=current_airsegment.codeorg, 
+                                                                     pnr=pnr, air_segment_status=1).last()
+                        temp_passenger = ancillary_segment.passenger.get_passenger_by_pnr_passenger(pnr)
+                        temp_ancillary = OthersFee.objects.filter(designation=ancillary_segment.other_fee.designation, pnr=pnr, passenger=temp_passenger).first()
+                        temp_ancillary_seg = OtherFeeSegment.objects.filter(other_fee=temp_ancillary, segment=temp_segment, passenger=temp_passenger).first()
+                        if temp_ancillary_seg is None and temp_passenger is not None and temp_segment is not None and temp_ancillary is not None:
+                            ancillary_segment.other_fee = temp_ancillary
+                            ancillary_segment.passenger = temp_passenger
+                            ancillary_segment.segment = temp_segment
+                            ancillary_segment.save()
+                    
+                    # check if PNR has grouped passenger
+                    temp_pnr_invoice_detail = InvoiceDetails.objects.filter(invoice__pnr=pnr).first()
+                    if temp_pnr_invoice_detail is not None:
+                        if temp_pnr_invoice_detail.total == 0:
+                            shared_tax = taxes/(len(tickets))
+                            for ticket in tickets:
+                                temp_ticket = Ticket.objects.filter(number=ticket.number, pnr=pnr).first()
+                                temp_ticket.tax = shared_tax
+                                temp_ticket.save()
+                        
+            transaction.savepoint_commit(sid)
+        except Exception as e:
+            transaction.savepoint_rollback(sid)
+            raise e
+        
+        context = {'pnr':pnr}
+        return context
+    

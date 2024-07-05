@@ -418,3 +418,114 @@ class EMDOnlyParser():
                 temp_fee.cost = 0
                 temp_fee.total = 0
                 temp_fee.save()
+
+# parse ticket data for the parsing test
+    def test_parse_emd(self, file_contents, email_date):
+        print('EMD FILE DETECTED')
+        emd = Ticket()
+        
+        # save or update EMD
+        info_line, fare_line, exch_val_line, rfnd_val_line, total_line = self.info_fare_lines(file_contents)
+        emd_status, emd_description, emd_issuing_date, emd_payment_info = self.get_emd_info(file_contents)
+        pnr, emd_number, ticket_state = self.check_emd_pnr(info_line, email_date)
+        fare, exch_val, rfnd_val, total, is_no_adc = self.get_emd_fares(fare_line, exch_val_line, rfnd_val_line, total_line)
+        
+        if pnr.gds_creation_date == emd_issuing_date.date() or pnr.system_creation_date.date() == emd_issuing_date.date():
+            emd_status = 1
+            
+        # temp
+        if emd_status not in [0, 3]:
+            emd_status = 1
+        
+        emd.number = emd_number
+        emd.pnr = pnr
+        emd.transport_cost = fare
+        emd.exch_val = exch_val
+        emd.rfnd_val = rfnd_val
+        emd.tax = total - fare
+        emd.total = total
+        emd.doccurrency = COMPANY_CURRENCY
+        emd.farecurrency = COMPANY_CURRENCY
+        emd.state = ticket_state
+        emd.ticket_type = EMD_IDENTIFIER[0]
+        emd.ticket_status = emd_status
+        emd.ticket_description = emd_description
+        emd.issuing_date = emd_issuing_date
+        emd.payment_option = emd_payment_info
+        emd.is_no_adc = is_no_adc
+        
+        temp_emd = Ticket.objects.filter(number=emd_number).first()
+        temp_emd_refund = Ticket.objects.filter(number=emd_number + "-R").first()
+        trasaction_emd = None
+        if temp_emd is None:
+            trasaction_emd = emd
+        else:
+            if temp_emd.transport_cost >= 0 and temp_emd.transport_cost != fare:
+                temp_emd.transport_cost = fare
+                temp_emd.exch_val = exch_val
+                temp_emd.rfnd_val = rfnd_val
+                temp_emd.tax = total - fare
+                temp_emd.total = total
+            temp_emd.state = ticket_state
+            temp_emd.ticket_type = EMD_IDENTIFIER[0]
+            temp_emd.ticket_status = emd_status
+            temp_emd.ticket_description = emd_description
+            temp_emd.issuing_date = emd_issuing_date
+            temp_emd.payment_option = emd_payment_info
+            temp_emd.is_no_adc = is_no_adc
+            trasaction_emd = temp_emd
+                
+        # check emd fee subjection
+        self.check_emd_fee_subjection(pnr, trasaction_emd)
+        
+        # check if emd is special
+        try:
+            self.check_if_emd_is_special(trasaction_emd)
+        except:
+            with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
+                error_file.write('{}: \n'.format(datetime.datetime.now()))
+                error_file.write('File (PNR Altea (EMD)) with error: {} \n'.format(str(self.get_path())))
+                traceback.print_exc(file=error_file)
+                error_file.write('\n')
+        
+        # update ticket status based on is_issued_outside status
+        self.update_status_outside(trasaction_emd)
+        
+        # save emd
+        trasaction_emd.save()
+        # refund amounr update
+        if temp_emd_refund is not None:
+            if temp_emd_refund.total == 0:
+                temp_emd_refund.transport_cost = -1 * trasaction_emd.transport_cost
+                temp_emd_refund.tax = -1 * trasaction_emd.tax
+                temp_emd_refund.total = -1 * trasaction_emd.total
+                temp_emd_refund.save()
+        
+        # save raw data
+        try:
+            RawData().save_raw_data(file_contents, pnr, trasaction_emd)
+        except:
+            with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
+                error_file.write('{}: \n'.format(datetime.datetime.now()))
+                error_file.write('File (PNR Altea (EMD)) with error: {} \n'.format(str(self.get_path())))
+                traceback.print_exc(file=error_file)
+                error_file.write('\n')
+        
+        # update pnr state
+        self.update_pnr_state(pnr)
+        pnr.save()
+        
+        # re-check fee
+        if trasaction_emd.fees is not None:
+            temp_fee = trasaction_emd.fees.first()
+            if not trasaction_emd.is_subjected_to_fees and temp_fee is not None:
+                temp_fee.cost = 0
+                temp_fee.total = 0
+                temp_fee.save()
+
+
+        context = {'pnr':pnr,'ticket':trasaction_emd}
+
+        return context
+
+

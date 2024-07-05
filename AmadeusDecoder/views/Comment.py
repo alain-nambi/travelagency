@@ -537,4 +537,190 @@ def updateAnomaly(request):
         
         anomaly.save()
         return JsonResponse('ok',safe=False)
+
+
+# --------------------- Canceled ticket -----------------------------------------------------------
+
+@login_required(login_url='index')
+def get_all_canceled_ticket(request):
+    tickets = TicketCanceled.objects.all()
+    context = {'tickets':tickets}
+    issuing_users= []
+
+    tickets_issuing_users = TicketCanceled.objects.all().distinct('issuing_user')      
+    for tickets_user in tickets_issuing_users:
+        print(tickets_user.issuing_user) 
+        issuing_users.append(tickets_user.issuing_user)
+    
+    pnr_count = tickets.count()
+    
+    context['tickets'] = tickets
+    object_list = context['tickets']
+    row_num = request.GET.get('paginate_by', 20) or 20
+    page_num = request.GET.get('page', 1)
+    paginator = Paginator(object_list, row_num)
+    try:
+        page_obj = paginator.page(page_num)
+    except PageNotAnInteger: 
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+
+    context = {'page_obj': page_obj, 'row_num': row_num, 'pnr_count' : pnr_count,'issuing_users':issuing_users}
+
+    return render(request,'ticket_canceled/ticket_canceled.html',context)
+
         
+
+@login_required(login_url='index')
+def get_canceled_ticket_detail(request,pnr_id):
+    tickets_canceled = TicketCanceled.objects.filter(pnr__id=pnr_id).all()
+    pnr = Pnr.objects.get(pk=pnr_id)
+    context={'tickets_canceled' : tickets_canceled,'pnr':pnr}
+
+    return render(request,'ticket_canceled/ticket_details.html',context)
+
+# ------------ transform a list of queryset to table specialy for the canceled ticket search
+@login_required(login_url="index")
+def get_data_ticket_from_query_set(request,search_results):
+    results = []
+    for canceled_ticket in search_results:
+        
+        values = {}
+        values['pnr_id'] = canceled_ticket.pnr.id
+        values['pnr_number'] = canceled_ticket.pnr.number
+        if canceled_ticket.ticket:
+            values['ticket_number'] = canceled_ticket.ticket.number
+        else:
+            values['other_fee'] = canceled_ticket.other_fee.designation
+        values['motif'] = canceled_ticket.motif
+        values['date'] = (canceled_ticket.date).strftime("%d/%m/%Y")
+        values['issuing_user'] = canceled_ticket.issuing_user.username
+        results.append(values)
+    return results
+    
+# ------------------ recherche simple ------------------------------------------------
+@login_required(login_url="index")
+def canceled_ticket_research(request):
+    context = {}
+    
+    if request.method == 'POST' and request.POST.get('ticket_research'):
+        print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+        search_results = []
+        
+        ticket_research = request.POST.get('ticket_research')
+        print(ticket_research)
+        pnr_results = TicketCanceled.objects.all().filter(Q(pnr__number__icontains=ticket_research) | Q(ticket__number__icontains=ticket_research)| Q(other_fee__designation__icontains=ticket_research) )
+        
+        if pnr_results.exists():
+            for p1 in pnr_results :
+                search_results.append(p1)
+        print(search_results)
+          
+        results = get_data_ticket_from_query_set(request,search_results)
+        
+        ticket_count = len(results)
+        
+        context = {'results' : results, 'ticket_count' :  ticket_count, 'searchTitle' : ticket_research}
+    return JsonResponse(context)
+  
+#-----------------------  filtre ( motif, date d'annulation, créateur) --------------------------------------------
+@login_required(login_url='index')
+def canceled_ticket_filter(request):
+    context ={}
+    search_results = []
+    if request.method == 'POST':
+        try:
+            
+            filtre = request.POST.get('filter')
+            data_search = request.POST.get('data_search')
+            title = ""
+            if filtre == 'motif':
+                canceled_tickets = TicketCanceled.objects.filter(motif__icontains=data_search).all()
+                title += " motif - "+data_search
+
+            if filtre == 'date':
+                canceled_tickets = TicketCanceled.objects.filter(date=data_search).all()
+                title += " date - "+data_search
+
+            if filtre == 'creator':
+                canceled_tickets = TicketCanceled.objects.filter(issuing_user__id=data_search).all()
+                title += " créateur - "+ User.objects.get(pk=data_search).username
+
+            if canceled_tickets.exists():
+                print(canceled_tickets)
+                for ticket in canceled_tickets :
+                    search_results.append(ticket)
+        
+                results = get_data_ticket_from_query_set(request,search_results)
+                context['status'] = 200
+                context['results'] = results
+                context['searchTitle'] = title
+            else:
+                context['status'] = 404
+                context['message'] = 'Aucun résultat trouvé.'
+        except:
+            context['status'] = 100
+            context['message'] = "Une erreur s'est produite."
+
+
+    return JsonResponse(context)
+
+# --------------------------- recherche multi-critère (date, motif, créateur) ------------------------------------------
+@login_required(login_url='index')
+def canceled_ticket_advanced_search(request):
+    context ={}
+    search_results = []
+    if request.method == 'POST':
+        try:
+            print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+            date = request.POST.get('date')
+            motif = request.POST.get('motif')
+            createur = request.POST.get('createur')
+
+            print('motif : ', motif)
+            print('date : ', date)
+            print('createur : ', createur)
+
+
+            filter_conditions = {}
+            title = ""
+
+            # Ajouter les conditions de filtre pour les variables non-None
+            if date is not None and date != "":
+                filter_conditions['date'] = date
+                title = " date - "+ date
+            if motif is not None and motif != "":
+                filter_conditions['motif__icontains'] = motif
+                title += " motif - " + motif
+            if createur is not None and createur != "":
+                filter_conditions['issuing_user__id'] = createur
+                title += " créateur - "+ User.objects.get(pk=createur).username
+
+            # Créer un objet Q pour combiner les conditions de filtre
+            query_filter = Q(**filter_conditions)
+
+            # Exécuter la requête avec les conditions de filtre
+            canceled_tickets = TicketCanceled.objects.filter(query_filter).all()
+                
+
+            if canceled_tickets.exists():
+                print(canceled_tickets)
+                for ticket in canceled_tickets :
+                    search_results.append(ticket)
+                    print(ticket)
+        
+                results = get_data_ticket_from_query_set(request,search_results)
+                context['status'] = 200
+                context['results'] = results
+                context['searchTitle'] = title
+            else:
+                context['status'] = 404
+                context['message'] = 'Aucun résultat trouvé.'
+        except:
+            context['status'] = 100
+            context['message'] = "Une erreur s'est produite."
+
+
+    return JsonResponse(context)
+

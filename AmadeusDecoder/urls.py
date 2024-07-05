@@ -74,5 +74,10 @@ urlpatterns = [
     path('home/update-anomaly', updateAnomaly, name='update_anomaly'),
     path('home/ticket-delete',ticket_delete,name='ticket_delete'),
     path('comment/get-unshowed-tickets',get_unshowed_tickets, name='get_unshowed_tickets'),
-    path('check-uninvoiced-status/', uncheck_ticket_in_passenger_invoiced, name='uncheck_ticket_in_passenger_invoiced')
+    path('check-uninvoiced-status/', uncheck_ticket_in_passenger_invoiced, name='uncheck_ticket_in_passenger_invoiced'),
+    path('anomaly/all-canceled-ticket',get_all_canceled_ticket,name="get_all_canceled_ticket"),
+    path('anomaly/canceled-ticket-detail/<int:pnr_id>',get_canceled_ticket_detail,name="get_canceled_ticket_detail"),
+    path('home/canceled-ticket-research', canceled_ticket_research, name= 'canceled_ticket_research'),
+    path('home/canceled-ticket-filter', canceled_ticket_filter, name= 'canceled_ticket_filter'),
+    path('home/canceled-ticket-advanced-research', canceled_ticket_advanced_search, name= 'canceled_ticket_advanced_search'),
 ]

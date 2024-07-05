@@ -14,7 +14,7 @@ from AmadeusDecoder.models.pnrelements.PnrAirSegments import PnrAirSegments
 from AmadeusDecoder.models.utilities.Comments import Anomalie, Comment, Response, NotFetched
 from AmadeusDecoder.models.user.Users import User, UserCopying
 from AmadeusDecoder.utilities.SendMail import Sending
-from AmadeusDecoder.models.invoice.Ticket import Ticket
+from AmadeusDecoder.models.invoice.Ticket import Ticket, TicketCanceled
 
 from datetime import date, timedelta
 from django.utils import timezone
@@ -605,17 +605,14 @@ def canceled_ticket_research(request):
     context = {}
     
     if request.method == 'POST' and request.POST.get('ticket_research'):
-        print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
         search_results = []
         
         ticket_research = request.POST.get('ticket_research')
-        print(ticket_research)
         pnr_results = TicketCanceled.objects.all().filter(Q(pnr__number__icontains=ticket_research) | Q(ticket__number__icontains=ticket_research)| Q(other_fee__designation__icontains=ticket_research) )
         
         if pnr_results.exists():
             for p1 in pnr_results :
                 search_results.append(p1)
-        print(search_results)
           
         results = get_data_ticket_from_query_set(request,search_results)
         
@@ -648,7 +645,6 @@ def canceled_ticket_filter(request):
                 title += " créateur - "+ User.objects.get(pk=data_search).username
 
             if canceled_tickets.exists():
-                print(canceled_tickets)
                 for ticket in canceled_tickets :
                     search_results.append(ticket)
         
@@ -673,15 +669,9 @@ def canceled_ticket_advanced_search(request):
     search_results = []
     if request.method == 'POST':
         try:
-            print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
             date = request.POST.get('date')
             motif = request.POST.get('motif')
             createur = request.POST.get('createur')
-
-            print('motif : ', motif)
-            print('date : ', date)
-            print('createur : ', createur)
-
 
             filter_conditions = {}
             title = ""
@@ -705,10 +695,8 @@ def canceled_ticket_advanced_search(request):
                 
 
             if canceled_tickets.exists():
-                print(canceled_tickets)
                 for ticket in canceled_tickets :
                     search_results.append(ticket)
-                    print(ticket)
         
                 results = get_data_ticket_from_query_set(request,search_results)
                 context['status'] = 200

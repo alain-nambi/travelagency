@@ -228,7 +228,6 @@ class EmailfetcherConfig(AppConfig):
         now = datetime.now()
         repeat_timer_for_pnr_upload_notification = 0
         
-<<<<<<< HEAD
         # Delete all files in attachments every 1 minutes 
         task_schedule = RepeatTimer(1 * 60, delete_all_files_in_attachments_dir)
         task_schedule.start()
@@ -237,12 +236,6 @@ class EmailfetcherConfig(AppConfig):
             print("📢 Mail notification for pnr not updated in pnr management...")
             timer_update_check = RepeatTimer(repeat_timer_for_pnr_upload_notification, checking_pnr_not_uploaded_in_pnr_management)
             timer_update_check.start()
-=======
-        # def pnr_upload_repeat_timer(repeat_timer_for_pnr_upload_notification):
-        #     print("📢 Mail notification for pnr not updated in pnr management...")
-        #     timer_update_check = RepeatTimer(repeat_timer_for_pnr_upload_notification, checking_pnr_not_uploaded_in_pnr_management)
-        #     timer_update_check.start()
->>>>>>> 81b067b68b4ac16dd0ee3d73d8dbb3a031c1f9a9
     
         # if now.weekday() in [0, 1, 2, 3, 4]: # [Lundi, Mardi, Mercredi, Jeudi, Vendredi]            
         #     repeat_timer_for_pnr_upload_notification = 10 * 60

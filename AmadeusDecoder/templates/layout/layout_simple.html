@@ -1,0 +1,490 @@
+<!-- templates/header.html -->
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+{% load pnr_details %}
+{% load pnr_comments %}
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, maximum-scale=10">
+  <title>
+    {% block title %}
+    Gestion PNR
+    {% endblock %}
+  </title>
+  <link rel="icon" type="image/x-icon" href="{% static 'image/app-logo.png' %}">
+  {% block css %}
+  <style>
+    .tr-danger {
+      color: red !important;
+    }
+
+    .tr-danger:hover {
+      color: red !important;
+    }
+    .tr-warning {
+      color: #D2691E !important;
+    }
+
+    .tr-warning:hover {
+      color: #D2691E !important;
+    }
+  </style>
+
+  <link rel="stylesheet" href="{% static 'css/multi-insert.css' %}">
+
+  <!--fontawesome-->
+  <!-- <link rel="stylesheet" href="{% static 'font/css/all.min.css' %}"> -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- admin lte -->
+  <!-- <link rel="stylesheet" href="{% static 'css/adminlte.css' %}"> -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/css/adminlte.min.css" integrity="sha512-IuO+tczf4J43RzbCMEFggCWW5JuX78IrCJRFFBoQEXNvGI6gkUw4OjuwMidiS4Lm9Q2lILzpJwZuMWuSEeT9UQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+ 
+
+  <!-- Toastr -->
+  <!-- <link rel="stylesheet" href="{% static 'plugins/toastr/toastr.min.css' %}"> -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" integrity="sha512-6S2HWzVFxruDlZxI3sXOZZ4/eJ8AcxkQH1+JjSe/ONCEqR9L4Ysq5JdT5ipqtzU7WHalNwzwBv+iE51gNHJNqQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- <link rel="stylesheet" href="{% static 'css/jquery-ui.css' %}"> -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.5.0/pagination.min.css" integrity="sha512-K1k7jSn9RDKEcn/ugqVVvWYu0bcS3q1w6m/5pQSnrj0bCfIqF6Wk49lkmckSb4wglvTP9V17LtS0q0XxYccXbg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- style -->
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+  <link rel="stylesheet" href="{% static 'css/pnr-non-remonte.css' %}">
+
+
+  <!-- tablesort-->
+  <link href="{% static 'css/theme.default.css' %}" rel="stylesheet">
+
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0/css/select2.min.css" rel="stylesheet" />
+
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/css/selectize.css" integrity="sha512-Y+AaVWdRf6zsGm7eV+EGOIuqYZoi2wUQ7wF8oHbnLy8k2zdVGSxyjn2qDUMFkLRy/9mqOAE5BeyEqx1yxDTQIw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+  {% endblock %}
+
+</head>
+
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed sidebar-collapse" id="pushed-content">
+  {% block body %}
+  <!--old>
+    src="{% static 'image/logo-issoufali.png' %}"
+    src="{% static 'image/profile.webp' %}"
+old -->
+<div class="wrapper">
+  <nav class="main-header navbar navbar-expand navbar-white navbar-light" id="layoutHomeMenu">
+    <form method='POST' action=''>
+          <!-- Left navbar links -->
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" id="pushed" data-widget="" href="#" role="button" style="cursor: none;">
+            <!-- <i class="fas fa-bars"></i> -->
+          </a>   
+        </li>
+        <li class="nav-item">
+          {% include "commandes_modal.html" %}
+        </li>
+        <li class="nav-item ml-5 d-flex align-items-center" style="gap: 0.5rem;">
+          <div class="align-items-center">
+            <span id="mail-user" data-mail="issoufali.pnr@outlook.com;{{request.user.email}}">issoufali.pnr@outlook.com;{{request.user.email}}</span>
+            <a type="button" class="btn btn-outline-primary" onclick="copymailuser()">Zenith</a> 
+            
+          </div>
+
+          <div class="align-items-center">
+            <!--- Button pour afficher les autres listes de commandes -->
+            <button 
+              id="showOtherCommandsMenu" 
+              type="button" 
+              class="btn btn-outline-success"
+            >
+              <span>Afficher autres commandes</span>
+            </button>
+          </div>
+
+            <div id="pnrNotUpdated">
+              <button 
+                type="button" 
+                class="btn btn-outline-danger" 
+                data-toggle="modal" 
+                data-target="#modalPnrNotUpdated" 
+                title="Pnr non remonté"
+                id = "pnr-not-fetched"
+              >
+                <i class="fa fa-upload"></i>
+                Pnr non remonté
+              </button>
+            </div>
+
+        </li>
+      </ul>
+    </form>
+
+      <!-- Right navbar links -->
+      <ul class="navbar-nav ml-auto">
+        <!-- Navbar Search -->
+
+        <!-- Notifications Dropdown Menu -->
+        {% comment %} <li class="nav-item dropdown">
+          <a class="nav-link" data-toggle="dropdown" href="#">
+            <i class="far fa-bell"></i>
+            <span class="badge badge-warning navbar-badge">15</span>
+          </a>
+          <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+            <span class="dropdown-header">15 Notifications</span>
+            <div class="dropdown-divider"></div>
+            <a href="#" class="dropdown-item">
+              <i class="fas fa-envelope mr-2"></i> 4 new messages
+              <span class="float-right text-muted text-sm">3 mins</span>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="#" class="dropdown-item">
+              <i class="fas fa-users mr-2"></i> 8 friend requests
+              <span class="float-right text-muted text-sm">12 hours</span>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="#" class="dropdown-item">
+              <i class="fas fa-file mr-2"></i> 3 new reports
+              <span class="float-right text-muted text-sm">2 days</span>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
+          </div>
+        </li> {% endcomment %}
+        <li class="nav-item">
+          {% comment %} <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+            <i class="fas fa-expand-arrows-alt"></i>
+          </a> {% endcomment %}
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link" data-toggle="dropdown" href="#">
+            <i class="far fa-user"></i> {{request.user.username}}
+          </a>
+          <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+            <a href="{% url 'account' %}" class="dropdown-item">
+              Mon compte
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="{% url 'logout' %}" class="dropdown-item">
+              <i class="fa fa-sign-out" aria-hidden="true"></i>
+              Se déconnecter
+            </a>
+          </div>
+        </li>
+      </ul>
+  </nav>
+    <!-- /.navbar -->
+    <!-- Main Sidebar Container -->
+    <aside class="main-sidebar sidebar-dark-primary elevation-4 shadow">
+      <!-- Sidebar -->
+      <div class="sidebar  mt-0">
+        <div class="content-logo mt-3 pb-3 mb-3 d-flex justify-content-center">
+          <div class="image">
+            <img src="{% static 'image/app-logo.png' %}" class="logo">
+          </div>
+        </div>
+
+        <!-- Sidebar Menu -->
+        <nav class="mt-2">
+          <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+            <!--li class="nav-item">
+              <a href="{% url 'dashboard' %}" class="nav-link">
+                <i class="nav-icon fas fa-tachometer-alt"></i>
+                <p>Tableau de bord</p>
+              </a>
+            </li-->
+            <!--menu admin role_id=1-->
+            {% if request.user.role_id == 1 %}
+            <li class="nav-item">
+              <a href="{% url 'home' %}" class="nav-link">
+                <i class="far fa-clipboard nav-icon"></i>
+                <p>Gestion PNR</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'customers' %}" class="nav-link">
+                <i class="fas fa-user-tie nav-icon"></i>
+                <p>Clients</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'users' %}" class="nav-link">
+                <i class="fas fa-users nav-icon"></i>
+                <p>Utilisateurs</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'setting' %}" class="nav-link">
+                <i class="fas fa-wrench nav-icon" aria-hidden="true"></i>
+                <p>Configurations</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'tools' %}" class="nav-link">
+                <i class="fa fa-cog nav-icon" aria-hidden="true"></i>
+                <p>Outils</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'comment-list' %}" class="nav-link">
+                <i class="fas fa-exclamation nav-icon"></i>
+                <p>Anomalies PNR</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'get_all_pnr_unordered' %}" class="nav-link">
+                <i class="fas fa-trash-can nav-icon"></i>
+                <p>PNR Décommandés</p>
+              </a>
+            </li>
+            
+
+            {% endif %}
+            <!--menu direction role_id=2-->
+            {% if request.user.role_id == 2 %}
+            <li class="nav-item">
+              <a href="{% url 'home' %}" class="nav-link">
+                <i class="far fa-clipboard nav-icon"></i>
+                <p>Gestion PNR</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'customers' %}" class="nav-link">
+                <i class="fas fa-user-tie nav-icon"></i>
+                <p>Clients</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'users' %}" class="nav-link">
+                <i class="fas fa-users nav-icon"></i>
+                <p>Utilisateurs</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'comment-list' %}" class="nav-link">
+                <i class="fas fa-exclamation nav-icon"></i>
+                <p>Anomalies PNR</p>
+              </a>
+            </li>
+            
+            {% endif %}
+            <!--menu agent comptoir role_id=3-->
+            {% if request.user.role_id == 3 %}
+            <li class="nav-item">
+              <a href="{% url 'home' %}" class="nav-link">
+                <i class="far fa-clipboard nav-icon"></i>
+                <p>Gestion PNR</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'customers' %}" class="nav-link">
+                <i class="fas fa-user-tie nav-icon"></i>
+                <p>Clients</p>
+              </a>
+            </li>
+            {% endif %}
+            <!--menu agent contrôle role_id=4-->
+            {% if request.user.role_id == 4 %}
+            <li class="nav-item">
+              <a href="{% url 'home' %}" class="nav-link">
+                <i class="far fa-clipboard nav-icon"></i>
+                <p>Gestion PNR</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'customers' %}" class="nav-link">
+                <i class="fas fa-user-tie nav-icon"></i>
+                <p>Clients</p>
+              </a>
+            </li>
+            {% endif %}
+            <!--menu centre affaire role_id=5-->
+            {% if request.user.role_id == 5 %}
+            <li class="nav-item">
+              <a href="{% url 'home' %}" class="nav-link">
+                <i class="far fa-clipboard nav-icon"></i>
+                <p>Gestion PNR</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'customers' %}" class="nav-link">
+                <i class="fas fa-user-tie nav-icon"></i>
+                <p>Clients</p>
+              </a>
+            </li>
+            {% endif %}
+          </ul>
+        </nav>
+        <!-- /.sidebar-menu -->
+      </div>
+      <!-- /.sidebar -->
+    </aside>
+    {% endblock %}
+    {% if request.get_full_path == '/home/' %}
+    <div class="loading">
+      <div class="spinner-wrapper">
+        <span class="spinner-text">Chargement...</span>
+        <span class="spinner"></span>
+      </div>
+    </div>
+      {% endif %}
+      {% block content %} {% endblock content %}
+      <!-- Control Sidebar -->
+      <!--aside class="control-sidebar control-sidebar-dark">
+      <div class="p-3">
+        <h5>Bonjour, {{request.user}}</h5>
+        <span><a href=" {% url 'logout' %}">Déconnexion</a></span>
+      </div>
+    </aside-->
+      <!-- /.control-sidebar -->
+      {% block footer %}
+      <!-- Main Footer -->
+      <footer class="main-footer p-1">
+        <div class="d-none d-sm-block float-right ">
+          <strong class="text-center">&copy; 2024 <a href="https://phidia.fr">Phidia</a>.</strong> Tous droits réservés.
+          <b>Version</b> 1.6.12 
+        </div>
+        <div class="info-footer-pnr">
+          <div class="row d-flex align-items-center">
+            
+    
+              
+            </div>
+          </div>
+        </div>
+      </footer>
+      {% endblock footer%}
+    </div>
+    <!-- ./wrapper -->
+    {% block scripts %}
+
+
+    <!-- jQuery -->
+    <!-- <script src="{% static 'js/jquery.min.js' %}"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha512-+NqPlbbtM1QqiK8ZAo4Yrj2c4lNQoGv8P79DPtKzj++l5jnN39rHA/xsqn8zE9l0uSoxaCdrOgFs6yjyfbBxSg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
+    <script script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0/js/select2.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <!-- <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.1/js/bootstrap.bundle.min.js" integrity="sha512-mULnawDVcCnsk9a4aG1QLZZ6rcce/jSzEGqUkeOLy0b6q0+T6syHrxlsAGH7ZVoqC93Pd0lBqd6WguPWih7VHA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- <script src="{% static 'js/jquery-ui.min.js' %}"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" integrity="sha512-uto9mlQzrs59VwILcLiRYeLKPPbS/bT71da/OEBYEwcdNUk8jYIy+D176RYoop1Da+f9mvkYrmj5MCLZWEtQuA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- AdminLTE App -->
+    <!-- <script src="{% static 'js/adminlte.min.js' %}"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/js/adminlte.min.js" integrity="sha512-KBeR1NhClUySj9xBB0+KRqYLPkM6VvXiiWaSz/8LCQNdRpUm38SWUrj0ccNDNSkwCD9qPA4KobLliG26yPppJA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- <script src="{% static 'js/jquery.tablesorter.min.js' %}"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.17.8/js/jquery.tablesorter.min.js" integrity="sha512-44cHLzeyt/bprAM6lomE1dUjGVYuz0YKY2wDsDo6/howeSO9mEdlCBfYoJXzYZgcTazp8HzrQ+gUviJtUdedNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- <script src="{% static 'js/jquery.tablesorter.widgets.js' %}"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.17.8/js/jquery.tablesorter.widgets.js" integrity="sha512-4dARBo8Z+SdA1/fbOiG8itStXxE32hCFgGnywMXxqM5DKC28XrTGOlvGWdqMdavGr19LHp1gAC/fr9xtLI0jTg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- <script src="{% static 'js/jquery.tablesorter.pager.min.js' %}"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.17.8/addons/pager/jquery.tablesorter.pager.min.js" integrity="sha512-XPtB1jKozWRGiBUT7iaM6Gd60MTDr6mqa/cBUocrCZ5BjpZUiIvRxwS7wo1gEIqKiMPpSdf4hcpY0WupaPmrSQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+    
+
+    {% comment %} chart js {% endcomment %}
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    
+    <!-- <script src="{% static 'plugins/toastr/toastr.min.js' %}"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js" integrity="sha512-lbwH47l/tPXJYG9AcFNoJaTMhGvYWhVM9YI43CT+uteTRRaiLCui8snIgyAN8XWgNjNhCqlAUdzZptso6OCoFQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.5.0/pagination.min.js" integrity="sha512-To905O3HNAHQVrN6xCie4dwDWV0OO3lwZl4rqtCvf+4lfkbx9XlyLmSiLosdi1WWBcW+VMy4Lmu/M10R+FsOPA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/comment.js' %}"></script>
+    <script src="{% static 'js/gdsCommandHandler.js' %}"></script>
+    <script src="{% static 'js/invoice_unorder.js' %}"></script>
+    <script src="{% static 'js/UnorderedPnrHandler.js' %}"></script>
+    <script src="{% static 'js/config.js' %}"></script>
+    <script src="{% static 'js/manage_user.js' %}"></script>
+    <script src="{% static 'js/canvasjs.min.js' %}"></script>
+    <script src="{% static 'js/anomalie.js' %}"></script>
+    <script src="{% static 'js/pnr_non_remonte.js' %}"></script>
+    <script src="{% static 'js/test_parsing.js' %}"></script>
+
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+    <script script type="text/javascript" src="https://cdn.canvasjs.com/canvasjs.min.js"></script> 
+ 
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/colresizable/1.6.0/colResizable-1.6.min.js" integrity="sha512-pMZ2rgWRGMywzbRAVwGk+auTREN0ldKKjACUSB4cneTgD3kn/6pu//Lxi4l8xSRkY83HENr1vztTnGDySWs0Mg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/js/selectize.min.js" integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script src=" https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js "></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" integrity="sha512-2ImtlRlf2VVmiGZsjm9bEyhjGW4dU7B6TNwh/hx/iSByxNENtj3WVE6o/9Lj4TJeVXPi4bnOIMXFIJJAeufa0A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
+    {% if messages %}
+    {% for message in messages %}
+    {% if message.tags == 'success'%}
+    <script type=text/javascript>toastr.{{ message.tags }}('{{ message }}')</script>
+    {% elif message.tags == 'info' %}
+    <script type=text/javascript>toastr.{{ message.tags }}('{{ message }}')</script>
+    {% elif message.tags == 'warning' %}
+    <script type=text/javascript>toastr.{{ message.tags }}('{{ message }}')</script>
+    {% elif message.tags == 'error' %}
+    <script type=text/javascript>toastr.{{ message.tags }}('{{ message }}')</script>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+    <script>
+      $(function(){
+        $("#all-pnr").colResizable({
+          liveDrag: true,
+          gripInnerHtml:"<div class='grip'></div>", 
+          draggingClass:"dragging", 
+          resizeMode:'fit'
+        });  
+
+        $("#all-pnr-after-search").colResizable({
+          liveDrag: true,
+          gripInnerHtml:"<div class='grip'></div>", 
+          draggingClass:"dragging", 
+          resizeMode:'fit'
+        }); 
+      });
+
+      $('.tooltips.state_1').append("<span></span>");
+      $('.tooltips:not([tooltip-position])').attr('tooltip-position', 'bottom');
+      $(".tooltips.state_1").mouseenter(function () {
+        $(this).find('span').empty().append("Envoi de mail pnr manquants");
+      });
+      $('.tooltips.state_2').each(function () {
+        $('.tooltips.state_2').append("<span></span>");
+        $('.tooltips:not([tooltip-position])').attr('tooltip-position', 'bottom');
+        $(".tooltips.state_2").mouseenter(function () {
+          const info = $(this).data("info");
+          if (info!=""){
+            $(this).find('span').empty().append("Envoi de mail tarification billet manquants " +"("+info+")");
+          }
+          else{
+            $(this).find('span').empty().append("Envoi de mail tarification billet manquants");
+          }
+        });
+      })
+      $('.tooltips.comment-state-0').append("<span></span>");
+      $(".tooltips.comment-state-0").mouseenter(function () {
+        $(this).find('span').empty().append("Anomalie non traitée");
+      });
+      $('.tooltips.comment-state-1').append("<span></span>");
+      $(".tooltips.comment-state-1").mouseenter(function () {
+        $(this).find('span').empty().append("Anomalie traitée");
+      });
+    </script>
+    {% endblock scripts %}
+</body>
+
+</html>

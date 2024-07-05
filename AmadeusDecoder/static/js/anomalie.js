@@ -744,10 +744,11 @@ function searchCanceledTicketFunction() {
             var html = `<thead id="thead-all-pnr">
                 <tr id="tr-all-canceled-ticket">
                     <th>Numéro du PNR</th>
+                    <th style="cursor: pointer;">Date de création PNR</th>
                     <th>Numéro du Billet</th> 
 
-                    <th class="pnr-creation-date" style="cursor: pointer;"> Date d'émission</th>
-                    <th class="pnr-creation-date" style="cursor: pointer;"> Date d'annulation</th>
+                    <th style="cursor: pointer;"> Date d'émission</th>
+                    <th style="cursor: pointer;"> Date d'annulation</th>
                     </th>
                     <th>Motif</th> 
                     <th class="pnr-creator-list">
@@ -766,7 +767,9 @@ function searchCanceledTicketFunction() {
                     style="cursor: pointer;" 
                     role="row"
                 >
-                    <td>${canceled_ticket.pnr_number}</td>`;
+                    <td>${canceled_ticket.pnr_number}</td>
+                    <td>${canceled_ticket.pnr_creation_date}</td>`;
+
                     
                 if (canceled_ticket.ticket_number) {
                     html += `<td>${canceled_ticket.ticket_number}</td>`;
@@ -843,10 +846,11 @@ function filterFunction(filter,data_search){
                     var html = `<thead id="thead-all-pnr">
                             <tr id="tr-all-canceled-ticket">
                                 <th>Numéro du PNR</th>
+                                <th style="cursor: pointer;">Date de création PNR</th>
                                 <th>Numéro du Billet</th> 
-        
-                                <th class="pnr-creation-date" style="cursor: pointer;"> Date d'émission</th>
-                                <th class="pnr-creation-date" style="cursor: pointer;"> Date d'annulation</th>
+
+                                <th style="cursor: pointer;"> Date d'émission</th>
+                                <th style="cursor: pointer;"> Date d'annulation</th>
                                 </th>
                                 <th>Motif</th> 
                                 <th class="pnr-creator-list">
@@ -865,7 +869,8 @@ function filterFunction(filter,data_search){
                                 style="cursor: pointer;" 
                                 role="row"
                             >
-                                <td>${canceled_ticket.pnr_number}</td>`;
+                                <td>${canceled_ticket.pnr_number}</td>
+                                <td>${canceled_ticket.pnr_creation_date}</td>`;
                                 
                             if (canceled_ticket.ticket_number) {
                                 html += `<td>${canceled_ticket.ticket_number}</td>`;
@@ -987,9 +992,10 @@ function UnremountedTicketAdvancedSearch(date,motif,createur){
                     var html = `<thead id="thead-all-pnr">
                             <tr id="tr-all-canceled-ticket">
                                 <th>Numéro du PNR</th>
+                                <th style="cursor: pointer;">Date de création PNR</th>
                                 <th>Numéro du Billet</th> 
-                                <th class="pnr-creation-date" style="cursor: pointer;"> Date d'émission</th>
-                                <th class="pnr-creation-date" style="cursor: pointer;"> Date d'annulation</th>
+                                <th style="cursor: pointer;"> Date d'émission</th>
+                                <th style="cursor: pointer;"> Date d'annulation</th>
                                 <th>Motif</th> 
                                 <th class="pnr-creator-list">
                                 <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
@@ -1007,7 +1013,8 @@ function UnremountedTicketAdvancedSearch(date,motif,createur){
                                 style="cursor: pointer;" 
                                 role="row"
                             >
-                                <td>${canceled_ticket.pnr_number}</td>`;
+                                <td>${canceled_ticket.pnr_number}</td>
+                                <td>${canceled_ticket.pnr_creation_date}</td>`;
                                 
                             if (canceled_ticket.ticket_number) {
                                 html += `<td>${canceled_ticket.ticket_number}</td>`;

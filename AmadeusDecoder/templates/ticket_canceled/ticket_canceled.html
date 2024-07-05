@@ -207,29 +207,16 @@
 
                   <tr id="tr-all-pnr">
                     <th>Numéro du PNR</th>
-                    <th>Numéro du Billet</th>
+                    <th style="cursor: pointer;">Date de création PNR</th>
+                    <th>Numéro/Désigantion du Billet</th>
 
-                    <th class="pnr-emission-date" style="cursor: pointer;">
-                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
-                        Date d'émission
-                      </div>
-                    </th>
+                    <th style="cursor: pointer;">Date d'émission</th>
 
-                    <th class="pnr-creation-date" style="cursor: pointer;">
-                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
-                        Date d'annulation
-                      </div>
-                    </th>
+                    <th style="cursor: pointer;">Date d'annulation</th>
 
                     <th>Motif</th>
-                    
-                    
-                    <th class="pnr-creator-list">
-                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
-                        Créateur
-                        
-                      </div>
-                    </th>
+                                     
+                    <th class="pnr-creator-list">Créateur </th>
                   </tr>
                 </thead>
 
@@ -243,6 +230,7 @@
                         <span class="pnr-num-class">{{ tickets.pnr.number }}</span>
                           
                       </td>
+                      <td >{{ tickets.pnr.system_creation_date|date:"d/m/y" }}</td>
                       {% if tickets.ticket%}
                         <td> {{tickets.ticket.number}} </td>
                       {% else %}

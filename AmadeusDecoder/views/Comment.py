@@ -589,6 +589,7 @@ def get_data_ticket_from_query_set(request,search_results):
         values = {}
         values['pnr_id'] = canceled_ticket.pnr.id
         values['pnr_number'] = canceled_ticket.pnr.number
+        values['pnr_creation_date'] = (canceled_ticket.pnr.system_creation_date).strftime("%d/%m/%Y")
         if canceled_ticket.ticket:
             values['ticket_number'] = canceled_ticket.ticket.number
             if canceled_ticket.ticket.issuing_date:

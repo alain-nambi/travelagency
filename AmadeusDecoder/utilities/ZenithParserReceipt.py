@@ -172,16 +172,26 @@ class ZenithParserReceipt():
         else:
             emitter_displayed_name = emitter_part
         
+        # Search by username and first_name
         temp_user = User.objects.filter( \
-                Q(username__iexact=emitter_displayed_name.capitalize()) | \
-                Q(username=emitter_displayed_name) | \
-                Q(username=emitter_displayed_name.lower()) | \
-                Q(username=emitter_displayed_name.upper())).first()
+                        Q(username__iexact=emitter_displayed_name.capitalize()) | \
+                        Q(username=emitter_displayed_name) | \
+                        Q(username=emitter_displayed_name.lower()) | \
+                        Q(username=emitter_displayed_name.upper()) | \
+                        Q(first_name__iexact=emitter_displayed_name.capitalize()) | \
+                        Q(first_name=emitter_displayed_name) | \
+                        Q(first_name=emitter_displayed_name.lower()) | \
+                        Q(first_name=emitter_displayed_name.upper())
+                    ).first()
+        
+        print(f'<> Temp User : {temp_user} \n<> Emitter Displayed Name : {emitter_displayed_name}')
+        
         if temp_user is not None:
             is_known_emitter = True
             return is_known_emitter, temp_user
         else:
             return is_known_emitter, emitter_displayed_name
+    
     
     # check if part has been issued by current Travel Agency
     def check_part_emitter(self, current_part):

@@ -56,7 +56,6 @@ class InvoicesCanceled(models.Model, BaseModel):
     )
     
     invoice_number = models.CharField(max_length=100,null=False )
-    motif = models.CharField(max_length=200, null=False)
     date = models.DateTimeField(auto_now_add=True , null=False)
     ticket = models.OneToOneField(
         'Ticket', 
@@ -72,11 +71,11 @@ class InvoicesCanceled(models.Model, BaseModel):
         null=True, 
         related_name='pnr_unordered_other_fee',
     )
-    fee = models.OneToOneField(
-        'Fee', 
-        on_delete=models.CASCADE, 
-        default=None, 
-        null=True, 
-        related_name='pnr_unordered_fee',
-    )
-    
+    motif_id = models.ForeignKey("AmadeusDecoder.MotifPnr", on_delete = models.CASCADE, related_name='motif_pnr', default=1)
+
+class MotifPnr(models.Model):
+    # motif pour décommander un PNR
+    class Meta:
+        db_table = 't_motif_pnr'
+
+    designation = models.CharField(max_length=200, null=False)

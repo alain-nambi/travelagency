@@ -26,7 +26,7 @@ from AmadeusDecoder.models.invoice.Clients import Client
 from AmadeusDecoder.models.utilities.Comments import Comment, Response
 from AmadeusDecoder.models.invoice.Ticket import Ticket
 from AmadeusDecoder.models.invoice.Fee import Fee, ReducePnrFeeRequest, OthersFee
-from AmadeusDecoder.models.invoice.Invoice import Invoice, InvoicesCanceled
+from AmadeusDecoder.models.invoice.Invoice import Invoice, InvoicesCanceled, MotifPnr
 from AmadeusDecoder.models.invoice.InvoiceDetails import InvoiceDetails
 from AmadeusDecoder.models.pnr.Passenger import Passenger
 from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
@@ -2182,7 +2182,8 @@ def unorder_pnr(request):
     if request.method == 'POST':
         pnr_number = request.POST.get('pnr_number')
         invoice_number = request.POST.get('invoice_number')
-        motif = request.POST.get('motif')
+        motif_id = request.POST.get('motif')
+        motif = MotifPnr.objects.get(pk=motif_id)
         user_id = request.POST.get('user_id')
         
         if motif is None:
@@ -2211,7 +2212,7 @@ def unorder_pnr(request):
 
                 if passenger_invoice.ticket_id or passenger_invoice.other_fee_id or passenger_invoice.fee_id:
                     # save in the InvoicesCanceled
-                    invoices_canceled = InvoicesCanceled(pnr_id=pnr.id,invoice_number=invoice_number,motif=motif,ticket_id=passenger_invoice.ticket_id, other_fee_id = passenger_invoice.other_fee_id,user_id=user_id, fee_id=passenger_invoice.fee_id) 
+                    invoices_canceled = InvoicesCanceled(pnr_id=pnr.id,invoice_number=invoice_number,motif_id=motif,ticket_id=passenger_invoice.ticket_id, other_fee_id = passenger_invoice.other_fee_id,user_id=user_id) 
                     invoices_canceled.save()
                 
         
@@ -2277,7 +2278,7 @@ def unordered_pnr_research(request):
         search_results = []
         
         pnr_research = request.POST.get('pnr_research')
-        pnr_results = InvoicesCanceled.objects.all().filter(Q(invoice_number__icontains=pnr_research) | Q(pnr__id__icontains=pnr_research)| Q(motif__icontains=pnr_research) | Q(pnr__number__icontains=pnr_research)).distinct('pnr_id')
+        pnr_results = InvoicesCanceled.objects.all().filter(Q(invoice_number__icontains=pnr_research) | Q(pnr__id__icontains=pnr_research)| Q(motif_id__designation__icontains=pnr_research) | Q(pnr__number__icontains=pnr_research)).distinct('pnr_id')
         
         if pnr_results.exists():
             for p1 in pnr_results :
@@ -2323,7 +2324,7 @@ def unordered_pnr_research(request):
             values['pnr_id'] = invoice.pnr.id
             values['pnr_number'] = invoice.pnr.number
             values['invoice_number'] = invoice.invoice_number
-            values['motif'] = invoice.motif
+            values['motif'] = invoice.motif_id.designation
             values['date'] = invoice.date
             values['user'] = invoice.user.username
             results.append(values)
@@ -2392,3 +2393,14 @@ def ticket_delete(request):
 
 
         return JsonResponse({'status':'ok'})
+
+
+# Motif pour décommander un PNR
+@login_required(login_url='index')
+def addMotif(request):
+    if request.method == 'POST':
+        designation = request.POST.get('designation')
+        motifpnr = MotifPnr(designation=designation)
+        motifpnr.save()
+        context={'motif_id':motifpnr.id}
+        return JsonResponse(context)

@@ -61,8 +61,7 @@
                     </th>
 
                     <th>Motif</th>
-                    
-                    
+                  
                     <th class="pnr-creator-list">
                       <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
                         Créateur
@@ -84,7 +83,7 @@
                             class="tooltips state_2 float-right" 
                             tooltip="" 
                             tooltip-position="top"
-                            tooltip-type="warning" 
+                            tooltip-type="warning" >
                             <i class="fa fa-exclamation-triangle warning"></i>
                           </span>
 
@@ -93,7 +92,7 @@
                       <td> {{invoices.invoice_number}} </td>
 
                       <td>{{ invoices.date|date:"d/m/y H:i" }}</td>
-                      <td>{{ invoices.motif }}</td>
+                      <td>{{ invoices.motif_id.designation }}</td>
                       
                       <td>
                           {{ invoices.user.username}}

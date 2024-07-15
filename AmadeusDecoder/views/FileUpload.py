@@ -70,9 +70,10 @@ def parse_csv(file_path):
     user_match = {
         'Korotimi': 'Koro',
         'Tafara': 'Fouadi',
-        'SI': 'Sity'
+        'SI': 'Sity',
+        'MZE': 'Anaissa'
     }
-    
+     
     # Collect PNR in uploaded CSV file
     pnr_numbers = []
     

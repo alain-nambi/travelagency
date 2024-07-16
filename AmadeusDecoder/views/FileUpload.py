@@ -1,5 +1,6 @@
 import csv
 from datetime import datetime, date
+import json
 import os
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
@@ -16,9 +17,12 @@ from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.invoice.Ticket import Ticket
 from AmadeusDecoder.models.invoice.Fee import OthersFee
 from AmadeusDecoder.models.pnr.PnrPassenger import PnrPassenger
+from AmadeusDecoder.models.pnr.Passenger import Passenger
 
 from django.contrib.auth.decorators import login_required
-from django.db import transaction
+from django.db import IntegrityError, transaction
+import logging
+from django.db import IntegrityError
 
 def handle_uploaded_file(f):
     """
@@ -44,6 +48,11 @@ def handle_uploaded_file(f):
     
     return file_path
 
+# Parse issung date
+def parse_date(date_str):
+    return datetime.strptime(date_str.split()[0], '%d/%m/%Y').date()
+
+# Parse CSV data with specified path folder
 def parse_csv(file_path):
     """
     Parses the CSV file at the given file path and extracts relevant data.
@@ -58,7 +67,7 @@ def parse_csv(file_path):
     pnr_exists = []
     
     # Collect all no founded PNR
-    pnr_not_found_set = set()
+    pnr_not_found_list = []
     
     occurence_ticket_refund_existing = {
         'exist': 0,
@@ -127,10 +136,13 @@ def parse_csv(file_path):
                 pnr_number = row['NPnr'].strip()
                 emitter_criteria = row['Emetteur'].strip()
                 filtered_criteria = user_match.get(emitter_criteria, emitter_criteria).lower()
+                issuing_date = row['DateEmission']
                 
-                ticket_issuing_date = datetime.strptime(row['DateEmission'], '%d/%m/%Y').date()    
+                ticket_issuing_date = parse_date(issuing_date)
                 ticket_total = float(row['Total'].replace(',', '.'))
                 ticket_number = row['Nbillet'].strip()
+                
+                passenger = row['Client'].strip()
                 
                 pnr = pnr_dict.get(pnr_number)
                 user = user_dict.get(filtered_criteria)
@@ -161,12 +173,24 @@ def parse_csv(file_path):
                         },
                     })
                 else:
-                    pnr_not_found_set.add(pnr_number)
+                    # Update pnr_not_found_list
+                    pnr_not_found_list.append({
+                        'pnr': {'number': pnr_number},
+                        'ticket': {
+                            'issuing_date': ticket_issuing_date,
+                            'total': ticket_total,
+                            'number': ticket_number,
+                            'emitter': ticket_emitter,
+                        },
+                        'passenger': passenger
+                    })
             except Exception as ex:
                 # Log the error without interrupting the flow
                 print(f'Error reading row with PNR number : {pnr_number} {ex}')
+        
+        # print('PNRs found:', pnr_not_found_list)
     
-    return pnr_exists, pnr_not_found_set, occurence_ticket_refund_existing
+    return pnr_exists, pnr_not_found_list, occurence_ticket_refund_existing
 
 # Check if a ticket refund exists
 def check_ticket_refund_exists(number):
@@ -199,10 +223,114 @@ def upload_file(request):
                 file = request.FILES['file_upload']
                 file_path = handle_uploaded_file(file)
                 # Parse the uploaded CSV file
-                pnr_exists, pnr_not_found_set, occurence_ticket_refund_existing = parse_csv(file_path)
+                pnr_exists, pnr_not_found_list, occurence_ticket_refund_existing = parse_csv(file_path)
+
+                # Configure logging
+                logging.basicConfig(level=logging.INFO)
+                logger = logging.getLogger(__name__)
+
+                # Create PNR and Passenger if pnr is not found
+                def create_pnr_and_passenger(pnr_not_found_list):
+                    if not pnr_not_found_list:
+                        return
+
+                    # Check if PNR is already exist
+                    def is_pnr_exist(number):
+                        try:
+                            pnr = Pnr.objects.filter(number=number).first()
+                            logger.info(f'__Checking if PNR exists: {pnr}')
+                            if pnr:
+                                pnr.system_creation_date = timezone.now()
+                                pnr.save()
+                                return True
+                            return False
+                        except Exception as e:
+                            logger.error(f"Error checking PNR existence: {number} <> {e}")
+                            return False
+
+                    # Create a data set or update pnr data if exist
+                    def set_pnr_data(number, agent):
+                        try:
+                            pnr, created = Pnr.objects.update_or_create(
+                                number=number,
+                                pnr_status=1,
+                                defaults={
+                                    'type': 'EWA' if number.startswith('00') else 'Altea',
+                                    'agent': agent,
+                                    'state': 0,
+                                    'status': 'Emis',
+                                    'status_value': 0,
+                                    'system_creation_date': timezone.now()
+                                }
+                            )
+                            logger.info(f'__PNR {"created" if created else "updated"}: {number}')
+                            return pnr
+                        except IntegrityError as e:
+                            logger.error(f"IntegrityError: {e}")
+                            return None
+
+                    # Set passenger informations
+                    def set_passenger_data(name):
+                        return Passenger(
+                            name=name.upper(),
+                            order='P1',
+                            passenger_status=1,
+                        )
+
+                    # Collect PNR and Passenger list to create
+                    pnr_to_create_list = []
+                    passenger_to_create_list = []
+
+                    for data in pnr_not_found_list:
+                        number = data['pnr']['number']
+                        emitter = data['ticket']['emitter']['username']
+                        agent = User.objects.filter(user_filter_query(emitter)).first()
+                        passenger_name = data['passenger']
+
+                        pnr = set_pnr_data(number=number, agent=agent)
+                        if pnr:
+                            passenger = set_passenger_data(name=passenger_name)
+                            if not is_pnr_exist(number=number):
+                                pnr_to_create_list.append(pnr)
+                                passenger_to_create_list.append(passenger)
+
+                    # Multiple creation to hit database once for performance
+                    if pnr_to_create_list:
+                        Pnr.objects.bulk_create(pnr_to_create_list)
+                        logger.info(f'Bulk created PNRs: {pnr_to_create_list}')
+                    if passenger_to_create_list:
+                        Passenger.objects.bulk_create(passenger_to_create_list)
+                        logger.info(f'Bulk created Passengers: {passenger_to_create_list}')
+
+                    # Collect PNR numbers and Passenger names in list
+                    pnr_numbers = [pnr.number for pnr in pnr_to_create_list]
+                    passenger_names = [passenger.name for passenger in passenger_to_create_list]
+
+                    # Collect saved PNR and saved Passengers
+                    saved_pnrs = {pnr.number: pnr for pnr in Pnr.objects.filter(number__in=pnr_numbers)}
+                    saved_passengers = {passenger.name: passenger for passenger in Passenger.objects.filter(name__in=passenger_names)}
+
+                    pnr_passenger_list = []
+
+                    # Zip pnr and passenger list to make update of pnr passengers table
+                    for pnr, passenger in zip(pnr_to_create_list, passenger_to_create_list):
+                        saved_pnr = saved_pnrs[pnr.number]
+                        saved_passenger = saved_passengers[passenger.name]
+                        pnr_passenger = PnrPassenger(
+                            pnr=saved_pnr,
+                            passenger=saved_passenger
+                        )
+                        pnr_passenger_list.append(pnr_passenger)
+
+                    if pnr_passenger_list:
+                        PnrPassenger.objects.bulk_create(pnr_passenger_list)
+                        logger.info(f'Bulk created PnrPassenger relationships: {pnr_passenger_list}')
+
+                try:
+                    create_pnr_and_passenger(pnr_not_found_list)
+                except Exception as e:
+                    logger.error(f"An error occurred: {e}")
                 
-                # Convert the set of PNR numbers not found to a list of dictionaries
-                pnr_not_found = [{'pnr_number': pnr_number} for pnr_number in pnr_not_found_set]
                 
                 try:
                     # Check if there are any PNRs that exist in the system.
@@ -245,10 +373,12 @@ def upload_file(request):
                                 
                                 # Update OthersFee object total based on the ticket data.
                                 other_fee_instance = OthersFee.objects.filter(designation=number).first()
-                                other_fee_instance.cost = total
-                                other_fee_instance.tax = 0
-                                other_fee_instance.total = total
-                                other_fee_instance.save()
+                                
+                                if other_fee_instance:
+                                    other_fee_instance.cost = total
+                                    other_fee_instance.tax = 0
+                                    other_fee_instance.total = total
+                                    other_fee_instance.save()
                             else:
                                 # Retrieve or create related PNR and User instances based on the ticket data.
                                 pnr_instance = Pnr.objects.filter(number=data['pnr']['number']).first()
@@ -290,7 +420,7 @@ def upload_file(request):
                                             other_fee.save()
                                     except Exception as e:
                                         # Log the error and stop processing if an exception occurs.
-                                        print(f"Error updating or creating refund: {e}")                               
+                                        print(f"Error updating or creating refund: {e}")                      
                         
                         # Use bulk_create to efficiently insert multiple refund objects into the database.
                         if refund_objects_to_create:
@@ -305,7 +435,7 @@ def upload_file(request):
                     print(f"Error : {e}")
 
                 # Return the results in a JSON response.
-                return JsonResponse({'pnr_exists': pnr_exists, 'pnr_not_found': pnr_not_found, 'occurence_ticket_refund_existing': occurence_ticket_refund_existing}, safe=True)
+                return JsonResponse({'pnr_exists': pnr_exists, 'pnr_not_found_list': pnr_not_found_list, 'occurence_ticket_refund_existing': occurence_ticket_refund_existing}, safe=True)
 
             return render(request, 'upload-csv.html', {'form': form})
         except Exception as e:

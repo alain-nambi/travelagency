@@ -2421,7 +2421,19 @@
 						<label for="hotelName">Nom</label>
 					</div>
 					<div class="col-md-8"> 
-						<input type="text" class="form-control" id="hotelName" name="hote_name">
+						<div id='select-hotel-supplier' class='hidden-visually' aria-live="polite"></div>
+							<div class="hotelselect" id="myHotelSupplier">
+								<input type="text" id="hotel-supplier-input" class="select-css">
+								<span class="custom-select-icons">
+									<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" viewBox="0 0 16 16" focusable="false" aria-hidden="true" id="icon-circle-down" class="icon" role="img">
+										<path d="M16 8c0-4.418-3.582-8-8-8s-8 3.582-8 8 3.582 8 8 8 8-3.582 8-8zM1.5 8c0-3.59 2.91-6.5 6.5-6.5s6.5 2.91 6.5 6.5-2.91 6.5-6.5 6.5-6.5-2.91-6.5-6.5z"></path>
+										<path d="M4.957 5.543l-1.414 1.414 4.457 4.457 4.457-4.457-1.414-1.414-3.043 3.043z"></path>
+									</svg>
+																	
+								</span>
+								<ul class="hotel-supplier-options hidden-all" id="hotel-supplier-list"></ul>
+							</div>
+						</div>
 					</div>
 				</div>
 				<div class="input-group mb-2">

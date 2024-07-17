@@ -34,6 +34,7 @@ from AmadeusDecoder.models.invoice.Fee import Product
 from AmadeusDecoder.models.pnrelements.PnrAirSegments import PnrAirSegments
 from AmadeusDecoder.models.history.History import History
 from AmadeusDecoder.models.configuration.Configuration import Configuration
+from AmadeusDecoder.models.pnrelements.SpecialServiceRequest import ServiceSupplier
 
 from AmadeusDecoder.utilities.FtpConnection import upload_file
 from AmadeusDecoder.utilities.SendMail import Sending
@@ -2392,3 +2393,16 @@ def ticket_delete(request):
 
 
         return JsonResponse({'status':'ok'})
+
+
+# --------------- HOTEL & TAXI -- ---------------------------
+@login_required(login_url="index")
+def get_service_supplier_list(request):
+    
+    if request.method == 'GET':
+        hotel_suppliers = ServiceSupplier.objects.filter(service__id=10).all()
+        taxi_suppliers = ServiceSupplier.objects.filter(service__id=10).all()
+        print("------------- HOTEL SUPPLIER --------------: ",hotel_suppliers)
+
+        context = {"hotel_suppliers":hotel_suppliers,"taxi_suppliers":taxi_suppliers}
+        return JsonResponse(context)

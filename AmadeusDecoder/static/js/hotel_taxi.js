@@ -1,4 +1,68 @@
+const hotel_supplier_list = [];
+const taxi_supplier_list = [];
 
+
+function updateSelectHotelOptions() {
+    const parent_hotel = document.getElementById("hotel-supplier-list")
+                        
+    
+
+    const hotel_child = document.getElementById("hotel-supplier-item")
+      if (hotel_child) {
+        parent_hotel.removeChild(motif_child);
+      }
+
+        if (numeroPnr.length === 0) {
+            document.getElementById("hotel-supplier-list").innerHTML = "";
+                return;
+        } else {
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function () {
+                
+                if (this.readyState == 4 && this.status == 200) {
+                                            
+                var response = JSON.parse(this.responseText);
+
+                const invoices = Array.from(response.invoices);
+
+                parent.innerHTML = '';
+                
+                
+                const hotel_suppliers = Array.from(response.hotel_suppliers);
+                const taxi_suppliers = Array.from(response.taxi_suppliers);
+
+                parent_hotel.innerHTML = '';
+
+                hotel_suppliers.map((supplier) =>{
+                  hotel_supplier_list.push(supplier);
+                  const newli = document.createElement("li");
+                  newli.className="hotel-supplier-item";
+                  newli.setAttribute("data-value", supplier.id);
+                  newli.textContent = supplier.name;
+                  newli.setAttribute('role', 'option') ;
+                  newli.setAttribute('tabindex', "-1") ;
+                  parent_hotel .append(newli);
+                });
+
+                // taxi_suppliers.map((supplier) =>{
+                //   taxi_supplier_list.push(supplier);
+                //   const newli = document.createElement("li");
+                //   newli.className="taxi-supplier-item";
+                //   newli.setAttribute("data-value", supplier.id);
+                //   newli.textContent = supplier.name;
+                //   newli.setAttribute('role', 'option') ;
+                //   newli.setAttribute('tabindex', "-1") ;
+                //   parent_motif.append(newli);
+                // });
+
+
+            }
+        };
+        xmlhttp.open("GET", '/home/get-service-supplier_list', true);
+        xmlhttp.send();
+
+    }
+}
 $(document).ready(function(){
     // SETUP
     // /////////////////////////////////
@@ -201,14 +265,14 @@ $(document).ready(function(){
           case 'Enter':
             var inputsupplier = $("#hotel-supplier-input").val();
             if (inputsupplier.trim() !== '') {
-              motif_list.push({'id':'','motif':inputsupplier});
+              hotel_supplier_list.push({'id':'','motif':inputsupplier});
               var parent_motif = document.getElementById("hotel-supplier-list")
               var motif_child = document.getElementById("hotel-supplier-item")
               if (motif_child) {
                 parent_motif.removeChild(motif_child);
               }
   
-              motif_list.map((motif)=>{
+              hotel_supplier_list.map((motif)=>{
                 var newli = document.createElement("li");
                 newli.className="hotel-supplier-item";
                 newli.setAttribute('id',motif['id']);

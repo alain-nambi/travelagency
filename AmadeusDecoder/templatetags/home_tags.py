@@ -76,9 +76,9 @@ def get_list_agency_name(_):
     return [{'agency_name': agency} for agency in agency_names]
 
 @register.filter(name='passenger_is_invoiced_in_passenger_invoice')
-def get_passenger_is_invoiced_in_passenger_invoice(pnr):
+def get_passenger_is_invoiced_in_passenger_invoice(pnr_id):
     from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
-    passenger_invoices = PassengerInvoice.objects.filter(pnr=pnr.id).exclude(status="quotation")
+    passenger_invoices = PassengerInvoice.objects.filter(pnr_id=pnr_id).exclude(status="quotation")
     is_invoice = []
 
     if passenger_invoices.exists():

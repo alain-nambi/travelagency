@@ -102,17 +102,17 @@ if (listActiveFilter) {
 /* END OF LIST ACTIVE FILTER FOR FILTER MENU IN HOMEPAGE */
 
 //spinner loading
-$(document).ready(function () {
-  "use strict";
-  $(".loading").show("fade");
-  $(".spinner-wrapper").show();
-  $(".spinner-wrapper").css("position", "fixed");
-  setTimeout(function () {
-    $(".content-all-pnr").css({ visibility: "visible" });
-    $(".spinner-wrapper").hide();
-    $(".spinner-wrapper").css("position", "relative");
-  }, 2000);
-});
+// $(document).ready(function () {
+//   "use strict";
+//   $(".loading").show("fade");
+//   $(".spinner-wrapper").show();
+//   $(".spinner-wrapper").css("position", "fixed");
+//   setTimeout(function () {
+//     $(".content-all-pnr").css({ visibility: "visible" });
+//     $(".spinner-wrapper").hide();
+//     $(".spinner-wrapper").css("position", "relative");
+//   }, 2000);
+// });
 
 // Add agency selected value in document cookies
 const agencyListSelection = document.querySelector("#agencyListSelection")

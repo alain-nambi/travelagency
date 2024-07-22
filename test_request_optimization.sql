@@ -56,6 +56,7 @@ WITH
             tp.is_invoiced as "is_invoiced",
             tp.is_read as "is_read",
             tp.status_value as "status_value",
+            tp.state as "state",
             -- Concaténation du nom et du prénom du passager pour obtenir le nom complet
             COALESCE(tp2."name" || ' ' || tp2.surname, '') AS "passengers",
             -- Ajout de l'émetteur à partir des CTE last_tuc, latest_ticket_emitter ou latest_other_fee_emitter
@@ -108,7 +109,8 @@ select
     "agency",  -- Nom de l'agence associée au PNR
     "is_invoiced",
     "is_read",
-    "status_value"
+    "status_value",
+    "state"
 FROM
     PNR_PASSENGERS  -- Utilisation de la CTE définie précédemment
 -- Filtrage pour ne sélectionner que le premier passager (ou la première ligne) pour chaque PNR

@@ -453,12 +453,14 @@
                 <tbody class="tbody-pnr">
                   {% for pnr in page_obj %}
                   
-                    <tr 
+                    <tr
                       class="pnr-class 
                       {% if pnr.state == 1 %} tr-danger {% endif %}
                       {% if pnr.state == 2 %} tr-warning {% endif %}
                       {% if pnr.is_read != 1 %} non-lue {% endif %}
-                      {% if pnr.is_read == 1 %} lue {% endif %}"
+                      {% if pnr.is_read == 1 %} lue {% endif %}
+                      {% if pnr.is_invoiced %} text-success {% endif %}"
+
                       onclick="location.href='{% url 'pnr_details' pnr.id %}'"
                       style="cursor: pointer;" 
                       data-status="{{ pnr.status_value }}" 
@@ -466,39 +468,43 @@
                       data-pnr-id="{{ pnr.id }}" 
                       data-passenger-invoiced="{{ pnr.passenger_is_invoiced_in_passenger_invoice }}" 
                       data-pnr-invoice="{{ pnr.is_invoiced }}">
-                      <td>
+                      
+
+                      {{ pnr.state }}
+                      
+                      <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
                        {{ pnr.number }}
                       </td>
 
-                      <td>
+                      <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
                         {{ pnr.passengers }}
                       </td>
 
-                      <td>
+                      <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
                         {{ 'Client' }}
                       </td>
 
-                      <td>
+                      <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
                         {{ pnr.date_of_creation|date:"d/m/y H:i" }}
                       </td>
 
-                      <td>
+                      <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
                         {{ 'Date d\'émission' }}
                       </td>
 
-                      <td>
+                      <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
                         {{ 'Montant' }}
                       </td>
 
-                      <td>
+                      <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
                         {{ pnr.status }}
                       </td>
 
-                      <td>
+                      <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
                         {{ 'OPC' }}
                       </td>
 
-                      <td>
+                      <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
                         {% if pnr.type == 'EWA' %}
                           {{ 'Zenith'}}
                         {% else %}
@@ -506,7 +512,7 @@
                         {% endif %}
                       </td>
 
-                      <td>
+                      <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
                         {% if pnr.creator is not None %}
                           {{ pnr.creator }}
                         {% elif pnr.creator is None and pnr.emitter is not None %}
@@ -516,7 +522,7 @@
                         {% endif %}
                       </td>
 
-                      <td>
+                      <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
                         {% if pnr.emitter %}
                           {{ pnr.emitter }}
                         {% else %}
@@ -524,7 +530,7 @@
                         {% endif %}
                       </td>
 
-                      <td>
+                      <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
                         {% if pnr.agency %}
                           {{ pnr.agency }}
                         {% else %}
@@ -532,7 +538,7 @@
                         {% endif %}
                       </td>
 
-                      <td>
+                      <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
                         {% if pnr.code %}
                           {{ pnr.code }}
                         {% else %}

@@ -13,6 +13,7 @@ class OptimisedPnrList(models.Model):
     is_invoiced = models.BooleanField()
     is_read = models.BooleanField()
     status_value = models.IntegerField()
+    state = models.IntegerField()
 
     class Meta:
         managed = False  # No migration will be created for this model

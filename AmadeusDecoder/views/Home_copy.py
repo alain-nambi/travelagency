@@ -59,7 +59,7 @@ def home_copy(request):
     users = User.objects.exclude(username__in=('Moïse ISSOUFALI', 'Paul ISSOUFALI')).exclude(role=1).order_by('username')
     
     # Obtenez tous les enregistrements de la vue
-    pnr_list = OptimisedPnrList.objects.all()
+    pnr_list = OptimisedPnrList.objects.filter(is_invoiced=False).order_by('date_of_creation')
     
     print(pnr_list)
 

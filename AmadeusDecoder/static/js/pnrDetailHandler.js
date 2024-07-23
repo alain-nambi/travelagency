@@ -1352,13 +1352,7 @@ $('#SelectProduct').on('change', function(){
 
   }
 
-  if(select_product == 10){
-    $('#modalHotelInfo').modal("show");
-  }
 
-  if(select_product == 12){
-    $('#modalTaxiInfo').modal("show");
-  }
 });
 
 const validateInputTickerAvoir = (isValid) => {

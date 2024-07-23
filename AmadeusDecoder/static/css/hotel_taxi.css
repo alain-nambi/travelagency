@@ -1,6 +1,9 @@
 .hotelselect {
     position: relative;
   }
+.taxiselect {
+    position: relative;
+  }
   .select-css {
     display: block;
     font-size: 1em;
@@ -58,7 +61,7 @@
     background-color: #ffffff;
   }
   .hotel-supplier-options li {
-    padding: 1em;
+    padding: 10px;
   }
   .hotel-supplier-options li:hover {
     background: rgb(69, 182, 219);
@@ -95,3 +98,32 @@
     border: 0;
   }
   
+
+  .taxi-supplier-options {
+    border: 1px solid #aaa;
+    border-radius: 0 0 0.25em 0.25em;
+    line-height: 1.5;
+    margin: 0;
+    margin-top: -0.5em;
+    padding: 0;
+    list-style-type: none;
+    font-weight: normal;
+    cursor: pointer;
+    z-index: 2;
+    position: absolute;
+    width: calc(100% - 1px);
+    background-color: #ffffff;
+  }
+  .taxi-supplier-options li {
+    padding: 1em;
+  }
+  .taxi-supplier-options li:hover {
+    background: rgb(69, 182, 219);
+    color: #fff;
+    border: 1px solid rgb(69, 182, 219);
+    border-width: 0 0 0 1px;
+  }
+  
+  .taxi-supplier-options li:focus {
+    border: 1px solid rgb(69, 182, 219);
+  }

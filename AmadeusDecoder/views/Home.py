@@ -2401,8 +2401,68 @@ def get_service_supplier_list(request):
     
     if request.method == 'GET':
         hotel_suppliers = ServiceSupplier.objects.filter(service__id=10).all()
-        taxi_suppliers = ServiceSupplier.objects.filter(service__id=10).all()
+        hSupplier = []
+        for supplier in hotel_suppliers:
+            hSupplier.append({"id":supplier.id,"name":supplier.name})
+        taxi_suppliers = ServiceSupplier.objects.filter(service__id=12).all()
+        tSupplier = []
+        for supplier in taxi_suppliers:
+            tSupplier.append({"id":supplier.id,"name":supplier.name})
         print("------------- HOTEL SUPPLIER --------------: ",hotel_suppliers)
 
-        context = {"hotel_suppliers":hotel_suppliers,"taxi_suppliers":taxi_suppliers}
+        context = {"hotel_suppliers":hSupplier,"taxi_suppliers":tSupplier}
         return JsonResponse(context)
+    
+@login_required(login_url='index')
+def add_service_supplier(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        service_id = request.POST.get('service')
+
+        service_supplier = ServiceSupplier(name=name,service_id= service_id)
+        service_supplier.save()
+
+        return JsonResponse({'success':True, 'message': 'Service supplier added successfully'})
+
+@login_required(login_url="index")
+def save_hotel(request):
+    if request.method == 'POST':
+        hotel_name = request.POST.get('name')
+        arrivalDate = request.POST.get('arrivalDate')
+        arrivalTime = request.POST.get('arrivalTime')
+        departureDate = request.POST.get('departureDate')
+        departureTime = request.POST.get('departureTime')
+        room = request.POST.get('room')
+        adults = request.POST.get('adults')
+        kids = request.POST.get('kids')
+        pnr_id = request.POST.get('pnr_id')
+
+        hotel_detail = {'name':hotel_name,'arrivalDate':arrivalDate,'arrivalTime':arrivalTime,'departureDate':departureDate,'departureTime':departureTime,'room':room,'adults':adults,'kids':kids}
+
+        other_fee = OthersFee(designation="HOTEL",value=hotel_detail,pnr_id=pnr_id,fee_type="Supplement",creation_date=datetime.now())
+        other_fee.save()
+
+        context = {"hotel_detail":hotel_detail}
+
+        return JsonResponse(context)
+
+@login_required(login_url="index")
+def save_taxi(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        date = request.POST.get('date')
+        heure = request.POST.get('heure')
+        passagers = request.POST.get('passagers')
+        localisation = request.POST.get('localisation')
+
+        pnr_id = request.POST.get('pnr_id')
+
+        taxi_detail = {'name':name,'date':date,'heure':heure,'passagers':passagers,'localisation':localisation}
+
+        other_fee = OthersFee(designation="TAXI",value=taxi_detail,pnr_id=pnr_id,fee_type="Supplement",creation_date=datetime.now())
+        other_fee.save()
+
+        context = {"taxi_detail":taxi_detail}
+
+        return JsonResponse(context)
+

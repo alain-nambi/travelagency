@@ -2433,7 +2433,6 @@
 								</span>
 								<ul class="hotel-supplier-options hidden-all" id="hotel-supplier-list"></ul>
 							</div>
-						</div>
 					</div>
 				</div>
 				<div class="input-group mb-2">
@@ -2452,10 +2451,10 @@
 						<label for="departure">Départ</label>
 					</div>
 					<div class="col-md-4">
-						<input type="date" class="form-control" id="departureDate" name="arrival_date">
+						<input type="date" class="form-control" id="departureDate" name="departure_date">
 					</div>
 					<div class="col-md-4">
-						<input type="time" class="form-control" id="departureTime" name="arrival_time">
+						<input type="time" class="form-control" id="departureTime" name="departure_time">
 					</div>
 				</div>
 
@@ -2464,7 +2463,7 @@
 						<label for="Rooms">Chambres</label>
 					</div>
 					<div class="col-md-4">
-						<input type="number" class="form-control" id="rooms" name="room" value="1" min="1" max="200" step="1"  maxlength="3">
+						<input type="number" class="form-control" id="room" name="room" value="1" min="1" max="200" step="1"  maxlength="3">
 					</div>
 				</div>
 
@@ -2487,7 +2486,7 @@
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
-				<button type="button" class="btn btn-success" id="SaveHotelInfo" data-dismiss="modal">Confirmer
+				<button type="button" class="btn btn-success" id="ConfirmAddHotel" data-dismiss="modal">Confirmer
 				</button>
 			</div>
 		</div>
@@ -2507,10 +2506,21 @@
 			<div class="modal-body">
 				<div class="input-group mb-2">
 					<div class="col-md-4"> 
-						<label for="hotelName">Nom</label>
+						<label for="taxiName">Nom</label>
 					</div>
 					<div class="col-md-8"> 
-						<input type="text" class="form-control" id="hotelName" name="hote_name">
+						<div id='select-taxi-supplier' class='hidden-visually' aria-live="polite"></div>
+							<div class="taxiselect" id="myTaxiSupplier">
+								<input type="text" id="taxi-supplier-input" class="select-css">
+								<span class="custom-select-icons">
+									<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" viewBox="0 0 16 16" focusable="false" aria-hidden="true" id="icon-circle-down" class="icon" role="img">
+										<path d="M16 8c0-4.418-3.582-8-8-8s-8 3.582-8 8 3.582 8 8 8 8-3.582 8-8zM1.5 8c0-3.59 2.91-6.5 6.5-6.5s6.5 2.91 6.5 6.5-2.91 6.5-6.5 6.5-6.5-2.91-6.5-6.5z"></path>
+										<path d="M4.957 5.543l-1.414 1.414 4.457 4.457 4.457-4.457-1.414-1.414-3.043 3.043z"></path>
+									</svg>
+																	
+								</span>
+								<ul class="taxi-supplier-options" id="taxi-supplier-list"></ul>
+							</div>
 					</div>
 				</div>
 				<div class="input-group mb-2">
@@ -2546,7 +2556,7 @@
 						<label for="Rooms">Départ</label>
 					</div>
 					<div class="col-md-8">
-						<select class="form-control form-control-sm "  id="lieu" name="lieu" >
+						<select class="form-control form-control-sm "  id="localisation" name="localisation" >
 						</select>
 					</div>
 				</div>

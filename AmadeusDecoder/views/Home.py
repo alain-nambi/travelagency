@@ -1983,6 +1983,7 @@ def import_product(request, pnr_id):
             product = json.loads(request.POST.get('listNewProduct'))
             pnr = Pnr.objects.get(pk=int(pnr_id))
             
+            # cas pour l'AVOIR COMPAGNIE
             if product[0] == '19':
                 if float(product[3]) > 0:
                     product[3] = -abs(product[3])
@@ -1997,6 +1998,16 @@ def import_product(request, pnr_id):
                     passenger = Passenger.objects.get(pk=product[8])
                     passenger_segment = OtherFeeSegment(segment=segment,other_fee= other_fees, passenger=passenger)
                     passenger_segment.save()
+
+            # cas pour l'HOTEL et TAXI
+            if product[0] == '10' or product[0] == '12':
+
+                other_fee = OthersFee(designation=product[2], cost=product[3], tax=product[4], total=product[5],
+                                        pnr=pnr, fee_type=product[1], passenger_segment=product[6], reference=product[7], emitter=emitter,
+                                        quantity=1, is_subjected_to_fee=False,creation_date=datetime.now())
+                other_fee.save()
+                other_fee.value = json.loads(product[8])
+                other_fee.save()
             
             else:
                 other_fees = OthersFee.objects.filter(pnr=pnr_id, product_id=product[0])
@@ -2004,6 +2015,8 @@ def import_product(request, pnr_id):
                                         pnr=pnr, fee_type=product[1], passenger_segment=product[6], reference=product[7], emitter=emitter,
                                         quantity=1, is_subjected_to_fee=False, creation_date=datetime.now())
                 other_fees.save()
+
+
             
             # save creator user to user copying
             try:
@@ -2453,11 +2466,11 @@ def save_taxi(request):
         date = request.POST.get('date')
         heure = request.POST.get('heure')
         passagers = request.POST.get('passagers')
-        localisation = request.POST.get('localisation')
+        location = request.POST.get('location')
 
         pnr_id = request.POST.get('pnr_id')
 
-        taxi_detail = {'name':name,'date':date,'heure':heure,'passagers':passagers,'localisation':localisation}
+        taxi_detail = {'name':name,'date':date,'heure':heure,'passagers':passagers,'depart':location}
 
         other_fee = OthersFee(designation="TAXI",value=taxi_detail,pnr_id=pnr_id,fee_type="Supplement",creation_date=datetime.now())
         other_fee.save()

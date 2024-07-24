@@ -682,6 +682,42 @@ document
           document.getElementById('ticket-avoir').style.borderColor = 'red';
         }
       }
+      
+      // Récupération des informations supplémentaires concernant l'hôtel s'il y en a, dans sessionStorage
+      if(ProductDropdown.value == 10 && sessionStorage.getItem('hotel_info')){
+          hotel_info = sessionStorage.getItem('hotel_info');
+          listNewProduct.push(
+            ProductDropdown.value,
+            ProductTypeInitiale.textContent,
+            designation,
+            parseFloat(ProductTranspInput.value).toFixed(2),
+            parseFloat(ProductTaxInput.value).toFixed(2),
+            (
+              parseFloat(ProductTranspInput.value) + parseFloat(ProductTaxInput.value)
+            ).toFixed(2),
+            ProductpassInput.value,
+            "",
+            hotel_info
+          );
+      }
+
+      // Récupération des informations supplémentaires concernat le taxi s'il y en a, dans sessionStorage
+      if(ProductDropdown.value == 12 && sessionStorage.getItem('taxi_details')){
+        taxi_details = sessionStorage.getItem('taxi_details');
+        listNewProduct.push(
+          ProductDropdown.value,
+          ProductTypeInitiale.textContent,
+          designation,
+          parseFloat(ProductTranspInput.value).toFixed(2),
+          parseFloat(ProductTaxInput.value).toFixed(2),
+          (
+            parseFloat(ProductTranspInput.value) + parseFloat(ProductTaxInput.value)
+          ).toFixed(2),
+          ProductpassInput.value,
+          "",
+          taxi_details
+        );
+      } 
       else {
         listNewProduct.push(
           ProductDropdown.value,
@@ -709,6 +745,10 @@ document
         success: (response) => {
           console.log(response);
           location.reload();
+          // supprimer les informations supplémentauires des taxi et hotels dans sessionStorage
+          if(sessionStorage.getItem('taxi_details')){sessionStorage.removeItem('taxi_details');}
+          if(sessionStorage.getItem('hotel_info')){sessionStorage.removeItem('hotel_info');}
+          
         },
         error: (response) => {
           console.log(response);

@@ -2409,7 +2409,7 @@
 	<div class="modal-dialog modal-md">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title">Réservation d'hôtel</h4>
+				<h4 class="modal-title">Informations Hôtel</h4>
 				<button class="close" type="button" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">x</span>
 				</button>
@@ -2497,7 +2497,7 @@
 	<div class="modal-dialog modal-md">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title">Réservation de Taxi</h4>
+				<h4 class="modal-title">Informations Taxi</h4>
 				<button class="close" type="button" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">x</span>
 				</button>
@@ -2528,7 +2528,7 @@
 						<label for="date">Date</label>
 					</div>
 					<div class="col-md-8"> 
-						<input type="date" class="form-control" id="date" name="date">
+						<input type="date" class="form-control" id="taxiDate" name="date">
 					</div>
 					
 				</div>
@@ -2538,7 +2538,7 @@
 					</div>
 				
 					<div class="col-md-8">
-						<input type="time" class="form-control" id="time" name="time">
+						<input type="time" class="form-control" id="taxiTime" name="time">
 					</div>
 				</div>
 
@@ -2547,7 +2547,7 @@
 						<label for="passengers">Passagers</label>
 					</div>
 					<div class="col-md-8">
-						<input type="number" class="form-control" id="passengers" name="passenger" value="1" min="1" max="200" step="1"  maxlength="3">
+						<input type="number" class="form-control" id="passagers" name="passenger" value="1" min="1" max="200" step="1"  maxlength="3">
 					</div>
 				</div>
 
@@ -2555,16 +2555,15 @@
 					<div class="col-md-4">
 						<label for="Rooms">Départ</label>
 					</div>
-					<div class="col-md-8">
-						<select class="form-control form-control-sm "  id="localisation" name="localisation" >
-						</select>
+					<div class="col-md-8"> 
+						<input type="text" class="form-control" id="location" name="location" >
 					</div>
 				</div>
 				
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
-				<button type="button" class="btn btn-success" id="SaveHotelInfo" data-dismiss="modal">Confirmer
+				<button type="button" class="btn btn-success" id="ConfirmAddTaxi" data-dismiss="modal">Confirmer
 				</button>
 			</div>
 		</div>

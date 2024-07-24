@@ -4,6 +4,7 @@
 .taxiselect {
     position: relative;
   }
+
   .select-css {
     display: block;
     font-size: 1em;
@@ -127,3 +128,4 @@
   .taxi-supplier-options li:focus {
     border: 1px solid rgb(69, 182, 219);
   }
+

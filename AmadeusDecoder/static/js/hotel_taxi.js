@@ -1,5 +1,7 @@
 const hotel_supplier_list = [];
 const taxi_supplier_list = [];
+const departure_location_list = [];
+
 
 $('#SelectProduct').on('change', function(){
   select_product = $('#SelectProduct').val();
@@ -601,6 +603,8 @@ $(document).ready(function(){
 
 })
 
+
+
 // Enregistrer la reservation d'hôtel
 $('#ConfirmAddHotel').on('click', function(){
   var name = document.getElementById('hotel-supplier-input').value;
@@ -613,68 +617,43 @@ $('#ConfirmAddHotel').on('click', function(){
   var kids = document.getElementById('kids').value;
   var pnr_id = document.getElementById('pnr_id').getAttribute('data-id');
 
-  data_id = $('#hotel-supplier-input').getAttribute('data-id');
-  if (data_id) {
-    
+ // Enregistrer le fournisseur s'il est nouveau 
+  hotel_input = document.getElementById('hotel-supplier-input')
+  data_id = hotel_input.getAttribute('data-id');
+  if (data_id == "null") {
+    addServiceSupplier(name,10);
   }
   
-  $.ajax({
-    type: "POST",
-    url: "/home/save-hotel",
-    dataType: "json",
-    data:{
-        name: name,
-        arrivalDate: arrivalDate,
-        arrivalTime: arrivalTime,
-        departureDate: departureDate,
-        departureTime: departureTime,
-        room: room,
-        adults: adults,
-        kids: kids,
-        pnr_id: pnr_id,
-        csrfmiddlewaretoken: csrftoken,
-    },
-    success: (response) => {
-        console.log(`response`, response.hotel_detail);
-      
-    },
-    error: (error) => {
-        console.log(`error`, error);
-    }
-  })
+  // Enregistrer toutes les informations dans sessionStorage
+  hotel_info = {'name':name,'arrivalDate':arrivalDate,'arrivalTime':arrivalTime,'departureDate':departureDate,'departureTime':departureTime,'room':room,'adults':adults,'kids':kids};
+  sessionStorage.setItem('hotel_info',JSON.stringify(hotel_info));
+
+  toastr.success('Informations ajoutées.')
 
 
 })
 
 // Enregistrer la reservation de taxi
-$('#ConfirmAddTaxi').on('click', function(){
-  var name = document.getElementById('TaxilName').value;
+$('#ConfirmAddTaxi').on('click', function(){ 
+  var name = document.getElementById('taxi-supplier-input').value;
   var taxiDate = document.getElementById('taxiDate').value;
   var taxiTime = document.getElementById('taxiTime').value;
   var passagers = document.getElementById('passagers').value;
-  var localisation = document.getElementById('localisation').value;
+  var location = document.getElementById('location').value;
+  var pnr_id = document.getElementById('pnr_id').getAttribute('data-id');
 
-  $.ajax({
-    type: "POST",
-    url: "/home/save-taxi",
-    dataType: "json",
-    data:{
-        name: name,
-        taxiDate: taxiDate,
-        taxiTime: taxiTime,
-        passagers: passagers,
-        localisation: localisation,
-        csrfmiddlewaretoken: csrftoken,
-    },
-    success: (response) => {
-        console.log(`response`, response);
-      
-    },
-    error: (error) => {
-        console.log(`error`, error);
-    }
-  })
+ // Enregistrer le fournisseur s'il est nouveau 
+  taxi_input = document.getElementById('taxi-supplier-input')
+  data_id = taxi_input.getAttribute('data-id');
+  if (data_id == "null") {
+    addServiceSupplier(name,12);
+  }
+  // Enregistrer toutes les informations dans sessionStorage
 
+  taxi_details = {'name':name,'date':taxiDate,'heure':taxiTime,'passagers':passagers,'depart':location};
+  sessionStorage.setItem('taxi_details',JSON.stringify(taxi_details));
+
+  toastr.success('Informations ajoutées.')
 
 })
 

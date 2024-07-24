@@ -136,4 +136,9 @@ urlpatterns = [
     path('customer/details/<int:customer_id>',customer_details,name="customer_details"),
     path('home/unremounted-ticket-research', unremounted_ticket_research, name= 'unremounted_ticket_research'),
     path('customer/updateInfo',modify_customer,name='modify_customer'),
+    path('home/get-service-supplier-list',get_service_supplier_list,name='get_service_supplier_list'),
+    path('home/save-hotel',save_hotel,name='save_hotel'),
+    path('home/save-taxi',save_taxi,name='save_taxi'),
+    path('home/add-service-supplier',add_service_supplier, name='add_service_supplier'),
+
 ]

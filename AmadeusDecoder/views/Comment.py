@@ -259,7 +259,8 @@ def get_pnr_not_fetched(request):
                     "alain@phidia.onmicrosoft.com",
                     "olyviahasina.razakamanantsoa@outlook.fr",
                     "pp@phidia.onmicrosoft.com",
-                    "tahina@phidia.onmicrosoft.com"
+                    "tahina@phidia.onmicrosoft.com",
+                    "haryzoely@phidia.onmicrosoft.com"
                 ],
                 subject,
                 message

@@ -495,6 +495,29 @@
                             "></i>
                           </span>
                         {% endif%}
+
+                        {% with pnr.id|pnr_comment_state as pnr_comment_state %} 
+                          <!-- -1: pas d'anomalie, 0: non traitée, 1: traitée -->
+                          {% if pnr_comment_state == 0 %}
+                            <span 
+                              class="tooltips comment-state-0 float-right" 
+                              tooltip="" 
+                              tooltip-position="right"
+                              tooltip-type="danger"
+                            >
+                              <i class="fa fa-bug text-danger"></i>
+                            </span>
+                          {% elif pnr_comment_state == 1 %}
+                            <span 
+                              class="tooltips comment-state-1 float-right" 
+                              tooltip="" 
+                              tooltip-position="right"
+                              tooltip-type="danger"
+                            >
+                              <i class="fa fa-bug text-success"></i>
+                            </span>
+                          {% endif %}
+                        {% endwith %}
                       </td>
 
                       <!-- Show Passengers -->
@@ -515,7 +538,9 @@
                       </td>
 
                       <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
-                        {{ 'Montant' }}
+                        {% with pnr.id|order_amount_total as order_amount_total %}
+                          <span class="montant">{{ order_amount_total|floatformat:'2' }}</span>
+                        {% endwith %}
                       </td>
 
                       <td class="{% if pnr.is_invoiced %} text-success {% endif %}">

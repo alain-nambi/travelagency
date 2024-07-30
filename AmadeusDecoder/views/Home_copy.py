@@ -52,33 +52,84 @@ from django.shortcuts import render
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from ..models.pnr.OptimizedPnrList import OptimisedPnrList
 
+
 @login_required(login_url='index')
 def home_copy(request):
-    context = {}
+    def format_date_range(date_range):
+        if date_range:
+            for fmt in ("%d-%m-%Y", "%Y-%m-%d"):
+                try:
+                    start_date, end_date = [datetime.strptime(d, fmt) for d in date_range.split(" * ")]
+                    return (
+                        start_date.replace(hour=0, minute=0, second=0, tzinfo=timezone.utc),
+                        end_date.replace(hour=23, minute=59, second=59, tzinfo=timezone.utc)
+                    )
+                except ValueError:
+                    continue
+        return None, None
 
-    users = User.objects.exclude(username__in=('Moïse ISSOUFALI', 'Paul ISSOUFALI')).exclude(role=1).order_by('username').values('id')
+    def format_filter_creator(pnr_creator):
+        try:
+            parsed_creator = json.loads(pnr_creator)
+            if parsed_creator[0] in ["0", 'Empty']:
+                return None
+            return [int(user_id) for user_id in parsed_creator]
+        except (json.JSONDecodeError, TypeError, ValueError):
+            return None
+    
+    
+    # Get filters from cookies
+    pnr_creator_filter_cookies = request.COOKIES.get('creator_pnr_filter')
+    pnr_follower = format_filter_creator(pnr_creator_filter_cookies)
+    date_range_filter_cookies = request.COOKIES.get('dateRangeFilter')
+    start_date_range_filter, end_date_range_filter = format_date_range(date_range_filter_cookies)
+    pnr_order_list_filter = {
+        "asc": "date_of_creation",
+        "desc": "-date_of_creation"
+    }.get(request.COOKIES.get("creation_date_order_by"), "-date_of_creation")
+    
+    is_invoiced_filter_cookies = request.COOKIES.get('filter_pnr')
+    is_invoiced_filter = {
+        "True": True,
+        "False": False,
+        "None": None
+    }.get(is_invoiced_filter_cookies, False)
 
-    # Obtenez tous les enregistrements de la vue
-    pnr_list = OptimisedPnrList.objects.filter(is_invoiced=False).order_by('date_of_creation')
+    # Query users and set filters
+    users = User.objects.exclude(
+                username__in=('Moïse ISSOUFALI', 'Paul ISSOUFALI')
+            ).exclude(role=1).order_by('username').values('id', 'username')
+    pnr_usernames_filter = list(users.filter(id__in=pnr_follower).values_list('username', flat=True)) if pnr_follower else []
 
-    row_num = request.GET.get('paginate_by', 50) or 50
+    # Setting Q filters 
+    """_summary_
+
+    Returns:
+        date_range, is_invoiced, username_filter
+    """
+    filters = Q()
+    if start_date_range_filter and end_date_range_filter:
+        filters &= Q(date_of_creation__range=[start_date_range_filter, end_date_range_filter])
+    if is_invoiced_filter is not None:
+        filters &= Q(is_invoiced=is_invoiced_filter)
+    if pnr_usernames_filter:
+        filters &= Q(creator__in=pnr_usernames_filter) | Q(emitter__in=pnr_usernames_filter)
+
+    # Get the filtered list and paginate
+    pnr_list = OptimisedPnrList.objects.filter(filters).order_by(pnr_order_list_filter)
+    paginator = Paginator(pnr_list, request.GET.get('paginate_by', 50))
+    
     page_num = request.GET.get('page', 1)
-    paginator = Paginator(pnr_list, row_num)
-
     try:
         page_obj = paginator.page(page_num)
-    except PageNotAnInteger:
+    except (PageNotAnInteger, EmptyPage):
         page_obj = paginator.page(1)
-    except EmptyPage:
-        page_obj = paginator.page(paginator.num_pages)
-
-    # Utilisation de count() pour obtenir le nombre total de PNRs
-    pnr_count = pnr_list.count()
-
+    
+    # Context
     context = {
         'page_obj': page_obj,
-        'row_num': row_num,
-        'pnr_count': pnr_count,
+        'row_num': paginator.per_page,
+        'pnr_count': paginator.count,
         'users': users,
     }
 

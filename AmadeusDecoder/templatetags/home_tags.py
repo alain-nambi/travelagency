@@ -131,9 +131,9 @@ def get_passenger_segment_missing(pnr):
     return " , ".join(tickets_passenger_segment)
 
 @register.filter(name='pnr_comment_state')
-def get_pnr_comment_state(pnr):
+def get_pnr_comment_state(pnr_id):
     from AmadeusDecoder.models.utilities.Comments import Comment
-    comments = Comment.objects.filter(pnr_id_id=pnr.id)
+    comments = Comment.objects.filter(pnr_id_id=pnr_id)
     states = []
     if comments.exists():
         for comment in comments:
@@ -190,11 +190,11 @@ def get_issuing_date(pnr):
         return None
     
 @register.filter(name='order_amount_total')
-def get_order_amout_total(pnr):
+def get_order_amout_total(pnr_id):
     from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
     from AmadeusDecoder.models.invoice.Ticket import Ticket
     from AmadeusDecoder.models.invoice.Fee import OthersFee, Fee
-    pnr = Pnr.objects.get(pk=pnr.id)
+    pnr = Pnr.objects.get(pk=pnr_id)
     passenger_invoices = PassengerInvoice.objects.filter(pnr_id=pnr)
     amount_total = 0
     amount_invoiced = 0

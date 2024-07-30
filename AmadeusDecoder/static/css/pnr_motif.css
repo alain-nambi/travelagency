@@ -117,7 +117,7 @@
     cursor: pointer;
     z-index: 2;
     position: absolute;
-    width: calc(100% - 1px);
+    width: calc(100% - 1.1em);
     background-color: #ffffff;
   }
   .ticket-motif-options li {

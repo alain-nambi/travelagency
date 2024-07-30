@@ -76,5 +76,11 @@ def get_invoice_number(request,numeroPnr):
 #     print(processus_api.returncode)
 #     return JsonResponse({'message': 'Le serveur NodeJS a été démarré'}, safe=False)
     
+@login_required(login_url='index')
+def get_all_motif(request):
+    motifs = MotifPnr.objects.all()
+    motif_data = [{'id':motif.id,'motif':motif.designation} for motif in motifs]
+    unique_motif_ids_dict = {entry['id']: entry['motif'] for entry in motif_data}
+    unique_motif_ids_list = [{'id': key, 'motif': value} for key, value in unique_motif_ids_dict.items()]
 
-    
+    return JsonResponse({"motifs": unique_motif_ids_list})

@@ -97,15 +97,15 @@
     clip-path: inset(50%);
     border: 0;
   }
-  .ticket-select-icons {
+  .ticket-motif-icons {
     position: absolute;
     top: 0.5em;
-    right: 0.5em;
+    right: 1em;
     z-index: 20;
     border: 1px solid white; 
     background: transparent;
   }
-  .ticket-select-options {
+  .ticket-motif-options {
     border: 1px solid #aaa;
     border-radius: 0 0 0.25em 0.25em;
     line-height: 1.5;
@@ -120,16 +120,16 @@
     width: calc(100% - 1px);
     background-color: #ffffff;
   }
-  .ticket-select-options li {
+  .ticket-motif-options li {
     padding: 1em;
   }
-  .ticket-select-options li:hover {
+  .ticket-motif-options li:hover {
     background: blue;
     color: #fff;
     border: 1px solid blue;
     border-width: 0 0 0 1px;
   }
   
-  .ticket-select-options li:focus {
+  .ticket-motif-options li:focus {
     border: 1px solid blue;
   }

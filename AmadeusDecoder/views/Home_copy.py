@@ -53,35 +53,37 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from ..models.pnr.OptimizedPnrList import OptimisedPnrList
 
 @login_required(login_url='index')
-def home_copy(request): 
+def home_copy(request):
     context = {}
 
-    users = User.objects.exclude(username__in=('Moïse ISSOUFALI', 'Paul ISSOUFALI')).exclude(role=1).order_by('username')
-    
+    users = User.objects.exclude(username__in=('Moïse ISSOUFALI', 'Paul ISSOUFALI')).exclude(role=1).order_by('username').values('id')
+
     # Obtenez tous les enregistrements de la vue
     pnr_list = OptimisedPnrList.objects.filter(is_invoiced=False).order_by('date_of_creation')
-    
-    print(pnr_list)
 
     row_num = request.GET.get('paginate_by', 50) or 50
     page_num = request.GET.get('page', 1)
     paginator = Paginator(pnr_list, row_num)
-    
+
     try:
         page_obj = paginator.page(page_num)
     except PageNotAnInteger:
         page_obj = paginator.page(1)
     except EmptyPage:
         page_obj = paginator.page(paginator.num_pages)
-    
+
+    # Utilisation de count() pour obtenir le nombre total de PNRs
+    pnr_count = pnr_list.count()
+
     context = {
-        'page_obj': page_obj, 
+        'page_obj': page_obj,
         'row_num': row_num,
-        'pnr_count': pnr_list.count(),
-        'users': users
+        'pnr_count': pnr_count,
+        'users': users,
     }
-    
+
     return render(request, 'home-copy.html', context)
+
 
 
 

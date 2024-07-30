@@ -23,7 +23,7 @@ AIRPORT_AGENCY_CODE = configs.AIRPORT_AGENCY_CODE
 
 @register.filter(name='get_all_username')
 def get_all_username(_userId):
-    user_obj = User.objects.all()
+    user_obj = User.objects.only('id', 'username')
     return json.dumps([{"id": user.id, "username": user.username} for user in user_obj])
 
 @register.filter(name='list_agency_name')

@@ -50,13 +50,15 @@ WITH
             tp.system_creation_date AS "date_of_creation",  -- Date de création du PNR
             tp.status AS "status",  -- Statut du PNR
             tp."type" AS "type",  -- Type du PNR
-            tp.agency_code AS "code",  -- Code de l'agence associée au PNR
+            -- tp.agency_code AS "code",  -- Code de l'agence associée au PNR
             tu.username AS "creator",  -- Nom d'utilisateur du créateur du PNR
-            to2."name" AS "agency",  -- Nom de l'agence associée au PNR
+            to2."name" AS "agency_office_name",  -- Nom de l'agence associée au PNR
+            to2."code" as "agency_office_code",
             tp.is_invoiced as "is_invoiced",
             tp.is_read as "is_read",
             tp.status_value as "status_value",
             tp.state as "state",
+            tp.agency_name as "agency_name",
             -- Concaténation du nom et du prénom du passager pour obtenir le nom complet
             COALESCE(tp2."name" || ' ' || tp2.surname, '') AS "passengers",
             -- Ajout de l'émetteur à partir des CTE last_tuc, latest_ticket_emitter ou latest_other_fee_emitter
@@ -103,10 +105,12 @@ select
     "date_of_creation",  -- Date de création du PNR
     "status",  -- Statut du PNR
     "type",  -- Type du PNR
-    "code",  -- Code de l'agence associée au PNR
+    -- "code",  -- Code de l'agence associée au PNR
     "creator",  -- Nom d'utilisateur du créateur du PNR
     "emitter",  -- Nom de l'émetteur (soit de t_user_copying, soit de t_ticket, soit de t_other_fee)
-    "agency",  -- Nom de l'agence associée au PNR
+    "agency_office_code",  -- Nom de l'agence associée au PNR
+    "agency_office_name",
+    "agency_name",
     "is_invoiced",
     "is_read",
     "status_value",

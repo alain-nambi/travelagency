@@ -77,30 +77,53 @@ def home_copy(request):
         except (json.JSONDecodeError, TypeError, ValueError):
             return None
     
+    # Query users and set filters
+    users = User.objects.exclude(
+                username__in=('Moïse ISSOUFALI', 'Paul ISSOUFALI')
+            ).exclude(role=1).order_by('username').values('id', 'username')
+    
     
     # Get filters from cookies
     pnr_creator_filter_cookies = request.COOKIES.get('creator_pnr_filter')
-    pnr_follower = format_filter_creator(pnr_creator_filter_cookies)
     date_range_filter_cookies = request.COOKIES.get('dateRangeFilter')
+    is_invoiced_filter_cookies = request.COOKIES.get('filter_pnr')
+    agency_name_filter_cookies = request.COOKIES.get('agency_name_filter')
+    pnr_status_filter_cookies = request.COOKIES.get('filter_pnr_by_status')
+    
+    # Get all PNR users's following
+    pnr_follower = format_filter_creator(pnr_creator_filter_cookies)
+    
+    # Processing all available filters
+    # ** Date Range FILTER **
     start_date_range_filter, end_date_range_filter = format_date_range(date_range_filter_cookies)
+    
+    # ** PNR order FILTER (sort) **
     pnr_order_list_filter = {
         "asc": "date_of_creation",
         "desc": "-date_of_creation"
     }.get(request.COOKIES.get("creation_date_order_by"), "-date_of_creation")
     
-    is_invoiced_filter_cookies = request.COOKIES.get('filter_pnr')
+    # ** Status invoice PNR FILTER **
     is_invoiced_filter = {
         "True": True,
         "False": False,
         "None": None
     }.get(is_invoiced_filter_cookies, False)
 
-    # Query users and set filters
-    users = User.objects.exclude(
-                username__in=('Moïse ISSOUFALI', 'Paul ISSOUFALI')
-            ).exclude(role=1).order_by('username').values('id', 'username')
-    pnr_usernames_filter = list(users.filter(id__in=pnr_follower).values_list('username', flat=True)) if pnr_follower else []
-
+    # ** User following PNR FILTER **
+    pnr_follower_filter = list(users.filter(id__in=pnr_follower).values_list('username', flat=True)) if pnr_follower else []
+    
+    # ** Agency names FILTER **
+    agency_name_filter = agency_name_filter_cookies
+    
+    # ** PNR status FILTER (Émis ou Non émis)
+    pnr_status_filter = {
+        '0': 'Emis',
+        '1': 'Non émis',
+        "2": None
+    }.get(pnr_status_filter_cookies)
+    
+    
     # Setting Q filters 
     """_summary_
 
@@ -108,15 +131,29 @@ def home_copy(request):
         date_range, is_invoiced, username_filter
     """
     filters = Q()
+    # ~ Date range Q Filter
     if start_date_range_filter and end_date_range_filter:
         filters &= Q(date_of_creation__range=[start_date_range_filter, end_date_range_filter])
+    # ~ Status invoiced Q Filter
     if is_invoiced_filter is not None:
         filters &= Q(is_invoiced=is_invoiced_filter)
-    if pnr_usernames_filter:
-        filters &= Q(creator__in=pnr_usernames_filter) | Q(emitter__in=pnr_usernames_filter)
+    # ~ User following Q Filter
+    if pnr_follower_filter:
+        filters &= Q(creator__in=pnr_follower_filter) | Q(emitter__in=pnr_follower_filter)
+    # ~ Agency name Q Filter
+    if agency_name_filter:
+        if agency_name_filter == "0":
+            filters &= Q(agency_office_name=None, agency_office_code=None, agency_name='')
+        else:
+            filters &= Q(agency_office_name__icontains=agency_name_filter) | Q(agency_name__icontains=agency_name_filter) if agency_name_filter else Q()
+    if pnr_status_filter:
+        filters &= Q(status__iexact=pnr_status_filter) if pnr_status_filter is not None else Q()
+            
+    print(f'Filters : {filters}')
 
     # Get the filtered list and paginate
     pnr_list = OptimisedPnrList.objects.filter(filters).order_by(pnr_order_list_filter)
+    
     paginator = Paginator(pnr_list, request.GET.get('paginate_by', 50))
     
     page_num = request.GET.get('page', 1)

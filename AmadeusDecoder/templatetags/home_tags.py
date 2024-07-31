@@ -298,3 +298,17 @@ def get_pnr_office(pnr):
         return pnr.get_pnr_office()
     except:
         return None
+    
+@register.filter(name='uniformised_pnr_agency')
+def uniformed_pnr_agency_processing(agency):
+    # Define the uniformized agency names
+    agence_name_uniformised = {'GSA ISSOUFALI Dzaoudzi', 'GSA ISSOUFALI Jumbo Score', 'GSA ISSOUFALI Mamoudzou'}
+    
+    try:
+        agency = str(agency).strip()
+        if agency in agence_name_uniformised:
+            return agency.replace("GSA ISSOUFALI", "").strip()
+        return agency
+    except Exception:
+        pass
+    return None

@@ -584,14 +584,12 @@
                           {{ pnr.agency_name|uniformised_pnr_agency }}
                         {% elif pnr.agency_office_name %}
                           {{ pnr.agency_office_name|uniformised_pnr_agency }}
-                        {% elif pnr.agency_name %}
-                          {{ pnr.agency_name }}
                         {% endif %}
                       </td>
 
                       <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
-                        {% if pnr.code %}
-                          {{ pnr.code }}
+                        {% if pnr.agency_office_code %}
+                          {{ pnr.agency_office_code }}
                         {% else %}
                           {{ '' }}
                         {% endif %}

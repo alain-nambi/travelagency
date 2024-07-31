@@ -278,9 +278,6 @@ def get_min_opc(pnr):
 def get_min_opc(pnr_id):
     try:
         pnr = Pnr.objects.get(pk=pnr_id)
-        
-        print(f"PNR : {pnr}")
-        
         if pnr:
             return pnr.get_min_opc()
     except:

@@ -15,6 +15,8 @@ class OptimisedPnrList(models.Model):
     is_read = models.BooleanField()
     status_value = models.IntegerField()
     state = models.IntegerField()
+    client = models.CharField(max_length=255)
+    pnr_comment_state = models.IntegerField()
 
     class Meta:
         managed = False  # No migration will be created for this model

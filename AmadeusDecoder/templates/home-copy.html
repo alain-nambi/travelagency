@@ -496,28 +496,26 @@
                           </span>
                         {% endif%}
 
-                        {% with pnr.id|pnr_comment_state as pnr_comment_state %} 
-                          <!-- -1: pas d'anomalie, 0: non traitée, 1: traitée -->
-                          {% if pnr_comment_state == 0 %}
-                            <span 
-                              class="tooltips comment-state-0 float-right" 
-                              tooltip="" 
-                              tooltip-position="right"
-                              tooltip-type="danger"
-                            >
-                              <i class="fa fa-bug text-danger"></i>
-                            </span>
-                          {% elif pnr_comment_state == 1 %}
-                            <span 
-                              class="tooltips comment-state-1 float-right" 
-                              tooltip="" 
-                              tooltip-position="right"
-                              tooltip-type="danger"
-                            >
-                              <i class="fa fa-bug text-success"></i>
-                            </span>
-                          {% endif %}
-                        {% endwith %}
+                        <!-- -1: pas d'anomalie, 0: non traitée, 1: traitée -->
+                        {% if pnr.pnr_comment_state == 0 %}
+                          <span 
+                            class="tooltips comment-state-0 float-right" 
+                            tooltip="" 
+                            tooltip-position="right"
+                            tooltip-type="danger"
+                          >
+                            <i class="fa fa-bug text-danger"></i>
+                          </span>
+                        {% elif pnr.pnr_comment_state == 1 %}
+                          <span 
+                            class="tooltips comment-state-1 float-right" 
+                            tooltip="" 
+                            tooltip-position="right"
+                            tooltip-type="danger"
+                          >
+                            <i class="fa fa-bug text-success"></i>
+                          </span>
+                        {% endif %}
                       </td>
 
                       <!-- Show Passengers -->
@@ -526,8 +524,12 @@
                       </td>
 
                       <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
-                        {{ 'Client' }}
-                      </td>
+                        {% if pnr.client is not None %}
+                          {{ pnr.client }}
+                        {% else %}
+                          {{ '' }}
+                        {% endif %}
+                      </td> 
 
                       <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
                         {{ pnr.date_of_creation|date:"d/m/y H:i" }}

@@ -273,6 +273,18 @@ def get_min_opc(pnr):
         return pnr.get_min_opc()
     except:
         return ''
+
+@register.filter(name='min_opc')
+def get_min_opc(pnr_id):
+    try:
+        pnr = Pnr.objects.get(pk=pnr_id)
+        
+        print(f"PNR : {pnr}")
+        
+        if pnr:
+            return pnr.get_min_opc()
+    except:
+        return ''
     
 @register.filter(name='pnr_creator')
 def get_pnr_creator(pnr):

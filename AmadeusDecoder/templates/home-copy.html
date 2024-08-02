@@ -550,8 +550,8 @@
                       </td>
 
                       <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
-                        {% if pnr.id|min_opc is not None %}
-                          {{ pnr.id|min_opc|date:"d/m/y H:i" }}
+                        {% if pnr.pnr_min_doc_state is not None %}
+                          {{ pnr.pnr_min_doc_state|date:"d/m/y H:i" }}
                         {% endif %}
                       </td>
 

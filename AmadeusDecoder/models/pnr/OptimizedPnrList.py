@@ -17,7 +17,8 @@ class OptimisedPnrList(models.Model):
     state = models.IntegerField()
     client = models.CharField(max_length=255)
     pnr_comment_state = models.IntegerField()
-
+    pnr_min_doc_state = models.DateTimeField(db_index=True)
+    
     class Meta:
         managed = False  # No migration will be created for this model
         db_table = 'optimised_pnr_list'

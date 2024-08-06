@@ -520,7 +520,11 @@
 
                       <!-- Show Passengers -->
                       <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
-                        {{ pnr.passengers }}
+                        {% if pnr.passengers is not None %}
+                          {{ pnr.passengers }}
+                        {% else %}
+                          {{ '' }}
+                        {% endif %}
                       </td>
 
                       <td class="{% if pnr.is_invoiced %} text-success {% endif %}">

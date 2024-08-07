@@ -162,13 +162,26 @@ def home_copy(request):
     # Get the filtered list and paginate
     pnr_list = OptimisedPnrList.objects.filter(filters).order_by(pnr_order_list_filter)
 
-    # Check if the user meets the special condition for Farida and Mouniati user
-    if request.user.username in ['Mouniati', 'Farida'] or request.user.id in [4, 5]:
-        user_filter = Q(creator__iexact='Mouniati') | Q(emitter__iexact='Mouniati') | \
-                    Q(creator__iexact='Farida') | Q(emitter__iexact='Farida')
+    # Define user-specific filters
+    special_usernames = ['Mouniati', 'Farida']
+    special_user_ids = [4, 5]
 
+    # Check if the user meets the special condition for Farida and Mouniati user
+    if request.user.username in special_usernames or request.user.id in special_user_ids:
+        user_filter = Q(creator__iexact='Mouniati') | Q(emitter__iexact='Mouniati') | \
+                      Q(creator__iexact='Farida') | Q(emitter__iexact='Farida')
+        
         if pnr_follower_filter == 'no_creator':
-            pnr_list = pnr_list.filter(Q(creator=None) | Q(creator=""))
+            pnr_list = pnr_list.filter(Q(creator__isnull=True) | Q(creator=""))
+        else:
+            pnr_list = pnr_list.filter(user_filter)
+
+    # Check if the user is a comptoir agent with role_id equals to 3
+    elif request.user.role_id == 3:
+        user_filter = Q(creator__iexact=request.user.username) | Q(emitter__iexact=request.user.username)
+        
+        if pnr_follower_filter == 'no_creator':
+            pnr_list = pnr_list.filter(Q(creator__isnull=True) | Q(creator=""))
         else:
             pnr_list = pnr_list.filter(user_filter)
 

@@ -316,6 +316,8 @@ $(document).ready(function () {
 
         if (creators.length == 1 && creators[0] == "0") {
           usernames = "Tout"
+        } else if (creators.includes('Empty')) {
+          usernames = "Non attribué"
         }
         else if (creators.length == 1 && creators[0] == "Empty") {
           usernames = 'Non attribué'

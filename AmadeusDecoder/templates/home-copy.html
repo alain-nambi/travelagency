@@ -469,9 +469,6 @@
                       data-passenger-invoiced="{{ pnr.passenger_is_invoiced_in_passenger_invoice }}" 
                       data-pnr-invoice="{{ pnr.is_invoiced }}">
                       
-
-                      {{ pnr.state }}
-                      
                       <!-- Show PNR Number -->
                       <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
                         {{ pnr.number }}
@@ -540,7 +537,13 @@
                       </td>
 
                       <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
-                        {{ 'Date d\'émission' }}
+                        {% with pnr.id|newer_ticket_issuing_date as newer_ticket_issuing_date %}
+                          {% if newer_ticket_issuing_date is not None %}
+                            {{ newer_ticket_issuing_date|date:"d/m/y" }}
+                          {% else %}
+                            {{ '' }}
+                          {% endif %}
+                        {% endwith %}
                       </td>
 
                       <td class="{% if pnr.is_invoiced %} text-success {% endif %}">

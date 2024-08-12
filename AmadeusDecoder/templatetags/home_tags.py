@@ -189,6 +189,14 @@ def get_issuing_date(pnr):
     except:
         return None
     
+@register.filter(name='newer_ticket_issuing_date')
+def get_issuing_date(pnr_id):
+    try:
+        pnr = Pnr.objects.get(pk=pnr_id)
+        return pnr.get_max_issuing_date()
+    except:
+        return None
+    
 @register.filter(name='order_amount_total')
 def get_order_amout_total(pnr_id):
     from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice

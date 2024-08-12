@@ -64,6 +64,7 @@ class InvoicesCanceled(models.Model, BaseModel):
         default=False, 
         null=True, 
         related_name= 'pnr_unordered_ticket',
+        
     )
     other_fee = models.OneToOneField(
         'OthersFee',
@@ -80,3 +81,9 @@ class InvoicesCanceled(models.Model, BaseModel):
         related_name='pnr_unordered_fee',
     )
     
+class MotifPnr(models.Model):
+    # motif pour décommander un PNR
+    class Meta:
+        db_table = 't_motif_pnr'
+
+    designation = models.CharField(max_length=200, null=False)

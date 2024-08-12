@@ -11,6 +11,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 import requests
+from AmadeusDecoder.models.invoice.Invoice import MotifPnr
 from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 
@@ -84,3 +85,13 @@ def get_all_motif(request):
     unique_motif_ids_list = [{'id': key, 'motif': value} for key, value in unique_motif_ids_dict.items()]
 
     return JsonResponse({"motifs": unique_motif_ids_list})
+
+# Motif pour décommander un PNR ou annuler un billet
+@login_required(login_url='index')
+def addMotif(request):
+    if request.method == 'POST':
+        designation = request.POST.get('designation')
+        motifpnr = MotifPnr(designation=designation)
+        motifpnr.save()
+        context={'motif_id':motifpnr.id}
+        return JsonResponse(context)

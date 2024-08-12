@@ -86,7 +86,7 @@ function updateSelectOptions() {
 
             }
         };
-        xmlhttp.open("GET", '/home/get-invoice-number-to-uncommand/' + numeroPnr, true);
+        xmlhttp.open("GET", '/home/motif/get-all', true);
         xmlhttp.send();
 
 }

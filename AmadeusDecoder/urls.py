@@ -81,5 +81,5 @@ urlpatterns = [
     path('home/canceled-ticket-filter', canceled_ticket_filter, name= 'canceled_ticket_filter'),
     path('home/canceled-ticket-advanced-research', canceled_ticket_advanced_search, name= 'canceled_ticket_advanced_search'),
     path('home/motif/get-all',get_all_motif,name="get_all_motif"),
-    
+    path('home/motif/add',addMotif,name="addMotif"),
 ]

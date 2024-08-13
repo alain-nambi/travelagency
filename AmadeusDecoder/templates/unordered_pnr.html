@@ -217,8 +217,7 @@
                     </th>
 
                     <th>Motif</th>
-                    
-                    
+                  
                     <th class="pnr-creator-list">
                       <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
                         Créateur </div>
@@ -249,7 +248,7 @@
                       <td> {{ invoices.invoice_date|date:"d/m/y H:i" }}</td>
 
                       <td>{{ invoices.date|date:"d/m/y H:i" }}</td>
-                      <td>{{ invoices.motif }}</td>
+                      <td>{{ invoices.motif_id.designation }}</td>
                       
                       <td>
                           {{ invoices.user.username}}

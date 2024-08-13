@@ -164,7 +164,8 @@ def control_data_gp_odoo() :
         "maphiesarobidy@outlook.fr",
         "naval@phidia.onmicrosoft.com",
         "alain@phidia.onmicrosoft.com",
-        "tahina@phidia.onmicrosoft.com"
+        "tahina@phidia.onmicrosoft.com",
+        "haryzoely@phidia.onmicrosoft.com"
     ]		
     subject = "Contrôle des données Gestion PNR - Odoo"						
 

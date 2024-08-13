@@ -4107,23 +4107,23 @@ if (select__modalCreateReceipt != null) {
   }
 }
 
-function searchPnrByNumber(pnrNumber) {
+function searchPnrByNumber(value) {
   let currentUrl = document.location.href;
   let splitCurrentUrl = currentUrl.split("/");
 
-  if (pnrNumber.length == 6) {
+  if (value.length >= 6) {
     $.ajax({
       type: "POST",
       url: "/home/pnr_search_by_pnr_number",
       dataType: "json",
       data: {
-        PnrNumber: pnrNumber,
+        PnrNumber: value,
         csrfmiddlewaretoken: csrftoken,
       },
       success: (data) => {
         let newPnrId = data.pnr_id;
         if (newPnrId.length == 0) {
-          toastr.error("Aucun PNR ne correspond à ce numéro !");
+          toastr.error(`Aucun résultat pour ${value}`);
         } else {
           splitCurrentUrl[5] = newPnrId;
           let newUrl = splitCurrentUrl.join("/");

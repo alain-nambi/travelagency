@@ -20,6 +20,7 @@ from AmadeusDecoder.models.invoice.Fee import Fee
 from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
 from AmadeusDecoder.models.invoice.Ticket import Ticket
 from AmadeusDecoder.models.pnr.Passenger import Passenger
+from AmadeusDecoder.models.invoice.Invoice import MotifPnr
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 
 from AmadeusDecoder.models.pnrelements.Airline import Airline
@@ -87,8 +88,12 @@ def get_invoice_number(request,numeroPnr):
 
     unique_invoice_numbers_list = list(unique_invoice_numbers_set)
 
-    print(unique_invoice_numbers_list)
-    return JsonResponse({'invoices': unique_invoice_numbers_list})
+    motifs = MotifPnr.objects.all()
+    motif_data = [{'id':motif.id,'motif':motif.designation} for motif in motifs]
+    unique_motif_ids_dict = {entry['id']: entry['motif'] for entry in motif_data}
+    unique_motif_ids_list = [{'id': key, 'motif': value} for key, value in unique_motif_ids_dict.items()]
+
+    return JsonResponse({'invoices': unique_invoice_numbers_list, 'motifs':unique_motif_ids_list})
 
 
 # ------------------------ EXPORT EXCEL ----------------------------------------------------------------

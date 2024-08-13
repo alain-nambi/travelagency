@@ -41,6 +41,8 @@
  <!-- style -->
  <link rel="stylesheet" href="{% static 'css/style.css' %}">
  <link rel="stylesheet" href="{% static 'css/notification.css' %}">
+ <link rel="stylesheet" href="{% static 'css/pnr_motif.css' %}">
+
  <link rel="stylesheet" href="{% static 'css/select-custom.css' %}">
  <!-- tablesort-->
  <link href="{% static 'css/theme.default.css' %}" rel="stylesheet">
@@ -129,7 +131,7 @@ old -->
         <li class="nav-item ml-1">
           <div class="input-group input-group float-sm-right mb-1">
             <input type="text" name="table_search" id="inputSearchByPnrNumber" class="form-control form-control-md"
-              placeholder="Saisir le numéro du PNR" maxlength="6">
+              placeholder="Saisir N°billet ou N° PNR" maxlength="16">
             <div class="input-group-append">
               <button type="submit" id="buttonPnrSearchByPnrNumber" class="btn btn-default py-0" title="Accéder au PNR par le numéro pnr">
                 <i class="fa fa-arrow-right-from-bracket"></i>

@@ -135,5 +135,5 @@ urlpatterns = [
     path('customer/details/<int:customer_id>',customer_details,name="customer_details"),
     path('home/unremounted-pnr-research', unremounted_pnr_research, name= 'unremounted_pnr_research'),
     path('customer/updateInfo',modify_customer,name='modify_customer'),
-    
+    path('home/unorder-pnr/add-motif', addMotif,name="add_motif"),
 ]

@@ -57,19 +57,20 @@ class InvoicesCanceled(models.Model, BaseModel):
     
     invoice_number = models.CharField(max_length=100,null=False )
     date = models.DateTimeField(auto_now_add=True , null=False)
-    ticket = models.OneToOneField(
+    ticket = models.ForeignKey(
         'Ticket', 
         on_delete=models.CASCADE, 
         default=False, 
         null=True, 
-        related_name= 'pnr_unordered_ticket',
+        related_name= 'pnr_unordered_tickets',
+        unique=False,
     )
-    other_fee = models.OneToOneField(
+    other_fee = models.ForeignKey(
         'OthersFee',
         on_delete=models.CASCADE, 
         default=None, 
         null=True, 
-        related_name='pnr_unordered_other_fee',
+        related_name='pnr_unordered_other_fees',
     )
     motif_id = models.ForeignKey("AmadeusDecoder.MotifPnr", on_delete = models.CASCADE, related_name='motif_pnr', default=1)
 

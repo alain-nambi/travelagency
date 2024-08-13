@@ -292,46 +292,48 @@
                     </div>
 
                     <div class="col-md-3 d-flex">
-                      <div class="col-md-8 mr-4 px-0 d-flex align-items-center justify-content-center">
-                        <div class="input-group input-group float-sm-right mt-1 mb-1" style="position: relative;">
-                          <!-- <input type="text" name="table_search" id="input-pnr" class="form-control form-control-sm"
-                            placeholder="Recherche"> -->
-                          <div 
-                            id="spinnerLoadingSearch" 
-                            class="spinner-border" 
-                            role="status" 
-                            style="width: 14px; height: 14px; position: absolute; right: 48px; bottom: 6px; z-index: 9999"
-                            title="Recherche en cours"
-                          >
-                            <span class="sr-only">Loading...</span>
+                      <form action="" method="get" class="d-flex align-items-center justify-content-center">
+                        <div class="col-md-8 mr-4 px-0 d-flex align-items-center justify-content-center">
+                          <div class="input-group input-group float-sm-right mt-1 mb-1" style="position: relative;">
+                            <!-- <input type="text" name="table_search" id="input-pnr" class="form-control form-control-sm"
+                              placeholder="Recherche"> -->
+                            <div 
+                              id="spinnerLoadingSearch" 
+                              class="spinner-border" 
+                              role="status" 
+                              style="width: 14px; height: 14px; position: absolute; right: 48px; bottom: 6px; z-index: 9999"
+                              title="Recherche en cours"
+                            >
+                              <span class="sr-only">Loading...</span>
+                            </div>
+                            <div class="input-group-append">
+                              <div action="" method="get" class="d-flex align-items-center justify-content-center">
+                                <div class="input-group input-group-sm">
+                                    <input type="text" name="search_query" id="searchQuery" placeholder="Recherche..." class="form-control" aria-label="Search" value="{{search_query}}">
+                                    <div class="input-group-append">
+                                        <button type="submit" class="btn btn-primary" title="Bouton de recherche">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                              </div>                          
+                            </div>
                           </div>
-                          <div class="input-group-append">
-                            <form action="" method="get" class="d-flex align-items-center justify-content-center">
-                              <div class="input-group input-group-sm">
-                                  <input type="text" name="search_query" id="searchQuery" placeholder="Recherche..." class="form-control" aria-label="Search" value="{{search_query}}">
-                                  <div class="input-group-append">
-                                      <button type="submit" class="btn btn-primary" title="Bouton de recherche">
-                                          <i class="fas fa-search"></i>
-                                      </button>
-                                  </div>
-                              </div>
-                            </form>                          
+                        </div> 
+                        <div class="col-md-3">
+                          <div class="d-flex">  
+                          <div method="GET" class="d-flex align-items-center justify-content-between"> 
+                            <div class="d-flex" style="width: 10rem;">
+                              <input value="{{ row_num }}" type="text" name="paginate_by" class="form-control form-control-sm mt-1 value_page p-0 pl-2" placeholder="{{ row_num }}" required title="Nombres des lignes"/>
+                              <input type="text" class="form-control form-control-sm mt-1 count_page p-0" disabled value=" / {{ pnr_count }}" id="pnrCounterOnSearch"/>
+                            </div>
+    
+                            <button type="submit" class="btn btn-outline-primary mt-1 px-2 py-0" id="buttonShowPnrBySize">Afficher</button>
+                          </div>
+                          <button type="submit" class="btn btn-outline-primary mt-1 px-2 py-0" id="buttonShowPnrBySizeOnSearch">Afficher</button>
                           </div>
                         </div>
-                      </div> 
-                      <div class="col-md-3">
-                        <div class="d-flex">  
-                        <form method="GET" class="d-flex align-items-center justify-content-between"> 
-                          <div class="d-flex" style="width: 10rem;">
-                            <input type="text" name="paginate_by" class="form-control form-control-sm mt-1 value_page p-0 pl-2" placeholder="{{ row_num }}" required title="Nombres des lignes"/>
-                            <input type="text" class="form-control form-control-sm mt-1 count_page p-0" disabled value=" / {{ pnr_count }}" id="pnrCounterOnSearch"/>
-                          </div>
-  
-                          <button type="submit" class="btn btn-outline-primary mt-1 px-2 py-0" id="buttonShowPnrBySize">Afficher</button>
-                        </form>
-                        <button type="submit" class="btn btn-outline-primary mt-1 px-2 py-0" id="buttonShowPnrBySizeOnSearch">Afficher</button>
-                        </div>
-                      </div>
+                      </form>
                     </div>
                 
                     

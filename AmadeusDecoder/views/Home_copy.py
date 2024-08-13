@@ -196,7 +196,7 @@ def home_copy(request):
             pnr_list = pnr_list.filter(user_filter)
 
     
-    paginator = Paginator(pnr_list, request.GET.get('paginate_by', 50))
+    paginator = Paginator(pnr_list, request.GET.get('paginate_by', 25))
     
     page_num = request.GET.get('page', 1)
     try:

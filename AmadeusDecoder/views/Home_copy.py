@@ -158,7 +158,17 @@ def home_copy(request):
     # PNR status filter
     if pnr_status_filter:
         filters &= Q(status__iexact=pnr_status_filter)
-
+        
+    # Process search query
+    search_query = request.GET.get('search_query', '').strip()
+    # print(f'Search Query *** {search_query}')
+    
+    if search_query:
+        filters &= Q(number__icontains=search_query) | Q(passengers__icontains=search_query) | \
+                   Q(agency_office_code__icontains=search_query) | Q(agency_office_name__icontains=search_query) | Q(agency_name__icontains=search_query) | \
+                   Q(creator__icontains=search_query) | Q(emitter__icontains=search_query) | \
+                   Q(client__icontains=search_query)
+    
     # Get the filtered list and paginate
     pnr_list = OptimisedPnrList.objects.filter(filters).order_by(pnr_order_list_filter)
 
@@ -200,6 +210,7 @@ def home_copy(request):
         'row_num': paginator.per_page,
         'pnr_count': paginator.count,
         'users': users,
+        'search_query': search_query,
     }
 
     return render(request, 'home-copy.html', context)

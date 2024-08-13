@@ -294,8 +294,8 @@
                     <div class="col-md-3 d-flex">
                       <div class="col-md-8 mr-4 px-0 d-flex align-items-center justify-content-center">
                         <div class="input-group input-group float-sm-right mt-1 mb-1" style="position: relative;">
-                          <input type="text" name="table_search" id="input-pnr" class="form-control form-control-sm"
-                            placeholder="Recherche">
+                          <!-- <input type="text" name="table_search" id="input-pnr" class="form-control form-control-sm"
+                            placeholder="Recherche"> -->
                           <div 
                             id="spinnerLoadingSearch" 
                             class="spinner-border" 
@@ -306,9 +306,16 @@
                             <span class="sr-only">Loading...</span>
                           </div>
                           <div class="input-group-append">
-                            <button type="submit" id="pnr-research" class="btn btn-default py-0" title="Bouton de recherche">
-                              <i class="fas fa-search text-primary"></i>
-                            </button>
+                            <form action="" method="get" class="d-flex align-items-center justify-content-center">
+                              <div class="input-group input-group-sm">
+                                  <input type="text" name="search_query" id="searchQuery" placeholder="Recherche..." class="form-control" aria-label="Search" value="{{search_query}}">
+                                  <div class="input-group-append">
+                                      <button type="submit" class="btn btn-primary" title="Bouton de recherche">
+                                          <i class="fas fa-search"></i>
+                                      </button>
+                                  </div>
+                              </div>
+                            </form>                          
                           </div>
                         </div>
                       </div> 

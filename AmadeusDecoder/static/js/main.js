@@ -1162,19 +1162,19 @@ $(".filter").click(function () {
   // $('.tr-filter').prop('hidden', false);
   $(".filter").prop("hidden", false);
 });
-//search function in all pnr
-$(document).ready(function () {
-  /*$("#input-pnr").on("keyup", function () {
-    var value = $(this).val().toLowerCase();
-    $("tr.pnr-class").filter(function () {
-      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
-    });
-  });*/
-  // Modif pnr research via btn
-  $("#pnr-research").on("click", function () {
-    searchFunction();
-  });
-});
+// //search function in all pnr
+// $(document).ready(function () {
+//   /*$("#input-pnr").on("keyup", function () {
+//     var value = $(this).val().toLowerCase();
+//     $("tr.pnr-class").filter(function () {
+//       $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+//     });
+//   });*/
+//   // Modif pnr research via btn
+//   $("#pnr-research").on("click", function () {
+//     searchFunction();
+//   });
+// });
 
 //search function in all constat
 $(document).ready(function () {
@@ -2796,13 +2796,13 @@ function searchFunction(pageSize, isDateOrderByAsc, isDateOrderByChecked, isSort
 }
 
 // Permet de rechercher un PNR en pressant le clavier "Entrer" avec le clé du code
-$(document).ready(function () {
-  $("#input-pnr").keyup(function (e) {
-    if (e.keyCode == 13) {
-      searchFunction();
-    }
-  });
-});
+// $(document).ready(function () {
+//   $("#input-pnr").keyup(function (e) {
+//     if (e.keyCode == 13) {
+//       searchFunction();
+//     }
+//   });
+// });
 
 //====== PNR SEARCH BY NUMBER IN DETAILS PNR =======//
 const inputSearchByPnrNumber = document.getElementById(

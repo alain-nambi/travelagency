@@ -354,8 +354,9 @@ class Pnr(models.Model, BaseModel):
     
     def __str__(self):
         return str(self.number) + ' {}{}{}'.format('(', 'Zenith' if self.type == 'EWA' else self.type, ')')
-        
+
 class UnremountedPnr(models.Model):
+    # PNR remonté manuellement
     class Meta:
         db_table = 't_unremouted_pnr'
         
@@ -372,6 +373,7 @@ class UnremountedPnr(models.Model):
 
 
 class unRemountedPnrPassenger(models.Model):
+    # Passagers liés aux PNR remonté manuellement
     class Meta:
         db_table = 't_unremounted_pnr_passenger'
 
@@ -390,6 +392,7 @@ class unRemountedPnrPassenger(models.Model):
     order = models.CharField(max_length=100, null=False)
 
 class unRemountedPnrSegment(models.Model):
+    # Segments rattachés aux billets des PNR remontés manuellement 
     class Meta:
         db_table = 't_unremounted_pnr_segment'
 
@@ -418,6 +421,7 @@ class unRemountedPnrSegment(models.Model):
     )
 
 class unRemountedPnrTickets(models.Model):
+    # Ticket reliés aux PNR remontés manuellement
     class Meta:
         db_table = 't_unremounted_pnr_ticket'
 

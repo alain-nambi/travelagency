@@ -39,7 +39,8 @@ class Invoice(models.Model, BaseModel):
     transmission_date = models.DateField(null=True)
         
 class InvoicesCanceled(models.Model, BaseModel):
-    
+    # PNR décommandé 
+
     class Meta:
         db_table = 't_invoices_canceled'
         

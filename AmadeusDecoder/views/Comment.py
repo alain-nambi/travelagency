@@ -797,7 +797,6 @@ def canceled_ticket_advanced_search(request):
 
     return JsonResponse(context)
 
-
 # ------------------------- PNR non remonté -----------------------------------
 
 # save pnr non remonte
@@ -1019,8 +1018,6 @@ def accept_unremounted_pnr(request):
     
     return JsonResponse(context)
 
-
-
 @login_required(login_url='index')
 def refuse_unremounted_pnr(request):
     context = {}
@@ -1037,11 +1034,9 @@ def refuse_unremounted_pnr(request):
 
 # ------------------- UNREMOUNTED PNR SEARCH -----------------------------
 
-
 @login_required(login_url="index")
 def unremounted_pnr_research(request):
     context = {}
-    
     
     if request.method == 'POST' and request.POST.get('pnr_research'):
         search_results = []

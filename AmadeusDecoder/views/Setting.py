@@ -606,7 +606,8 @@ def test_parsing_upload_file(request):
     return JsonResponse(context, safe=False)
 
 
-def test_parsing_zenith(request):
+def test_parsing_zenith(request): 
+    # parsing PNR, receipt ZENITH
     import fitz
     import base64
     if request.method == 'POST':
@@ -622,9 +623,7 @@ def test_parsing_zenith(request):
             temp.set_main_txt_path('EmailFetcher//utilities//attachments_dir//' + attachement_folder + '//' + attachement_folder + '.txt')
             
             content = temp.read_file()
-            for line in content:
-                print(line)
-
+            
             data = temp.test_parse_pnr(temp.get_email_date())
             pnr_data = data['pnr']
 
@@ -648,8 +647,6 @@ def test_parsing_zenith(request):
                 segments_data.append(values)
 
             context['segments'] = segments_data
-            print('££££££££££££££££££££££££££££££££££')
-            print(context['segments'])
 
             # get data ticket
             tickets = pnr_data.tickets.filter(Q(ticket_status=1) | Q(is_invoiced=True)).filter(Q(total__gt=0) | Q(is_no_adc=True) | (Q(is_refund=True) & Q(total__lt=0))).all().order_by('number')
@@ -811,6 +808,7 @@ def test_parsing_zenith(request):
         return JsonResponse(context, safe=False)
 
 def test_parsing_text(request):
+    # parsing PNR, TKT, EMD for ALTEA
     import os
     data = request.POST.get('data')
     context={'status':200, 'message':"Pas d'Erreur",'error':''}

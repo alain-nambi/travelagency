@@ -2317,6 +2317,7 @@ def get_all_pnr_unordered(request):
     
     return render(request,'unordered_pnr.html', context)
 
+# --------- Recherche pour les PNR décommandés -----------------------
 @login_required(login_url="index")
 def unordered_pnr_research(request):
     context = {}
@@ -2384,10 +2385,7 @@ def ticket_delete(request):
         connected_user_id = request.POST.get('connected_user_id')
         motif = request.POST.get('motif')
 
-
         connected_user = User.objects.get(pk=connected_user_id)
-
-        
         # for ticket
         if ticketTable == 'ticket':
             ticket = Ticket.objects.get(pk=ticketId)
@@ -2444,6 +2442,7 @@ def ticket_delete(request):
 
         return JsonResponse({'status':'ok'})
 
+# ------------------ filtre des PNR décommandés -----------------------------
 @login_required(login_url='index')
 def unordered_pnr_filter(request):
     context ={}
@@ -2503,6 +2502,7 @@ def get_data_unordered_pnr_from_query_set(request,search_results):
         results.append(values)
     return results
 
+# ----------- Recherche avancée des PNR décommandés ----------------------
 @login_required(login_url='index')
 def unordered_pnr_advanced_search(request):
     context ={}
@@ -2558,8 +2558,6 @@ def unordered_pnr_advanced_search(request):
 
 
     return JsonResponse(context)
-
-
 
 # ------- Notification ---------------------------------
 def get_pnr_created_today_not_invoiced(request):

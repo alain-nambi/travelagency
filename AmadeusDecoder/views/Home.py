@@ -454,7 +454,7 @@ def pnr_search_by_pnr_number(request):
                 
                 # Determine if the value length and characteristics match the criteria
                 # -R means refund : to make ability to search refund
-                if (value_length >= 13 and value.isdigit()) or value_length == 16 or (value_length >= 13 and '-R' in value):
+                elif (value_length >= 13 and value.isdigit()) or value_length == 16 or (value_length >= 13 and '-R' in value):
                     # Search for a Ticket with this number
                     ticket = Ticket.objects.filter(
                         number__icontains=value,

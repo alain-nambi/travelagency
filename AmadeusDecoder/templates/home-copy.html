@@ -554,7 +554,9 @@
                       </td> 
 
                       <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
-
+                        {% with pnr.id|order_amount_total as order_amount_total %}
+                          <span class="montant">{{ order_amount_total|floatformat:'2' }}</span>
+                        {% endwith %}
                       </td>
 
                       <td class="{% if pnr.is_invoiced %} text-success {% endif %}">

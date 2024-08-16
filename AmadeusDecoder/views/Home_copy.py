@@ -91,6 +91,12 @@ def home_copy(request):
     is_invoiced_filter_cookies = request.COOKIES.get('filter_pnr')
     agency_name_filter_cookies = request.COOKIES.get('agency_name_filter')
     pnr_status_filter_cookies = request.COOKIES.get('filter_pnr_by_status')
+    sorted_creator_filter_cookies = request.COOKIES.get('isSortedByCreator')
+    
+    sorted_creator_filter = {
+        "agent__username": "creator",
+        "-agent__username": "-creator"
+    }.get(sorted_creator_filter_cookies, None)
 
     # Get all PNR users's following
     pnr_follower = format_filter_creator(pnr_creator_filter_cookies)
@@ -168,9 +174,14 @@ def home_copy(request):
                    Q(agency_office_code__icontains=search_query) | Q(agency_office_name__icontains=search_query) | Q(agency_name__icontains=search_query) | \
                    Q(creator__icontains=search_query) | Q(emitter__icontains=search_query) | \
                    Q(client__icontains=search_query)
+                   
+    pnr_list = []
     
     # Get the filtered list and paginate
-    pnr_list = OptimisedPnrList.objects.filter(filters).order_by(pnr_order_list_filter)
+    if pnr_order_list_filter:
+        pnr_list = OptimisedPnrList.objects.filter(filters).order_by(pnr_order_list_filter)
+    if sorted_creator_filter:
+        pnr_list = OptimisedPnrList.objects.filter(filters).order_by(sorted_creator_filter)
 
     # Define user-specific filters
     special_usernames = ['Mouniati', 'Farida']

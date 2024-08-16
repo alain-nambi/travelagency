@@ -203,7 +203,7 @@
                             {% if request.user.role_id != 3 and request.user.id != 4 and request.user.id != 5 %}
                               <option value="0">Tout</option>
                               {% for user in users %}
-                                <option value="{{user.id}}">{{user.username}}</option>
+                                <option value="{{ user.id }}">{{user.username}}</option>
                               {% endfor %}
                               <option value="Empty">Sans créateur</option>
                             {% elif request.user.id == 4 %}
@@ -292,39 +292,48 @@
                     </div>
 
                     <div class="col-md-3 d-flex">
-                      <div class="col-md-8 mr-4 px-0 d-flex align-items-center justify-content-center">
-                        <div class="input-group input-group float-sm-right mt-1 mb-1" style="position: relative;">
-                          <input type="text" name="table_search" id="input-pnr" class="form-control form-control-sm"
-                            placeholder="Recherche">
-                          <div 
-                            id="spinnerLoadingSearch" 
-                            class="spinner-border" 
-                            role="status" 
-                            style="width: 14px; height: 14px; position: absolute; right: 48px; bottom: 6px; z-index: 9999"
-                            title="Recherche en cours"
-                          >
-                            <span class="sr-only">Loading...</span>
+                      <form action="" method="get" class="d-flex align-items-center justify-content-center">
+                        <div class="col-md-8 mr-4 px-0 d-flex align-items-center justify-content-center">
+                          <div class="input-group input-group float-sm-right mt-1 mb-1" style="position: relative;">
+                            <!-- <input type="text" name="table_search" id="input-pnr" class="form-control form-control-sm"
+                              placeholder="Recherche"> -->
+                            <div 
+                              id="spinnerLoadingSearch" 
+                              class="spinner-border" 
+                              role="status" 
+                              style="width: 14px; height: 14px; position: absolute; right: 48px; bottom: 6px; z-index: 9999"
+                              title="Recherche en cours"
+                            >
+                              <span class="sr-only">Loading...</span>
+                            </div>
+                            <div class="input-group-append">
+                              <div action="" method="get" class="d-flex align-items-center justify-content-center">
+                                <div class="input-group input-group-sm">
+                                    <input type="text" name="search_query" id="searchQuery" placeholder="Recherche..." class="form-control" aria-label="Search" value="{{search_query}}">
+                                    <div class="input-group-append">
+                                        <button type="submit" class="btn btn-primary" title="Bouton de recherche">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                              </div>                          
+                            </div>
                           </div>
-                          <div class="input-group-append">
-                            <button type="submit" id="pnr-research" class="btn btn-default py-0" title="Bouton de recherche">
-                              <i class="fas fa-search text-primary"></i>
-                            </button>
+                        </div> 
+                        <div class="col-md-3">
+                          <div class="d-flex">  
+                          <div method="GET" class="d-flex align-items-center justify-content-between"> 
+                            <div class="d-flex" style="width: 10rem;">
+                              <input value="{{ row_num }}" type="text" name="paginate_by" class="form-control form-control-sm mt-1 value_page p-0 pl-2" placeholder="{{ row_num }}" required title="Nombres des lignes"/>
+                              <input type="text" class="form-control form-control-sm mt-1 count_page p-0" disabled value=" / {{ pnr_count }}" id="pnrCounterOnSearch"/>
+                            </div>
+    
+                            <button type="submit" class="btn btn-outline-primary mt-1 px-2 py-0" id="buttonShowPnrBySize">Afficher</button>
+                          </div>
+                          <button type="submit" class="btn btn-outline-primary mt-1 px-2 py-0" id="buttonShowPnrBySizeOnSearch">Afficher</button>
                           </div>
                         </div>
-                      </div> 
-                      <div class="col-md-3">
-                        <div class="d-flex">  
-                        <form method="GET" class="d-flex align-items-center justify-content-between"> 
-                          <div class="d-flex" style="width: 10rem;">
-                            <input type="text" name="paginate_by" class="form-control form-control-sm mt-1 value_page p-0 pl-2" placeholder="{{ row_num }}" required title="Nombres des lignes"/>
-                            <input type="text" class="form-control form-control-sm mt-1 count_page p-0" disabled value=" / {{ pnr_count }}" id="pnrCounterOnSearch"/>
-                          </div>
-  
-                          <button type="submit" class="btn btn-outline-primary mt-1 px-2 py-0" id="buttonShowPnrBySize">Afficher</button>
-                        </form>
-                        <button type="submit" class="btn btn-outline-primary mt-1 px-2 py-0" id="buttonShowPnrBySizeOnSearch">Afficher</button>
-                        </div>
-                      </div>
+                      </form>
                     </div>
                 
                     
@@ -453,131 +462,155 @@
                 <tbody class="tbody-pnr">
                   {% for pnr in page_obj %}
                   
-                  {% with pnr|passenger_is_invoiced_in_passenger_invoice as passenger_is_invoiced_in_passenger_invoice %} 
-                  <tr class="pnr-class {% if passenger_is_invoiced_in_passenger_invoice and pnr.is_invoiced %} text-success {% endif %} {% if pnr.state == 1 %} tr-danger {% endif %}{% if pnr.state == 2 %}tr-warning {% endif %}{% if pnr.is_read != 1 %}non-lue {% endif %}
-                      {% if pnr.is_read == 1 %}lue {% endif %}" onclick="location.href='{% url 'pnr_details' pnr.id %}'"
-                      style="cursor: pointer;" data-status="{{ pnr.status_value }}" id="trAllPnr" data-pnr-id={{ pnr.id }} data-passenger-invoiced={{passenger_is_invoiced_in_passenger_invoice}} data-pnr-invoice={{pnr.is_invoiced}}>
-                      <td class="d-flex align-items-center justify-content-between" style="gap:5px">
-                        <span class="pnr-num-class">{{ pnr.number }}</span>
-                        {% if pnr.state == 2 or pnr.state == 3 %}
+                    <tr
+                      class="pnr-class 
+                      {% if pnr.state == 1 %} tr-danger {% endif %}
+                      {% if pnr.state == 2 %} tr-warning {% endif %}
+                      {% if pnr.is_read != 1 %} non-lue {% endif %}
+                      {% if pnr.is_read == 1 %} lue {% endif %}
+                      {% if pnr.is_invoiced %} text-success {% endif %}"
+
+                      onclick="location.href='{% url 'pnr_details' pnr.id %}'"
+                      style="cursor: pointer;" 
+                      data-status="{{ pnr.status_value }}" 
+                      id="trAllPnr" 
+                      data-pnr-id="{{ pnr.id }}" 
+                      data-passenger-invoiced="{{ pnr.passenger_is_invoiced_in_passenger_invoice }}" 
+                      data-pnr-invoice="{{ pnr.is_invoiced }}">
+                      
+                      <!-- Show PNR Number -->
+                      <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
+                        {{ pnr.number }}
+
+                        <!-- Control PNR state -->
+                        {% if pnr.state == 1 or pnr.state == 2 or pnr.state == 3 %}
                           <span 
-                            class="tooltips state_2 float-right" 
+                            class="tooltips 
+                            {% if pnr.state == 1 %} state_1 {% endif %} 
+                            {% if pnr.state == 2 %} state_2 {% endif %}
+                            float-right" 
                             tooltip="" 
                             tooltip-position="top"
-                            tooltip-type="warning" 
-                            data-info="{% with pnr|passenger_segment_mail_missing as get_passenger_segment %}{{ get_passenger_segment }}{% endwith %}"
+                            tooltip-type="
+                            {% if pnr.state == 1 %} danger {% endif %} 
+                            {% if pnr.state == 2 or pnr.state == 3 %} warning {% endif %}"
                           >
-                            <i class="fa fa-exclamation-triangle warning"></i>
+                            <i class="fa fa-exclamation-triangle 
+                            {% if pnr.state == 1 %} text-danger {% endif %} 
+                            {% if pnr.state == 2 or pnr.state == 3 %} text-warning {% endif %}"
+                            "></i>
                           </span>
-                        {% endif %}
-                        {% if pnr.state == 1 %}
+                        {% endif%}
+
+                        <!-- -1: pas d'anomalie, 0: non traitée, 1: traitée -->
+                        {% if pnr.pnr_comment_state == 0 %}
                           <span 
-                            class="tooltips state_1 float-right" 
+                            class="tooltips comment-state-0 float-right" 
                             tooltip="" 
-                            tooltip-position="top"
+                            tooltip-position="right"
                             tooltip-type="danger"
                           >
-                            <i class="fa fa-exclamation-triangle text-danger"></i>
+                            <i class="fa fa-bug text-danger"></i>
+                          </span>
+                        {% elif pnr.pnr_comment_state == 1 %}
+                          <span 
+                            class="tooltips comment-state-1 float-right" 
+                            tooltip="" 
+                            tooltip-position="right"
+                            tooltip-type="danger"
+                          >
+                            <i class="fa fa-bug text-success"></i>
                           </span>
                         {% endif %}
-                        {% with pnr|pnr_comment_state as pnr_comment_state %} 
-                          <!-- -1: pas d'anomalie, 0: non traitée, 1: traitée -->
-                          {% if pnr_comment_state == 0 %}
-                            <span 
-                              class="tooltips comment-state-0 float-right" 
-                              tooltip="" 
-                              tooltip-position="right"
-                              tooltip-type="danger"
-                            >
-                              <i class="fa fa-bug text-danger"></i>
-                            </span>
-                          {% endif %}
-                          {% if pnr_comment_state == 1 %}
-                            <span 
-                              class="tooltips comment-state-1 float-right" 
-                              tooltip="" 
-                              tooltip-position="right"
-                              tooltip-type="success"
-                            >
-                              <i class="fa fa-bug text-success"></i>
-                            </span>
-                          {% endif %}
+                      </td>
+
+                      <!-- Show Passengers -->
+                      <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
+                        {% if pnr.passengers is not None %}
+                          {{ pnr.passengers }}
+                        {% else %}
+                          {{ '' }}
+                        {% endif %}
+                      </td>
+
+                      <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
+                        {% if pnr.client is not None %}
+                          {{ pnr.client }}
+                        {% else %}
+                          {{ '' }}
+                        {% endif %}
+                      </td> 
+
+                      <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
+                        {{ pnr.date_of_creation|date:"d/m/y H:i" }}
+                      </td>
+
+                      <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
+                        {% if pnr.max_issuing_date is not None %}
+                          {{ pnr.max_issuing_date|date:"d/m/y" }}
+                        {% else %}
+                          {{ '' }}
+                        {% endif %}
+                      </td> 
+
+                      <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
+                        {% with pnr.id|order_amount_total as order_amount_total %}
+                          <span class="montant">{{ order_amount_total|floatformat:'2' }}</span>
                         {% endwith %}
                       </td>
-                      <td>
-                        {% with pnr|first_passenger as first_passenger %}
-                          {% if first_passenger.name is not None %}
-                            <span class="passenger-name text-uppercase" id="span__passengerName">
-                              {{ first_passenger.name }}
-                            </span> 
-                          {% endif %}
-                          {% if first_passenger.surname is not None %} 
-                            <span class="passenger-name text-capitalize" id="span__passengerName">
-                              {{ first_passenger.surname|title }}
-                            </span>
-                          {% endif %}
-                        {% endwith %}</td>
-                      <td width="4%">
-                        {% if pnr.status == 'Non émis' %}
-                          <span class="text-sm" id="span__customerIntitule">{{ pnr.customer.intitule }}</span>
-                        {% else %}
-                          {% with pnr|customer_in_passenger_invoice as customer_in_passenger_invoice %}
-                            <span class="text-sm" id="span__customerIntitule">{{ customer_in_passenger_invoice.intitule }}</span>
-                          {% endwith %}
-                        {% endif %}
-                        <span hidden>{{ pnr|tickets }}</span>
+
+                      <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
+                        {{ pnr.status }}
                       </td>
-                      <td>{{ pnr.system_creation_date|date:"d/m/y H:i" }}</td>
-                      <td>
-                        {% if pnr|ticket_issuing_date is not None and pnr.status_value == 0 %}
-                          {{ pnr|ticket_issuing_date|date:"d/m/y" }}
-                        {% endif %}
-                        {% if pnr|ticket_issuing_date is not None and pnr.status_value == 1 %}
-                          
+
+                      <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
+                        {% if pnr.pnr_min_doc_state is not None %}
+                          {{ pnr.pnr_min_doc_state|date:"d/m/y H:i" }}
                         {% endif %}
                       </td>
-                      {% with pnr|order_amount_total as order_amount_total %}
-                        <td><span class="montant">{{ order_amount_total|floatformat:'2' }}</span></td>
-                      {% endwith %}
-                      <td>{{ pnr.status }}</td>
-                      <td>
-                        {% if pnr|opc is not None %}
-                          {{ pnr|opc|date:"d/m/y H:i" }}
-                        {% endif %}
-                      </td>
-                      <td>
+
+                      <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
                         {% if pnr.type == 'EWA' %}
-                            {{ 'Zenith' }}
-                          {% else %}
-                            {{ pnr.type }}
-                          {% endif %}
-                      </td>
-                      <td>
-                        {% if pnr|pnr_creator is not None %}
-                          {{ pnr|pnr_creator }}
+                          {{ 'Zenith'}}
+                        {% else %}
+                          {{ pnr.type }}
                         {% endif %}
                       </td>
-                      <td>
-                        {% if pnr|pnr_emitter is not None and pnr.status_value == 0 %}
-                          {{ pnr|pnr_emitter }}
+
+                      <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
+                        {% if pnr.creator is not None %}
+                          {{ pnr.creator }}
+                        {% elif pnr.creator is None and pnr.emitter is not None %}
+                          {{ pnr.emitter }}
+                        {% else %}
+                          {{ '' }}
                         {% endif %}
                       </td>
-                      <td>
-                        {% if pnr|pnr_office %}
-                          {% if pnr|pnr_office|lower == 'web' %} 
-                            {{ pnr|pnr_office }} (Reçu dossier)
-                          {% else %}
-                            {{ pnr|pnr_office }}
-                          {% endif %}
+
+                      <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
+                        {% if pnr.emitter %}
+                          {{ pnr.emitter }}
+                        {% else %}
+                          {{ '' }}
                         {% endif %}
                       </td>
-                      <td>
-                        {% if pnr.agency is not None %}
-                          {{ pnr.agency.code }}
+
+                      <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
+                        {% if pnr.agency_name %}
+                          {{ pnr.agency_name|uniformised_pnr_agency }}
+                        {% elif pnr.agency_office_name %}
+                          {{ pnr.agency_office_name|uniformised_pnr_agency }}
+                        {% endif %}
+                      </td>
+
+                      <td class="{% if pnr.is_invoiced %} text-success {% endif %}">
+                        {% if pnr.agency_office_code %}
+                          {{ pnr.agency_office_code }}
+                        {% else %}
+                          {{ '' }}
                         {% endif %}
                       </td>
                     </tr>
-                  {% endwith %} 
                   
                   {% endfor %}
                 </tbody>

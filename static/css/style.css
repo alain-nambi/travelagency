@@ -2,6 +2,41 @@
 	font-size: 14px;
 }
 
+/* Styling for WebKit browsers (Chrome, Safari) */
+::-webkit-scrollbar {
+	width: 6px; /* Set the width of the scrollbar */
+	height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+	background-color: #17a2b8; /* Set the color of the scrollbar thumb */
+	border-radius: 0px; /* Set the border radius of the thumb */
+}
+
+::-webkit-scrollbar-track {
+	background-color: #5e5e5e46; /* Set the color of the scrollbar track */
+}
+
+#layoutHomeMenu {
+	padding: 2px 0 4px 0 !important;
+}
+
+::moz-scrollbar {
+	width: 6px;
+	height: 6px;
+}
+
+::-moz-scrollbar-thumb {
+	background-color: #17a2b8;
+	/* Set the color of the scrollbar thumb */
+}
+
+::-moz-scrollbar-track {
+	background-color: #5e5e5e46;
+	/* Set the color of the scrollbar track */
+}
+  
+
 @font-face {
 	font-family: SctoGroteskA;
 	src: url("../font/SctoGroteskA-Regular.ttf");
@@ -156,13 +191,13 @@ input#fee-cost::placeholder {
 
 .sticky-tr-table {
 	position: sticky;
-	top: 9rem;
-	z-index: 190;
+	top: 9.4rem;
+	z-index: 10;
 }
 
 .fixed-header {
 	position: fixed;
-	top: 6rem;
+	top: 6.4rem;
 	left: 0;
 	width: 100%;
 	background: white;
@@ -1456,5 +1491,5 @@ button[cy-data="span-date-range"]:hover {
 }
 
 #pnrManagementMenu {
-	margin-top: 3rem !important;
+	margin-top: 4rem !important;
 }

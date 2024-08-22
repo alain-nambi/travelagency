@@ -1,3 +1,4 @@
+
 const ServiceFeesInput = document.querySelectorAll(
   ".inputeditable.montant.fee-cost"
 );
@@ -43,6 +44,8 @@ ServiceFeesInput.forEach((inputFees, index) => {
     inputFees.addEventListener('change', (e) => {
         // console.log(inputFees.parentElement.parentElement.parentElement.children[5].children[0]);
         // const InputTicketTotal = inputFees.parentElement.parentElement.parentElement.children[5].children[0];
+        let role_id = e.target.getAttribute('data-role-id');
+        let user_id = e.target.getAttribute('data-user-id');
         let cost = parseFloat(e.target.value) || 0;
         let fee_id = e.target.getAttribute('data-fee-id');
         // InputTicketTotal.textContent = cost.toFixed(2);
@@ -51,6 +54,9 @@ ServiceFeesInput.forEach((inputFees, index) => {
         let currentCost = e.target.getAttribute('old-data-cost');
         let inputCurrentCost = e.target.getAttribute('data-cost');
         let is_at_airport = e.target.getAttribute('is-at-airport');
+
+        // console.log(role_id, currentCost, cost);
+
         if (currentCost <= cost || is_at_airport == 'True') {
             let TicketAmoutTotal = 0;
             AmoutTicket.forEach((ticket) => {
@@ -62,10 +68,21 @@ ServiceFeesInput.forEach((inputFees, index) => {
             })
             MontantTotal.textContent = TicketAmoutTotal.toFixed(2);
         }
-        else{
-            
+        if ((currentCost >= cost && user_id == 13) || (currentCost >= cost && user_id == 22) || (currentCost >= cost && user_id == 15) || (currentCost >= cost && role_id == 1)) {
+            let TicketAmoutTotal = 0;
+            AmoutTicket.forEach((ticket) => {
+                const TicketTotal = parseFloat(ticket.textContent);
+                TicketAmoutTotal += TicketTotal;
+            });
+            document.querySelectorAll('.tr-fee').forEach((td) => {
+                TicketAmoutTotal += parseFloat(td.children[5].children[0].textContent);
+            })
+            MontantTotal.textContent = TicketAmoutTotal.toFixed(2);
+        }
+        if (currentCost >= cost && user_id != 13 && user_id != 22 && user_id != 15 && role_id != 1) {
                 inputFees.value = inputCurrentCost;
                 $('#modal-dmdfrs').modal();
+                $('#user_id').val(user_id);
                 $('.fee-request').val(cost.toFixed(2));
                 $('.fee-total').text(inputCurrentCost);
                 $('#fee-id-request').val(fee_id);
@@ -381,7 +398,7 @@ reduceFeeRequest.addEventListener("click", (e) => {
   fee_origin_amount = $("#fee-origin-cost").val();
   choice_type = $("input[name=fee-decrease-application]:checked").val();
   motif = $("#feeReduceMotif").val();
-
+  user_id = $('#user_id').val();
   // $("#modal-dmdfrs").modal("hide");
   $(".loadings").show("fade");
   $(".spinner-wrappers").show();
@@ -394,6 +411,7 @@ reduceFeeRequest.addEventListener("click", (e) => {
     data: {
       csrfmiddlewaretoken: csrftoken,
       pnrId: pnrIdNew,
+      userId:user_id,
       feeId: fee_id,
       feeAmount: fee_amount,
       feeOriginAmount: fee_origin_amount,
@@ -624,45 +642,80 @@ let SaveProductCounting = 0;
 document
   .getElementById("save-product-select")
   .addEventListener("click", (e) => {
-    SaveProductCounting++;
-    let listNewProduct = [];
-    const designation =
-      ProductDropdown.children[ProductDropdown.selectedIndex].getAttribute(
-        "data-designation"
-      );
-    document.querySelector(".tr-add-line").hidden = false;
-    document.getElementById("add-product-service-line").hidden = false;
-    listNewProduct.push(
-      ProductDropdown.value,
-      ProductTypeInitiale.textContent,
-      designation,
-      parseFloat(ProductTranspInput.value).toFixed(2),
-      parseFloat(ProductTaxInput.value).toFixed(2),
-      (
-        parseFloat(ProductTranspInput.value) + parseFloat(ProductTaxInput.value)
-      ).toFixed(2),
-      ProductpassInput.value,
-      ""
-    );
+    ticket = document.getElementById('ticket-avoir').value;
+    console.log('------TICKET ----------------');
+    console.log(ticket);
+    
+      SaveProductCounting++;
+      let listNewProduct = [];
+      const designation =
+        ProductDropdown.children[ProductDropdown.selectedIndex].getAttribute(
+          "data-designation"
+        );
+      document.querySelector(".tr-add-line").hidden = false;
+      document.getElementById("add-product-service-line").hidden = false;
 
-    $.ajax({
-      type: "POST",
-      dataType: "json",
-      url: `/home/pnr/${pnrIdNew}/import_product/`,
-      data: {
-        csrfmiddlewaretoken: csrftoken,
-        pnrId: pnrIdNew,
-        listNewProduct: JSON.stringify(listNewProduct),
-      },
-      success: (response) => {
-        console.log(response);
-        location.reload();
-      },
-      error: (response) => {
-        console.log(response);
-      },
-    });
-  });
+      passenger = (document.getElementById('select_Passenger')).value;
+      console.log(ProductDropdown.value);
+
+      if (ProductDropdown.value == 19) {
+        if (ticket.trim() !== "") {
+          selectedSegment = document.querySelector('#multipleSelect').getSelectedOptions();
+          console.log(selectedSegment);
+          listNewProduct.push(
+            ProductDropdown.value,
+            ProductTypeInitiale.textContent,
+            designation,
+            parseFloat(ProductTranspInput.value).toFixed(2),
+            (
+              parseFloat(ProductTranspInput.value) + parseFloat(ProductTaxInput.value)
+            ).toFixed(2),
+            ProductpassInput.value,
+            "",
+            ticket,
+            passenger,
+            selectedSegment
+          );
+        }
+        else {
+          toastr.error('Veuillez entrer un Numéro de billet')
+          document.getElementById('ticket-avoir').style.borderColor = 'red';
+        }
+      }
+      else {
+        listNewProduct.push(
+          ProductDropdown.value,
+          ProductTypeInitiale.textContent,
+          designation,
+          parseFloat(ProductTranspInput.value).toFixed(2),
+          parseFloat(ProductTaxInput.value).toFixed(2),
+          (
+            parseFloat(ProductTranspInput.value) + parseFloat(ProductTaxInput.value)
+          ).toFixed(2),
+          ProductpassInput.value,
+          ""
+        );
+      }
+
+      $.ajax({
+        type: "POST",
+        dataType: "json",
+        url: `/home/pnr/${pnrIdNew}/import_product/`,
+        data: {
+          csrfmiddlewaretoken: csrftoken,
+          pnrId: pnrIdNew,
+          listNewProduct: JSON.stringify(listNewProduct),
+        },
+        success: (response) => {
+          console.log(response);
+          location.reload();
+        },
+        error: (response) => {
+          console.log(response);
+        },
+      });
+    
+      });
 
 /*
  * =======================  SET A COUNT IF INPUT OF FEES IS CHANGED ===========================*
@@ -1184,3 +1237,221 @@ if (count__ticketHaveNoPassenger.length > 0) {
 } else {
   $("#error__noPassengerForTicket").hide();
 }
+
+// ----------- AVOIR COMPAGNIE -----------------------------
+$('#ticket-avoir').hide();
+$('#select_Passenger').hide();
+$('#multipleSelect').hide();
+
+
+
+
+
+$('#SelectProduct').on('change', function(){
+  select_product = $('#SelectProduct').val();
+
+  if(select_product == 19){
+    $('#SelectProduct').hide();
+    $('#taxe-input-line').hide();
+    $('#ticket-avoir').show();
+    $('#passenger_segment').hide();
+
+    const parent = document.getElementById("select_Passenger");
+    const child = document.getElementById("child_passenger");
+
+    const parent_passenger_segment = document.getElementById("multipleSelect");
+    const child_passenger_segment = document.getElementById("child_passenger_segment");
+    if (child) {
+      parent.removeChild(child);
+    }
+    if (child_passenger_segment) {
+      parent_passenger_segment.removeChild(child_passenger_segment);
+    }
+    var pnr_id = $('#pnr_id').data('id');
+    console.log(pnr_id);
+    $.ajax({
+      type: "POST",
+      url: "/home/get-passengers-and-segments",
+      dataType: "json",
+      data: {
+        pnr_id: pnr_id,
+        csrfmiddlewaretoken: csrftoken,
+      },
+      success: function (data) {
+        console.log(data);
+        let passengers = data.context.passengers;
+        if (passengers.length > 0) {
+          $('#select_Passenger').show();
+          parent.innerHTML = ''
+
+          passengers.map((passenger) => {
+            const newOption = document.createElement("option");
+            newOption.id = "child_passenger";
+            newOption.value = passenger['passenger_id'];
+            if (passenger['passenger_name'] !== null && passenger['passenger_surname'] != null) {
+              newOption.textContent = passenger['passenger_surname'] + ' ' + passenger['passenger_name'];
+            }
+            if (passenger['passenger_name'] !== null && passenger['passenger_surname'] == null) {
+              newOption.textContent = passenger['passenger_name'];
+            }
+            if (passenger['passenger_name'] == null && passenger['passenger_surname'] !== null) {
+              newOption.textContent = passenger['passenger_surname'];
+            }
+            parent.append(newOption);
+          });
+        } 
+        let segments = data.context.segments;
+        parent_passenger_segment.innerHTML = '';
+
+        if (segments.length > 0) {
+          
+          const myOptions = segments.map((segment) => {
+            return {
+              label: segment['segment'],
+              value: segment['segment_id'],
+            };
+          });
+
+          VirtualSelect.init({
+            ele: '#multipleSelect',
+            multiple: true,
+          })
+
+          document.querySelector('#multipleSelect').setOptions(myOptions);
+
+          // $('#multipleSelect').on('change', function(){
+          //   selectedValues= document.querySelector('#multipleSelect').getSelectedOptions();
+          //   console.log(selectedValues);
+          // });
+
+          const validatePassengerSegment = (isValid) => {
+            if (isValid) {
+              $("#multipleSelect").attr("style", "border: 1px solid green")
+              $("#multipleSelect").removeClass("border border-danger")
+            } else {
+              $("#multipleSelect").removeAttr("style", "border: 1px solid green")
+              $("#multipleSelect").addClass("border border-danger")
+            }
+          } 
+          
+          const multipleSelection = document.querySelector('#multipleSelect')
+          $("#multipleSelect").on("change", () => {
+            if (multipleSelection.value.length > 0) {
+              console.log(true);
+              validatePassengerSegment(true)
+            } else {
+              console.log(false);
+              validatePassengerSegment(false)
+            }
+          })
+          
+
+        }
+      }
+    });
+
+  }
+});
+
+const validateInputTickerAvoir = (isValid) => {
+  if (isValid) {
+    $('#ticket-avoir').removeClass("form is-invalid")
+    $('#ticket-avoir').addClass("form is-valid")
+  } else {
+    $('#ticket-avoir').addClass("form is-invalid")
+    $('#ticket-avoir').removeClass("form is-valid")
+  }
+}
+
+$(document).ready(function () {
+  $('#ticket-avoir').on('input', function () {
+    // document.getElementById('ticket-avoir').style.borderColor = 'black';
+    var inputValue = $(this).val();
+    var sanitizedValue = inputValue.replace(/[^0-9-]/g, '');
+    $(this).val(sanitizedValue);
+    
+    $("#save-product-select").prop('disabled', false);
+    
+    if (inputValue.length < 13 || inputValue.length > 16) {
+      $("#save-product-select").prop('disabled', true);
+      validateInputTickerAvoir(false)
+    }
+    
+    
+    if (inputValue.length >= 14 && inputValue.length <= 15) {
+      $("#save-product-select").prop('disabled', true);
+      validateInputTickerAvoir(false)
+    }
+    
+    if (inputValue.length == 14 && inputValue.charAt(13) !== '-') {
+      var modifiedValue = inputValue.slice(0, 13) + '-' + inputValue.slice(13);
+      $('#ticket-avoir').val(modifiedValue);
+    }
+
+    if (inputValue.length == 13 || inputValue.length == 16) {
+      validateInputTickerAvoir(true)
+    }
+  });
+});
+
+$(document).ready(function () {
+  $('#transport-input-line').on('input', function () {
+    if ($('#SelectProduct').val() == 19) {
+      var inputValue = $(this).val();
+      var numericValue = parseFloat(inputValue);
+
+      if (!isNaN(numericValue)) {
+        if (numericValue > 0) {
+          var sanitizedValue = '-' + inputValue;
+          $(this).val(sanitizedValue);
+        }
+      }
+
+    }
+  });
+});
+
+// Afficher le modal de confirmation de suppression de ticket non commandé
+$(document).ready(function () {
+  $('.deleteticket').click(function () {
+    // if the ticket is of type TKT
+    $('#ticketNumber').text($(this).data('ticket-number'));
+    $('#ticketId').val($(this).data('ticket-id'));
+    $('#ticketTable').val($(this).data('ticket-table'));
+    // if the ticket is of type EMD
+    if ($(this).data('ticket-designation')) {
+      $('#ticketNumber').text($(this).data('ticket-designation'));
+    }
+    
+  });
+});
+
+//Supprimer le ticket non commandé
+$(document).ready(function(){
+  $('#deletTicketModalConfirmation').click(function () {
+    var ticketId = $('#ticketId').val();
+    var ticketTable = $('#ticketTable').val();
+    var ticketNumber = $('#ticketNumber').val();
+
+    $.ajax({
+      type: "POST",
+      url: "/home/ticket-delete",
+      dataType: "json",
+      data: {
+          ticketId: ticketId,
+          ticketNumber: ticketNumber,
+          ticketTable: ticketTable,
+          csrfmiddlewaretoken: csrftoken,
+      },
+      success: function (data) {
+          if (data.status == 'ok') {
+              toastr.success('Ticket supprimé');
+                  location.reload();
+          } 
+          if (data.status == 'error') {
+              toastr.error(data.error)
+          }
+      },
+    });
+  });
+});

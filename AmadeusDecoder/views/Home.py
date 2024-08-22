@@ -606,7 +606,7 @@ def home(request):
 
             print('no creator')
 
-        row_num = request.GET.get('paginate_by', 50) or 50
+        row_num = request.GET.get('paginate_by', 30) or 30
         page_num = request.GET.get('page', 1)
         paginator = Paginator(pnr_list, row_num)
         try:

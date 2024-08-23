@@ -41,7 +41,7 @@ def create_customer(request):
             new_customer = None
 
             for word in intitule:
-                q &= Q(intitule__icontains = word)
+                q &= Q(intitule__iexact = word)
             
             customer = Client.objects.filter(q)
             if customer.exists():

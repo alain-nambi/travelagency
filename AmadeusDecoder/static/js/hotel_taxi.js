@@ -292,7 +292,6 @@ $(document).ready(function(){
                 });
 
               }
-
   
               hotel_supplier_list.map((supplier)=>{
                 var newli = document.createElement("li");
@@ -304,7 +303,6 @@ $(document).ready(function(){
                 parent_hotel.append(newli);
               })
 
-  
             }
   
             hsToggleList('Open')
@@ -559,7 +557,7 @@ $(document).ready(function(){
             taxi_supplier_list.map((taxi_supp)=>{
               var newli = document.createElement("li");
               newli.className="taxi-supplier-item";
-              newli.setAttribute('data-id',taxi_supp['id']);
+              newli.setAttribute('id',taxi_supp['id']);
               newli.textContent = taxi_supp['name'];
               newli.setAttribute('role', 'option') ;
               newli.setAttribute('tabindex', "-1") ;
@@ -617,9 +615,9 @@ $('#ConfirmAddHotel').on('click', function(){
   var kids = document.getElementById('kids').value;
   var pnr_id = document.getElementById('pnr_id').getAttribute('data-id');
 
- // Enregistrer le fournisseur s'il est nouveau 
-  hotel_input = document.getElementById('hotel-supplier-input')
-  data_id = hotel_input.getAttribute('data-id');
+ // Enregistrer le fournisseur s'il est nouveau    
+  hotel_input = document.getElementById('hotel-supplier-input')    
+  data_id = hotel_input.getAttribute('id');
   if (data_id == "null") {
     addServiceSupplier(name,10);
   }
@@ -645,6 +643,7 @@ $('#ConfirmAddTaxi').on('click', function(){
  // Enregistrer le fournisseur s'il est nouveau 
   taxi_input = document.getElementById('taxi-supplier-input')
   data_id = taxi_input.getAttribute('data-id');
+  console.log('DATA ID : ', data_id);
   if (data_id == "null") {
     addServiceSupplier(name,12);
   }

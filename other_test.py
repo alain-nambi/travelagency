@@ -59,7 +59,7 @@ if __name__ == '__main__':
     # except Exception as e:
     #     raise e
     
-    Pnr.objects.filter(number='PTRADX').first().delete()
+    Pnr.objects.filter(number='00DH0V').first().delete()
     # n9vrxd
     
     

@@ -136,4 +136,10 @@ urlpatterns = [
     path('home/unremounted-pnr-research', unremounted_pnr_research, name= 'unremounted_pnr_research'),
     path('customer/updateInfo',modify_customer,name='modify_customer'),
     path('home/unorder-pnr/add-motif', addMotif,name="add_motif"),
+    path('check-uninvoiced-status/', uncheck_ticket_in_passenger_invoiced, name='uncheck_ticket_in_passenger_invoiced'),
+    path('home/get-service-supplier-list',get_service_supplier_list,name='get_service_supplier_list'),
+    path('home/save-hotel',save_hotel,name='save_hotel'),
+    path('home/save-taxi',save_taxi,name='save_taxi'),
+    path('home/add-service-supplier',add_service_supplier, name='add_service_supplier'),
+
 ]

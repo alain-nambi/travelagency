@@ -24,6 +24,16 @@ class SpecialServiceRequest(models.Model, BaseModel):
     def __str__(self):
         return self.code
     
-    
+class ServiceSupplier(models.Model, BaseModel):
+
+    class Meta:
+        db_table = 't_service_supplier'
+
+    name = models.CharField(max_length=255, null=False)
+    service = models.ForeignKey(
+        "AmadeusDecoder.Product",
+        on_delete=models.CASCADE,
+        related_name='supplier'
+    )
     
         

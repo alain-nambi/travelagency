@@ -36,6 +36,7 @@ from AmadeusDecoder.models.invoice.Fee import Product
 from AmadeusDecoder.models.pnrelements.PnrAirSegments import PnrAirSegments
 from AmadeusDecoder.models.history.History import History
 from AmadeusDecoder.models.configuration.Configuration import Configuration
+from AmadeusDecoder.models.pnrelements.SpecialServiceRequest import ServiceSupplier
 
 from AmadeusDecoder.utilities.FtpConnection import upload_file
 from AmadeusDecoder.utilities.SendMail import Sending
@@ -2025,6 +2026,7 @@ def import_product(request, pnr_id):
             product = json.loads(request.POST.get('listNewProduct'))
             pnr = Pnr.objects.get(pk=int(pnr_id))
             
+            # cas pour l'AVOIR COMPAGNIE
             if product[0] == '19':
                 if float(product[3]) > 0:
                     product[3] = -abs(product[3])
@@ -2039,6 +2041,16 @@ def import_product(request, pnr_id):
                     passenger = Passenger.objects.get(pk=product[8])
                     passenger_segment = OtherFeeSegment(segment=segment,other_fee= other_fees, passenger=passenger)
                     passenger_segment.save()
+
+            # cas pour l'HOTEL et TAXI
+            if product[0] == '10' or product[0] == '12':
+
+                other_fee = OthersFee(designation=product[2], cost=product[3], tax=product[4], total=product[5],
+                                        pnr=pnr, fee_type=product[1], passenger_segment=product[6], reference=product[7], emitter=emitter,
+                                        quantity=1, is_subjected_to_fee=False,creation_date=datetime.now())
+                other_fee.save()
+                other_fee.value = json.loads(product[8])
+                other_fee.save()
             
             else:
                 other_fees = OthersFee.objects.filter(pnr=pnr_id, product_id=product[0])
@@ -2046,6 +2058,8 @@ def import_product(request, pnr_id):
                                         pnr=pnr, fee_type=product[1], passenger_segment=product[6], reference=product[7], emitter=emitter,
                                         quantity=1, is_subjected_to_fee=False, creation_date=datetime.now())
                 other_fees.save()
+
+
             
             # save creator user to user copying
             try:
@@ -2580,3 +2594,75 @@ def addMotif(request):
         motifpnr.save()
         context={'motif_id':motifpnr.id}
         return JsonResponse(context)
+
+# --------------- HOTEL & TAXI -- ---------------------------
+@login_required(login_url="index")
+def get_service_supplier_list(request):
+    
+    if request.method == 'GET':
+        hotel_suppliers = ServiceSupplier.objects.filter(service__id=10).all()
+        hSupplier = []
+        for supplier in hotel_suppliers:
+            hSupplier.append({"id":supplier.id,"name":supplier.name})
+        taxi_suppliers = ServiceSupplier.objects.filter(service__id=12).all()
+        tSupplier = []
+        for supplier in taxi_suppliers:
+            tSupplier.append({"id":supplier.id,"name":supplier.name})
+        print("------------- HOTEL SUPPLIER --------------: ",hotel_suppliers)
+
+        context = {"hotel_suppliers":hSupplier,"taxi_suppliers":tSupplier}
+        return JsonResponse(context)
+    
+@login_required(login_url='index')
+def add_service_supplier(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        service_id = request.POST.get('service')
+
+        service_supplier = ServiceSupplier(name=name,service_id= service_id)
+        service_supplier.save()
+
+        return JsonResponse({'success':True, 'message': 'Service supplier added successfully'})
+
+@login_required(login_url="index")
+def save_hotel(request):
+    if request.method == 'POST':
+        hotel_name = request.POST.get('name')
+        arrivalDate = request.POST.get('arrivalDate')
+        arrivalTime = request.POST.get('arrivalTime')
+        departureDate = request.POST.get('departureDate')
+        departureTime = request.POST.get('departureTime')
+        room = request.POST.get('room')
+        adults = request.POST.get('adults')
+        kids = request.POST.get('kids')
+        pnr_id = request.POST.get('pnr_id')
+
+        hotel_detail = {'name':hotel_name,'arrivalDate':arrivalDate,'arrivalTime':arrivalTime,'departureDate':departureDate,'departureTime':departureTime,'room':room,'adults':adults,'kids':kids}
+
+        other_fee = OthersFee(designation="HOTEL",value=hotel_detail,pnr_id=pnr_id,fee_type="Supplement",creation_date=datetime.now())
+        other_fee.save()
+
+        context = {"hotel_detail":hotel_detail}
+
+        return JsonResponse(context)
+
+@login_required(login_url="index")
+def save_taxi(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        date = request.POST.get('date')
+        heure = request.POST.get('heure')
+        passagers = request.POST.get('passagers')
+        location = request.POST.get('location')
+
+        pnr_id = request.POST.get('pnr_id')
+
+        taxi_detail = {'name':name,'date':date,'heure':heure,'passagers':passagers,'depart':location}
+
+        other_fee = OthersFee(designation="TAXI",value=taxi_detail,pnr_id=pnr_id,fee_type="Supplement",creation_date=datetime.now())
+        other_fee.save()
+
+        context = {"taxi_detail":taxi_detail}
+
+        return JsonResponse(context)
+

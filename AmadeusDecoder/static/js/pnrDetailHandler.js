@@ -1242,7 +1242,7 @@ if (count__ticketHaveNoPassenger.length > 0) {
 $('#ticket-avoir').hide();
 $('#select_Passenger').hide();
 $('#multipleSelect').hide();
-
+$('#avoir-company-id').hide();
 
 
 
@@ -1255,6 +1255,8 @@ $('#SelectProduct').on('change', function(){
     $('#taxe-input-line').hide();
     $('#ticket-avoir').show();
     $('#passenger_segment').hide();
+    $('#avoir-company-id').show();
+
 
     const parent = document.getElementById("select_Passenger");
     const child = document.getElementById("child_passenger");

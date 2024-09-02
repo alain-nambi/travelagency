@@ -5,6 +5,7 @@ Created on 27 Aug 2022
 '''
 from django.db import models
 from AmadeusDecoder.models.BaseModel import BaseModel
+from django.contrib.postgres.fields import HStoreField
 
 class Fee(models.Model, BaseModel):
     '''

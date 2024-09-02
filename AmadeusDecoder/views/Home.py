@@ -1574,6 +1574,7 @@ def get_order(request, pnr_id):
                                 'OrderNumber': order_invoice_number,
                                 'OtherFeeId': item.id if item is not None else '',
                                 'Designation': item.designation if item is not None else '',
+                                'Company' : item.value.get('company') if item.fee_type == 'AVOIR COMPAGNIE' else '',
                             })
                             
                             if len(csv_order_lines) == 0:

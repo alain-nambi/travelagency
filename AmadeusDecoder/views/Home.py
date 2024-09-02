@@ -694,6 +694,10 @@ def pnr_details(request, pnr_id):
     context['pnr_not_invoiced'] = pnr_not_invoiced
     context['notif_number'] = len(pnr_not_invoiced)
     
+
+    context['all_company'] = Airline.objects.filter(active='Y')
+
+
     # PNR not invoiced 
     if pnr_detail.status_value == 0:
         __ticket_base = pnr_detail.tickets.filter(ticket_status=1).exclude(Q(total=0))
@@ -1614,6 +1618,7 @@ def get_order(request, pnr_id):
                                 'OrderNumber': order_invoice_number,
                                 'OtherFeeId': item.id if item is not None else '',
                                 'Designation': item.designation if item is not None else '',
+                                'Company' : item.value.get('company') if item.fee_type == 'AVOIR COMPAGNIE' else '',
                             })
                             
                             if len(csv_order_lines) == 0:
@@ -2032,7 +2037,7 @@ def import_product(request, pnr_id):
                     product[3] = -abs(product[3])
                     
                 other_fees = OthersFee(designation=product[7], cost=product[3], total=product[4],
-                                        pnr=pnr, fee_type=product[1],reference=product[6], 
+                                        pnr=pnr, fee_type=product[1],reference=product[6], value={'company': product[10] },
                                         quantity=1, is_subjected_to_fee=False, creation_date=datetime.now(), emitter=emitter)
                 other_fees.save()
                 

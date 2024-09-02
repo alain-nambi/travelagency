@@ -353,8 +353,11 @@ def getPassengersAndSegmets(request):
             }
             segments_data.append(segment_data)
 
+       
+
         context['passengers'] = passengers_data
         context['segments'] = segments_data
+        
 
     return JsonResponse({'context': context})
 

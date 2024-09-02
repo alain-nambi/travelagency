@@ -21,6 +21,7 @@ from AmadeusDecoder.models.invoice.TicketPassengerSegment import OtherFeeSegment
 
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.pnr.PnrPassenger import PnrPassenger
+from AmadeusDecoder.models.pnrelements.Airline import Airline
 from AmadeusDecoder.models.user.Users import User, UserCopying
 from AmadeusDecoder.models.invoice.Clients import Client
 from AmadeusDecoder.models.utilities.Comments import Comment, Response
@@ -653,6 +654,9 @@ def pnr_details(request, pnr_id):
     context['responses'] = Response.objects.filter(pnr_id=pnr_id)
     context['products'] = Product.objects.all()
     context['raw_data'] = pnr_detail.pnr_data.all().order_by('-data_datetime')
+
+    context['all_company'] = Airline.objects.filter(active='Y')
+
 
     # PNR not invoiced 
     if pnr_detail.status_value == 0:
@@ -1987,7 +1991,7 @@ def import_product(request, pnr_id):
                     product[3] = -abs(product[3])
                     
                 other_fees = OthersFee(designation=product[7], cost=product[3], total=product[4],
-                                        pnr=pnr, fee_type=product[1],reference=product[6], 
+                                        pnr=pnr, fee_type=product[1],reference=product[6], value={'company': product[10] },
                                         quantity=1, is_subjected_to_fee=False, creation_date=datetime.now(), emitter=emitter)
                 other_fees.save()
                 

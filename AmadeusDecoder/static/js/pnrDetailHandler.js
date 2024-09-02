@@ -661,6 +661,7 @@ document
       if (ProductDropdown.value == 19) {
         if (ticket.trim() !== "") {
           selectedSegment = document.querySelector('#multipleSelect').getSelectedOptions();
+          company_id = (document.getElementById('avoir-company-id')).value;
           console.log(selectedSegment);
           listNewProduct.push(
             ProductDropdown.value,
@@ -674,7 +675,8 @@ document
             "",
             ticket,
             passenger,
-            selectedSegment
+            selectedSegment,
+            company_id
           );
         }
         else {
@@ -1244,9 +1246,6 @@ $('#select_Passenger').hide();
 $('#multipleSelect').hide();
 $('#avoir-company-id').hide();
 
-
-
-
 $('#SelectProduct').on('change', function(){
   select_product = $('#SelectProduct').val();
 
@@ -1255,7 +1254,7 @@ $('#SelectProduct').on('change', function(){
     $('#taxe-input-line').hide();
     $('#ticket-avoir').show();
     $('#passenger_segment').hide();
-    $('#avoir-company-id').show();
+    document.getElementById('div-company').hidden = false;
 
 
     const parent = document.getElementById("select_Passenger");
@@ -1263,12 +1262,15 @@ $('#SelectProduct').on('change', function(){
 
     const parent_passenger_segment = document.getElementById("multipleSelect");
     const child_passenger_segment = document.getElementById("child_passenger_segment");
+
+
     if (child) {
       parent.removeChild(child);
     }
     if (child_passenger_segment) {
       parent_passenger_segment.removeChild(child_passenger_segment);
     }
+
     var pnr_id = $('#pnr_id').data('id');
     console.log(pnr_id);
     $.ajax({
@@ -1321,11 +1323,6 @@ $('#SelectProduct').on('change', function(){
 
           document.querySelector('#multipleSelect').setOptions(myOptions);
 
-          // $('#multipleSelect').on('change', function(){
-          //   selectedValues= document.querySelector('#multipleSelect').getSelectedOptions();
-          //   console.log(selectedValues);
-          // });
-
           const validatePassengerSegment = (isValid) => {
             if (isValid) {
               $("#multipleSelect").attr("style", "border: 1px solid green")
@@ -1349,6 +1346,8 @@ $('#SelectProduct').on('change', function(){
           
 
         }
+
+        
       }
     });
 

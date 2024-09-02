@@ -1233,10 +1233,16 @@
 												</td>
 												<td></td>
 												<td>
-													<select id="avoir-company-id" class="selectpicker form-control" data-live-search="true">
-														<option value="" disabled selected>Company</option>
-
-													</select>
+													<div id="div-company" hidden>
+														<select id="avoir-company-id" class="selectpicker" data-live-search="true" >
+															<option value="" disabled selected>Company</option>
+															{% for company in all_company %}
+																<option value="{{company.id}}">{{ company.name }} ({{company.iata}})</option>
+															{% endfor %}
+															
+														</select>
+													</div>
+													
 												</td>
 												<td></td>
 												<td></td>

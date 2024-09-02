@@ -10,6 +10,7 @@ from AmadeusDecoder.models.invoice.TicketPassengerSegment import TicketPassenger
 from AmadeusDecoder.models.pnr.Passenger import Passenger
 
 from AmadeusDecoder.models.pnr.Pnr import Pnr
+from AmadeusDecoder.models.pnrelements.Airline import Airline
 from AmadeusDecoder.models.pnrelements.PnrAirSegments import PnrAirSegments 
 from AmadeusDecoder.models.utilities.Comments import Anomalie, Comment, Response, NotFetched
 from AmadeusDecoder.models.user.Users import User, UserCopying
@@ -306,8 +307,11 @@ def getPassengersAndSegmets(request):
             }
             segments_data.append(segment_data)
 
+       
+
         context['passengers'] = passengers_data
         context['segments'] = segments_data
+        
 
     return JsonResponse({'context': context})
 

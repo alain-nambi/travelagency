@@ -1547,6 +1547,34 @@ def get_order(request, pnr_id):
                                 type_other_fee = item.fee_type
                             else:
                                 type_other_fee = 'EMD'
+
+                            print('------------------- HOTEL TAXI DETAILS -------------------------')
+
+                            print('ITEM DESIGNATION : ',item.designation)
+                            if item.designation in ['HOTEL','TAXI']:
+                                if item.designation == 'HOTEL':
+                                    _ht_details= { 
+                                        'Name': item.value.get('name'),
+                                        'ArrivalDate': item.value.get('arrivalDate'),
+                                        'DepartureDate': item.value.get('departureDate'),
+                                        'ArrivalTime': item.value.get('arrivalTime'),
+                                        'DepartureTime': item.value.get('departureTime'),
+                                        'room': item.value.get('room'),
+                                        'adults': item.value.get('adults'),
+                                        'kids': item.value.get('kids'),
+                                    }
+
+                                if item.designation == 'TAXI':
+                                    _ht_details= { 
+                                        'Name': item.value.get('name'),
+                                        'Date': item.value.get('date'),
+                                        'Heure': item.value.get('heure'),
+                                        'localisation': item.value.get('location'),
+                                        'passagers': item.value.get('passagers'),
+                                        
+                                    }
+                                print(_ht_details)
+
                             csv_order_lines.append({
                                 'LineID': order.id,
                                 'Type': type_other_fee,
@@ -1560,7 +1588,8 @@ def get_order(request, pnr_id):
                                 'Civility': '',
                                 'PassengerFirstname': '',
                                 'PassengerLastname': '',
-                                'Segments': '',                      
+                                'Segments': '', 
+                                'HT_details':json.dumps(_ht_details) if _ht_details is not None else '',                     
                                 'DocCurrency': 'EUR',
                                 'Transport': item.cost,
                                 'Tax': item.tax,

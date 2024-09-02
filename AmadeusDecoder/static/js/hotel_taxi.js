@@ -658,6 +658,7 @@ $('#ConfirmAddTaxi').on('click', function(){
 
 // Ajouter un fournisseur 
 function addServiceSupplier(supplier_name, service_id){
+  console.log('Service supplier added !!!!');
   $.ajax({
     type: "POST",
     url: "/home/add-service-supplier",

@@ -1988,11 +1988,12 @@ def import_product(request, pnr_id):
             pnr = Pnr.objects.get(pk=int(pnr_id))
             
             if product[0] == '19':
+                company = Airline.objects.get(pk= product[10])
                 if float(product[3]) > 0:
                     product[3] = -abs(product[3])
                     
                 other_fees = OthersFee(designation=product[7], cost=product[3], total=product[4],
-                                        pnr=pnr, fee_type=product[1],reference=product[6], value={'company': product[10] },
+                                        pnr=pnr, fee_type=product[1],reference=product[6], value={'company': company.iata },
                                         quantity=1, is_subjected_to_fee=False, creation_date=datetime.now(), emitter=emitter)
                 other_fees.save()
                 

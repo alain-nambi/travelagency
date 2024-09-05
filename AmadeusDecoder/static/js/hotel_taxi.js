@@ -62,7 +62,7 @@ function updateSelectHotelOptions() {
               taxi_supplier_list.push(supplier);
               var li = document.createElement("li");
               li.className="taxi-supplier-item";
-              li.setAttribute("data-id", supplier.id);
+              li.setAttribute("id", supplier.id);
               li.textContent = supplier.name;
               li.setAttribute('role', 'option') ;
               li.setAttribute('tabindex', "-1") ;
@@ -642,7 +642,7 @@ $('#ConfirmAddTaxi').on('click', function(){
 
  // Enregistrer le fournisseur s'il est nouveau 
   taxi_input = document.getElementById('taxi-supplier-input')
-  data_id = taxi_input.getAttribute('data-id');
+  data_id = taxi_input.getAttribute('id');
   console.log('DATA ID : ', data_id);
   if (data_id == "null") {
     addServiceSupplier(name,12);

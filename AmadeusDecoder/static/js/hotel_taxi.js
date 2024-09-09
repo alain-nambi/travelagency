@@ -48,7 +48,7 @@ function updateSelectHotelOptions() {
               hotel_supplier_list.push(supplier);
               var newli = document.createElement("li");
               newli.className="hotel-supplier-item";
-              newli.setAttribute("data-value", supplier.id);
+              newli.setAttribute("data-id", supplier.id);
               newli.textContent = supplier.name;
               newli.setAttribute('role', 'option') ;
               newli.setAttribute('tabindex', "-1") ;
@@ -62,7 +62,7 @@ function updateSelectHotelOptions() {
               taxi_supplier_list.push(supplier);
               var li = document.createElement("li");
               li.className="taxi-supplier-item";
-              li.setAttribute("id", supplier.id);
+              li.setAttribute("data-id", supplier.id);
               li.textContent = supplier.name;
               li.setAttribute('role', 'option') ;
               li.setAttribute('tabindex', "-1") ;
@@ -251,7 +251,9 @@ $(document).ready(function(){
     
 
       function makeChoice(whichOption) {
-        hsInput.setAttribute('data-id', whichOption.getAttribute('data-value'));
+        console.log('whichOption : ',whichOption);
+        hsInput.setAttribute('data-id', whichOption.getAttribute('data-id'));
+        console.log('---- data-id :',whichOption.getAttribute('data-id') );
         hsInput.setAttribute('value',whichOption.textContent);
         hsMoveFocus(document.activeElement, 'input')
         setState('closed');
@@ -283,7 +285,7 @@ $(document).ready(function(){
           case 'Enter':
             var inputsupplier = $("#hotel-supplier-input").val();
             if (inputsupplier.trim() !== '') {
-              hotel_supplier_list.push({'id':'','name':inputsupplier});
+              hotel_supplier_list.push({'id':0,'name':inputsupplier});
               var parent_hotel = document.getElementById("hotel-supplier-list")
               var hotel_childs = document.querySelectorAll('.hotel-supplier-item')
               if (hotel_childs) {
@@ -296,12 +298,14 @@ $(document).ready(function(){
               hotel_supplier_list.map((supplier)=>{
                 var newli = document.createElement("li");
                 newli.className="hotel-supplier-item";
-                newli.setAttribute('id',supplier['id']);
+                newli.setAttribute('data-id',supplier['id']);
                 newli.textContent = supplier['name'];
                 newli.setAttribute('role', 'option') ;
                 newli.setAttribute('tabindex', "-1") ;
                 parent_hotel.append(newli);
               })
+
+              console.log('hotel_supplier_list : ', hotel_supplier_list);
 
             }
   
@@ -508,8 +512,6 @@ $(document).ready(function(){
       tsSetState('filtered')
     }
   
-
-  
     function tsMakeChoice(whichOption) {
       
       tsInput.setAttribute('data-id', whichOption.getAttribute('data-id'));
@@ -518,7 +520,6 @@ $(document).ready(function(){
       tsMoveFocus(document.activeElement, 'input')
       tsSetState('closed');
       
-      // update aria-selected, if using
     }
   
     function tsSetState(newState) {
@@ -544,7 +545,7 @@ $(document).ready(function(){
         case 'Enter':
           var inputsupplier = $("#taxi-supplier-input").val();
           if (inputsupplier.trim() !== '') {
-            taxi_supplier_list.push({'id':'','name':inputsupplier});
+            taxi_supplier_list.push({'id':0,'name':inputsupplier});
             var taxi_suplier = document.getElementById("taxi-supplier-list")
             var taxi_childs = document.querySelectorAll(".taxi-supplier-item")
             if (taxi_childs) {
@@ -557,7 +558,7 @@ $(document).ready(function(){
             taxi_supplier_list.map((taxi_supp)=>{
               var newli = document.createElement("li");
               newli.className="taxi-supplier-item";
-              newli.setAttribute('id',taxi_supp['id']);
+              newli.setAttribute('data-id',taxi_supp['id']);
               newli.textContent = taxi_supp['name'];
               newli.setAttribute('role', 'option') ;
               newli.setAttribute('tabindex', "-1") ;
@@ -601,8 +602,6 @@ $(document).ready(function(){
 
 })
 
-
-
 // Enregistrer la reservation d'hôtel
 $('#ConfirmAddHotel').on('click', function(){
   var name = document.getElementById('hotel-supplier-input').value;
@@ -617,8 +616,9 @@ $('#ConfirmAddHotel').on('click', function(){
 
  // Enregistrer le fournisseur s'il est nouveau    
   hotel_input = document.getElementById('hotel-supplier-input')    
-  data_id = hotel_input.getAttribute('id');
-  if (data_id == "null") {
+  data_id = hotel_input.getAttribute('data-id');
+  console.log('hotel_input : ', hotel_input);
+  if (data_id == 0) {
     addServiceSupplier(name,10);
   }
   
@@ -642,9 +642,8 @@ $('#ConfirmAddTaxi').on('click', function(){
 
  // Enregistrer le fournisseur s'il est nouveau 
   taxi_input = document.getElementById('taxi-supplier-input')
-  data_id = taxi_input.getAttribute('id');
-  console.log('DATA ID : ', data_id);
-  if (data_id == "null") {
+  data_id = taxi_input.getAttribute('data-id');
+  if (data_id == 0) {
     addServiceSupplier(name,12);
   }
   // Enregistrer toutes les informations dans sessionStorage

@@ -1492,6 +1492,8 @@ def get_order(request, pnr_id):
                             'OrderNumber': order_invoice_number,
                             'OtherFeeId': '', 
                             'Designation':'',
+                            'HT_details':'',
+                            'Company' :''
                         })
 
                         if len(csv_order_lines) == 0:
@@ -1531,6 +1533,8 @@ def get_order(request, pnr_id):
                                     'OrderNumber': order_invoice_number,
                                     'OtherFeeId': '',
                                     'Designation': '',
+                                    'HT_details':'',
+                                    'Company' :''
                                 })
                                 
                                 if len(csv_order_lines) == 0:
@@ -1614,7 +1618,9 @@ def get_order(request, pnr_id):
                                     'IssueDate': '',
                                     'OrderNumber': order_invoice_number,
                                     'OtherFeeId': item.other_fee.id if item.other_fee is not None else '',
-                                    'Designation': ''
+                                    'Designation': '',
+                                    'HT_details':'',
+                                    'Company' :''
                                 })
                                 
                                 if len(csv_order_lines) == 0:

@@ -19,33 +19,25 @@ from django.forms.models import model_to_dict
 from django.conf import settings
 from AmadeusDecoder.models.invoice.TicketPassengerSegment import OtherFeeSegment, TicketPassengerSegment
 
-from AmadeusDecoder.models.pnr.Pnr import Pnr, UnremountedPnr, unRemountedPnrPassenger, unRemountedPnrSegment, unRemountedPnrTickets
+from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.pnr.PnrPassenger import PnrPassenger
-from AmadeusDecoder.models.pnrelements.Airline import Airline
-from AmadeusDecoder.models.pnrelements.Airport import Airport
 from AmadeusDecoder.models.user.Users import User, UserCopying
 from AmadeusDecoder.models.invoice.Clients import Client
 from AmadeusDecoder.models.utilities.Comments import Comment, Response
-from AmadeusDecoder.models.invoice.Ticket import Ticket, TicketCanceled
+from AmadeusDecoder.models.invoice.Ticket import Ticket
 from AmadeusDecoder.models.invoice.Fee import Fee, ReducePnrFeeRequest, OthersFee
 from AmadeusDecoder.models.invoice.Invoice import Invoice, InvoicesCanceled
 from AmadeusDecoder.models.invoice.InvoiceDetails import InvoiceDetails
-from AmadeusDecoder.models.pnr.Passenger import Passenger, PassengerType
+from AmadeusDecoder.models.pnr.Passenger import Passenger
 from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
 from AmadeusDecoder.models.invoice.Fee import Product
 from AmadeusDecoder.models.pnrelements.PnrAirSegments import PnrAirSegments
 from AmadeusDecoder.models.history.History import History
 from AmadeusDecoder.models.configuration.Configuration import Configuration
-from AmadeusDecoder.models.pnrelements.SpecialServiceRequest import ServiceSupplier
 
 from AmadeusDecoder.utilities.FtpConnection import upload_file
 from AmadeusDecoder.utilities.SendMail import Sending
 import traceback
-
-from openpyxl import Workbook
-from openpyxl.styles import *
-from django.shortcuts import redirect
-
 
 import AmadeusDecoder.utilities.configuration_data as configs
 
@@ -62,7 +54,7 @@ from ..models.pnr.OptimizedPnrList import OptimisedPnrList
 
 
 @login_required(login_url='index')
-def home(request):
+def home_copy(request):
     def format_date_range(date_range):
         if date_range:
             for fmt in ("%d-%m-%Y", "%Y-%m-%d"):
@@ -232,7 +224,7 @@ def home(request):
         'search_query': search_query,
     }
 
-    return render(request, 'home.html', context)
+    return render(request, 'home-copy.html', context)
 
 
 @login_required(login_url='index')
@@ -333,9 +325,6 @@ def pnr_details(request, pnr_id):
             elif not __ticket_not_ordered.exists() and not __other_fee_not_ordered.exists() and not __ticket_no_adc_not_ordered.exists():
                 pnr_detail.is_invoiced = True
                 pnr_detail.save()
-
-
-        
 
     return render(request,'pnr-details.html', context)
 
@@ -465,7 +454,7 @@ def pnr_search_by_pnr_number(request):
                 
                 # Determine if the value length and characteristics match the criteria
                 # -R means refund : to make ability to search refund
-                elif (value_length >= 13 and value.isdigit()) or value_length == 16 or (value_length >= 13 and '-R' in value):
+                if (value_length >= 13 and value.isdigit()) or value_length == 16 or (value_length >= 13 and '-R' in value):
                     # Search for a Ticket with this number
                     ticket = Ticket.objects.filter(
                         number__icontains=value,
@@ -600,7 +589,6 @@ def reduce_fee(request) :
     from AmadeusDecoder.utilities.ServiceFeesDecreaseRequest import ServiceFeesDecreaseRequest
     context = {}
     if request.method == 'POST' and request.POST.get('pnrId') and request.POST.get('feeId'):
-        print("hey")
         pnrId = request.POST.get('pnrId')
         feeId = request.POST.get('feeId')
         feeAmount = request.POST.get('feeAmount')
@@ -921,8 +909,8 @@ def get_order(request, pnr_id):
     config = Configuration.objects.filter(name='Saving File Tools', value_name='File protocol', environment=settings.ENVIRONMENT)
 
     
-    file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
-    customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
+    file_dir = '/opt/odoo/issoufali-addons/import_saleorder/data/source'
+    customer_dir = '/opt/odoo/issoufali-addons/contacts_from_incadea/data/source'
     
     fieldnames_order = [
         'LineID',
@@ -1063,7 +1051,10 @@ def get_order(request, pnr_id):
                         
                         for segment in segments_parts:
                             for part in segment:
-                                if part.segment.segment_type == 'Flight' :
+                                # print("DEBUGGING SEGMENT PART")
+                                # print(part)
+                                # print(part.segment)
+                                if part.segment and part.segment.segment_type is not None and part.segment.segment_type == 'Flight':
                                     _segment = {
                                         'Name': part.segment.segmentorder,
                                         'Fly': '%s %s' % (part.segment.servicecarrier.iata, part.segment.flightno),
@@ -1392,7 +1383,7 @@ def get_quotation(request, pnr_id):
                     segment_dates = []
                     if segments_parts is not None:
                         for part in segments_parts:
-                            if part.segment.segment_type == 'Flight' :
+                            if part.segment and part.segment.segment_type is not None and part.segment.segment_type == 'Flight':
                                 _segment = {
                                     'Name': part.segment.segmentorder,
                                     'Fly': '%s %s' % (part.segment.servicecarrier.iata, part.segment.flightno),
@@ -1599,7 +1590,6 @@ def import_product(request, pnr_id):
             product = json.loads(request.POST.get('listNewProduct'))
             pnr = Pnr.objects.get(pk=int(pnr_id))
             
-            # cas pour l'AVOIR COMPAGNIE
             if product[0] == '19':
                 if float(product[3]) > 0:
                     product[3] = -abs(product[3])
@@ -1614,16 +1604,6 @@ def import_product(request, pnr_id):
                     passenger = Passenger.objects.get(pk=product[8])
                     passenger_segment = OtherFeeSegment(segment=segment,other_fee= other_fees, passenger=passenger)
                     passenger_segment.save()
-
-            # cas pour l'HOTEL et TAXI
-            if product[0] == '10' or product[0] == '12':
-
-                other_fee = OthersFee(designation=product[2], cost=product[3], tax=product[4], total=product[5],
-                                        pnr=pnr, fee_type=product[1], passenger_segment=product[6], reference=product[7], emitter=emitter,
-                                        quantity=1, is_subjected_to_fee=False,creation_date=datetime.now())
-                other_fee.save()
-                other_fee.value = json.loads(product[8])
-                other_fee.save()
             
             else:
                 other_fees = OthersFee.objects.filter(pnr=pnr_id, product_id=product[0])
@@ -1631,8 +1611,6 @@ def import_product(request, pnr_id):
                                         pnr=pnr, fee_type=product[1], passenger_segment=product[6], reference=product[7], emitter=emitter,
                                         quantity=1, is_subjected_to_fee=False, creation_date=datetime.now())
                 other_fees.save()
-
-
             
             # save creator user to user copying
             try:
@@ -1828,20 +1806,20 @@ def unorder_pnr(request):
                 PassengerInvoice.objects.filter(id=passenger_invoice.id).delete()
                 
                 if passenger_invoice.ticket_id:
-                    #  Change the staus od is_invoiced of the corresponding ticket if it exist to falser
+                    #  delete the corresponding ticket if it exist
                     Ticket.objects.filter(id=passenger_invoice.ticket_id).update(is_invoiced=False)
                 
                 if passenger_invoice.fee_id:
-                    #  Change the staus od is_invoiced of the corresponding fee if it exist to falser
+                    #  delete the corresponding fee if it exist
                     Fee.objects.filter(id=passenger_invoice.fee_id).update(is_invoiced=False)
                     
                 if passenger_invoice.other_fee_id:
-                    # Change the staus od is_invoiced of the corresponding other fee if it exist to falser
+                    # delete the corresponding other fee if it exist
                     OthersFee.objects.filter(id=passenger_invoice.other_fee_id).update(is_invoiced=False)
 
-                if passenger_invoice.ticket_id or passenger_invoice.other_fee_id :
+                if passenger_invoice.ticket_id or passenger_invoice.other_fee_id or passenger_invoice.fee_id:
                     # save in the InvoicesCanceled
-                    invoices_canceled = InvoicesCanceled(invoice_date=passenger_invoice.date_creation, pnr_id=pnr.id,invoice_number=invoice_number,motif=motif,ticket_id=passenger_invoice.ticket_id, other_fee_id = passenger_invoice.other_fee_id,user_id=user_id) 
+                    invoices_canceled = InvoicesCanceled(pnr_id=pnr.id,invoice_number=invoice_number,motif=motif,ticket_id=passenger_invoice.ticket_id, other_fee_id = passenger_invoice.other_fee_id,user_id=user_id, fee_id=passenger_invoice.fee_id) 
                     invoices_canceled.save()
                 
         
@@ -1880,17 +1858,13 @@ def uncheck_ticket_in_passenger_invoiced(request):
 @login_required(login_url="index")
 def get_all_pnr_unordered(request):
     context = {}
-    invoices_canceled_list = InvoicesCanceled.objects.all()
-    users = []
-    invoice_canceled = InvoicesCanceled.objects.all().distinct('user')      
-    for invoice in invoice_canceled:
-        users.append(invoice.user)
+    invoices_canceled_list = InvoicesCanceled.objects.all().distinct('pnr_id')
     
     pnr_count = invoices_canceled_list.count()
     
     context['pnr_list'] = invoices_canceled_list
     object_list = context['pnr_list']
-    row_num = request.GET.get('paginate_by', 30) or 30
+    row_num = request.GET.get('paginate_by', 20) or 20
     page_num = request.GET.get('page', 1)
     paginator = Paginator(object_list, row_num)
     try:
@@ -1899,7 +1873,7 @@ def get_all_pnr_unordered(request):
         page_obj = paginator.page(1)
     except EmptyPage:
         page_obj = paginator.page(paginator.num_pages)
-    context = {'page_obj': page_obj, 'row_num': row_num, 'pnr_count' : pnr_count, 'issuing_users' : users}
+    context = {'page_obj': page_obj, 'row_num': row_num, 'pnr_count' : pnr_count}
     
     return render(request,'unordered_pnr.html', context)
 
@@ -1916,6 +1890,7 @@ def unordered_pnr_research(request):
         if pnr_results.exists():
             for p1 in pnr_results :
                 search_results.append(p1)
+        print(search_results)
         
         _passengers = Passenger.objects.all().filter(Q(name__icontains=pnr_research) | Q(surname__icontains=pnr_research) )
         
@@ -1927,6 +1902,7 @@ def unordered_pnr_research(request):
                 
                 if pnr_object.exists() and pnr_object not in search_results and pnr_object is not None :
                     search_results.extend(pnr_object)
+        print(search_results)
         
         # Search with customer
         _customers = Client.objects.all().filter(Q(intitule__icontains=pnr_research) )
@@ -1947,32 +1923,35 @@ def unordered_pnr_research(request):
                 search_results.extend(pnr_invoices)
                     
         print(search_results)
-        if pnr_results.exists():
-            results = get_data_unordered_pnr_from_query_set(request,search_results)
-            context['results'] = results
-            context['status'] = 200
-        else:
-            context['status'] = 404
-            context['message'] = 'Aucun résultat trouvé.'
+        
+        results = []
+        for invoice in search_results:
             
+            values = {}
+            values['pnr_id'] = invoice.pnr.id
+            values['pnr_number'] = invoice.pnr.number
+            values['invoice_number'] = invoice.invoice_number
+            values['motif'] = invoice.motif
+            values['date'] = invoice.date
+            values['user'] = invoice.user.username
+            results.append(values)
         pnr_count = len(results)
         
+        context = {'results' : results, 'pnr_count' :  pnr_count}
     return JsonResponse(context)
-     
+        
 def liste_commandes(request):
     return render(request,'commandes_modal.html') 
+
 # Supprimer les tickets non commandés
 def ticket_delete(request):
     if request.method == 'POST':
         ticketId = request.POST.get('ticketId')
         ticketTable = request.POST.get('ticketTable')
         ticketNumber = request.POST.get('ticketNumber')
-        connected_user_id = request.POST.get('connected_user_id')
-        motif = request.POST.get('motif')
 
-
-        connected_user = User.objects.get(pk=connected_user_id)
-
+        print('------------------------------------------------------')
+        print(ticketId)
         
         # for ticket
         if ticketTable == 'ticket':
@@ -1997,10 +1976,6 @@ def ticket_delete(request):
                     passenger_invoice_fee = PassengerInvoice.objects.filter(fee_id=fee.id)
                     passenger_invoice_fee.delete()
 
-            # save it in the ticketCanceled table
-            ticket_canceled = TicketCanceled(ticket=ticket,issuing_user=connected_user,motif=motif,pnr=ticket.pnr)
-            ticket_canceled.save()
-
 
         # for other fees
         else:
@@ -2022,199 +1997,6 @@ def ticket_delete(request):
                     print('FEE VAR')
                     passenger_invoice_fee = PassengerInvoice.objects.filter(fee_id=fee.id)
                     passenger_invoice_fee.delete()
-            
-            # save it in the ticketCanceled table
-            ticket_canceled = TicketCanceled(other_fee=other_fee,issuing_user=connected_user,motif=motif,pnr=other_fee.pnr)
-            ticket_canceled.save()
 
 
         return JsonResponse({'status':'ok'})
-
-@login_required(login_url='index')
-def unordered_pnr_filter(request):
-    context ={}
-    search_results = []
-    if request.method == 'POST':
-        try:
-            filtre = request.POST.get('filter')
-            data_search = request.POST.get('data_search')
-            title = ""
-            if filtre == 'motif':
-                invoice_canceled = InvoicesCanceled.objects.filter(motif__icontains=data_search).all()
-                title += " motif - "+data_search
-
-            if filtre == 'date':
-                invoice_canceled = InvoicesCanceled.objects.filter(date__date=data_search).all()
-                title += " date - "+data_search
-
-            if filtre == 'creator':
-                invoice_canceled = InvoicesCanceled.objects.filter(user__id=data_search).all()
-                title += " créateur - "+ User.objects.get(pk=data_search).username
-                
-            if invoice_canceled.exists():
-                print(invoice_canceled)
-                for ticket in invoice_canceled :
-                    search_results.append(ticket)
-        
-                results = get_data_unordered_pnr_from_query_set(request,search_results)
-                context['status'] = 200
-                context['results'] = results
-                context['searchTitle'] = title
-            else:
-                context['status'] = 404
-                context['message'] = 'Aucun résultat trouvé.'
-        except:
-            context['status'] = 100
-            context['message'] = "Une erreur s'est produite."
-
-
-    return JsonResponse(context)
-
-# ------------ transform a list of queryset to table specialy for the canceled ticket search
-@login_required(login_url="index")
-def get_data_unordered_pnr_from_query_set(request,search_results):
-
-    results = []
-
-    for invoice in search_results:
-        
-        values = {}
-        values['pnr_id'] = invoice.pnr.id
-        values['pnr_number'] = invoice.pnr.number
-        values['invoice_number'] = invoice.invoice_number
-        values['motif'] = invoice.motif
-        values['date'] = (invoice.date).strftime("%d/%m/%Y, %H:%M:%S")
-        values['user'] = invoice.user.username
-        print(values['user'])
-        results.append(values)
-    return results
-
-@login_required(login_url='index')
-def unordered_pnr_advanced_search(request):
-    context ={}
-    search_results = []
-    if request.method == 'POST':
-        try:
-            date = request.POST.get('date')
-            motif = request.POST.get('motif')
-            createur = request.POST.get('createur')
-
-            print('motif : ', motif)
-            print('date : ', date)
-            print('createur : ', createur)
-
-
-            filter_conditions = {}
-            title = ""
-
-            # Ajouter les conditions de filtre pour les variables non-None
-            if date is not None and date != "":
-                filter_conditions['date__date'] = date
-                title = " date - "+ date
-            if motif is not None and motif != "":
-                filter_conditions['motif__icontains'] = motif
-                title += " motif - " + motif
-            if createur is not None and createur != "":
-                filter_conditions['user__id'] = createur
-                title += " créateur - "+ User.objects.get(pk=createur).username
-
-            # Créer un objet Q pour combiner les conditions de filtre
-            query_filter = Q(**filter_conditions)
-
-            # Exécuter la requête avec les conditions de filtre
-            invoice_canceled = InvoicesCanceled.objects.filter(query_filter).all()
-                
-
-            if invoice_canceled.exists():
-                print(invoice_canceled)
-                for ticket in invoice_canceled :
-                    search_results.append(ticket)
-                    print(ticket)
-        
-                results = get_data_unordered_pnr_from_query_set(request,search_results)
-                context['status'] = 200
-                context['results'] = results
-                context['searchTitle'] = title
-            else:
-                context['status'] = 404
-                context['message'] = 'Aucun résultat trouvé.'
-        except:
-            context['status'] = 100
-            context['message'] = "Une erreur s'est produite."
-
-
-    return JsonResponse(context)
-
-
-
-# --------------- HOTEL & TAXI -- ---------------------------
-@login_required(login_url="index")
-def get_service_supplier_list(request):
-    
-    if request.method == 'GET':
-        hotel_suppliers = ServiceSupplier.objects.filter(service__id=10).all()
-        hSupplier = []
-        for supplier in hotel_suppliers:
-            hSupplier.append({"id":supplier.id,"name":supplier.name})
-        taxi_suppliers = ServiceSupplier.objects.filter(service__id=12).all()
-        tSupplier = []
-        for supplier in taxi_suppliers:
-            tSupplier.append({"id":supplier.id,"name":supplier.name})
-        print("------------- HOTEL SUPPLIER --------------: ",hotel_suppliers)
-
-        context = {"hotel_suppliers":hSupplier,"taxi_suppliers":tSupplier}
-        return JsonResponse(context)
-    
-@login_required(login_url='index')
-def add_service_supplier(request):
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        service_id = request.POST.get('service')
-
-        service_supplier = ServiceSupplier(name=name,service_id= service_id)
-        service_supplier.save()
-
-        return JsonResponse({'success':True, 'message': 'Service supplier added successfully'})
-
-@login_required(login_url="index")
-def save_hotel(request):
-    if request.method == 'POST':
-        hotel_name = request.POST.get('name')
-        arrivalDate = request.POST.get('arrivalDate')
-        arrivalTime = request.POST.get('arrivalTime')
-        departureDate = request.POST.get('departureDate')
-        departureTime = request.POST.get('departureTime')
-        room = request.POST.get('room')
-        adults = request.POST.get('adults')
-        kids = request.POST.get('kids')
-        pnr_id = request.POST.get('pnr_id')
-
-        hotel_detail = {'name':hotel_name,'arrivalDate':arrivalDate,'arrivalTime':arrivalTime,'departureDate':departureDate,'departureTime':departureTime,'room':room,'adults':adults,'kids':kids}
-
-        other_fee = OthersFee(designation="HOTEL",value=hotel_detail,pnr_id=pnr_id,fee_type="Supplement",creation_date=datetime.now())
-        other_fee.save()
-
-        context = {"hotel_detail":hotel_detail}
-
-        return JsonResponse(context)
-
-@login_required(login_url="index")
-def save_taxi(request):
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        date = request.POST.get('date')
-        heure = request.POST.get('heure')
-        passagers = request.POST.get('passagers')
-        location = request.POST.get('location')
-
-        pnr_id = request.POST.get('pnr_id')
-
-        taxi_detail = {'name':name,'date':date,'heure':heure,'passagers':passagers,'depart':location}
-
-        other_fee = OthersFee(designation="TAXI",value=taxi_detail,pnr_id=pnr_id,fee_type="Supplement",creation_date=datetime.now())
-        other_fee.save()
-
-        context = {"taxi_detail":taxi_detail}
-
-        return JsonResponse(context)
-

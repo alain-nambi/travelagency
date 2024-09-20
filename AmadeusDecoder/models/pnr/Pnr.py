@@ -118,7 +118,22 @@ class Pnr(models.Model, BaseModel):
     def get_max_issuing_date(self):
         ticket = Ticket.objects.filter(pnr__number=self.number).exclude(ticket_status=0)
         ticket = ticket.aggregate(Max('issuing_date'))
-        return ticket['issuing_date__max']
+        
+        # print(f'TICKET ISSUING DATE : {ticket["issuing_date__max"]} {self.number}')
+        
+        other_fee = OthersFee.objects.filter(pnr__number=self.number).exclude(other_fee_status=0)
+        other_fee = other_fee.aggregate(Max('creation_date'))
+        
+        # print(f'OTHER FEE ISSUING DATE : {other_fee["creation_date__max"]} {self.number}')
+        
+        # Get max date issuing from ticket
+        if ticket["issuing_date__max"] is not None:
+            return ticket['issuing_date__max']
+        # Get max date issuing from other_fee
+        elif other_fee['creation_date__max'] is not None:
+            return other_fee['creation_date__max']
+        
+        # return ticket['issuing_date__max'] if ticket else other_fee['creation_date__max'] if other_fee else None
     
     # get pnr emit agent
     def get_emit_agent(self):

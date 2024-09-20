@@ -68,3 +68,5 @@ uvicorn==0.25.0
 zipp==3.8.1
 zope.interface==5.4.0
 PyMUPDF
+django-wkhtmltopdf
+django-silk

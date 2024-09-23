@@ -101,9 +101,10 @@ old -->
                 data-toggle="modal" 
                 data-target="#modalUncommandApi" 
                 title="Décommander le PNR"
-                id = "uncommand_api"
+                id = "uncommand_api" 
+                {% if not pnr.is_invoiced %} disabled {% endif%}
               >
-                <span>Décommander le PNR</span>
+                <span>Décommander le PNR </span>
               </button>
             </div>
           </li>

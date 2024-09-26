@@ -420,6 +420,7 @@ class EmailListener:
                             zenith_parser.save_data(attachment_list)
                             print('files:', attachment_list)
                     except Exception as e:
+                        self.server.idle()
                         raise e
                     finally:
                         # Restart idling

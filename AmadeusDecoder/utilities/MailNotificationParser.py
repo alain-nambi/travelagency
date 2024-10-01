@@ -160,7 +160,6 @@ class MailNotification():
                             [
                                 "pp@phidia.onmicrosoft.com",
                                 "tahina@phidia.onmicrosoft.com",
-                                "alain@phidia.onmicrosoft.com",
                                 "maphiesarobidy@outlook.fr"
                             ],
                             subject,
@@ -540,7 +539,7 @@ class MailNotification():
                 
                 # Envoyer le mail pour toutes les utilisateurs d"Isssoufali 
                 Sending.send_email(
-                    "alain@phidia.onmicrosoft.com", 
+                    "maphieSarobidy@outlook.fr", 
                     # administrator_users_mail + other_users_mail + mgbi_users_mail,  
                     # subject, 
                     # message
@@ -577,7 +576,7 @@ class MailNotification():
                 
                 # Envoyer le mail pour les administrateurs d"Isssoufali 
                 Sending.send_email(
-                    "alain@phidia.onmicrosoft.com", 
+                    "maphieSarobidy@outlook.fr", 
                     # administrator_users_mail + mgbi_users_mail,  
                     subject, 
                     message
@@ -625,7 +624,7 @@ class MailNotification():
                     
                 # Envoyer le mail pour toutes les utilisateurs d"Isssoufali 
                 Sending.send_email(
-                    "alain@phidia.onmicrosoft.com", 
+                    "maphieSarobidy@outlook.fr", 
                     # administrator_users_mail + other_users_mail + mgbi_users_mail,
                     # subject, 
                     # message
@@ -663,7 +662,7 @@ class MailNotification():
                     
                 # Envoyer le mail pour les administrateurs d"Isssoufali 
                 Sending.send_email(
-                    "alain@phidia.onmicrosoft.com", 
+                    "maphieSarobidy@outlook.fr", 
                     # administrator_users_mail + mgbi_users_mail,  
                     subject, 
                     message

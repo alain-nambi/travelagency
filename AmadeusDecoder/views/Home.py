@@ -266,6 +266,9 @@ def pnr_details(request, pnr_id):
     context['products'] = Product.objects.all()
     context['raw_data'] = pnr_detail.pnr_data.all().order_by('-data_datetime')
 
+    context['all_company'] = Airline.objects.filter(active='Y')
+
+
     # PNR not invoiced 
     if pnr_detail.status_value == 0:
         __ticket_base = pnr_detail.tickets.filter(ticket_status=1).exclude(Q(total=0))
@@ -1105,6 +1108,8 @@ def get_order(request, pnr_id):
                             'OrderNumber': order_invoice_number,
                             'OtherFeeId': '', 
                             'Designation':'',
+                            'HT_details':'',
+                            'Company' :''
                         })
 
                         if len(csv_order_lines) == 0:
@@ -1144,6 +1149,8 @@ def get_order(request, pnr_id):
                                     'OrderNumber': order_invoice_number,
                                     'OtherFeeId': '',
                                     'Designation': '',
+                                    'HT_details':'',
+                                    'Company' :''
                                 })
                                 
                                 if len(csv_order_lines) == 0:
@@ -1176,7 +1183,8 @@ def get_order(request, pnr_id):
                                 'Civility': '',
                                 'PassengerFirstname': '',
                                 'PassengerLastname': '',
-                                'Segments': '',                      
+                                'Segments': '',
+                                'HT_details':'',                    
                                 'DocCurrency': 'EUR',
                                 'Transport': item.cost,
                                 'Tax': item.tax,
@@ -1187,6 +1195,7 @@ def get_order(request, pnr_id):
                                 'OrderNumber': order_invoice_number,
                                 'OtherFeeId': item.id if item is not None else '',
                                 'Designation': item.designation if item is not None else '',
+                                'Company' : item.value.get('company') if item.fee_type == 'AVOIR COMPAGNIE' else '',
                             })
                             
                             if len(csv_order_lines) == 0:
@@ -1225,7 +1234,9 @@ def get_order(request, pnr_id):
                                     'IssueDate': '',
                                     'OrderNumber': order_invoice_number,
                                     'OtherFeeId': item.other_fee.id if item.other_fee is not None else '',
-                                    'Designation': ''
+                                    'Designation': '',
+                                    'HT_details':'',
+                                    'Company' :''
                                 })
                                 
                                 if len(csv_order_lines) == 0:
@@ -1601,11 +1612,12 @@ def import_product(request, pnr_id):
             
             # cas pour l'AVOIR COMPAGNIE
             if product[0] == '19':
+                company = Airline.objects.get(pk= product[10])
                 if float(product[3]) > 0:
                     product[3] = -abs(product[3])
                     
                 other_fees = OthersFee(designation=product[7], cost=product[3], total=product[4],
-                                        pnr=pnr, fee_type=product[1],reference=product[6], 
+                                        pnr=pnr, fee_type=product[1],reference=product[6], value={'company': company.iata },
                                         quantity=1, is_subjected_to_fee=False, creation_date=datetime.now(), emitter=emitter)
                 other_fees.save()
                 

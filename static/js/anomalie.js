@@ -88,7 +88,7 @@ function get_unshowed_ticket(pnr_id,container){
 
                 // Ajouter un titre au modal
                 var title = document.createElement("h3");
-                title.innerHTML = "Billets non remontés";
+                title.innerHTML = "Billets non remonté";
                 title.style.margin = '10px 0 0 0';
                 container.appendChild(title);
 
@@ -185,7 +185,8 @@ $(document).ready(function () {
             }
         });
     }  
-});
+    }
+);
 
 
 
@@ -225,6 +226,7 @@ function accept_anomaly(anomalie_id){
         });
     
 }
+
 
 //---------------- Ticket verification and saving anomalie
 $(document).ready(function () {
@@ -535,6 +537,8 @@ $(document).ready(function () {
 
 // ---------------------- update or create ticket 
 // $('#card-update-anomaly').hide();
+
+
 
 function refuse_anomaly(anomalie_id) {
 

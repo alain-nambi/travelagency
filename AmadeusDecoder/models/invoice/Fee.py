@@ -8,7 +8,6 @@ from django.db import models
 from AmadeusDecoder.models.BaseModel import BaseModel
 from django.contrib.postgres.fields import HStoreField
 
-
 class Fee(models.Model, BaseModel):
     '''
     classdocs

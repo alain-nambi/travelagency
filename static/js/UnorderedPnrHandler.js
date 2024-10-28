@@ -35,6 +35,7 @@ function searchUnorderedPnrFunction() {
           $("#spinnerLoadingSearch").hide();
 
 
+
           $(".request-pnr-counter").text(SEARCH_RESULT.length);
           $("#unorderedpnrCounterOnSearch").val(" / " + SEARCH_RESULT.length);
 

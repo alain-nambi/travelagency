@@ -12,9 +12,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='anomalie',
-            name='admin_id',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='admin_id', to=settings.AUTH_USER_MODEL),
-        ),
+       
     ]

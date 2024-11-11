@@ -13,9 +13,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='anomalie',
-            name='categorie',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='AmadeusDecoder.categorieanomalie'),
-        )
+        # migrations.AlterField(
+        #     model_name='anomalie',
+        #     name='categorie',
+        #     field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='AmadeusDecoder.categorieanomalie'),
+        # )
     ]

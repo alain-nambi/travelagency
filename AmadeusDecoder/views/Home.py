@@ -1612,7 +1612,10 @@ def import_product(request, pnr_id):
             
             # cas pour l'AVOIR COMPAGNIE
             if product[0] == '19':
+                print('-------------- COMPANY ID ------------- : ',product[10] )
                 company = Airline.objects.get(pk= product[10])
+                print('-------------- COMPANY  IATA CODE------------- : ',company.iata )
+
                 if float(product[3]) > 0:
                     product[3] = -abs(product[3])
                     
@@ -1620,6 +1623,8 @@ def import_product(request, pnr_id):
                                         pnr=pnr, fee_type=product[1],reference=product[6], value={'company': company.iata },
                                         quantity=1, is_subjected_to_fee=False, creation_date=datetime.now(), emitter=emitter)
                 other_fees.save()
+
+                print('------------ SEGMENT ---------------- : ', product[9])
                 
                 for segment in product[9]:
                     segment = PnrAirSegments.objects.get(pk=segment.get('value'))
@@ -1628,7 +1633,7 @@ def import_product(request, pnr_id):
                     passenger_segment.save()
 
             # cas pour l'HOTEL et TAXI
-            if product[0] == '10' or product[0] == '12':
+            elif product[0] == '10' or product[0] == '12':
 
                 other_fee = OthersFee(designation=product[2], cost=product[3], tax=product[4], total=product[5],
                                         pnr=pnr, fee_type=product[1], passenger_segment=product[6], reference=product[7], emitter=emitter,
@@ -1638,6 +1643,8 @@ def import_product(request, pnr_id):
                 other_fee.save()
             
             else:
+                if float(product[3]) > 0:
+                    product[3] = -abs(product[3])
                 other_fees = OthersFee.objects.filter(pnr=pnr_id, product_id=product[0])
                 other_fees = OthersFee(designation=product[2], cost=product[3], tax=product[4], total=product[5],
                                         pnr=pnr, fee_type=product[1], passenger_segment=product[6], reference=product[7], emitter=emitter,

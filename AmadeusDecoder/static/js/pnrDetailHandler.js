@@ -660,10 +660,13 @@ document
       console.log(ProductDropdown.value);
 
       if (ProductDropdown.value == 19) {
-        if (ticket.trim() !== "") {
-          selectedSegment = document.querySelector('#multipleSelect').getSelectedOptions();
-          company_id = (document.getElementById('avoir-company-id')).value;
-          console.log(selectedSegment);
+        selectedSegment = document.querySelector('#multipleSelect').getSelectedOptions();
+        company_id = (document.getElementById('avoir-company-id')).value;
+        console.log(selectedSegment);
+        console.log('Montant ---- ',ProductTranspInput.value);
+        console.log('COMPANY ---- ',company_id);
+        if (ticket.trim() !== "" && parseFloat(ProductTranspInput.value) != 0 && company_id != null) {
+          
           listNewProduct.push(
             ProductDropdown.value,
             ProductTypeInitiale.textContent,
@@ -680,9 +683,17 @@ document
             company_id
           );
         }
-        else {
+        else if(ticket.trim() == "") {
           toastr.error('Veuillez entrer un Numéro de billet')
           document.getElementById('ticket-avoir').style.borderColor = 'red';
+        }
+        else if(parseFloat(ProductTranspInput.value) == 0) {
+          toastr.error('Veuillez entrer un Montant supérieur à 0')
+          document.getElementById('transport-input-line').style.borderColor = 'red';
+        }
+        else if(company_id == null) {
+          toastr.error('Veuillez choisir une compagnie')
+          document.getElementById('avoir-company-id').style.borderColor = 'red';
         }
       }
       

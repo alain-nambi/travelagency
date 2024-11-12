@@ -659,10 +659,11 @@ document
       console.log(ProductDropdown.value);
 
       if (ProductDropdown.value == 19) {
-        if (ticket.trim() !== "") {
-          selectedSegment = document.querySelector('#multipleSelect').getSelectedOptions();
-          company_id = (document.getElementById('avoir-company-id')).value;
-          console.log(selectedSegment);
+        selectedSegment = document.querySelector('#multipleSelect').getSelectedOptions();
+        company_id = (document.getElementById('avoir-company-id')).value;
+
+        if (ticket.trim() !== "" && parseFloat(ProductTranspInput.value) != 0 && company_id.trim() != "") {
+
           listNewProduct.push(
             ProductDropdown.value,
             ProductTypeInitiale.textContent,
@@ -679,9 +680,20 @@ document
             company_id
           );
         }
-        else {
-          toastr.error('Veuillez entrer un Numéro de billet')
-          document.getElementById('ticket-avoir').style.borderColor = 'red';
+        else if(ticket.trim() == "") {
+          toastr.error('Veuillez entrer un Numéro de billet.')
+          $('#ticket-avoir').addClass("form is-invalid")
+          // document.getElementById('ticket-avoir').style.borderColor = 'red';
+        }
+        else if(parseFloat(ProductTranspInput.value) == 0) {
+          toastr.error('Veuillez entrer un montant.')
+          document.getElementById('transport-input-line').style.borderColor = 'red';
+        }
+        else if(company_id.trim() == "") {
+          toastr.error('Veuillez choisir une compagnie.')
+          document.getElementById('div-company').style.borderStyle = 'inherit';
+          document.getElementById('div-company').style.borderWidth = '1px';
+          document.getElementById('div-company').style.borderColor = 'red';
         }
       }
       else {
@@ -1407,9 +1419,17 @@ $(document).ready(function () {
           $(this).val(sanitizedValue);
         }
       }
-
+      
+      document.getElementById('transport-input-line').style.borderColor = 'green';
     }
   });
+
+  $('#avoir-company-id').on('change', function () {
+    document.getElementById('div-company').style.borderStyle = 'inherit';
+    document.getElementById('div-company').style.borderWidth = '1px';
+    document.getElementById('div-company').style.borderColor = 'green';
+  });
+
 });
 
 // Afficher le modal de confirmation de suppression de ticket non commandé

@@ -1774,3 +1774,12 @@ def get_check_passenger_missing(pnr_id, client_id):
     return count_passenger_missing
 
 
+###############################
+# GET COMPANY #
+###############################
+@register.filter(name='get_company')
+def get_company(company_code):
+    from AmadeusDecoder.models.pnrelements.Airline import Airline
+    company = Airline.objects.filter(iata=company_code).first()
+    if company:
+        return company.name

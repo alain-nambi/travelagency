@@ -1039,6 +1039,8 @@
 												<td>
 													{% if other_fee.pnr_id is not None and other_fee.pnr_id|other_fee_datetime_invoice_created:other_fee.id is not None %}
 														{{ other_fee.pnr_id|other_fee_datetime_invoice_created:other_fee.id|date:"d/m/y" }}
+													{% elif other_fee.fee_type == 'AVOIR COMPAGNIE'%}
+														Compagnie : {{other_fee.value.company|get_company }}
 													{% else %}
 														{{ '' }}
 													{% endif %}
@@ -1232,7 +1234,7 @@
 														</select>
 												</td>
 												<td></td>
-												<td>
+												<td id ="command_date">
 													<div id="div-company" hidden>
 														<select id="avoir-company-id" class="selectpicker" data-live-search="true" >
 															<option value="" disabled selected>Company</option>

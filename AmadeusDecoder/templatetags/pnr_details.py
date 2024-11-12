@@ -1774,8 +1774,6 @@ def get_check_passenger_missing(pnr_id, client_id):
 
     return count_passenger_missing
 
-
-
 @register.filter(name="add_hours_plus_three")
 def set_add_hours_plus_three(date):
     return date + timedelta(hours=3)
@@ -1791,3 +1789,12 @@ def add(anomalie_id):
     anomalie = Anomalie.objects.get(pk=anomalie_id)
 
     return float(anomalie.infos.get('montant')) + float(anomalie.infos.get('taxe'))
+###############################
+# GET COMPANY #
+###############################
+@register.filter(name='get_company')
+def get_company(company_code):
+    from AmadeusDecoder.models.pnrelements.Airline import Airline
+    company = Airline.objects.filter(iata=company_code).first()
+    if company:
+        return company.name

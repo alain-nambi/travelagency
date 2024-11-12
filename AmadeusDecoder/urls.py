@@ -11,6 +11,7 @@ from .views.Setting import *
 from .views.Login import *
 from .views.Home import *
 from .views.Comment import *
+from .views.Home_copy import home_copy
 
 
 urlpatterns = [

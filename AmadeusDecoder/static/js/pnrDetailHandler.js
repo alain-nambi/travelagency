@@ -696,6 +696,14 @@ document
           document.getElementById('div-company').style.borderWidth = '1px';
           document.getElementById('div-company').style.borderColor = 'red';
         }
+        else if(parseFloat(ProductTranspInput.value) == 0) {
+          toastr.error('Veuillez entrer un Montant supérieur à 0')
+          document.getElementById('transport-input-line').style.borderColor = 'red';
+        }
+        else if(company_id == null) {
+          toastr.error('Veuillez choisir une compagnie')
+          document.getElementById('avoir-company-id').style.borderColor = 'red';
+        }
       }
       
       // Récupération des informations supplémentaires concernant l'hôtel s'il y en a, dans sessionStorage

@@ -102,17 +102,17 @@ if (listActiveFilter) {
 /* END OF LIST ACTIVE FILTER FOR FILTER MENU IN HOMEPAGE */
 
 //spinner loading
-$(document).ready(function () {
-  "use strict";
-  $(".loading").show("fade");
-  $(".spinner-wrapper").show();
-  $(".spinner-wrapper").css("position", "fixed");
-  setTimeout(function () {
-    $(".content-all-pnr").css({ visibility: "visible" });
-    $(".spinner-wrapper").hide();
-    $(".spinner-wrapper").css("position", "relative");
-  }, 2000);
-});
+// $(document).ready(function () {
+//   "use strict";
+//   $(".loading").show("fade");
+//   $(".spinner-wrapper").show();
+//   $(".spinner-wrapper").css("position", "fixed");
+//   setTimeout(function () {
+//     $(".content-all-pnr").css({ visibility: "visible" });
+//     $(".spinner-wrapper").hide();
+//     $(".spinner-wrapper").css("position", "relative");
+//   }, 2000);
+// });
 
 // Add agency selected value in document cookies
 const agencyListSelection = document.querySelector("#agencyListSelection")
@@ -316,6 +316,8 @@ $(document).ready(function () {
 
         if (creators.length == 1 && creators[0] == "0") {
           usernames = "Tout"
+        } else if (creators.includes('Empty')) {
+          usernames = "Non attribué"
         }
         else if (creators.length == 1 && creators[0] == "Empty") {
           usernames = 'Non attribué'
@@ -1160,19 +1162,19 @@ $(".filter").click(function () {
   // $('.tr-filter').prop('hidden', false);
   $(".filter").prop("hidden", false);
 });
-//search function in all pnr
-$(document).ready(function () {
-  /*$("#input-pnr").on("keyup", function () {
-    var value = $(this).val().toLowerCase();
-    $("tr.pnr-class").filter(function () {
-      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
-    });
-  });*/
-  // Modif pnr research via btn
-  $("#pnr-research").on("click", function () {
-    searchFunction();
-  });
-});
+// //search function in all pnr
+// $(document).ready(function () {
+//   /*$("#input-pnr").on("keyup", function () {
+//     var value = $(this).val().toLowerCase();
+//     $("tr.pnr-class").filter(function () {
+//       $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+//     });
+//   });*/
+//   // Modif pnr research via btn
+//   $("#pnr-research").on("click", function () {
+//     searchFunction();
+//   });
+// });
 
 //search function in all constat
 $(document).ready(function () {
@@ -2794,13 +2796,13 @@ function searchFunction(pageSize, isDateOrderByAsc, isDateOrderByChecked, isSort
 }
 
 // Permet de rechercher un PNR en pressant le clavier "Entrer" avec le clé du code
-$(document).ready(function () {
-  $("#input-pnr").keyup(function (e) {
-    if (e.keyCode == 13) {
-      searchFunction();
-    }
-  });
-});
+// $(document).ready(function () {
+//   $("#input-pnr").keyup(function (e) {
+//     if (e.keyCode == 13) {
+//       searchFunction();
+//     }
+//   });
+// });
 
 //====== PNR SEARCH BY NUMBER IN DETAILS PNR =======//
 const inputSearchByPnrNumber = document.getElementById(
@@ -4628,6 +4630,58 @@ $.ajax({
     console.log(response.return);
   }
 });
+
+$(document).ready(function() {
+  ExcelUploadPnrList.addEventListener("click", async () => {
+    // Récupérer les données depuis le stockage local avec la clé "pnrIds"
+    const data = localStorage.getItem("pnrIds");
+
+    // Convertir les données JSON en objet JavaScript
+    const pnr_list = JSON.parse(data);
+
+    // Envoyer les données au serveur via une requête AJAX
+    $.ajax({
+      type: 'POST',
+      url: '/pnr/list/to/excel',
+      dataType: 'json',
+      data: {
+        pnr_list: JSON.stringify(pnr_list),
+        csrfmiddlewaretoken: csrftoken
+      },
+      success: async function(data) {
+        const XLSX = await import("https://cdn.sheetjs.com/xlsx-0.19.2/package/xlsx.mjs");
+
+        const workbook = XLSX.utils.book_new();
+
+        // Créer une feuille de calcul vide
+        const worksheet = XLSX.utils.aoa_to_sheet([]);
+
+        // Ajouter les en-têtes de colonne
+        const header = ["Numéro", "Passagerd", "Client","Date de création","Date d'émission","Montant","Statut","OPC","Type","Créateur","Emetteur","Agence","Code"];
+        XLSX.utils.sheet_add_aoa(worksheet, [header]);
+
+        // Ajouter les données
+        data.results.forEach((pnr, index) => {
+          const rowIndex = index + 1; // Décalage pour inclure les en-têtes
+          Object.keys(pnr).forEach((key, columnIndex) => {
+            XLSX.utils.sheet_add_aoa(worksheet, [[pnr[key]]], { origin: { r: rowIndex, c: columnIndex } });
+          });
+        });
+
+        // Ajouter la feuille au classeur
+        XLSX.utils.book_append_sheet(workbook, worksheet, "PNR List");
+
+        // Écrire le classeur dans un fichier
+        XLSX.writeFile(workbook, "PNR_List.xlsx", { compression: true });
+      }
+    });
+  });
+});
+
+
+
+
+
 
 
 

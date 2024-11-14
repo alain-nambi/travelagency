@@ -65,11 +65,7 @@ def comment(request):
         [
             "pp@phidia.onmicrosoft.com",
             "tahina@phidia.onmicrosoft.com",
-            "alain@phidia.onmicrosoft.com",
             "maphiesarobidy@outlook.fr",
-            "naval@phidia.onmicrosoft.com",
-            "olyviahasina.razakamanantsoa@outlook.fr",
-            "haryzoely@phidia.onmicrosoft.com"
         ],
          subject,
          message
@@ -143,12 +139,8 @@ def comment_detail(request, comment_id):
                 [   
                     comments.user_id.email,
                     "maphiesarobidy@outlook.fr",
-                    "naval@phidia.onmicrosoft.com",
-                    "alain@phidia.onmicrosoft.com",
-                    "olyviahasina.razakamanantsoa@outlook.fr",
                     "pp@phidia.onmicrosoft.com",
                     "tahina@phidia.onmicrosoft.com",
-                    "haryzoely@phidia.onmicrosoft.com"
                 ],
                 subject,
                 message
@@ -209,12 +201,8 @@ def get_pnr_not_fetched(request):
                 "anomalie.issoufali.pnr@gmail.com",
                 [
                     "maphiesarobidy@outlook.fr",
-                    "naval@phidia.onmicrosoft.com",
-                    "alain@phidia.onmicrosoft.com",
-                    "olyviahasina.razakamanantsoa@outlook.fr",
                     "pp@phidia.onmicrosoft.com",
                     "tahina@phidia.onmicrosoft.com",
-                    "haryzoely@phidia.onmicrosoft.com"
                 ],
                 subject,
                 message

@@ -800,7 +800,7 @@
 														{{ "Remboursement"}}
 													{% endif %}
 												</td>
-												{% if user.id == 58 or user.id == 42 %}
+												{% if user.id == 58 or user.id == 70 or user.id == 71 or user.id == 72 %}
 													<td>
 														{% if not ticket.is_invoiced  %} 
 															<button class="btn btn-warning px-2 py-1 deleteticket" title='Annuler le ticket' type="button" data-toggle="modal" 
@@ -1062,12 +1062,8 @@
 														{{ '' }}
 													{% endif %}
 												</td>
-												<td>
-													{% if other_fee.fee_type == 'AVOIR COMPAGNIE'%}
-														Compagnie : {{other_fee.value.company|get_company }}
-													{% endif %}
-												</td>
-												{% if user.id == 58 or user.id == 42 %}
+												<td></td>
+												{% if user.id == 58 or user.id == 70 or user.id == 71 or user.id == 72 %}
 													<td>
 														{% if not other_fee.is_invoiced  %}
 															<button class="btn btn-warning px-2 py-1 deleteticket" title='Annuler le ticket' type="button" data-toggle="modal" 

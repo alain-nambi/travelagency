@@ -23,7 +23,7 @@ AIRPORT_AGENCY_CODE = configs.AIRPORT_AGENCY_CODE
 
 @register.filter(name='get_all_username')
 def get_all_username(_userId):
-    user_obj = User.objects.all()
+    user_obj = User.objects.only('id', 'username')
     return json.dumps([{"id": user.id, "username": user.username} for user in user_obj])
 
 @register.filter(name='list_agency_name')
@@ -76,9 +76,9 @@ def get_list_agency_name(_):
     return [{'agency_name': agency} for agency in agency_names]
 
 @register.filter(name='passenger_is_invoiced_in_passenger_invoice')
-def get_passenger_is_invoiced_in_passenger_invoice(pnr):
+def get_passenger_is_invoiced_in_passenger_invoice(pnr_id):
     from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
-    passenger_invoices = PassengerInvoice.objects.filter(pnr=pnr.id).exclude(status="quotation")
+    passenger_invoices = PassengerInvoice.objects.filter(pnr_id=pnr_id).exclude(status="quotation")
     is_invoice = []
 
     if passenger_invoices.exists():
@@ -131,9 +131,9 @@ def get_passenger_segment_missing(pnr):
     return " , ".join(tickets_passenger_segment)
 
 @register.filter(name='pnr_comment_state')
-def get_pnr_comment_state(pnr):
+def get_pnr_comment_state(pnr_id):
     from AmadeusDecoder.models.utilities.Comments import Comment
-    comments = Comment.objects.filter(pnr_id_id=pnr.id)
+    comments = Comment.objects.filter(pnr_id_id=pnr_id)
     states = []
     if comments.exists():
         for comment in comments:
@@ -189,12 +189,20 @@ def get_issuing_date(pnr):
     except:
         return None
     
+@register.filter(name='newer_ticket_issuing_date')
+def get_issuing_date(pnr_id):
+    try:
+        pnr = Pnr.objects.get(pk=pnr_id)
+        return pnr.get_max_issuing_date()
+    except:
+        return None
+    
 @register.filter(name='order_amount_total')
-def get_order_amout_total(pnr):
+def get_order_amout_total(pnr_id):
     from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
     from AmadeusDecoder.models.invoice.Ticket import Ticket
     from AmadeusDecoder.models.invoice.Fee import OthersFee, Fee
-    pnr = Pnr.objects.get(pk=pnr.id)
+    pnr = Pnr.objects.get(pk=pnr_id)
     passenger_invoices = PassengerInvoice.objects.filter(pnr_id=pnr)
     amount_total = 0
     amount_invoiced = 0
@@ -273,6 +281,15 @@ def get_min_opc(pnr):
         return pnr.get_min_opc()
     except:
         return ''
+
+@register.filter(name='min_opc')
+def get_min_opc(pnr_id):
+    try:
+        pnr = Pnr.objects.get(pk=pnr_id)
+        if pnr:
+            return pnr.get_min_opc()
+    except:
+        return ''
     
 @register.filter(name='pnr_creator')
 def get_pnr_creator(pnr):
@@ -298,3 +315,17 @@ def get_pnr_office(pnr):
         return pnr.get_pnr_office()
     except:
         return None
+    
+@register.filter(name='uniformised_pnr_agency')
+def uniformed_pnr_agency_processing(agency):
+    # Define the uniformized agency names
+    agence_name_uniformised = {'GSA ISSOUFALI Dzaoudzi', 'GSA ISSOUFALI Jumbo Score', 'GSA ISSOUFALI Mamoudzou'}
+    
+    try:
+        agency = str(agency).strip()
+        if agency in agence_name_uniformised:
+            return agency.replace("GSA ISSOUFALI", "").strip()
+        return agency
+    except Exception:
+        pass
+    return None

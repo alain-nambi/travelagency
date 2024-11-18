@@ -1300,6 +1300,13 @@ $('#SelectProduct').on('change', function(){
           $('#select_Passenger').show();
           parent.innerHTML = ''
 
+          const defaultOption = document.createElement("option");
+          defaultOption.value = "";
+          defaultOption.textContent = "Passager";
+          defaultOption.disabled = true;
+          defaultOption.selected = true;
+          parent.append(defaultOption);
+
           passengers.map((passenger) => {
             const newOption = document.createElement("option");
             newOption.id = "child_passenger";
@@ -1315,6 +1322,27 @@ $('#SelectProduct').on('change', function(){
             }
             parent.append(newOption);
           });
+
+          const validatePassenger = (isValid) => {
+            if (isValid) {
+              $("#select_Passenger").attr("style", "border: 1px solid green")
+              $("#select_Passenger").removeClass("border border-primary")
+            } else {
+              $("#select_Passenger").removeAttr("style", "border: 1px solid green")
+              $("#select_Passenger").addClass("border border-primary")
+            }
+          } 
+          
+          const passengerSelection = document.querySelector('#select_Passenger')
+          $("#select_Passenger").on("change", () => {
+            if (passengerSelection.value.length > 0) {
+              console.log(true);
+              validatePassenger(true)
+            } else {
+              console.log(false);
+              validatePassenger(false)
+            }
+          })
         } 
         let segments = data.context.segments;
         parent_passenger_segment.innerHTML = '';
@@ -1338,12 +1366,12 @@ $('#SelectProduct').on('change', function(){
           const validatePassengerSegment = (isValid) => {
             if (isValid) {
               $("#multipleSelect").attr("style", "border: 1px solid green")
-              $("#multipleSelect").removeClass("border border-danger")
+              // $("#multipleSelect").removeClass("border border-primary")
             } else {
               $("#multipleSelect").removeAttr("style", "border: 1px solid green")
-              $("#multipleSelect").addClass("border border-danger")
+              // $("#multipleSelect").addClass("border border-primary")
             }
-          } 
+          }
           
           const multipleSelection = document.querySelector('#multipleSelect')
           $("#multipleSelect").on("change", () => {

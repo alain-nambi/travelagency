@@ -29,7 +29,7 @@ iniconfig==1.1.1
 isodate==0.6.1
 itsdangerous==2.1.2
 looseversion==1.0.1
-lxml==4.9.1
+# lxml==4.9.1
 networkx==2.6.3
 nibabel==4.0.2
 nipype==1.8.5

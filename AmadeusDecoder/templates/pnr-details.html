@@ -899,6 +899,7 @@
 															</td>
 														{% endif %}
 														<td></td>
+														
 														{% if other_fees_orders or temp_other_fee.is_invoiced.is_invoiced %}
 														<td class="checkbox"><input type="checkbox" class="to-hide-when-cancel other-fees-check p-checkbox other-fees-checkboxes check{{ temp_other_fee.id }} checkbox-line-below" id="passagers-check" data-other-fees-id = "{{temp_other_fee.id}}" data-id="{{ temp_other_fee.id }}" data-commune-id = "{{temp_other_fee.id}}" data-amount-total="{{ temp_other_fee.total|floatformat:'2' }}" data-type="other-fee" checked hidden></td>
 														{% else %}
@@ -1039,6 +1040,7 @@
 												<td>
 													{% if other_fee.pnr_id is not None and other_fee.pnr_id|other_fee_datetime_invoice_created:other_fee.id is not None %}
 														{{ other_fee.pnr_id|other_fee_datetime_invoice_created:other_fee.id|date:"d/m/y" }}
+													
 													{% else %}
 														{{ '' }}
 													{% endif %}
@@ -1061,7 +1063,11 @@
 														{{ '' }}
 													{% endif %}
 												</td>
-												<td></td>
+												<td>
+													{% if other_fee.fee_type == 'AVOIR COMPAGNIE'%}
+														Compagnie : {{other_fee.value.company|get_company }}
+													{% endif %}
+												</td>
 												{% if user.id == 58 or user.id == 42 %}
 													<td>
 														{% if not other_fee.is_invoiced  %}
@@ -1077,7 +1083,7 @@
 												{% endif %}
 
 												<td>
-													<!---- only if other_fee is not already invoiced that yan can remove it ----->
+													<!-- only if other_fee is not already invoiced that yan can remove it -->
 													
 													{% if not other_fee.is_invoiced %}
 													{% comment %} {{other_fee.is_invoiced}} {% endcomment %}
@@ -1102,7 +1108,7 @@
 														</button>
 													
 													{% endif %}
-													<!---------------------- remove other_fee buttons --------------------------->
+													<!-- remove other_fee buttons -->
 												</td>
 												{% if other_fees_orders is not None or other_fee_cancel_void_status or other_fee.ticket is not None or other_fee.other_fee is not None or other_fee.is_invoiced%}
 												<td class="checkbox"><input type="checkbox" class="to-hide-when-cancel other-fees-check p-checkbox other-fees-checkboxes check{{ other_fee.id }} checkbox-line-below" id="passagers-check" data-other-fees-id = "{{other_fee.id}}" data-id="{{ other_fee.id }}" data-commune-id = "{{other_fee.id}}" data-amount-total="{{ other_fee.total|floatformat:'2' }}" data-type="other-fee" checked hidden></td>
@@ -1232,7 +1238,18 @@
 														</select>
 												</td>
 												<td></td>
-												<td></td>
+												<td id ="command_date">
+													<div id="div-company" hidden>
+														<select id="avoir-company-id" class="selectpicker" data-live-search="true" >
+															<option value="" disabled selected>Company</option>
+															{% for company in all_company %}
+																<option value="{{company.id}}">{{ company.name }} ({{company.iata}})</option>
+															{% endfor %}
+															
+														</select>
+													</div>
+													
+												</td>
 												<td></td>
 												<td></td>
 												<td></td>
@@ -1247,6 +1264,7 @@
 														<i class="fas fa-save"></i>
 													</button>
 												</td>
+												<td></td>
 												<td>
 													<a 
 														role="button" 
@@ -1454,25 +1472,23 @@
 			</div>
 				<div class="modal-body">
 					
-					{% if user.role_id == 1 or pnr.is_archived%}
+					
 					<div style="margin-bottom:5px;">
 						<button class="btn btn-info" id="comment-ticket" enabled>Billet non remonté</button>
 					</div>
-					{% endif %}
+					
 						
 					<div>
 						<div id="comment-ticket-form">
 							{% csrf_token %}
 							<div id='list-ticket' ></div>
 
-							<div id='ticket_input' hidden>
+							<div id='ticket_input' {% if request.user.role_id != 1 %}hidden{% endif %} >
 								<label for="ticket_number" class="col-form-label">Numero du Billet:</label>
 								<input type='text' maxlength='16' name="ticket_number" class="form-control" id="ticket_number">
 								<input type='hidden' name="pnr_id" value="{{pnr.id}}" class="form-control" id="pnr-id" >
 								
 							</div>
-
-							
 
 							<div id='info'>
 								<label for="montant_hors_taxe" class="col-form-label">Montant Hors Taxe</label>
@@ -1496,7 +1512,7 @@
 									<label class="form-check-label" for="flexCheckDefault">
 										frais de service
 									</label>
-								  </div>
+								</div>
 								
 								<div>
 									<label for="selectPassenger" class="col-form-label">Passenger</label>
@@ -1504,7 +1520,7 @@
 									</select>
 								</div>
 								<div>
-									<label for="selectSegment" id="SegmentLabel" class="col-form-label">Segment</label>
+									<label for="selectSegment" id='SegmentLabel' class="col-form-label">Segment</label>
 									<br>
 									<select id="selectSegment" multiple name="native-select" placeholder="Segment" data-search="false" data-silent-initial-value-set="true" >	
 									</select>
@@ -1648,7 +1664,7 @@
 										{% for key,value in history.items %}
 											{% autoescape off %}
 											{% if key == 'modification_date' %}
-												<td> {{ value | date:"d/m/y H:i" }} </td>
+												<td> {{ value |add_hours_plus_three| date:"d/m/y H:i" }} </td>
 											{% else %}
 												<td> {{ value | safe }} </td>
 											{% endif %}
@@ -2393,8 +2409,13 @@
 					Voulez-vous vraiment annuler le billet
 					<span id="ticketNumber"></span> ?
 				</span>
+				<div class="form-group">
+					<label for="exampleInputEmail1">Motif</label>
+					<input type="text" class="form-control" id="ticket_motif" placeholder="..." required>
+				</div>
 				<input type="hidden" id="ticketId" />
 				<input type="hidden" id="ticketTable" />
+				<input type='hidden' id="user_id" value="{{ user.id }}" ></input>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
@@ -2404,5 +2425,172 @@
 		</div>
 	</div>
 </div>
+
+<div class="modal fade show" id="modalHotelInfo" aria-modal="true" >
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Informations Hôtel</h4>
+				<button class="close" type="button" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">x</span>
+				</button>
+			</div>
+
+			<div class="modal-body">
+				<div class="input-group mb-2">
+					<div class="col-md-4"> 
+						<label for="hotelName">Nom</label>
+					</div>
+					<div class="col-md-8"> 
+						<div id='select-hotel-supplier' class='hidden-visually' aria-live="polite"></div>
+							<div class="hotelselect" id="myHotelSupplier">
+								<input type="text" id="hotel-supplier-input" class="select-css">
+								<span class="custom-select-icons">
+									<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" viewBox="0 0 16 16" focusable="false" aria-hidden="true" id="icon-circle-down" class="icon" role="img">
+										<path d="M16 8c0-4.418-3.582-8-8-8s-8 3.582-8 8 3.582 8 8 8 8-3.582 8-8zM1.5 8c0-3.59 2.91-6.5 6.5-6.5s6.5 2.91 6.5 6.5-2.91 6.5-6.5 6.5-6.5-2.91-6.5-6.5z"></path>
+										<path d="M4.957 5.543l-1.414 1.414 4.457 4.457 4.457-4.457-1.414-1.414-3.043 3.043z"></path>
+									</svg>
+																	
+								</span>
+								<ul class="hotel-supplier-options hidden-all" id="hotel-supplier-list"></ul>
+							</div>
+					</div>
+				</div>
+				<div class="input-group mb-2">
+					<div class="col-md-4"> 
+						<label for="Arrival">Arrivée</label>
+					</div>
+					<div class="col-md-4"> 
+						<input type="date" class="form-control" id="arrivalDate" name="arrival_date">
+					</div>
+					<div class="col-md-4">
+						<input type="time" class="form-control" id="arrivalTime" name="arrival_time">
+					</div>
+				</div>
+				<div class="input-group mb-2">
+					<div class="col-md-4">
+						<label for="departure">Départ</label>
+					</div>
+					<div class="col-md-4">
+						<input type="date" class="form-control" id="departureDate" name="departure_date">
+					</div>
+					<div class="col-md-4">
+						<input type="time" class="form-control" id="departureTime" name="departure_time">
+					</div>
+				</div>
+
+				<div class="input-group mb-2">
+					<div class="col-md-4">
+						<label for="Rooms">Chambres</label>
+					</div>
+					<div class="col-md-4">
+						<input type="number" class="form-control" id="room" name="room" value="1" min="1" max="200" step="1"  maxlength="3">
+					</div>
+				</div>
+
+				<div class="input-group mb-2">
+					<div class="col-md-4">
+						<label for="Rooms">Adultes</label>
+					</div>
+					<div class="col-md-4">
+						<input type="number" class="form-control" id="adults" name="adults" value="0" min="0" max="200" step="1"  maxlength="3">
+					</div>
+				</div>
+				<div class="input-group mb-2">
+					<div class="col-md-4">
+						<label for="Rooms">Enfants</label>
+					</div>
+					<div class="col-md-4">
+						<input type="number" class="form-control" id="kids" name="kids" value="0" min="0" max="200" step="1"  maxlength="3">
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+				<button type="button" class="btn btn-success" id="ConfirmAddHotel" data-dismiss="modal">Confirmer
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade show" id="modalTaxiInfo" aria-modal="true" >
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Informations Taxi</h4>
+				<button class="close" type="button" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">x</span>
+				</button>
+			</div>
+
+			<div class="modal-body">
+				<div class="input-group mb-2">
+					<div class="col-md-4"> 
+						<label for="taxiName">Nom</label>
+					</div>
+					<div class="col-md-8"> 
+						<div id='select-taxi-supplier' class='hidden-visually' aria-live="polite"></div>
+							<div class="taxiselect" id="myTaxiSupplier">
+								<input type="text" id="taxi-supplier-input" class="select-css">
+								<span class="custom-select-icons">
+									<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" viewBox="0 0 16 16" focusable="false" aria-hidden="true" id="icon-circle-down" class="icon" role="img">
+										<path d="M16 8c0-4.418-3.582-8-8-8s-8 3.582-8 8 3.582 8 8 8 8-3.582 8-8zM1.5 8c0-3.59 2.91-6.5 6.5-6.5s6.5 2.91 6.5 6.5-2.91 6.5-6.5 6.5-6.5-2.91-6.5-6.5z"></path>
+										<path d="M4.957 5.543l-1.414 1.414 4.457 4.457 4.457-4.457-1.414-1.414-3.043 3.043z"></path>
+									</svg>
+																	
+								</span>
+								<ul class="taxi-supplier-options" id="taxi-supplier-list"></ul>
+							</div>
+					</div>
+				</div>
+				<div class="input-group mb-2">
+					<div class="col-md-4"> 
+						<label for="date">Date</label>
+					</div>
+					<div class="col-md-8"> 
+						<input type="date" class="form-control" id="taxiDate" name="date">
+					</div>
+					
+				</div>
+				<div class="input-group mb-2">
+					<div class="col-md-4">
+						<label for="time">Heure</label>
+					</div>
+				
+					<div class="col-md-8">
+						<input type="time" class="form-control" id="taxiTime" name="time">
+					</div>
+				</div>
+
+				<div class="input-group mb-2">
+					<div class="col-md-4">
+						<label for="passengers">Passagers</label>
+					</div>
+					<div class="col-md-8">
+						<input type="number" class="form-control" id="passagers" name="passenger" value="1" min="1" max="200" step="1"  maxlength="3">
+					</div>
+				</div>
+
+				<div class="input-group mb-2">
+					<div class="col-md-4">
+						<label for="Rooms">Départ</label>
+					</div>
+					<div class="col-md-8"> 
+						<input type="text" class="form-control" id="location" name="location" >
+					</div>
+				</div>
+				
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+				<button type="button" class="btn btn-success" id="ConfirmAddTaxi" data-dismiss="modal">Confirmer
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+
 
 {% endblock content %}

@@ -410,6 +410,7 @@ reduceFeeRequest.addEventListener("click", (e) => {
     url: `/home/reduce-fee-request`,
     data: {
       csrfmiddlewaretoken: csrftoken,
+      userId: user_id,
       pnrId: pnrIdNew,
       userId:user_id,
       feeId: fee_id,
@@ -659,9 +660,11 @@ document
       console.log(ProductDropdown.value);
 
       if (ProductDropdown.value == 19) {
-        if (ticket.trim() !== "") {
-          selectedSegment = document.querySelector('#multipleSelect').getSelectedOptions();
-          console.log(selectedSegment);
+        selectedSegment = document.querySelector('#multipleSelect').getSelectedOptions();
+        company_id = (document.getElementById('avoir-company-id')).value;
+
+        if (ticket.trim() !== "" && parseFloat(ProductTranspInput.value) != 0 && company_id.trim() != "") {
+
           listNewProduct.push(
             ProductDropdown.value,
             ProductTypeInitiale.textContent,
@@ -674,14 +677,62 @@ document
             "",
             ticket,
             passenger,
-            selectedSegment
+            selectedSegment,
+            company_id
           );
         }
-        else {
-          toastr.error('Veuillez entrer un Numéro de billet')
-          document.getElementById('ticket-avoir').style.borderColor = 'red';
+        else if(ticket.trim() == "") {
+          toastr.error('Veuillez entrer un Numéro de billet.')
+          $('#ticket-avoir').addClass("form is-invalid")
         }
+        else if(parseFloat(ProductTranspInput.value) == 0) {
+          toastr.error('Veuillez entrer un montant.')
+          document.getElementById('transport-input-line').style.borderColor = 'red';
+        }
+        else if(company_id.trim() == "") {
+          toastr.error('Veuillez choisir une compagnie.')
+          document.getElementById('div-company').style.borderStyle = 'inherit';
+          document.getElementById('div-company').style.borderWidth = '1px';
+          document.getElementById('div-company').style.borderColor = 'red';
+        }
+        
       }
+      
+      // Récupération des informations supplémentaires concernant l'hôtel s'il y en a, dans sessionStorage
+      if(ProductDropdown.value == 10 && sessionStorage.getItem('hotel_info')){
+          hotel_info = sessionStorage.getItem('hotel_info');
+          listNewProduct.push(
+            ProductDropdown.value,
+            ProductTypeInitiale.textContent,
+            designation,
+            parseFloat(ProductTranspInput.value).toFixed(2),
+            parseFloat(ProductTaxInput.value).toFixed(2),
+            (
+              parseFloat(ProductTranspInput.value) + parseFloat(ProductTaxInput.value)
+            ).toFixed(2),
+            ProductpassInput.value,
+            "",
+            hotel_info
+          );
+      }
+
+      // Récupération des informations supplémentaires concernat le taxi s'il y en a, dans sessionStorage
+      if(ProductDropdown.value == 12 && sessionStorage.getItem('taxi_details')){
+        taxi_details = sessionStorage.getItem('taxi_details');
+        listNewProduct.push(
+          ProductDropdown.value,
+          ProductTypeInitiale.textContent,
+          designation,
+          parseFloat(ProductTranspInput.value).toFixed(2),
+          parseFloat(ProductTaxInput.value).toFixed(2),
+          (
+            parseFloat(ProductTranspInput.value) + parseFloat(ProductTaxInput.value)
+          ).toFixed(2),
+          ProductpassInput.value,
+          "",
+          taxi_details
+        );
+      } 
       else {
         listNewProduct.push(
           ProductDropdown.value,
@@ -709,6 +760,10 @@ document
         success: (response) => {
           console.log(response);
           location.reload();
+          // supprimer les informations supplémentauires des taxi et hotels dans sessionStorage
+          if(sessionStorage.getItem('taxi_details')){sessionStorage.removeItem('taxi_details');}
+          if(sessionStorage.getItem('hotel_info')){sessionStorage.removeItem('hotel_info');}
+          
         },
         error: (response) => {
           console.log(response);
@@ -1242,10 +1297,7 @@ if (count__ticketHaveNoPassenger.length > 0) {
 $('#ticket-avoir').hide();
 $('#select_Passenger').hide();
 $('#multipleSelect').hide();
-
-
-
-
+$('#avoir-company-id').hide();
 
 $('#SelectProduct').on('change', function(){
   select_product = $('#SelectProduct').val();
@@ -1255,18 +1307,23 @@ $('#SelectProduct').on('change', function(){
     $('#taxe-input-line').hide();
     $('#ticket-avoir').show();
     $('#passenger_segment').hide();
+    document.getElementById('div-company').hidden = false;
+
 
     const parent = document.getElementById("select_Passenger");
     const child = document.getElementById("child_passenger");
 
     const parent_passenger_segment = document.getElementById("multipleSelect");
     const child_passenger_segment = document.getElementById("child_passenger_segment");
+
+
     if (child) {
       parent.removeChild(child);
     }
     if (child_passenger_segment) {
       parent_passenger_segment.removeChild(child_passenger_segment);
     }
+
     var pnr_id = $('#pnr_id').data('id');
     console.log(pnr_id);
     $.ajax({
@@ -1284,6 +1341,13 @@ $('#SelectProduct').on('change', function(){
           $('#select_Passenger').show();
           parent.innerHTML = ''
 
+          const defaultOption = document.createElement("option");
+          defaultOption.value = "";
+          defaultOption.textContent = "Passager";
+          defaultOption.disabled = true;
+          defaultOption.selected = true;
+          parent.append(defaultOption);
+
           passengers.map((passenger) => {
             const newOption = document.createElement("option");
             newOption.id = "child_passenger";
@@ -1299,6 +1363,27 @@ $('#SelectProduct').on('change', function(){
             }
             parent.append(newOption);
           });
+
+          const validatePassenger = (isValid) => {
+            if (isValid) {
+              $("#select_Passenger").attr("style", "border: 1px solid green")
+              $("#select_Passenger").removeClass("border border-primary")
+            } else {
+              $("#select_Passenger").removeAttr("style", "border: 1px solid green")
+              $("#select_Passenger").addClass("border border-primary")
+            }
+          } 
+          
+          const passengerSelection = document.querySelector('#select_Passenger')
+          $("#select_Passenger").on("change", () => {
+            if (passengerSelection.value.length > 0) {
+              console.log(true);
+              validatePassenger(true)
+            } else {
+              console.log(false);
+              validatePassenger(false)
+            }
+          })
         } 
         let segments = data.context.segments;
         parent_passenger_segment.innerHTML = '';
@@ -1319,18 +1404,13 @@ $('#SelectProduct').on('change', function(){
 
           document.querySelector('#multipleSelect').setOptions(myOptions);
 
-          // $('#multipleSelect').on('change', function(){
-          //   selectedValues= document.querySelector('#multipleSelect').getSelectedOptions();
-          //   console.log(selectedValues);
-          // });
-
           const validatePassengerSegment = (isValid) => {
             if (isValid) {
               $("#multipleSelect").attr("style", "border: 1px solid green")
-              $("#multipleSelect").removeClass("border border-danger")
+              $("#multipleSelect").removeClass("border border-primary")
             } else {
               $("#multipleSelect").removeAttr("style", "border: 1px solid green")
-              $("#multipleSelect").addClass("border border-danger")
+              $("#multipleSelect").addClass("border border-primary")
             }
           } 
           
@@ -1347,10 +1427,14 @@ $('#SelectProduct').on('change', function(){
           
 
         }
+
+        
       }
     });
 
   }
+
+
 });
 
 const validateInputTickerAvoir = (isValid) => {
@@ -1406,9 +1490,17 @@ $(document).ready(function () {
           $(this).val(sanitizedValue);
         }
       }
-
+      
+      document.getElementById('transport-input-line').style.borderColor = 'green';
     }
   });
+
+  $('#avoir-company-id').on('change', function () {
+    document.getElementById('div-company').style.borderStyle = 'inherit';
+    document.getElementById('div-company').style.borderWidth = '1px';
+    document.getElementById('div-company').style.borderColor = 'green';
+  });
+
 });
 
 // Afficher le modal de confirmation de suppression de ticket non commandé
@@ -1432,6 +1524,9 @@ $(document).ready(function(){
     var ticketId = $('#ticketId').val();
     var ticketTable = $('#ticketTable').val();
     var ticketNumber = $('#ticketNumber').val();
+    var connected_user_id = $('#user_id').val();
+    var motif = $('#ticket_motif').val();
+
 
     $.ajax({
       type: "POST",
@@ -1441,6 +1536,8 @@ $(document).ready(function(){
           ticketId: ticketId,
           ticketNumber: ticketNumber,
           ticketTable: ticketTable,
+          connected_user_id: connected_user_id,
+          motif: motif,
           csrfmiddlewaretoken: csrftoken,
       },
       success: function (data) {
@@ -1455,3 +1552,4 @@ $(document).ready(function(){
     });
   });
 });
+

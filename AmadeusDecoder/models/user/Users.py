@@ -140,15 +140,7 @@ class Activation(models.Model, BaseModel):
     duration = models.IntegerField()
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     
-class Config(models.Model, BaseModel):
 
-    class Meta:
-        db_table = 't_config'
-
-    type = models.CharField(max_length=100)
-    attribute = models.IntegerField()
-    value = models.CharField(max_length=100)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
 class UserCopying(models.Model):

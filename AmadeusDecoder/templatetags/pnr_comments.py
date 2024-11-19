@@ -1,6 +1,7 @@
 import ast
 import json
 from AmadeusDecoder.models.pnr.Passenger import Passenger
+from AmadeusDecoder.models.pnr.Pnr import UnremountedPnr
 from AmadeusDecoder.models.pnrelements.PnrAirSegments import PnrAirSegments
 from AmadeusDecoder.models.utilities.Comments import Anomalie, Comment
 from datetime import date, timedelta
@@ -140,3 +141,16 @@ def get_details(anomalie):
     else:
         print('----ELSE------------')
         return ""
+
+# pnr non remonte count state
+@register.simple_tag(name='unremounted_pnr_state')
+def get_anomaly_state():
+    count_anomaly_state_true = UnremountedPnr.objects.filter(state=1).count()
+    count_anomaly_state_false = UnremountedPnr.objects.filter(state=0).count()
+    
+    context = {
+        "false": count_anomaly_state_false,
+        "true": count_anomaly_state_true,
+    }
+        
+    return context

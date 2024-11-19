@@ -39,3 +39,17 @@ class Configuration(models.Model, BaseModel):
     created_on = models.DateTimeField(auto_now=True)
     last_update = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
+    
+class Config(models.Model, BaseModel):
+
+    class Meta:
+        db_table = 't_config'
+
+    name = models.CharField(max_length=100, null=False, default="")
+    value_name = models.CharField(max_length=100, null=False,default="")
+    to_be_applied_on = models.CharField(max_length=20, null=False,default="global")
+    
+    
+    
+    
+    

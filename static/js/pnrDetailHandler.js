@@ -410,6 +410,7 @@ reduceFeeRequest.addEventListener("click", (e) => {
     url: `/home/reduce-fee-request`,
     data: {
       csrfmiddlewaretoken: csrftoken,
+      userId: user_id,
       pnrId: pnrIdNew,
       userId:user_id,
       feeId: fee_id,
@@ -659,9 +660,16 @@ document
       console.log(ProductDropdown.value);
 
       if (ProductDropdown.value == 19) {
-        if (ticket.trim() !== "") {
-          selectedSegment = document.querySelector('#multipleSelect').getSelectedOptions();
-          console.log(selectedSegment);
+        selectedSegment = document.querySelector('#multipleSelect').getSelectedOptions();
+        company_id = (document.getElementById('avoir-company-id')).value;
+        console.log(selectedSegment);
+        console.log('Montant ---- ',ProductTranspInput.value);
+        console.log('COMPANY ---- ',company_id);
+
+
+        if (ticket.trim() !== "" && parseFloat(ProductTranspInput.value) != 0 && company_id != null) {
+          console.log('SAVING AVOIR COMPANY');
+
           listNewProduct.push(
             ProductDropdown.value,
             ProductTypeInitiale.textContent,
@@ -674,14 +682,59 @@ document
             "",
             ticket,
             passenger,
-            selectedSegment
+            selectedSegment,
+            company_id
           );
         }
-        else {
+        else if(ticket.trim() == "") {
           toastr.error('Veuillez entrer un Numéro de billet')
           document.getElementById('ticket-avoir').style.borderColor = 'red';
         }
+        else if(parseFloat(ProductTranspInput.value) == 0) {
+          toastr.error('Veuillez entrer un Montant supérieur à 0')
+          document.getElementById('transport-input-line').style.borderColor = 'red';
+        }
+        else if(company_id == null) {
+          toastr.error('Veuillez choisir une compagnie')
+          document.getElementById('avoir-company-id').style.borderColor = 'red';
+        }
       }
+      
+      // Récupération des informations supplémentaires concernant l'hôtel s'il y en a, dans sessionStorage
+      else if(ProductDropdown.value == 10 && sessionStorage.getItem('hotel_info')){
+          hotel_info = sessionStorage.getItem('hotel_info');
+          listNewProduct.push(
+            ProductDropdown.value,
+            ProductTypeInitiale.textContent,
+            designation,
+            parseFloat(ProductTranspInput.value).toFixed(2),
+            parseFloat(ProductTaxInput.value).toFixed(2),
+            (
+              parseFloat(ProductTranspInput.value) + parseFloat(ProductTaxInput.value)
+            ).toFixed(2),
+            ProductpassInput.value,
+            "",
+            hotel_info
+          );
+      }
+
+      // Récupération des informations supplémentaires concernat le taxi s'il y en a, dans sessionStorage
+      else if(ProductDropdown.value == 12 && sessionStorage.getItem('taxi_details')){
+        taxi_details = sessionStorage.getItem('taxi_details');
+        listNewProduct.push(
+          ProductDropdown.value,
+          ProductTypeInitiale.textContent,
+          designation,
+          parseFloat(ProductTranspInput.value).toFixed(2),
+          parseFloat(ProductTaxInput.value).toFixed(2),
+          (
+            parseFloat(ProductTranspInput.value) + parseFloat(ProductTaxInput.value)
+          ).toFixed(2),
+          ProductpassInput.value,
+          "",
+          taxi_details
+        );
+      } 
       else {
         listNewProduct.push(
           ProductDropdown.value,
@@ -709,6 +762,10 @@ document
         success: (response) => {
           console.log(response);
           location.reload();
+          // supprimer les informations supplémentauires des taxi et hotels dans sessionStorage
+          if(sessionStorage.getItem('taxi_details')){sessionStorage.removeItem('taxi_details');}
+          if(sessionStorage.getItem('hotel_info')){sessionStorage.removeItem('hotel_info');}
+          
         },
         error: (response) => {
           console.log(response);
@@ -1256,6 +1313,8 @@ $('#SelectProduct').on('change', function(){
     $('#ticket-avoir').show();
     $('#passenger_segment').hide();
 
+    document.getElementById('div-company').hidden = false;
+
     const parent = document.getElementById("select_Passenger");
     const child = document.getElementById("child_passenger");
 
@@ -1351,6 +1410,8 @@ $('#SelectProduct').on('change', function(){
     });
 
   }
+
+
 });
 
 const validateInputTickerAvoir = (isValid) => {
@@ -1432,6 +1493,9 @@ $(document).ready(function(){
     var ticketId = $('#ticketId').val();
     var ticketTable = $('#ticketTable').val();
     var ticketNumber = $('#ticketNumber').val();
+    var connected_user_id = $('#user_id').val();
+    var motif = $('#ticket_motif').val();
+
 
     $.ajax({
       type: "POST",
@@ -1441,6 +1505,8 @@ $(document).ready(function(){
           ticketId: ticketId,
           ticketNumber: ticketNumber,
           ticketTable: ticketTable,
+          connected_user_id: connected_user_id,
+          motif: motif,
           csrfmiddlewaretoken: csrftoken,
       },
       success: function (data) {
@@ -1455,3 +1521,4 @@ $(document).ready(function(){
     });
   });
 });
+

@@ -227,10 +227,32 @@ old -->
                 <p>PNR Décommandés</p>
               </a>
             </li>
+            
+            <li class="nav-item">
+              <a href="{% url 'all_unremounted_pnr' %}" class="nav-link">
+                <i class="fas fa-clock nav-icon"></i>
+                <p>PNR Non remontés</p>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a href="{% url 'get_all_canceled_ticket' %}" class="nav-link">
+                <i class="fas fa-ban nav-icon"></i>
+                <p>Billets annulés</p>
+              </a>
+            </li>
+
             <li class="nav-item">
               <a href="{% url 'get_all_anomalies' %}" class="nav-link">
                 <i class="fas fa-clock nav-icon"></i>
-                <p>Anomalie en attente</p>
+                <p>Billets non remontés</p>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a href="{% url 'graph_view' %}" class="nav-link">
+                <i class="fas fa-chart-bar nav-icon"></i>
+                <p>Statistiques</p>
               </a>
             </li>
             {% endif %}
@@ -334,7 +356,7 @@ old -->
       <!-- Main Footer -->
       <footer class="main-footer p-1">
         <div class="d-none d-sm-block float-right ">
-          <strong class="text-center">&copy; 2023 <a href="https://phidia.fr">Phidia</a>.</strong> Tous droits réservés.
+          <strong class="text-center">&copy; 2024 <a href="https://phidia.fr">Phidia</a>.</strong> Tous droits réservés.
           <b>Version</b> 1.6.12 
         </div>
         <div class="info-footer-pnr">

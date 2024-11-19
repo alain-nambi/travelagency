@@ -2538,3 +2538,654 @@ class PnrOnlyParser():
             except Exception as e:
                 transaction.savepoint_rollback(sid)
                 raise e
+
+
+# save data for the parsing test
+    def test_parse_pnr(self, contents, needed_content, email_date):
+        context = {}
+        print(self.get_path())
+        print('PNR FILE DETECTED')
+        sid = transaction.savepoint()
+        with open(os.path.join(os.getcwd(),'error.txt'), 'a') as error_file:
+            try:
+                normalized_file = self.normalize_file(needed_content)
+                # pnr
+                pnr, is_saved, current_pnr_emitter = self.get_pnr_data(contents, email_date)
+                # split or duplication
+                self.get_split_duplicated_status(pnr, normalized_file)
+                if pnr.status == 'Emis':
+                    pnr.state = 2 # Billets manquants
+                elif pnr.status == 'Non émis':
+                    pnr.state = 3 # Tst manquants
+                # is archived status
+                pnr.is_archived = self.get_is_archived()
+                    
+                pnr.save()
+                context['pnr'] = pnr
+                # save raw data
+                try:
+                    RawData().save_raw_data(normalized_file, pnr, None)
+                except:
+                    traceback.print_exc()
+                    error_file.write('{}: \n'.format(datetime.now()))
+                    error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                    traceback.print_exc(file=error_file)
+                    error_file.write('\n')
+                
+                # pnr elements
+                # passengers
+                passengers = self.get_passengers(normalized_file)
+                # air segments
+                air_segments, flight_class = self.get_flight(normalized_file, pnr)
+                
+                # update all old air segments
+                try:
+                    PnrAirSegments().update_segment_status(pnr, air_segments)
+                except:
+                    traceback.print_exc()
+                    error_file.write('{}: \n'.format(datetime.now()))
+                    error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                    traceback.print_exc(file=error_file)
+                    error_file.write('\n')
+                # special services request (SSR)
+                ssr_bases, ssr_passengers, ssr_segments = self.get_all_ssr(normalized_file, pnr, passengers, air_segments)
+                # contacts
+                contacts = self.get_contacts(normalized_file)
+                # opw and opc if non issued pnr
+                confirmation_deadlines = self.get_confirmation_deadline(normalized_file, pnr, air_segments, ssr_bases)
+                # remarks
+                pnr_remarks = self.get_remarks(pnr, normalized_file)
+                # customers' addresses
+                customer_addresses = self.get_am_ah(normalized_file, pnr, passengers)
+                
+                if len(air_segments) > 0 or len(ssr_bases) > 0 or len(contacts) > 0 or len(confirmation_deadlines) > 0 or len(pnr_remarks) > 0:
+                    # check pnr confirmation or emission
+                    self.get_pnr_status(pnr, normalized_file)
+                # credit notes
+                # credit_notes, credit_notes_related_segment, creadit_notes_related_ssrs = self.get_credit_note(normalized_file, pnr, passengers, air_segments, ssr_bases, flight_class)
+                # tickets on issued pnr
+                if pnr.status == 'Emis':
+                    tickets, tickets_segments, tickets_ssrs  = self.ticket_on_issued_pnr(normalized_file, pnr, passengers, air_segments, ssr_bases, flight_class)
+                
+                # pnr is not saved ------ Insert
+                if not is_saved:
+                    # passengers
+                    for passenger in passengers:
+                        passenger.save()
+                        pnr_passenger = PnrPassenger(pnr=pnr, passenger=passenger)
+                        pnr_passenger.save()
+                    # air segments
+                    for segment in air_segments:
+                        try:
+                            segment.save()
+                        except Exception:
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
+
+                    # special services request (SSR)
+                    for ssr_base in ssr_bases:
+                        try:
+                            ssr_base.save()
+                        except Exception:
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
+                    for ssr_passenger in ssr_passengers:
+                        try:
+                            ssr_passenger.save()
+                        except Exception:
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
+                    for ssr_segment in ssr_segments:
+                        try:
+                            ssr_segment.save()
+                        except Exception:
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
+
+                    
+
+                    # contacts
+                    for contact in contacts:
+                        contact.pnr = pnr
+                        try:
+                            contact.save()
+                        except Exception:
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
+                    # opw and opc if non issued pnr  
+                    for deadline in confirmation_deadlines:
+                        try:
+                            deadline.save()
+                        except Exception:
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
+                    # remarks
+                    for remark in pnr_remarks:
+                        try:
+                            remark.save()
+                        except Exception:
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
+                    # customers' addresses
+                    for address in customer_addresses:
+                        try:
+                            address.save()
+                        except:
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
+                    
+                    if pnr.status == 'Emis':
+                        for ticket in tickets:
+                            # check if ticket has already been saved
+                            ticket_obj = Ticket.objects.filter(number=ticket.number).first()
+                            # ticket has not been saved yet
+                            if ticket_obj is None:
+                                try:
+                                    if ticket.issuing_date is not None:
+                                        ticket.update_ticket_state_status(pnr, ticket.issuing_date, pnr.gds_creation_date)
+                                    # ticket emitter
+                                    ticket.get_issuing_user_different_creator()
+                                    if ticket.emitter is None and current_pnr_emitter is not None:
+                                        ticket.emitter = current_pnr_emitter
+                                    # refund case
+                                    if ticket.is_refund:
+                                        temp_ticket_obj = Ticket.objects.filter(number=ticket.number.removesuffix('-R')).first()
+                                        if temp_ticket_obj is not None:
+                                            if temp_ticket_obj.transport_cost < 0 or temp_ticket_obj.total < 0:
+                                                temp_ticket_obj.transport_cost = -1 * temp_ticket_obj.transport_cost
+                                                temp_ticket_obj.tax = -1 * temp_ticket_obj.tax
+                                                temp_ticket_obj.total = -1 * temp_ticket_obj.total
+                                                temp_ticket_obj.save()
+                                            
+                                            ticket.transport_cost = -1 * temp_ticket_obj.transport_cost
+                                            ticket.tax = -1 * temp_ticket_obj.tax
+                                            ticket.total = -1 * temp_ticket_obj.total
+                                            ticket.passenger = temp_ticket_obj.passenger
+                                        else:
+                                            temp_ticket_source = Ticket()
+                                            temp_ticket_source.number = ticket.number.removesuffix('-R')
+                                            temp_ticket_source.passenger = ticket.passenger
+                                            temp_ticket_source.related_passenger_order = ticket.related_passenger_order
+                                            temp_ticket_source.pnr = pnr
+                                            temp_ticket_source.ticket_type = ticket.ticket_type
+                                            temp_ticket_source.save()
+                                                
+                                    ticket.save()
+                                    # check subcontractor
+                                    ticket.process_subcontract()
+                                    print('saved: ' + ticket.number)
+                                except Exception:
+                                    traceback.print_exc()
+                                    error_file.write('{}: \n'.format(datetime.now()))
+                                    error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                                    traceback.print_exc(file=error_file)
+                                    error_file.write('\n')
+                            # ticket has been already saved
+                            else:
+                                # ticket email received
+                                if ticket_obj.state == 1:
+                                    ticket_obj.state = 0
+                                    ticket_obj.passenger = ticket.passenger
+                                    ticket_obj.related_passenger_order = ticket.related_passenger_order
+                                    if pnr.agent is not None:
+                                        ticket_obj.emitter = pnr.agent
+                                    if ticket.issuing_date is not None:
+                                        ticket_obj.update_ticket_state_status(pnr, ticket.issuing_date, pnr.gds_creation_date)
+                                    # issuing office
+                                    ticket_obj.issuing_agency = ticket.issuing_agency
+                                    # ticket type
+                                    ticket_obj.ticket_type = ticket.ticket_type
+                                    if self.get_is_archived():
+                                        # ticket cost on archived PNR
+                                        ticket_obj.transport_cost = ticket.transport_cost - ticket_obj.tax
+                                        ticket_obj.total = ticket.total
+                                    # ticket emitter
+                                    ticket_obj.get_issuing_user_different_creator()
+                                    if ticket_obj.emitter is None and current_pnr_emitter is not None:
+                                        ticket_obj.emitter = current_pnr_emitter
+                                    # refund case
+                                    if ticket.is_refund:
+                                        ticket_obj.is_refund = True
+                                        if ticket_obj.transport_cost >= 0:
+                                            ticket_obj.transport_cost = -1 * ticket_obj.transport_cost
+                                            ticket_obj.tax = -1 * ticket_obj.tax
+                                            ticket_obj.total = -1 * ticket_obj.total
+                                    ticket_obj.save()
+                                    # check subcontractor
+                                    ticket_obj.process_subcontract()
+                        for ticket_ssr in tickets_ssrs:
+                            if TicketSSR.objects.filter(ssr_id=ticket_ssr.ssr_id).filter(ticket_id=ticket_ssr.ticket_id).first() is None:
+                                ticket_ssr.ticket = Ticket.objects.filter(number=ticket_ssr.ticket.number).first()
+                                ticket_ssr.save()
+                            else:
+                                ticket_ssr.ticket = Ticket.objects.filter(number=ticket_ssr.ticket.number).first()
+                                try:
+                                    ticket_ssr.save()
+                                except Exception as e:
+                                    error_file.write('{}: \n'.format(datetime.now()))
+                                    error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                                    traceback.print_exc(file=error_file)
+                                    error_file.write('\n')
+                        for ticket_segment in tickets_segments:
+                            temp_ticket = None
+                            if TicketPassengerSegment.objects.filter(segment_id=ticket_segment.segment_id).filter(ticket_id=ticket_segment.ticket_id).first() is None:
+                                temp_ticket = Ticket.objects.filter(number=ticket_segment.ticket.number).first()
+                                ticket_segment.ticket = temp_ticket
+                                ticket_segment.save()
+                            else:
+                                temp_ticket = Ticket.objects.filter(number=ticket_segment.ticket.number).first()
+                                ticket_segment.ticket = temp_ticket
+                                try:
+                                    ticket_segment.save()
+                                except Exception as e:
+                                    error_file.write('{}: \n'.format(datetime.now()))
+                                    error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                                    traceback.print_exc(file=error_file)
+                                    error_file.write('\n')
+                            # update is_regional status
+                            if temp_ticket is not None:
+                                temp_ticket.get_set_regional_status()
+                                temp_ticket.save()
+                        # update ticket status
+                        try:
+                            Ticket().update_ticket_status_FLOWN(pnr)
+                        except Exception as e:
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
+                        # update ticket status: new ticket line inserted 2 days or more later
+                        try:
+                            Ticket().update_ticket_status_new_line(pnr)
+                        except:
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
+                        # udpate ticket status and state after checking their issuing office
+                        try:
+                            Ticket().update_ticket_status_from_office(pnr)
+                        except:
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
+                        # update PNR state
+                        try:
+                            Ticket().update_pnr_state(pnr)
+                        except:
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
+                # pnr is saved ---------- Update
+                elif is_saved:
+                    temp_pnr = Pnr.objects.filter(number=pnr.number).first()
+                    # update pnr state to check if TST arrived or not
+                    if temp_pnr.status == 'Non émis':
+                        try:
+                            temp_pnr.update_tst_missing_status()
+                        except Exception:
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
+                    # passengers
+                    # compare and delete
+                    try:
+                        Passenger().compare_and_delete(temp_pnr, passengers)
+                    except:
+                        traceback.print_exc()
+                        error_file.write('{}: \n'.format(datetime.now()))
+                        error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                        traceback.print_exc(file=error_file)
+                        error_file.write('\n')
+                    for passenger in passengers:
+                        temp_passenger = passenger.get_passenger_by_pnr_passenger(pnr)
+                        print('PASSENGER', temp_passenger)
+                        if temp_passenger is None:
+                            passenger.save()
+                            try:
+                                passenger.update_ticket_passenger(temp_pnr)
+                            except:
+                                traceback.print_exc()
+                                error_file.write('{}: \n'.format(datetime.now()))
+                                error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                                traceback.print_exc(file=error_file)
+                                error_file.write('\n')
+                            pnr_passenger = PnrPassenger(pnr=pnr, passenger=passenger)
+                            pnr_passenger.save()
+                    # air segments
+                    for segment in air_segments:
+                        try:
+                            temp_segment = segment.get_air_segment_by_air_segment(pnr)
+                            if temp_segment is None:
+                                segment.save()
+                            else:
+                                try:
+                                    temp_segment.departuretime = segment.departuretime if segment.departuretime is not None else None
+                                    temp_segment.arrivaltime = segment.arrivaltime if segment.arrivaltime is not None else None
+                                    temp_segment.air_segment_status = 1
+                                    temp_segment.segment_state = segment.segment_state
+                                    temp_segment.segmentorder = segment.segmentorder
+                                    temp_segment.save()
+                                except:
+                                    traceback.print_exc()
+                                
+                        except Exception:
+                            traceback.print_exc()
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
+                    # special services request (SSR)
+                    for ssr_base in ssr_bases:
+                        temp_ssr_base = ssr_base.get_ssr_base_by_text_ssr_pnr(pnr)
+                        try:
+                            if temp_ssr_base is None:
+                                ssr_base.save()
+                            else:
+                                temp_ssr_base.order_line = ssr_base.order_line
+                                temp_ssr_base.save()
+                        except Exception:
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
+                    for ssr_passenger in ssr_passengers:
+                        temp_parent_ssr_base = SpecialServiceRequestBase.objects.filter(pnr=temp_pnr, order_line=ssr_passenger.parent_ssr.order_line).first()
+                        temp_passenger_ssr = Passenger.objects.filter(name=ssr_passenger.passenger.name, surname=ssr_passenger.passenger.surname, designation=ssr_passenger.passenger.designation, passenger__pnr=temp_pnr).first()
+                        temp_ssr_passenger = ssr_passenger.get_ssr_passenger_by_parent_passenger(temp_parent_ssr_base, temp_passenger_ssr)
+                        try:
+                            if temp_ssr_passenger is None:
+                                ssr_passenger.parent_ssr = temp_parent_ssr_base
+                                ssr_passenger.passenger = temp_passenger_ssr
+                                ssr_passenger.save()
+                        except Exception:
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
+                    for ssr_segment in ssr_segments:
+                        temp_parent_ssr_base = SpecialServiceRequestBase.objects.filter(pnr=temp_pnr, order_line=ssr_segment.parent_ssr.order_line).first()
+                        temp_segment_ssr = PnrAirSegments.objects.filter(pnr=temp_pnr, flightno=ssr_segment.segment.flightno, segmentorder=ssr_segment.segment.segmentorder).first()
+                        temp_ssr_segment = ssr_segment.get_ssr_segment_by_parent_segment(temp_parent_ssr_base, temp_segment_ssr)
+                        try:
+                            if temp_ssr_segment is None:
+                                ssr_segment.parent_ssr = temp_parent_ssr_base
+                                ssr_segment.segment = temp_segment_ssr
+                                ssr_segment.save()
+                        except Exception:
+                            traceback.print_exc()
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
+                    # contacts
+                    for contact in contacts:
+                        contact.pnr = pnr
+                        temp_contact = contact.get_contact()
+                        try:
+                            if temp_contact is None:
+                                contact.save()
+                        except Exception:
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
+                    # opw and opc if non issued pnr  
+                    for deadline in confirmation_deadlines:
+                        temp_deadline = deadline.get_confirmation_deadline_by_segment_ssr_type()
+                        try:
+                            if temp_deadline is None:
+                                if deadline.ssr is not None:
+                                    temp_ssr = SpecialServiceRequestBase.objects.filter(pnr=temp_pnr, ssr_text=deadline.ssr.ssr_text, order_line=deadline.ssr.order_line).first()
+                                    deadline.ssr = temp_ssr
+                                if deadline.segment is not None:
+                                    temp_segment = PnrAirSegments.objects.filter(pnr=temp_pnr, flightno=deadline.segment.flightno, segmentorder=deadline.segment.segmentorder).first()
+                                    deadline.segment = temp_segment
+                                deadline.save()
+                            else:
+                                if temp_deadline.doc_date != deadline.doc_date:
+                                    temp_deadline.doc_date = deadline.doc_date
+                                temp_deadline.save()
+                        except Exception:
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
+                    # delete OPC or OPW if it has been removed
+                    try:
+                        ConfirmationDeadline().delete_confirmation_deadline(pnr, confirmation_deadlines)
+                    except Exception:
+                        error_file.write('{}: \n'.format(datetime.now()))
+                        error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                        traceback.print_exc(file=error_file)
+                        error_file.write('\n')
+                    # remarks
+                    for remark in pnr_remarks:
+                        temp_remark = remark.get_pnr_remark()
+                        try:
+                            if temp_remark is None:
+                                remark.save()
+                        except Exception:
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
+                    # customers' addresses
+                    for address in customer_addresses:
+                        try:
+                            temp_address = address.get_customer_address   
+                            if temp_address is None:
+                                address.save()
+                        except:
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
+                    
+                    if pnr.status == 'Emis':
+                        # update ticket status if the PNR has been reissued with different ticket(s)
+                        try:
+                            if len(air_segments) > 0 or len(ssr_bases) > 0 or len(contacts) > 0 or len(confirmation_deadlines) > 0 or len(pnr_remarks) > 0:
+                                Ticket().update_ticket_status_PNR_reissued(pnr, tickets)
+                        except Exception:
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
+                            
+                        for ticket in tickets:
+                            ticket_obj = Ticket.objects.filter(number=ticket.number).first()
+                            # ticket has not been saved yet # PNR Previously not emitted
+                            if ticket_obj is None:
+                                try:
+                                    # when passengers are grouped ticket.passenger will be None
+                                    if ticket.passenger is not None:
+                                        ticket.passenger = Passenger.objects.filter(name=ticket.passenger.name, surname=ticket.passenger.surname, designation=ticket.passenger.designation, passenger__pnr=temp_pnr).first()
+                                        if ticket.issuing_date is not None:
+                                            ticket.update_ticket_state_status(temp_pnr, ticket.issuing_date, temp_pnr.gds_creation_date)
+                                    # ticket emitter
+                                    ticket.get_issuing_user_different_creator()
+                                    if ticket.emitter is None and current_pnr_emitter is not None:
+                                        ticket.emitter = current_pnr_emitter
+                                    # refund case
+                                    if ticket.is_refund:
+                                        temp_ticket_obj = Ticket.objects.filter(number=ticket.number.removesuffix('-R')).first()
+                                        if temp_ticket_obj is not None:
+                                            if temp_ticket_obj.transport_cost < 0 or temp_ticket_obj.total < 0:
+                                                temp_ticket_obj.transport_cost = -1 * temp_ticket_obj.transport_cost
+                                                temp_ticket_obj.tax = -1 * temp_ticket_obj.tax
+                                                temp_ticket_obj.total = -1 * temp_ticket_obj.total
+                                                temp_ticket_obj.save()
+                                            
+                                            ticket.transport_cost = -1 * temp_ticket_obj.transport_cost
+                                            ticket.tax = -1 * temp_ticket_obj.tax
+                                            ticket.total = -1 * temp_ticket_obj.total
+                                            ticket.passenger = temp_ticket_obj.passenger
+                                        else:
+                                            temp_ticket_source = Ticket()
+                                            temp_ticket_source.number = ticket.number.removesuffix('-R')
+                                            temp_ticket_source.passenger = ticket.passenger
+                                            temp_ticket_source.related_passenger_order = ticket.related_passenger_order
+                                            temp_ticket_source.pnr = pnr
+                                            temp_ticket_source.ticket_type = ticket.ticket_type
+                                            temp_ticket_source.save()
+                                    ticket.save()
+                                    # check subcontractor
+                                    ticket.process_subcontract()
+                                    print('saved: ' + ticket.number)
+                                except Exception:
+                                    traceback.print_exc()
+                                    error_file.write('{}: \n'.format(datetime.now()))
+                                    error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                                    traceback.print_exc(file=error_file)
+                                    error_file.write('\n')
+                            # ticket has been already saved # PNR is reissued
+                            else:
+                                try:
+                                    ticket_obj.related_passenger_order = ticket.related_passenger_order
+                                    # when passengers are grouped ticket.passenger will be None
+                                    if ticket.passenger is not None:
+                                        ticket_obj.passenger = Passenger.objects.filter(name=ticket.passenger.name, surname=ticket.passenger.surname, designation=ticket.passenger.designation, passenger__pnr=temp_pnr).first()
+                                    # issuing office
+                                    ticket_obj.issuing_agency = ticket.issuing_agency
+                                    # issuing date
+                                    if ticket.issuing_date is not None:
+                                        ticket_obj.update_ticket_state_status(temp_pnr, ticket.issuing_date, temp_pnr.gds_creation_date)
+                                    if ticket_obj.state == 1: # if ticket is 
+                                        # check subcontractor
+                                        ticket_obj.process_subcontract()
+                                        ticket_obj.state = 0
+                                    if ticket.emitter is not None:
+                                        ticket_obj.emitter = ticket.emitter
+                                    if self.get_is_archived():
+                                        # ticket cost on archived PNR
+                                        ticket_obj.transport_cost = ticket.transport_cost - ticket_obj.tax
+                                        ticket_obj.total = ticket.total
+                                    # ticket type
+                                    ticket_obj.ticket_type = ticket.ticket_type
+                                    # ticket emitter
+                                    ticket_obj.get_issuing_user_different_creator()
+                                    if ticket_obj.emitter is None and current_pnr_emitter is not None:
+                                        ticket_obj.emitter = current_pnr_emitter
+                                    # refund case
+                                    if ticket.is_refund:
+                                        ticket_obj.is_refund = True
+                                        if ticket_obj.transport_cost >= 0:
+                                            ticket_obj.transport_cost = -1 * ticket_obj.transport_cost
+                                            ticket_obj.tax = -1 * ticket_obj.tax
+                                            ticket_obj.total = -1 * ticket_obj.total
+                                    # re-calibrate fee
+                                    ticket_obj.save() 
+                                    ticket_obj.process_subcontract()
+                                    print('saved: ' + ticket.number)
+                                except Exception:
+                                    traceback.print_exc()
+                                    error_file.write('{}: \n'.format(datetime.now()))
+                                    error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                                    traceback.print_exc(file=error_file)
+                                    error_file.write('\n')
+                        for ticket_ssr in tickets_ssrs:
+                            temp_ssr_base = SpecialServiceRequestBase.objects.filter(order_line=ticket_ssr.ssr.order_line, pnr=temp_pnr).first()
+                            temp_ticket = Ticket.objects.filter(number=ticket_ssr.ticket.number).first()
+                            if temp_ssr_base is not None:
+                                temp_ticket_ssr = TicketSSR.objects.filter(ssr=temp_ssr_base, ticket=temp_ticket).first()
+                                if temp_ticket_ssr is None:
+                                    ticket_ssr.ssr = temp_ssr_base
+                                    ticket_ssr.ticket = temp_ticket
+                                    try:
+                                        ticket_ssr.save()
+                                    except Exception as e:
+                                        error_file.write('{}: \n'.format(datetime.now()))
+                                        error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                                        traceback.print_exc(file=error_file)
+                                        error_file.write('\n')
+                        for ticket_segment in tickets_segments:
+                            temp_segment = PnrAirSegments.objects.filter(segmentorder=ticket_segment.segment.segmentorder, pnr=temp_pnr, air_segment_status=1).first()
+                            temp_ticket = Ticket.objects.filter(number=ticket_segment.ticket.number).first()
+                            if temp_segment is not None:
+                                temp_ticket_passenger_segment = TicketPassengerSegment.objects.filter(segment=temp_segment, ticket=temp_ticket).first()
+                                if temp_ticket_passenger_segment is None:
+                                    ticket_segment.segment = temp_segment
+                                    ticket_segment.ticket = temp_ticket
+                                    try:
+                                        ticket_segment.save()
+                                    except Exception as e:
+                                        error_file.write('{}: \n'.format(datetime.now()))
+                                        error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                                        traceback.print_exc(file=error_file)
+                                        error_file.write('\n')
+                            # update is_regional status
+                            if temp_ticket is not None:
+                                temp_ticket.get_set_regional_status()
+                                temp_ticket.save()
+                        
+                        # recalibrating ticket fees
+                        try:
+                            # ticket_obj.recalibrate_fee()
+                            Ticket().recalibrate_fee(temp_pnr)
+                        except:
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea / Fee recalibration) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
+                        # update ticket status
+                        try:
+                            Ticket().update_ticket_status_FLOWN(temp_pnr)
+                        except Exception as e:
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
+                        # update ticket status: new ticket line inserted 2 days or more later
+                        try:
+                            Ticket().update_ticket_status_new_line(temp_pnr)
+                        except:
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
+                        # udpate ticket status and state after checking their issuing office
+                        try:
+                            Ticket().update_ticket_status_from_office(temp_pnr)
+                        except:
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
+                        # update PNR state
+                        try:
+                            Ticket().update_pnr_state(temp_pnr)
+                        except:
+                            error_file.write('{}: \n'.format(datetime.now()))
+                            error_file.write('File (PNR Altea) with error: {} \n'.format(str(self.get_path())))
+                            traceback.print_exc(file=error_file)
+                            error_file.write('\n')
+                transaction.savepoint_commit(sid)
+                
+                return context
+
+            except Exception as e:
+                transaction.savepoint_rollback(sid)
+                raise e
+            
+
+            

@@ -24,14 +24,14 @@ from AmadeusDecoder.utilities.Utility import Utility
 # TICKET_NUMBER_PREFIX = ['Echange billet', 'EMD']
 # TO_BE_EXCLUDED_KEY_KEYWORDS = ['Encaissement transaction', 'Encaissement Modification', 'Encaissement des suppléments']
 # AIRPORT_AGENCY_CODE = ['DZAUU000B', 'Mayotte ATO']
-# STARTED_PROCESS_DATE = datetime(2023, 1, 1, 0, 0, 0, 0).date()
+STARTED_PROCESS_DATE = datetime(2023, 1, 1, 0, 0, 0, 0).date()
 # CURRENT_TRAVEL_AGENCY_IDENTIFIER = ['Issoufali', 'ISSOUFALI', 'Mayotte ATO']
 
 PAYMENT_OPTIONS = configs.PAYMENT_OPTIONS
 TICKET_NUMBER_PREFIX = configs.TICKET_NUMBER_PREFIX
 TO_BE_EXCLUDED_KEY_KEYWORDS = configs.TO_BE_EXCLUDED_KEY_KEYWORDS
 AIRPORT_AGENCY_CODE = configs.AIRPORT_AGENCY_CODE
-STARTED_PROCESS_DATE = configs.STARTED_PROCESS_DATE.date()
+# STARTED_PROCESS_DATE = configs.STARTED_PROCESS_DATE.date()
 CURRENT_TRAVEL_AGENCY_IDENTIFIER = configs.CURRENT_TRAVEL_AGENCY_IDENTIFIER
 
 # part types

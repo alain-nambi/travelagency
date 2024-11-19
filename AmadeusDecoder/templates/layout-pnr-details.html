@@ -41,10 +41,15 @@
  <!-- style -->
  <link rel="stylesheet" href="{% static 'css/style.css' %}">
  <link rel="stylesheet" href="{% static 'css/select-custom.css' %}">
+ <link rel="stylesheet" href="{% static 'css/hotel_taxi.css' %}">
+
  <!-- tablesort-->
  <link href="{% static 'css/theme.default.css' %}" rel="stylesheet">
  <!-- <link href="{% static 'css/select2.min.css' %}" rel="stylesheet"> -->
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" integrity="sha512-nMNlpuaDPrqlEls3IX/Q56H36qvBASwb3ipuo3MxeWbsQB1881ox0cRv7UPTgBlriqoynt35KjEwgGUeUXIPnw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/css/bootstrap-select.min.css" integrity="sha512-ARJR74swou2y0Q2V9k0GbzQ/5vJ2RBSoCWokg4zkfM29Fb3vZEQyv0iWBMW/yvKgyHSR/7D64pFMmU8nYmbRkg==" crossorigin="anonymous">
+
 
   {% endblock %}
 
@@ -251,11 +256,33 @@ old -->
               </a>
             </li>
             <li class="nav-item">
-              <a href="{% url 'get_all_anomalies' %}" class="nav-link">
+              <a href="{% url 'all_unremounted_pnr' %}" class="nav-link">
                 <i class="fas fa-clock nav-icon"></i>
-                <p>Anomalie en attente</p>
+                <p>PNR Non remontés</p>
               </a>
             </li>
+
+            <li class="nav-item">
+              <a href="{% url 'get_all_canceled_ticket' %}" class="nav-link">
+                <i class="fas fa-ban nav-icon"></i>
+                <p>Billets annulés</p>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a href="{% url 'get_all_anomalies' %}" class="nav-link">
+                <i class="fas fa-clock nav-icon"></i>
+                <p>Billets non remontés</p>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a href="{% url 'graph_view' %}" class="nav-link">
+                <i class="fas fa-chart-bar nav-icon"></i>
+                <p>Statistiques</p>
+              </a>
+            </li>
+            
             {% endif %}
             <!--menu direction role_id=2-->
             {% if request.user.role_id == 2 %} 
@@ -641,9 +668,20 @@ old -->
       </div> -->
       <div class="d-flex justify-content-between align-items-center">
         <div class="d-none d-sm-block">
-          <strong class="text-center">© 2023 <a href="https://phidia.fr">Phidia</a>.</strong> Tous droits réservés.
+          <strong class="text-center">© 2024 <a href="https://phidia.fr">Phidia</a>.</strong> Tous droits réservés.
           <b>Version</b> 1.6.12
+          <input type="hidden" value="{{pnr.id}}" id="layout_pnr_id">
         </div>
+
+        <button 
+            type="button" 
+            class="btn btn-warning mr-2" id='ExcelUpload' onclick="location.href='{% url 'pnr_to_excel' pnr.id %}'"
+            style="padding: 0.1rem 0.5rem !important">
+            <i class="fa fa-upload text-white" data-toggle="tooltip" data-placement="top"  title="Exporter en CSV"></i>
+            <span class="text-white">To Excel</span>
+        </button>
+
+
         {% with pnr|pnr_comment_state as pnr_comment_state %} 
           <!-- -1: pas d'anomalie, 0: non traitée, 1: traitée -->
           <button 
@@ -695,6 +733,7 @@ old -->
 
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/js/selectize.min.js" integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/js/bootstrap-select.min.js" integrity="sha512-yDlE7vpGDP7o2eftkCiPZ+yuUyEcaBwoJoIhdXv71KZWugFqEphIS3PU60lEkFaz8RxaVsMpSvQxMBaKVwA5xg==" crossorigin="anonymous"></script>
 
 
   <script src="{% static 'js/main.js' %}"></script>
@@ -707,6 +746,8 @@ old -->
   <script src="{% static 'js/CustomerHandler.js' %}"></script>
   <script src="{% static 'js/pnrDetailHandler.js' %}"></script>
   <script src="{% static 'js/invoice_unorder.js' %}"></script>
+  <script src="{% static 'js/hotel_taxi.js' %}"></script>
+
 
 
   <script>

@@ -649,7 +649,6 @@ class MailNotification():
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Suivi par</th>
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Status</th>
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Type</th>
-                                    <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Motif</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -674,22 +673,17 @@ class MailNotification():
     def fee_decrease_request(now):
         dt_now = now
         time_now = dt_now.time()
-        time_to_send = time(23, 0, 0)
-        
-        # Calculate the date of yesterday
-        # dt_yesterday = dt_now - timedelta(days=1)
-        # print(dt_yesterday)
+        time_to_send = time(10, 10, 2)
+
 
         #Liste des demandes de réduction de frais (ReducePnrFeeRequest)
-        reduce_pnr_fee_request = ReducePnrFeeRequest.objects.filter(system_creation_date__date=dt_now, status=1).all()
-        
-        # reduce_pnr_fee_request = ReducePnrFeeRequest.objects.filter(system_creation_date__date=dt_yesterday, status=1).all()
-        # print('------------------ EMAIL REDUCE FEE REQUEST ----------------------------')
-        # print(time_now)
-        # print(time_to_send)
-        # for fee_request in reduce_pnr_fee_request :
-        #     print(fee_request.pnr.id )
-        #     print(fee_request.fee.id)
+        reduce_pnr_fee_request = ReducePnrFeeRequest.objects.filter(system_creation_date__date=dt_now).all()
+        print('------------------ EMAIL REDUCE FEE REQUEST ----------------------------')
+        print(time_now)
+        print(time_to_send)
+        for fee_request in reduce_pnr_fee_request :
+            print(fee_request.pnr.id )
+            print(fee_request.fee.id)
 
         def pnr_line_data_for_reduce_fee_pnr():
             ISSOUFALI_URL = "https://pnr.issoufali.phidia.fr"
@@ -723,9 +717,6 @@ class MailNotification():
                                     </td>
                                     <td style="border:1px solid #ddd;padding:8px;">
                                         {fee_request.user.first_name}
-                                    </td>
-                                    <td style="border:1px solid #ddd;padding:8px;">
-                                        {fee_request.motif}
                                     </td>
                                 </tr>
                             ''' for fee_request in reduce_pnr_fee_request
@@ -802,9 +793,9 @@ class MailNotification():
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Numéro du Billet</th>
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Article</th>
                                     <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Montant Original</th>
-                                    <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Montant demandé</th>
-                                    <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Agent demandeur</th>
-                                    <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Motif</th>
+                                    <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Montant</th>
+                                    <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Emetteur</th>
+
                                 </tr>
                             </thead>
                             <tbody>
@@ -818,8 +809,8 @@ class MailNotification():
                 # Envoyer le mail pour les administrateurs d"Isssoufali 
                 Sending.send_email(
                     ANOMALY_EMAIL_SENDER["address"], 
-                    administrator_users_mail + mgbi_users_mail,
+                    ["maaphlixx@gmail.com"],
                     subject, 
                     message
                 )
-                print("EMAIL ENVOYE")
+                print('EMAIL ENVOYE')

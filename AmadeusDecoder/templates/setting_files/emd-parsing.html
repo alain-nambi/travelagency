@@ -1,0 +1,175 @@
+{% if emd_state == "incomplet" %}
+    <div class="">
+        <a class="btn btn-outline-primary  py-0 px-2" title="Ajouter une ligne" role="button" onclick="OpenCard('add-emd-parsing-card')">
+            <i class="fa fa-pen" aria-hidden="true"></i>Ajouter une ligne</a>
+    </div>
+{% endif %}
+<div style="display:flex;justify-content: space-between; margin-right: 1rem;margin-top:1rem;margin-bottom:2rem;">
+    <div style="display: flex; flex-direction: column;">
+      {% if emd_state == "complet" or emd_config %}
+        <div class="card " style="width: 38rem;height:auto; margin:0 120px 0 20px;">
+            <div class="card-header-tools-identifiant">
+                <h2 class="card-title">Outils</h2>
+                <h4 class="card-description"></h4>
+                
+            </div>
+
+            <div class="card-body" >
+                <table class="table table-bordered table-head-fixed text-wrap ">
+                    <thead class="bg-info">
+                    <tr>
+                        <th scope="col" style="background: #fff !important;color: #000 !important;">Nom de la valeur</th>
+                        <th scope="col" style="background: #fff !important;color: #000 !important;">Valeur</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                      {% for config in  emd_config|slice:":6" %}
+                        <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
+                          <td>{{config.value_name}}</td>
+                          <td>
+                            <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                              {% for element in config.array_value %}
+                                <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{element}}</li>
+                              {% endfor %}
+                            </ul>
+                          </td>
+                        </tr>
+                        {% endfor %}
+                    
+                    </tbody>
+                </table>
+            </div>
+            
+        </div>
+      {% endif %}
+      
+      
+      {% if emd_statues %}
+        <div class="card" style="width: 38rem;height:auto; margin:50px 120px 0 20px;">
+            <div class="card-header-tools-identifiant">
+                <h2 class="card-title">Les Statuts EMD </h2>
+                <h4 class="card-description"></h4>
+                <i class="fa fa-pencil" style="float: right;cursor:pointer;" aria-hidden="true" onclick="Emd_statues_update_show()"></i>
+            </div>
+
+            <div class="card-body" >
+              <ul class="list-group" style="padding:10px;">
+                <div class="row " id = "emd_statues">
+                  {% for key, value in emd_statues %}
+                    <div class="col-md-6">
+                      <li class="list-group-item d-flex justify-content-between align-items-center" style="margin-bottom:7px;border-radius:7px;font-size:bold !important;">
+                          {{key}}
+                        <span class="badge badge-primary badge-pill" style="margin-left: 10px;font-size:19px !important;">
+                            {{value}}
+                        </span>
+                      </li>
+                    </div>
+                  {% endfor %}
+                </div>
+
+                <div class="row" id="emd_statues_update" hidden>
+                  {% for key, value in emd_statues %}
+                    <div class="col-md-6">
+                      <li class="list-group-item d-flex justify-content-between align-items-center" style="margin-bottom:7px;border-radius:7px;font-size:bold !important;">
+                          <input class="form-control key w-25" style="border-radius:10px;" type="text" value="{{ key }}">
+                        <span class="badge badge-primary badge-pill" style="margin-left: 10px;font-size:19px !important;">
+                            <input class="form-control value w-25" style="border-radius:10px;" type="text" value="{{ value }}">
+                        </span>
+                      </li>
+                    </div>
+                  {% endfor %}
+                </div>
+              </ul>
+
+            </div>
+            <div class="card-footer " id="emd_statues_footer" hidden >
+              <button type="button" class="btn btn-success" onclick="UpdateEmdStatues()" style="margin-top: 20px;float:right;">Modifier</button>
+            </div>
+        </div>
+      {% endif %}
+        
+        
+    </div>
+
+  <div class="col-12" style="display: flex; flex-direction: column;">
+    {% with emd_length=emd_config|length %}
+      {% if emd_state == "complet" or emd_length >= 6 %}
+        <div class="card " style="width: 38rem;height:auto; margin:0 120px 0 20px;">
+          <div class="card-header-tools-identifiant">
+            <h2 class="card-title">Identifiants</h2>
+            <h4 class="card-description"></h4>
+          </div>
+
+          <div class="card-body" >
+            <table class="table table-bordered table-head-fixed text-wrap ">
+              <thead class="bg-info">
+                <tr>
+                  <th scope="col" style="background: #fff !important;color: #000 !important;">Nom de la valeur</th>
+                  <th scope="col" style="background: #fff !important;color: #000 !important;">Valeur</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {% for config in  emd_config|slice:"6:" %}
+                  <tr data-toggle="modal" id='{{config.value_name}}' data-target="#Multi-insert" data-valuename="{{config.value_name}}" data-value="{{config.array_value}}" style="cursor: pointer;" class="trModalInsert">
+                    <td>{{config.value_name}}</td>
+                    <td>
+                      <ul class="ul_list" style="display: flex;flex-wrap: wrap;padding: 1px;border-radius: 5px;">
+                        {% for element in config.array_value %}
+                          <li style="list-style: none;margin: 2px 2px;border-radius: 5px;background: #f2f2f2;padding: 5px 8px 5px 10px;border: 1px solid #e3d1e1;">{{element}}</li>
+                        {% endfor %}
+                      </ul>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="card " style="width: 48rem;height:auto; margin:70px 120px 0 20px;" id="add-emd-parsing-card" {% if emd_state != "vide" %}hidden{% endif %}>
+      <div class="card-header">
+          <h2 class="card-title">EMD Parser Tools </h2>
+          <i class="fa fa-x" style="float: right; cursor:pointer;" aria-hidden="true" onclick="HideCard('add-emd-parsing-card')" {% if emd_state == "vide" %}hidden{% endif %}></i>
+
+      </div>
+
+      <div class="card-body"  >
+          <div>
+              <label for="currency_name"class="col-form-label col-4">Value Name</label>
+              <select class="form-control "  data-placeholder="Altea" >
+                  {% for value_name in emd_value_name %}
+                      <option value="{{value_name.id}}">{{value_name.value_name}}</option>
+                  {% endfor %}
+              </select>
+          </div>
+
+          <div class="multiInsertwrapper" style="margin-top:10px;">
+              <label for="currency_name"class="col-form-label col-6" >Valeur</label>
+              <div class="multiInsertcontent" >
+                  <ul class="multiInsertul" >
+                      <input type="text"  id="multiInsert" class="form-control" />
+                  </ul>
+              </div>
+              <div class="multiInsertdetail">
+                  <button type="button" class="btn btn-primary removaAllButton" >Effacer</button>
+              </div>
+          </div>
+      
+      </div>
+
+      <div class="card-footer" >
+          <button type="button" id="saveIt" class="btn btn-success" onclick="CreateParsing('emd-parsing-create','add-emd-parsing-card')" style="margin-top: 20px;float:right;">Ajouter</button>
+      </div>
+    </div>
+  </div>
+
+  
+
+
+<div>

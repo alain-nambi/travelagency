@@ -154,20 +154,20 @@ class MailNotification():
                                 </html>
                             """
 
-                    try:
-                        Sending.send_email(
-                            "issoufali.pnr@outlook.com",
-                            [
-                                "pp@phidia.onmicrosoft.com",
-                                "tahina@phidia.onmicrosoft.com",
-                                "maphiesarobidy@outlook.fr"
-                            ],
-                            subject,
-                            message
-                        )
-                    except Exception as e:
-                        print(f"Error sending pnr not sent to GP : {e}")
-                        raise e
+                    # try:
+                    #     Sending.send_email(
+                    #         "issoufali.pnr@outlook.com",
+                    #         [
+                    #             "pp@phidia.onmicrosoft.com",
+                    #             "tahina@phidia.onmicrosoft.com",
+                    #             "maphiesarobidy@outlook.fr"
+                    #         ],
+                    #         subject,
+                    #         message
+                    #     )
+                    # except Exception as e:
+                    #     print(f"Error sending pnr not sent to GP : {e}")
+                    #     raise e
                 else:
                     print(f"📢 Pnr is already up to date on {date}, {time_now}")
             else:
@@ -724,57 +724,9 @@ class MailNotification():
                     }
                 """
             )
-        administrator_users_mail = [
-            "lamia@agences-issoufali.com",
-            "asmakalfane@agences-issoufali.com",
-            "missoufali@agences-issoufali.com",
-            "issoufali.a@gmail.com",
-        ]
-        
-        mgbi_users_mail = [
-            "phpr974@gmail.com",
-            "pp@phidia.onmicrosoft.com",
-            "tahina@phidia.onmicrosoft.com",
-            "maphieSarobidy@outlook.fr", 
-        ]
-        
-        other_users_mail = [
-            "stephanie@agences-issoufali.com",
-            "fahar@agences-issoufali.com",
-            "samir@agences-issoufali.com",
-            "oulfate@agences-issoufali.com",
-            "mraati@agences-issoufali.com",
-            "fouadi@agences-issoufali.com",
-            "roihamina@agences-issoufali.com",
-            "mouniati@agences-issoufali.com",
-            "sylvia@agences-issoufali.com",
-            "anziza@agences-issoufali.com",
-            "sejours@agences-issoufali.com",
-            "sarmada@agences-issoufali.com",
-            "lola@agences-issoufali.com",
-            "farida@agences-issoufali.com",
-            "goula@agences-issoufali.com",
-            "saouda@agences-issoufali.com",
-            "riziki@agences-issoufali.com",
-            "karim@agences-issoufali.com",
-            "josianenovou@agences-issoufali.com",
-            "anaissa@agences-issoufali.com",
-            "hassanati@agences-issoufali.com",
-            "saidmaoulida@agences-issoufali.com",
-            "madjid@agences-issoufali.com",
-            "sity@agences-issoufali.com",
-            "koro@agences-issoufali.com",
-            "issoufali.pnr@outlook.com",
-            "danielbehava2@agences-issoufali.com",
-            "david.domitin@agences-issoufali.com",
-            "eric@agences-issoufali.com",
-            "taanli@agences-issoufali.com",
-            "shoulaya@agences-issoufali.com",
-        ]
-        
-        
-        if time_now == time_to_send: # 18:00
-            print("📢 Sending mail for fee decrease request...")
+             
+        if time_now == time_to_send: # 9h00
+            print("C'EST L'HEURE D'ENVOYER L'EMAIL")
             if len(reduce_pnr_fee_request) > 0:
                 subject = f'Demande de réduction de frais, ce {dt_now.strftime("%d-%m-%Y")}'                   
                 message = f"""        

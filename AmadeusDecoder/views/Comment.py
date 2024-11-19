@@ -251,16 +251,16 @@ def get_pnr_not_fetched(request):
                             </html>
                         """.format(pnr.pnr_number, pnr.follower.username)
 
-            Sending.send_email_pnr_not_fetched(
-                "anomalie.issoufali.pnr@gmail.com",
-                [
-                    "maphiesarobidy@outlook.fr",
-                    "pp@phidia.onmicrosoft.com",
-                    "tahina@phidia.onmicrosoft.com",
-                ],
-                subject,
-                message
-            )
+            # Sending.send_email_pnr_not_fetched(
+            #     "anomalie.issoufali.pnr@gmail.com",
+            #     [
+            #         "maphiesarobidy@outlook.fr",
+            #         "pp@phidia.onmicrosoft.com",
+            #         "tahina@phidia.onmicrosoft.com",
+            #     ],
+            #     subject,
+            #     message
+            # )
     return JsonResponse({})
 
 # ----------------- anomalie: réponse automatique -----------------

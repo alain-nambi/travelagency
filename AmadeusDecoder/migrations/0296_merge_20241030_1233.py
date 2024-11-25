@@ -6,7 +6,6 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('AmadeusDecoder', '0282_remove_anomalie_admin_id'),
         ('AmadeusDecoder', '0284_auto_20240719_1009'),
         ('AmadeusDecoder', '0295_alter_anomalie_categorie'),
     ]

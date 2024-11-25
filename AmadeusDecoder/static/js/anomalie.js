@@ -3,6 +3,7 @@
 $('#comment-ticket-form').hide();
 $('#other_info').hide();
 $('#info').hide();
+$('#taxSection').hide();
 $('#Erreur').hide();
 $('#fee').hide();
 $('#comment-ticket-cancel-button').hide();
@@ -61,6 +62,8 @@ function showTicketInput(){
 // Hide InfoSection
 function hideInfoSection() {
     $('#info').hide();
+    $('#taxSection').hide();
+
 }
 
 // Show Cancel Button
@@ -88,7 +91,7 @@ function get_unshowed_ticket(pnr_id,container){
 
                 // Ajouter un titre au modal
                 var title = document.createElement("h3");
-                title.innerHTML = "Billets non remontés";
+                title.innerHTML = "Billet non remonté";
                 title.style.margin = '10px 0 0 0';
                 container.appendChild(title);
 
@@ -102,14 +105,32 @@ function get_unshowed_ticket(pnr_id,container){
                 new_ticket_button.className = 'btn btn-success';
                 new_ticket_button.innerHTML = 'Nouveau Billet';
                 new_ticket_button.style.margin = '20px 10px 10px 0';
+                new_ticket_button.value = "TKT";
                 new_ticket_button.addEventListener("click", function(){
                     // Don't allow to modify ticket number
                     $('#ticket_number').removeAttr('disabled')
+                    $('#ticket_number').attr('data-isticket', '0');
                     showTicketInput();
                     $('#ticket_number').val('');
                     $('#comment-ticket-next-button').show();
                 });
                 container.appendChild(new_ticket_button);
+
+                // Ajouter un bouton pour les remboursements
+                var new_rfnd_button = document.createElement("button");
+                new_rfnd_button.className = 'btn btn-success';
+                new_rfnd_button.innerHTML = 'Remboursement';
+                new_rfnd_button.value = 'RFND';
+                new_rfnd_button.style.margin = '20px 10px 10px 0';
+                new_rfnd_button.addEventListener("click", function(){
+                    // Don't allow to modify ticket number
+                    $('#ticket_number').removeAttr('disabled')
+                    $('#ticket_number').attr('data-isticket', '1');
+                    showTicketInput();
+                    $('#ticket_number').val('');
+                    $('#comment-ticket-next-button').show();
+                });
+                container.appendChild(new_rfnd_button);
             }
         },
     });
@@ -119,8 +140,11 @@ function get_unshowed_ticket(pnr_id,container){
 $(document).ready(function () {
     function VerifTicketValue() {
         var ticket_number = $('#ticket_number').val();
-        var Boutton = $('#comment-ticket-next-button');
-   
+        var ticket_button= $('#new_ticket').val();
+        var rfnd_button = $('#rfnd').val();
+
+        var Boutton = $('#comment-ticket-next-button'); 
+
         if (ticket_number.trim() === '') {
             Boutton.prop('disabled', true);
         } else {
@@ -132,9 +156,14 @@ $(document).ready(function () {
     $('#ticket_number').on('input', function () {
         ticket = $('#ticket_number').val();
         var inputValue = $(this).val();
+        var sanitizedValue =""
+        let isticket = $('#ticket_number').attr('data-isticket');
+        if(isticket == 0) {
+            sanitizedValue = inputValue.replace(/[^0-9-]/g, '');
+        }else{ // remboursement
+            sanitizedValue = inputValue.replace(/[^0-9-Rr]/g, '').replace(/r/g, 'R');
+        }
 
-        // Seulement pour les remboursements à remonter
-        var sanitizedValue = inputValue.replace(/[^0-9-]/g, '');
         $(this).val(sanitizedValue);
 
         $('#comment-ticket').attr("disabled", true);
@@ -155,21 +184,15 @@ $(document).ready(function () {
 
     function VerifTicketLength() {
         ticket = $('#ticket_number').val();
+        let isticket = $('#ticket_number').attr('data-isticket');
         var Boutton = $('#comment-ticket-next-button');
         
-        if(ticket.length > 16){
-            Boutton.prop('disabled', true);
-        }
-        if (ticket.length <= 16) {
-            Boutton.prop('disabled', false);
-        }
-        if (ticket.length < 13) {
-            Boutton.prop('disabled', true);
-        }
+        Boutton.prop('disabled', ticket.length > 16 || ticket.length < 13);
 
-        if(ticket.length == 14 && ticket.charAt(13) !== '-') {
-            var modifiedValue = ticket.slice(0, 13) + '-' + ticket.slice(13);
-            $('#ticket_number').val(modifiedValue);
+        if (ticket.length === 14 && ticket.charAt(13) !== '-') {
+            $('#ticket_number').val(ticket.slice(0, 13) + '-' + ticket.slice(13));
+        } else if (ticket.length === 13 && isticket == 1) {
+            $('#ticket_number').val(ticket + '-R');
         }
     }
 
@@ -230,33 +253,36 @@ function accept_anomaly(anomalie_id){
 $(document).ready(function () {
     $("#comment-ticket-next-button").on("click", function () {
         var pnr_id = $("#pnr-id").val();
+        var isticket = $('#ticket_number').attr('data-isticket');
+        
 
-        $("#montant_hors_taxe, #taxe").on("input", function() {
+        $("#montant_hors_taxe").on("input", function() {
             var inputValue = $(this).val();
-            
-            // Utiliser la regex pour valider le format
-            if (/^\d+(\.\d+)?(,\d+)?$/.test(inputValue)) {
-                // Le format est correct, ne rien faire
-            } else {
-                // Le format est incorrect, nettoyer la valeur
-                // à décommenter lorsque les remboursements sont remontées
+            if(isticket == 0){ // si c'est un billet
+                // Utiliser la regex pour valider le format
                 var sanitizedValue = inputValue.replace(/[^0-9,.]/g, '');
+                sanitizedValue = sanitizedValue.replace(',', '.');
                 $(this).val(sanitizedValue);
+
             }
+            else{ // si c'est un remboursement
+                
+                // Retirer tous les caractères non numériques, excepté les points et les virgules
+                let value = inputValue.replace(/[^0-9,.]/g, ''); 
+                var rfndValue = value.replace(',', '.');
+                $(this).val('-' + rfndValue);
+            }
+            
         });        
         
 
         $("#taxe").on("input", function() {
             var inputValue = $(this).val();
             
-            // Utiliser la regex pour valider le format
-            if (/^\d+(\.\d+)?(,\d+)?$/.test(inputValue)) {
-                // Le format est correct, ne rien faire
-            } else {
-                // Le format est incorrect, nettoyer la valeur
-                var sanitizedValue = inputValue.replace(/[^0-9,.]/g, '');
-                $(this).val(sanitizedValue);
-            }
+           // Utiliser la regex pour valider le format
+           var sanitizedValue = inputValue.replace(/[^0-9,.]/g, '');
+           sanitizedValue = sanitizedValue.replace(',', '.');
+           $(this).val(sanitizedValue);
         })
 
 
@@ -267,11 +293,13 @@ $(document).ready(function () {
             let index = ticketNumber.indexOf('-');
 
             console.log(ticketNumber.length);
-
-            if (index !== -1) {
-                if (!/^\d+$/.test(ticketNumber[index + 1]) || ticketNumber.length < 16) {
-                    ticketNumber = ticketNumber.slice(0, 13)
-                    $("#ticket_number").val(ticketNumber)
+            
+            if($("#ticket_number").attr('data-isticket') == 0){
+                if (index !== -1) {
+                    if (!/^\d+$/.test(ticketNumber[index + 1]) || ticketNumber.length < 16) {
+                        ticketNumber = ticketNumber.slice(0, 13)
+                        $("#ticket_number").val(ticketNumber)
+                    }
                 }
             }
 
@@ -290,20 +318,22 @@ $(document).ready(function () {
                 success: function (data) {
                     let result = data.verif;
 
-                    if (result === 'True') { // if ticket exists
+                    if (result.exist === true) { // if ticket exists
                         // Don't allow to modify ticket number
                         $('#ticket_number').attr('disabled', true)
                         showInfoSection();
+                        showCancelButton();
+                        $('#montant_hors_taxe').val(result.ticket_cost);
+                        $('#taxe').val(result.ticket_tax);
+
                     } if (result === 'is_no_adc'){
                         toastr.info('Ticket Is no adc')
                     } 
                     if(result === 'pnr'){
                         toastr.info("Billet d'un autre PNR")
                     }
-                    if (result === 'ticket_already_exist') {
-                        toastr.info('Ce billet est déja remonté sur ce PNR courant')
-                    }
-                    if (result.exist === true) {
+                    
+                    if (result.exist === false) {
                         toastr.info(`Ce billet est déja présent dans le PNR ${result.pnr}`)
                     }
                     if (result === 'False') { // if ticket does not exist
@@ -428,6 +458,7 @@ $(document).ready(function () {
                 });   
             } else { // if ticket does not exist
                 var ticketNumber = $("#ticket_number").val();
+                var isTickets = $("#ticket_number").attr('data-isticket');
                 var mnt_hors_taxe = $('#montant_hors_taxe').val();
                 var taxe = $('#taxe').val();
                 var user_id = $('#user_id').val();
@@ -472,8 +503,11 @@ $(document).ready(function () {
                     pnr_id: pnr_id,
                     passenger_id: passenger_id,
                     ticket_type: type,
-                    fee: fee,
+                    fee: fee, 
+                    isticket: isTickets,
+
                 })
+                console.log(listNewTicketAnomalyInfo);
 
 
                 $.ajax({
@@ -509,12 +543,21 @@ $(document).ready(function () {
 
         // Fonction pour montrer la section d'info
         function showInfoSection() {
+            let isticket = $('#ticket_number').attr('data-isticket');
             $('#info').show();
+            $('#taxSection').val(0);
+            isticket == 0 ? $('#taxSection').show() : $('#taxSection').hide();
         }
 
         // Fonction pour montrer la section d'autres informations
         function showOtherInfoSection() {
             $('#other_info').show();
+            let isticket = $('#ticket_number').attr('data-isticket');
+            if (isticket == 1){ // i c'est un remboursement
+                $('#selectType').val('EMD');
+                $('#selectType').prop('disabled',true);
+                $('#fee').hide();
+            }
         }
 
         
@@ -528,6 +571,9 @@ $(document).ready(function () {
         hideOtherInfoSection();
         $('#comment-ticket-cancel-button').hide();
         $('#comment-ticket-next-button').hide();
+        $('#ticket_number').val("");
+        $('#montant_hors_taxe').val("");
+        $('#taxe').val("");
         var Boutton = $('#comment-ticket-next-button');
         Boutton.prop('disabled', true);
     });
@@ -605,22 +651,15 @@ function update_anomaly(anomalie_id){
     }
 }
 
-function VerifTicketUpdatedLength(id) {
+function VerifTicketUpdatedLength(id) { 
     var Boutton = $('#update-anomaly-button');
     element = document.getElementById(id);
 
     var sanitizedValue = element.value.replace(/[^0-9-]/g, '');
     element.value = sanitizedValue;
 
-    if (element.value.length > 16) {
-        Boutton.prop('disabled', true);
-    }
-    if (element.value.length <= 16) {
-        Boutton.prop('disabled', false);
-    }
-    if (element.value.length < 13) {
-        Boutton.prop('disabled', true);
-    }
+    Boutton.prop('disabled', ticket.length > 16 || ticket.length < 13);
+
     element = document.getElementById(id);
     if (element.value.length === 14 && element.value.charAt(13) !== '-') {
         // console.log('COUCOU------');

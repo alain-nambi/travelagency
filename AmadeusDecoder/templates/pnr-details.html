@@ -1488,16 +1488,17 @@
 
 							<div id='info'>
 								<label for="montant_hors_taxe" class="col-form-label">Montant Hors Taxe</label>
-								<input type='number' name="montant_hors_taxe" class="form-control" id="montant_hors_taxe">
-								<label for="taxe" class="col-form-label">Taxe</label>
-								<input type='number' name="taxe" class="form-control" id="taxe">
-								<input type='hidden' name="user_id" value="{{user.id}}" class="form-control" id="user_id" >
-								
+								<input type='text' name="montant_hors_taxe" class="form-control" id="montant_hors_taxe">
 							</div>
+							<div id='taxSection'>
+								<label for="taxe" class="col-form-label">Taxe</label>
+								<input type='text' name="taxe" class="form-control" id="taxe" value="0">
+							</div>
+								<input type='hidden' name="user_id" value="{{user.id}}" class="form-control" id="user_id" >
 
 							<div id='other_info'>
 								<div>
-									<label for="taxe" class="col-form-label">Type du Billet</label>
+									<label for="type" class="col-form-label">Type du Billet</label>
 									<select id="selectType" class="form-control form-control select-type">
 										<option value='TKT'>TKT</option>
 										<option value='EMD'>EMD</option>

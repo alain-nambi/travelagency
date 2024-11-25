@@ -396,6 +396,7 @@ def save_ticket_anomalie(request):
                 return JsonResponse({'error':'ticket number > 17 '})
         
             # get all data
+            isticket = new_tickets[0]['isticket']
             montant_hors_taxe = new_tickets[0]['montant_hors_taxe']
             taxe = new_tickets[0]['taxe']
             pnr_id = new_tickets[0]['pnr_id']
@@ -409,9 +410,11 @@ def save_ticket_anomalie(request):
             pnr = Pnr.objects.filter(id=pnr_id).first()
                 
             user_id = new_tickets[0]['user_id']
-            
-            info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "passenger_id":passenger_id, "segment": segments, "ticket_status":1, 'ticket_type':ticket_type, 'fee': str(new_tickets[0]['fee']).capitalize()} # ticket_status : 0 ticket existant , 1 ticket non existant
-        
+
+            if isticket == '0':
+                info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "passenger_id":passenger_id, "segment": segments, "ticket_status":1, 'ticket_type':ticket_type, 'fee': str(new_tickets[0]['fee']).capitalize(),'isticket':0} # ticket_status : 0 ticket existant , 1 ticket non existant
+            else:
+                info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "passenger_id":passenger_id, "segment": segments, "ticket_status":1, 'ticket_type':ticket_type, 'fee': str(new_tickets[0]['fee']).capitalize(), 'isticket':1} # ticket_status : 0 ticket existant , 1 ticket non existant
         else:
             ticket_number = request.POST.get('ticket_number')
             montant_hors_taxe = request.POST.get('montant_hors_taxe')
@@ -421,7 +424,7 @@ def save_ticket_anomalie(request):
             
             pnr = Pnr.objects.filter(id=pnr_id).first()
             
-            info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "ticket_status":0} # ticket_status : 0 ticket existant , 1 ticket non existant
+            info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "ticket_status":0,'isticket':0} # ticket_status : 0 ticket existant , 1 ticket non existant
             
         if montant_hors_taxe == "" or taxe == "":
             return JsonResponse(
@@ -508,6 +511,7 @@ def update_ticket(request):
            
         else:
             # Create a new ticket
+            print('****************************** CREATE TICKET ****************************')
             ticket = Ticket()
             ticket.transport_cost=anomalie.infos.get('montant')
             ticket.number=anomalie.infos.get('ticket_number')
@@ -523,6 +527,10 @@ def update_ticket(request):
             ticket.is_subjected_to_fees=anomalie.infos.get('fee')
             ticket.emitter=None
             ticket.issuing_date=datetime.now()
+
+            print('************************IS TICKET : ', anomalie.infos.get('isticket'))
+            ticket.is_refund = anomalie.infos.get('isticket') == '1'
+            print(ticket.is_refund)
             ticket.save()
             
             # get the corresponding segment

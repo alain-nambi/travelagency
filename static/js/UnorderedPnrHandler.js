@@ -127,3 +127,4 @@ function searchUnorderedPnrFunction() {
     toastr.warning(`La recherche ne doit pas être vide`);
   }
 }
+

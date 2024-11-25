@@ -59,16 +59,16 @@ def comment(request):
                     </html>
                 """.format(comment_value, pnr_element.number, user_element.username)
 
-    Sending.send_email(
-        "anomalie.issoufali.pnr@gmail.com",
-        [
-            "pp@phidia.onmicrosoft.com",
-            "tahina@phidia.onmicrosoft.com",
-            "maphiesarobidy@outlook.fr",
-        ],
-         subject,
-         message
-    )
+    # Sending.send_email(
+    #     "anomalie.issoufali.pnr@gmail.com",
+    #     [
+    #         "pp@phidia.onmicrosoft.com",
+    #         "tahina@phidia.onmicrosoft.com",
+    #         "maphiesarobidy@outlook.fr",
+    #     ],
+    #      subject,
+    #      message
+    # )
 
     return JsonResponse({'comment': 'Data successfully sent to database'})
 
@@ -133,17 +133,17 @@ def comment_detail(request, comment_id):
                         </html>
                     """.format(comments.comment, comments.pnr_id.number, comments.user_id.username, comment_response)
 
-            Sending.send_email(
-                "anomalie.issoufali.pnr@gmail.com",
-                [   
-                    comments.user_id.email,
-                    "maphiesarobidy@outlook.fr",
-                    "pp@phidia.onmicrosoft.com",
-                    "tahina@phidia.onmicrosoft.com",
-                ],
-                subject,
-                message
-            )
+            # Sending.send_email(
+            #     "anomalie.issoufali.pnr@gmail.com",
+            #     [   
+            #         comments.user_id.email,
+            #         "maphiesarobidy@outlook.fr",
+            #         "pp@phidia.onmicrosoft.com",
+            #         "tahina@phidia.onmicrosoft.com",
+            #     ],
+            #     subject,
+            #     message
+            # )
             return redirect('comment-list')
     context['responses'] = Response.objects.filter(pnr_id=int(comments.pnr_id.id))
 
@@ -196,16 +196,16 @@ def get_pnr_not_fetched(request):
                             </html>
                         """.format(pnr.pnr_number, pnr.follower.username)
 
-            Sending.send_email_pnr_not_fetched(
-                "anomalie.issoufali.pnr@gmail.com",
-                [
-                    "maphiesarobidy@outlook.fr",
-                    "pp@phidia.onmicrosoft.com",
-                    "tahina@phidia.onmicrosoft.com",
-                ],
-                subject,
-                message
-            )
+            # Sending.send_email_pnr_not_fetched(
+            #     "anomalie.issoufali.pnr@gmail.com",
+            #     [
+            #         "maphiesarobidy@outlook.fr",
+            #         "pp@phidia.onmicrosoft.com",
+            #         "tahina@phidia.onmicrosoft.com",
+            #     ],
+            #     subject,
+            #     message
+            # )
     return JsonResponse({})
 
 # ----------------- anomalie: réponse automatique -----------------

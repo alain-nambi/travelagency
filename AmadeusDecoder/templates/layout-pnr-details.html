@@ -40,6 +40,8 @@
 
  <!-- style -->
  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+ <link rel="stylesheet" href="{% static 'css/pnr_motif.css' %}">
+
  <link rel="stylesheet" href="{% static 'css/select-custom.css' %}">
  <link rel="stylesheet" href="{% static 'css/hotel_taxi.css' %}">
 
@@ -82,7 +84,7 @@ old -->
 			    {% include "commandes_modal.html" %}
         </li>
         <li class="nav-item d-flex flex-column">
-          <span id="mail-user" data-mail="issoufali.pnr@outlook.com;{{request.user.email}}">issoufali.pnr@outlook.com;{{request.user.email}}</span>
+          <span id="mail-user" data-mail="zenithpnr.issoufali@outlook.fr;{{request.user.email}}">zenithpnr.issoufali@outlook.fr;{{request.user.email}}</span>
           <a type="button" class="btn btn-outline-primary" onclick="copymailuser()">Zenith</a> 
         </li>
 
@@ -98,6 +100,7 @@ old -->
         </li>
 
         {% if request.user.role_id == 1 %}
+        {% with pnr|is_one_or_more_passenger_is_invoiced as is_one_or_more_passenger_is_invoiced %}
           <li class="nav-item ml-1">
             <div id="uncommand_api">
               <button 
@@ -106,12 +109,14 @@ old -->
                 data-toggle="modal" 
                 data-target="#modalUncommandApi" 
                 title="Décommander le PNR"
-                id = "uncommand_api"
+                id = "uncommand_api" 
+                {% if not is_one_or_more_passenger_is_invoiced %} disabled {% endif%}
               >
-                <span>Décommander le PNR</span>
+                <span>Décommander le PNR </span>
               </button>
             </div>
           </li>
+          {% endwith %}
         {% endif %}
           
         <li class="nav-item ml-1">

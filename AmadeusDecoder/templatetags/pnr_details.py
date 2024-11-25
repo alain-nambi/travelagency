@@ -352,24 +352,25 @@ def get_passenger_is_invoiced_in_passenger_invoice(pnr):
 def get_is_one_or_more_passenger_is_invoiced(pnr):
     from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
     passenger_invoices = PassengerInvoice.objects.filter(pnr=pnr.id).exclude(status="quotation")
-    is_invoice = []
-
-    if passenger_invoices.exists():
-        for passenger in passenger_invoices:
-            if passenger.ticket is not None and passenger.ticket.ticket_status == 1:
-                is_invoice.append(passenger.is_invoiced)
-            if passenger.other_fee is not None and passenger.other_fee.other_fee_status == 1:
-                is_invoice.append(passenger.is_invoiced)
-            if passenger.fee is not None and passenger.fee.ticket is not None and passenger.fee.ticket.ticket_status == 1:
-                is_invoice.append(passenger.is_invoiced)
-            if passenger.fee is not None and passenger.fee.other_fee is not None and passenger.fee.other_fee.other_fee_status == 1:
-                is_invoice.append(passenger.is_invoiced)
-        if True in is_invoice:
-            return True
-        else:
-            return False
-    else:
+    print('------------------- get_is_one_or_more_passenger_is_invoiced -----------------------')
+    print(passenger_invoices)
+    if not passenger_invoices.exists():
+        print('------- NONE ----------------')
         return None
+
+    for passenger in passenger_invoices:
+        if (
+            (passenger.ticket and passenger.ticket.ticket_status == 1)
+            or (passenger.other_fee and passenger.other_fee.other_fee_status == 1)
+            or (passenger.fee and passenger.fee.ticket and passenger.fee.ticket.ticket_status == 1)
+            or (passenger.fee and passenger.fee.other_fee and passenger.fee.other_fee.other_fee_status == 1)
+        ):
+            if passenger.is_invoiced:
+                print('------- TRUE ----------------')
+
+                return True
+
+    return False
 
 # @register.filter(name='detail_customer')
 # def get_detail_customer(id):

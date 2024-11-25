@@ -141,5 +141,5 @@ urlpatterns = [
     path('home/save-hotel',save_hotel,name='save_hotel'),
     path('home/save-taxi',save_taxi,name='save_taxi'),
     path('home/add-service-supplier',add_service_supplier, name='add_service_supplier'),
-
+    path('home/unorder-pnr/add-motif', addMotif,name="add_motif"),
 ]

@@ -390,7 +390,7 @@ class EmailListener:
         print("Connection is now in IDLE mode.")
         print(f"GET TIME : {get_time()}")
         # Set idle timeout to 15 minutes
-        inner_timeout = get_time() + 180
+        inner_timeout = get_time() + 60
         # Until idle times out
         # while True:
         while (get_time() < inner_timeout):

@@ -65,12 +65,12 @@ class MailNotification():
                 if pnr.agent is not None:
                     recipients = [pnr.agent.email, "maphiesarobidy@outlook.fr"]
 
-                Sending.send_email(
-                        "issoufali.pnr@outlook.com",
-                        recipients,
-                        subject,
-                        message
-                    )
+                # Sending.send_email(
+                #         "issoufali.pnr@outlook.com",
+                #         recipients,
+                #         subject,
+                #         message
+                #     )
 
     def pnr_missing_notification(time_now):
         pnr_missing = Pnr.objects.filter(system_creation_date = (time_now - timedelta(minutes=1)), state = 1)
@@ -100,12 +100,12 @@ class MailNotification():
 
                 if pnr.agent_id is not None:
                     recipient = [pnr.agent_id.email,  "tahina@phidia.onmicrosoft.com", "maphiesarobidy@outlook.fr"]
-                Sending.send_email(
-                        "issoufali.pnr@outlook.com",
-                        recipient,
-                        subject,
-                        message
-                    )
+                # Sending.send_email(
+                #         "issoufali.pnr@outlook.com",
+                #         recipient,
+                #         subject,
+                #         message
+                #     )
 
     def pnr_upload_notification(now):
         def weekend_processing_time(minutes):
@@ -538,12 +538,12 @@ class MailNotification():
                 """
                 
                 # Envoyer le mail pour toutes les utilisateurs d"Isssoufali 
-                Sending.send_email(
-                    "maphieSarobidy@outlook.fr", 
-                    # administrator_users_mail + other_users_mail + mgbi_users_mail,  
-                    # subject, 
-                    # message
-                )
+                # Sending.send_email(
+                #     "maphieSarobidy@outlook.fr", 
+                #     # administrator_users_mail + other_users_mail + mgbi_users_mail,  
+                #     # subject, 
+                #     # message
+                # )
             
             if len(no_anomaly_pnrs_before_afternoon_for_administrator) > 0:
                 subject = f'PNR non envoyé dans Odoo pour les directions entre 08h et 12h, ce {dt_now.strftime("%d-%m-%Y")}'                   
@@ -574,13 +574,13 @@ class MailNotification():
                     </html>
                 """
                 
-                # Envoyer le mail pour les administrateurs d"Isssoufali 
-                Sending.send_email(
-                    "maphieSarobidy@outlook.fr", 
-                    # administrator_users_mail + mgbi_users_mail,  
-                    subject, 
-                    message
-                )
+                # # Envoyer le mail pour les administrateurs d"Isssoufali 
+                # Sending.send_email(
+                #     "maphieSarobidy@outlook.fr", 
+                #     # administrator_users_mail + mgbi_users_mail,  
+                #     subject, 
+                #     message
+                # )
                                 
             if len(no_anomaly_pnrs_before_afternoon_for_administrator) < 1 and len(no_anomaly_pnrs_before_afternoon_after_processing) < 1:
                 print("Aucun PNR non envoyé dans cette intervalle [08:00 - 12:00]")
@@ -622,13 +622,13 @@ class MailNotification():
                     </html>
                 """           
                     
-                # Envoyer le mail pour toutes les utilisateurs d"Isssoufali 
-                Sending.send_email(
-                    "maphieSarobidy@outlook.fr", 
-                    # administrator_users_mail + other_users_mail + mgbi_users_mail,
-                    # subject, 
-                    # message
-                )
+                # # Envoyer le mail pour toutes les utilisateurs d"Isssoufali 
+                # Sending.send_email(
+                #     "maphieSarobidy@outlook.fr", 
+                #     # administrator_users_mail + other_users_mail + mgbi_users_mail,
+                #     # subject, 
+                #     # message
+                # )
                 
             if len(no_anomaly_pnrs_after_afternoon_for_administrator) > 0:
                 subject = f'PNR non envoyé dans Odoo pour les directions entre 08h et 15h, ce {dt_now.strftime("%d-%m-%Y")}'                
@@ -660,12 +660,12 @@ class MailNotification():
                 """        
                     
                 # Envoyer le mail pour les administrateurs d"Isssoufali 
-                Sending.send_email(
-                    "maphieSarobidy@outlook.fr", 
-                    # administrator_users_mail + mgbi_users_mail,  
-                    subject, 
-                    message
-                )
+                # Sending.send_email(
+                #     "maphieSarobidy@outlook.fr", 
+                #     # administrator_users_mail + mgbi_users_mail,  
+                #     subject, 
+                #     message
+                # )
 
             if len(no_anomaly_pnrs_after_afternoon_for_administrator) < 1 and len(no_anomaly_pnrs_after_afternoon_after_processing) < 1:
                 print("Aucun PNR non envoyé dans cette intervalle [08:00 - 15:00]")
@@ -759,10 +759,10 @@ class MailNotification():
                 """
 
                 # Envoyer le mail pour les administrateurs d"Isssoufali 
-                Sending.send_email(
-                    ANOMALY_EMAIL_SENDER["address"], 
-                    ["maaphlixx@gmail.com"],
-                    subject, 
-                    message
-                )
-                print('EMAIL ENVOYE')
+                # Sending.send_email(
+                #     ANOMALY_EMAIL_SENDER["address"], 
+                #     ["maaphlixx@gmail.com"],
+                #     subject, 
+                #     message
+                # )
+                # print('EMAIL ENVOYE')

@@ -213,11 +213,11 @@ def notify_direction(pnrs):
                 </html>
             """.format(today.strftime('%d-%m-%Y'), message, ', '.join(pnrs_without_user))
 
-    Sending.send_email(
-        "issoufali.pnr@outlook.com",
-        recipients,
-        subject,
-        body
-    )
+    # Sending.send_email(
+    #     "issoufali.pnr@outlook.com",
+    #     recipients,
+    #     subject,
+    #     body
+    # )
 
 

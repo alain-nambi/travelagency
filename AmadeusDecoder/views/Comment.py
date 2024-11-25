@@ -203,12 +203,12 @@ def reply_comment(request):
             message = f"Bonjour, votre demande par rapport au PNR {pnr.number} a été traité.\nCordialement,"
 
             # Envoyer le mail pour les administrateurs d'Isssoufali 
-            Sending.send_email(
-                ANOMALY_EMAIL_SENDER["address"], 
-                ["maaphlixx@gmail.com"],
-                subject, 
-                message
-            )
+            # Sending.send_email(
+            #     ANOMALY_EMAIL_SENDER["address"], 
+            #     ["maaphlixx@gmail.com"],
+            #     subject, 
+            #     message
+            # )
 
         comment_id = request.POST.get('comment_id')
         comment = Comment.objects.filter(pk=int(comment_id))

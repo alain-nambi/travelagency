@@ -231,6 +231,9 @@ def home(request):
         'users': users,
         'search_query': search_query,
     }
+    pnr_not_invoiced = get_ticket_created_today_not_invoiced(request)
+    context['pnr_not_invoiced'] = pnr_not_invoiced
+    context['notif_number'] = len(pnr_not_invoiced)
 
     return render(request, 'home.html', context)
 
@@ -270,6 +273,7 @@ def pnr_details(request, pnr_id):
 
 
     pnr_not_invoiced = get_pnr_created_today_not_invoiced(request)
+    pnr_not_invoiced = get_ticket_created_today_not_invoiced(request)
     context['pnr_not_invoiced'] = pnr_not_invoiced
     context['notif_number'] = len(pnr_not_invoiced)
     
@@ -2251,16 +2255,26 @@ def save_taxi(request):
         return JsonResponse(context)
 
 # ------- Notification ---------------------------------
-def get_pnr_created_today_not_invoiced(request):
-    # get number of pnr not invoiced today
+def get_ticket_created_today_not_invoiced(request):
+    # get number of ticket not invoiced today
     today = datetime.now().date()
-    
+
     start_date = datetime(today.year, today.month, today.day, 0, 0, 0, tzinfo=timezone.utc)
     end_date = datetime(today.year, today.month, today.day, 23, 59, 59, tzinfo=timezone.utc)
+    
+    print('REQUEST USER : ',request.user.id)
+    current_user = User.objects.get(id= request.user.id)
+    print('CURRENT USER : ',current_user)
+    if current_user.role_id in [1,2]:
+        tickets = Ticket.objects.filter(pnr_id__system_creation_date__range=[start_date, end_date], is_invoiced= False)
+    else:
+        tickets = Ticket.objects.filter(emitter_id = current_user.id,pnr_id__system_creation_date__range=[start_date, end_date], is_invoiced= False)
+    
+    print('PNRS : ',tickets)
+    nbre_pnr = tickets.count()
+    print('------------- NOTIF NUMBER----------------- : ',nbre_pnr)
 
-    pnrs = Pnr.objects.filter(agent_id= request.user.id,system_creation_date__range=[start_date, end_date], is_invoiced= False)
-    nbre_pnr = pnrs.count()
-    return pnrs
+    return tickets
 
 # Motif pour décommander un PNR
 @login_required(login_url='index')

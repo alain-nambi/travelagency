@@ -271,8 +271,6 @@ def pnr_details(request, pnr_id):
 
     context['all_company'] = Airline.objects.filter(active='Y')
 
-
-    pnr_not_invoiced = get_pnr_created_today_not_invoiced(request)
     pnr_not_invoiced = get_ticket_created_today_not_invoiced(request)
     context['pnr_not_invoiced'] = pnr_not_invoiced
     context['notif_number'] = len(pnr_not_invoiced)
@@ -2265,10 +2263,10 @@ def get_ticket_created_today_not_invoiced(request):
     print('REQUEST USER : ',request.user.id)
     current_user = User.objects.get(id= request.user.id)
     print('CURRENT USER : ',current_user)
-    if current_user.role_id in [1,2]:
-        tickets = Ticket.objects.filter(pnr_id__system_creation_date__range=[start_date, end_date], is_invoiced= False)
+    if current_user.role_id == 1:
+        tickets = Ticket.objects.filter(pnr_id__system_creation_date__range=[start_date, end_date], is_invoiced= False, fare=0, ticket_status=1, state=0)
     else:
-        tickets = Ticket.objects.filter(emitter_id = current_user.id,pnr_id__system_creation_date__range=[start_date, end_date], is_invoiced= False)
+        tickets = Ticket.objects.filter(pnr__agent_id = current_user.id,pnr_id__system_creation_date__range=[start_date, end_date], is_invoiced= False, fare=0, ticket_status=1, state=0)
     
     print('PNRS : ',tickets)
     nbre_pnr = tickets.count()

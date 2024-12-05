@@ -124,8 +124,11 @@ old -->
           <div class="row" style=" margin-left:1rem;">
             <div class ="alert" style="background: #FAE6E6;padding: .5em .5em .5em 1em;margin-right:20px;box-shadow: inset 6px 0 #CC0000;">
               
-              <h6><i class="fa fa-exclamation-triangle blink" style="font-size: 1em; color: #CC0000;margin:0 6px 0 0;" aria-hidden="true"></i><b>BILLETS NON COMMANDE</b></h6>
-              <div class="alert_text">Il reste <span class="blink" style="color: #CC0000;"><b>{{notif_number}}</b></span> billets à commandé.</div>
+              <h6><i class="fa fa-exclamation-triangle blink" style="font-size: 1em; color: #CC0000;margin:0 6px 0 0;" aria-hidden="true"></i>
+                <b>{% if notif_number == 1%}  BILLET NON COMMANDE {% else %} BILLETS NON COMMANDES {% endif %} </b>
+              </h6>
+              <div class="alert_text">Il reste <span class="blink" style="color: #CC0000;"><b>{{notif_number}}</b></span> 
+              {% if notif_number == 1%} billet à commander. {% else %} billets à commander{% endif %}</div>
             </div>
           </div>
         {% endif %}

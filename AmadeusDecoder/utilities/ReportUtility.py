@@ -128,10 +128,10 @@ class ReportUtility():
         other_users_mail = FEE_HISTORY_REPORT_CUSTOMER_RECIPIENTS
         
         if len(final_target_history_list) > 0:
-            Sending.send_email(
-                "issoufali.pnr@outlook.com", 
-                mgbi_users_mail + other_users_mail, 
-                # ['famenontsoa@outlook.com'],
-                subject=subject, 
-                body=message
-            )
+            # Sending.send_email(
+            #     "issoufali.pnr@outlook.com", 
+            #     mgbi_users_mail + other_users_mail, 
+            #     # ['famenontsoa@outlook.com'],
+            #     subject=subject, 
+            #     body=message
+            # )

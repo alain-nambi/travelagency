@@ -169,12 +169,12 @@ def control_data_gp_odoo() :
     ]		
     subject = "Contrôle des données Gestion PNR - Odoo"						
 
-    Sending.send_email(
-        "issoufali.pnr@outlook.com",
-        recipients,
-        subject,
-        body
-    )
+    # Sending.send_email(
+    #     "issoufali.pnr@outlook.com",
+    #     recipients,
+    #     subject,
+    #     body
+    # )
             
 
 
@@ -357,11 +357,11 @@ def connect_odoo_db(host, port, database, user, pwd) :
             "nasolo@phidia.onmicrosoft.com"
         ]								
 
-        Sending.send_email_error(
-            "error.issoufali.pnr@outlook.com",
-            recipients,
-            subject,
-            body
-        )
+        # Sending.send_email_error(
+        #     "error.issoufali.pnr@outlook.com",
+        #     recipients,
+        #     subject,
+        #     body
+        # )
 
     return connexion_state

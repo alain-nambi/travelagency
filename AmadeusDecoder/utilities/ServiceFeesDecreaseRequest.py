@@ -335,14 +335,14 @@ class ServiceFeesDecreaseRequest():
             subject, message = self.response_formatter(reduceFeeRequestObj, feeOriginAmount, feeAmount, modified_amount, decrease_status, choice_type, user_responder)
             
             recipient = reduceFeeRequestObj.user.email
-            Sending.send_email_request(
-                FEE_DECREASE_REQUEST_RESPONSE_SENDER[0],
-                [
-                    recipient
-                ] + FEE_DECREASE_REQUEST_RESPONSE_RECIPIENTS,
-                subject,
-                message
-            )
+            # Sending.send_email_request(
+            #     FEE_DECREASE_REQUEST_RESPONSE_SENDER[0],
+            #     [
+            #         recipient
+            #     ] + FEE_DECREASE_REQUEST_RESPONSE_RECIPIENTS,
+            #     subject,
+            #     message
+            # )
         except:
             traceback.print_exc()
         

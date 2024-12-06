@@ -211,12 +211,12 @@ def alert_tjq() :
     ]	
     							
 
-    Sending.send_email(
-        "tjq.issoufali.pnr@outlook.com",
-        recipients,
-        subject,
-        body
-    )
+    # Sending.send_email(
+    #     "tjq.issoufali.pnr@outlook.com",
+    #     recipients,
+    #     subject,
+    #     body
+    # )
         
 
     

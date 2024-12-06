@@ -1492,6 +1492,7 @@ button[cy-data="span-date-range"]:hover {
 
 #pnrManagementMenu {
 	margin-top: 4rem !important;
+	visibility: visible !important;
 }
 
 /* Pour annuler le dropup automatic du selectpicker pour la compagnie dans l'ajout d'avoir compagnie */

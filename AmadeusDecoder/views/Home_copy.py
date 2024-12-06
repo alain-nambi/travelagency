@@ -21,7 +21,6 @@ from AmadeusDecoder.models.invoice.TicketPassengerSegment import OtherFeeSegment
 
 from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.pnr.PnrPassenger import PnrPassenger
-from AmadeusDecoder.models.pnrelements.Airline import Airline
 from AmadeusDecoder.models.user.Users import User, UserCopying
 from AmadeusDecoder.models.invoice.Clients import Client
 from AmadeusDecoder.models.utilities.Comments import Comment, Response
@@ -55,7 +54,7 @@ from ..models.pnr.OptimizedPnrList import OptimisedPnrList
 
 
 @login_required(login_url='index')
-def home(request):
+def home_copy(request):
     def format_date_range(date_range):
         if date_range:
             for fmt in ("%d-%m-%Y", "%Y-%m-%d"):
@@ -171,7 +170,7 @@ def home(request):
     # print(f'Search Query *** {search_query}')
     
     if search_query:
-        filters = Q(number__icontains=search_query) | Q(passengers__icontains=search_query) | \
+        filters &= Q(number__icontains=search_query) | Q(passengers__icontains=search_query) | \
                    Q(agency_office_code__icontains=search_query) | Q(agency_office_name__icontains=search_query) | Q(agency_name__icontains=search_query) | \
                    Q(creator__icontains=search_query) | Q(emitter__icontains=search_query) | \
                    Q(client__icontains=search_query)
@@ -225,7 +224,7 @@ def home(request):
         'search_query': search_query,
     }
 
-    return render(request, 'home.html', context)
+    return render(request, 'home-copy.html', context)
 
 
 @login_required(login_url='index')
@@ -258,9 +257,6 @@ def pnr_details(request, pnr_id):
     context['responses'] = Response.objects.filter(pnr_id=pnr_id)
     context['products'] = Product.objects.all()
     context['raw_data'] = pnr_detail.pnr_data.all().order_by('-data_datetime')
-
-    context['all_company'] = Airline.objects.filter(active='Y')
-
 
     # PNR not invoiced 
     if pnr_detail.status_value == 0:
@@ -458,7 +454,7 @@ def pnr_search_by_pnr_number(request):
                 
                 # Determine if the value length and characteristics match the criteria
                 # -R means refund : to make ability to search refund
-                elif (value_length >= 13 and value.isdigit()) or value_length == 16 or (value_length >= 13 and '-R' in value):
+                if (value_length >= 13 and value.isdigit()) or value_length == 16 or (value_length >= 13 and '-R' in value):
                     # Search for a Ticket with this number
                     ticket = Ticket.objects.filter(
                         number__icontains=value,
@@ -913,8 +909,8 @@ def get_order(request, pnr_id):
     config = Configuration.objects.filter(name='Saving File Tools', value_name='File protocol', environment=settings.ENVIRONMENT)
 
     
-    file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
-    customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
+    file_dir = '/opt/odoo/issoufali-addons/import_saleorder/data/source'
+    customer_dir = '/opt/odoo/issoufali-addons/contacts_from_incadea/data/source'
     
     fieldnames_order = [
         'LineID',
@@ -1100,8 +1096,6 @@ def get_order(request, pnr_id):
                             'OrderNumber': order_invoice_number,
                             'OtherFeeId': '', 
                             'Designation':'',
-                            'HT_details':'',
-                            'Company' :''
                         })
 
                         if len(csv_order_lines) == 0:
@@ -1141,8 +1135,6 @@ def get_order(request, pnr_id):
                                     'OrderNumber': order_invoice_number,
                                     'OtherFeeId': '',
                                     'Designation': '',
-                                    'HT_details':'',
-                                    'Company' :''
                                 })
                                 
                                 if len(csv_order_lines) == 0:
@@ -1175,8 +1167,7 @@ def get_order(request, pnr_id):
                                 'Civility': '',
                                 'PassengerFirstname': '',
                                 'PassengerLastname': '',
-                                'Segments': '',
-                                'HT_details':'',                    
+                                'Segments': '',                      
                                 'DocCurrency': 'EUR',
                                 'Transport': item.cost,
                                 'Tax': item.tax,
@@ -1187,7 +1178,6 @@ def get_order(request, pnr_id):
                                 'OrderNumber': order_invoice_number,
                                 'OtherFeeId': item.id if item is not None else '',
                                 'Designation': item.designation if item is not None else '',
-                                'Company' : item.value.get('company') if item.fee_type == 'AVOIR COMPAGNIE' else '',
                             })
                             
                             if len(csv_order_lines) == 0:
@@ -1226,9 +1216,7 @@ def get_order(request, pnr_id):
                                     'IssueDate': '',
                                     'OrderNumber': order_invoice_number,
                                     'OtherFeeId': item.other_fee.id if item.other_fee is not None else '',
-                                    'Designation': '',
-                                    'HT_details':'',
-                                    'Company' :''
+                                    'Designation': ''
                                 })
                                 
                                 if len(csv_order_lines) == 0:
@@ -1603,12 +1591,11 @@ def import_product(request, pnr_id):
             pnr = Pnr.objects.get(pk=int(pnr_id))
             
             if product[0] == '19':
-                company = Airline.objects.get(pk= product[10])
                 if float(product[3]) > 0:
                     product[3] = -abs(product[3])
                     
                 other_fees = OthersFee(designation=product[7], cost=product[3], total=product[4],
-                                        pnr=pnr, fee_type=product[1],reference=product[6], value={'company': company.iata },
+                                        pnr=pnr, fee_type=product[1],reference=product[6], 
                                         quantity=1, is_subjected_to_fee=False, creation_date=datetime.now(), emitter=emitter)
                 other_fees.save()
                 

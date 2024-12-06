@@ -388,6 +388,7 @@ class EmailListener:
         # Start idling
         self.server.idle()
         print("Connection is now in IDLE mode.")
+        print(f"GET TIME : {get_time()}")
         # Set idle timeout to 15 minutes
         inner_timeout = get_time() + 60
         # Until idle times out
@@ -396,7 +397,7 @@ class EmailListener:
             # Check for a new response every 1 seconds
             try:
                 responses = self.server.idle_check(timeout=1)
-                # print("Server sent:", responses if responses else "nothing")
+                print("Server sent:", responses if responses else "nothing")
                 # If there is a response
                 if (responses):
                     # Suspend the idling
@@ -420,6 +421,7 @@ class EmailListener:
                             zenith_parser.save_data(attachment_list)
                             print('files:', attachment_list)
                     except Exception as e:
+                        self.server.idle()
                         raise e
                     finally:
                         # Restart idling

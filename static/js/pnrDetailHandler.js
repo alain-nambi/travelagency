@@ -662,13 +662,8 @@ document
       if (ProductDropdown.value == 19) {
         selectedSegment = document.querySelector('#multipleSelect').getSelectedOptions();
         company_id = (document.getElementById('avoir-company-id')).value;
-        console.log(selectedSegment);
-        console.log('Montant ---- ',ProductTranspInput.value);
-        console.log('COMPANY ---- ',company_id);
 
-
-        if (ticket.trim() !== "" && parseFloat(ProductTranspInput.value) != 0 && company_id != null) {
-          console.log('SAVING AVOIR COMPANY');
+        if (ticket.trim() !== "" && parseFloat(ProductTranspInput.value) != 0 && company_id.trim() != "") {
 
           listNewProduct.push(
             ProductDropdown.value,
@@ -687,21 +682,24 @@ document
           );
         }
         else if(ticket.trim() == "") {
-          toastr.error('Veuillez entrer un Numéro de billet')
-          document.getElementById('ticket-avoir').style.borderColor = 'red';
+          toastr.error('Veuillez entrer un Numéro de billet.')
+          $('#ticket-avoir').addClass("form is-invalid")
         }
         else if(parseFloat(ProductTranspInput.value) == 0) {
-          toastr.error('Veuillez entrer un Montant supérieur à 0')
+          toastr.error('Veuillez entrer un montant.')
           document.getElementById('transport-input-line').style.borderColor = 'red';
         }
-        else if(company_id == null) {
-          toastr.error('Veuillez choisir une compagnie')
-          document.getElementById('avoir-company-id').style.borderColor = 'red';
+        else if(company_id.trim() == "") {
+          toastr.error('Veuillez choisir une compagnie.')
+          document.getElementById('div-company').style.borderStyle = 'inherit';
+          document.getElementById('div-company').style.borderWidth = '1px';
+          document.getElementById('div-company').style.borderColor = 'red';
         }
+        
       }
       
       // Récupération des informations supplémentaires concernant l'hôtel s'il y en a, dans sessionStorage
-      else if(ProductDropdown.value == 10 && sessionStorage.getItem('hotel_info')){
+      if(ProductDropdown.value == 10 && sessionStorage.getItem('hotel_info')){
           hotel_info = sessionStorage.getItem('hotel_info');
           listNewProduct.push(
             ProductDropdown.value,
@@ -719,7 +717,7 @@ document
       }
 
       // Récupération des informations supplémentaires concernat le taxi s'il y en a, dans sessionStorage
-      else if(ProductDropdown.value == 12 && sessionStorage.getItem('taxi_details')){
+      if(ProductDropdown.value == 12 && sessionStorage.getItem('taxi_details')){
         taxi_details = sessionStorage.getItem('taxi_details');
         listNewProduct.push(
           ProductDropdown.value,
@@ -1299,10 +1297,7 @@ if (count__ticketHaveNoPassenger.length > 0) {
 $('#ticket-avoir').hide();
 $('#select_Passenger').hide();
 $('#multipleSelect').hide();
-
-
-
-
+$('#avoir-company-id').hide();
 
 $('#SelectProduct').on('change', function(){
   select_product = $('#SelectProduct').val();
@@ -1312,20 +1307,23 @@ $('#SelectProduct').on('change', function(){
     $('#taxe-input-line').hide();
     $('#ticket-avoir').show();
     $('#passenger_segment').hide();
-
     document.getElementById('div-company').hidden = false;
+
 
     const parent = document.getElementById("select_Passenger");
     const child = document.getElementById("child_passenger");
 
     const parent_passenger_segment = document.getElementById("multipleSelect");
     const child_passenger_segment = document.getElementById("child_passenger_segment");
+
+
     if (child) {
       parent.removeChild(child);
     }
     if (child_passenger_segment) {
       parent_passenger_segment.removeChild(child_passenger_segment);
     }
+
     var pnr_id = $('#pnr_id').data('id');
     console.log(pnr_id);
     $.ajax({
@@ -1343,6 +1341,13 @@ $('#SelectProduct').on('change', function(){
           $('#select_Passenger').show();
           parent.innerHTML = ''
 
+          const defaultOption = document.createElement("option");
+          defaultOption.value = "";
+          defaultOption.textContent = "Passager";
+          defaultOption.disabled = true;
+          defaultOption.selected = true;
+          parent.append(defaultOption);
+
           passengers.map((passenger) => {
             const newOption = document.createElement("option");
             newOption.id = "child_passenger";
@@ -1358,6 +1363,27 @@ $('#SelectProduct').on('change', function(){
             }
             parent.append(newOption);
           });
+
+          const validatePassenger = (isValid) => {
+            if (isValid) {
+              $("#select_Passenger").attr("style", "border: 1px solid green")
+              $("#select_Passenger").removeClass("border border-primary")
+            } else {
+              $("#select_Passenger").removeAttr("style", "border: 1px solid green")
+              $("#select_Passenger").addClass("border border-primary")
+            }
+          } 
+          
+          const passengerSelection = document.querySelector('#select_Passenger')
+          $("#select_Passenger").on("change", () => {
+            if (passengerSelection.value.length > 0) {
+              console.log(true);
+              validatePassenger(true)
+            } else {
+              console.log(false);
+              validatePassenger(false)
+            }
+          })
         } 
         let segments = data.context.segments;
         parent_passenger_segment.innerHTML = '';
@@ -1378,18 +1404,13 @@ $('#SelectProduct').on('change', function(){
 
           document.querySelector('#multipleSelect').setOptions(myOptions);
 
-          // $('#multipleSelect').on('change', function(){
-          //   selectedValues= document.querySelector('#multipleSelect').getSelectedOptions();
-          //   console.log(selectedValues);
-          // });
-
           const validatePassengerSegment = (isValid) => {
             if (isValid) {
               $("#multipleSelect").attr("style", "border: 1px solid green")
-              $("#multipleSelect").removeClass("border border-danger")
+              $("#multipleSelect").removeClass("border border-primary")
             } else {
               $("#multipleSelect").removeAttr("style", "border: 1px solid green")
-              $("#multipleSelect").addClass("border border-danger")
+              $("#multipleSelect").addClass("border border-primary")
             }
           } 
           
@@ -1406,6 +1427,8 @@ $('#SelectProduct').on('change', function(){
           
 
         }
+
+        
       }
     });
 
@@ -1467,9 +1490,17 @@ $(document).ready(function () {
           $(this).val(sanitizedValue);
         }
       }
-
+      
+      document.getElementById('transport-input-line').style.borderColor = 'green';
     }
   });
+
+  $('#avoir-company-id').on('change', function () {
+    document.getElementById('div-company').style.borderStyle = 'inherit';
+    document.getElementById('div-company').style.borderWidth = '1px';
+    document.getElementById('div-company').style.borderColor = 'green';
+  });
+
 });
 
 // Afficher le modal de confirmation de suppression de ticket non commandé

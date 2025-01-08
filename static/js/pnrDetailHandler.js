@@ -660,7 +660,10 @@ document
       console.log(ProductDropdown.value);
 
       if (ProductDropdown.value == 19) {
-        selectedSegment = document.querySelector('#multipleSelect').getSelectedOptions();
+        if(document.querySelector('#multipleSelect')){
+          var selectedSegment = document.querySelector('#multipleSelect').getSelectedOptions();
+        }
+        
         company_id = (document.getElementById('avoir-company-id')).value;
 
         if (ticket.trim() !== "" && parseFloat(ProductTranspInput.value) != 0 && company_id.trim() != "") {

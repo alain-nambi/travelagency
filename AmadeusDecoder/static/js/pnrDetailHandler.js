@@ -661,7 +661,8 @@ document
 
       if (ProductDropdown.value == 19) {
         if(document.querySelector('#multipleSelect').hidden == false){
-          var selectedSegment = document.querySelector('#multipleSelect').getSelectedOptions();
+          var selectElement = document.querySelector('#multipleSelect');
+          var selectedSegment = Array.from(selectElement.selectedOptions).map(option => option.value);
         }
         company_id = (document.getElementById('avoir-company-id')).value;
 

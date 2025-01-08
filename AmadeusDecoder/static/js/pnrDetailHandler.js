@@ -660,7 +660,7 @@ document
       console.log(ProductDropdown.value);
 
       if (ProductDropdown.value == 19) {
-        if(document.querySelector('#multipleSelect')){
+        if(document.querySelector('#multipleSelect').hidden == false){
           var selectedSegment = document.querySelector('#multipleSelect').getSelectedOptions();
         }
         company_id = (document.getElementById('avoir-company-id')).value;

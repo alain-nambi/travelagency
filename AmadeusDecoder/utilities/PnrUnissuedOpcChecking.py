@@ -62,17 +62,17 @@ def notify_user(opc) :
             """.format(passengers=passengers_name,doc_type=doc_type,doc_value=doc_value, pnr=pnr.number, date_limite=date_limite,username=username,contact_value=contact_value)
 
     user_mail = pnr.agent.email if pnr.agent else ''
-    Sending.send_email(
-        "issoufali.pnr@outlook.com",
-        [
-            user_mail,
-            "tahina@phidia.onmicrosoft.com",
-            "pp@phidia.onmicrosoft.com",
-            "maphiesarobidy@outlook.fr",
-        ],
-        subject,
-        message
-    )
+    # Sending.send_email(
+    #     "issoufali.pnr@outlook.com",
+    #     [
+    #         user_mail,
+    #         "tahina@phidia.onmicrosoft.com",
+    #         "pp@phidia.onmicrosoft.com",
+    #         "maphiesarobidy@outlook.fr",
+    #     ],
+    #     subject,
+    #     message
+    # )
         
 
     

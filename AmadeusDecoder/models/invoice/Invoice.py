@@ -49,11 +49,7 @@ class InvoicesCanceled(models.Model, BaseModel):
         related_name = 'pnr_unordered',
     )
     
-    user = models.ForeignKey(
-        'AmadeusDecoder.User',
-        on_delete=models.CASCADE,
-        related_name = 'user',
-    )
+    user = models.IntegerField(null=True)
     
     invoice_number = models.CharField(max_length=100,null=False )
     date = models.DateTimeField(auto_now_add=True , null=False)

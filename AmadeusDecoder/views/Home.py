@@ -1791,15 +1791,25 @@ def unorder_pnr(request):
         pnr_number = request.POST.get('pnr_number')
         invoice_number = request.POST.get('invoice_number')
         motif_id = request.POST.get('motif')
-        motif = MotifPnr.objects.get(pk=motif_id)
         user_id = request.POST.get('user_id')
+        motif_odoo = request.POST.get('motif_odoo')
+        print(motif_id)
+        motif = None
+        if motif_id is not None:
+            motif = MotifPnr.objects.get(pk=motif_id)
         
-        if motif is None:
-            return JsonResponse({'message': 'Veuillez ajouter un motif'})
+        print('**************** UNORDER PNR **************************')
+        print(pnr_number)
+        print(invoice_number)
+        print(motif_odoo)
+        if motif : 
+            print(motif)
+        print(user_id)
 
         
         pnr = Pnr.objects.get(number=pnr_number)
         passenger_invoices = PassengerInvoice.objects.filter(pnr_id=pnr.id, invoice_number=invoice_number).all()
+        invoices_canceled = None
         
         if passenger_invoices:
             for passenger_invoice in passenger_invoices:
@@ -1820,7 +1830,12 @@ def unorder_pnr(request):
 
                 if passenger_invoice.ticket_id or passenger_invoice.other_fee_id or passenger_invoice.fee_id:
                     # save in the InvoicesCanceled
-                    invoices_canceled = InvoicesCanceled(pnr_id=pnr.id,invoice_number=invoice_number,motif_id=motif,ticket_id=passenger_invoice.ticket_id, other_fee_id = passenger_invoice.other_fee_id,user_id=user_id) 
+                    if motif is None:
+                        print("Motif is None")
+                        invoices_canceled = InvoicesCanceled(pnr_id=pnr.id,invoice_number=invoice_number,ticket_id=passenger_invoice.ticket_id, other_fee_id = passenger_invoice.other_fee_id,motif_odoo=motif_odoo) 
+                    else:
+                        print("Motif is not None")
+                        invoices_canceled = InvoicesCanceled(pnr_id=pnr.id,invoice_number=invoice_number,motif_id=motif,ticket_id=passenger_invoice.ticket_id, other_fee_id = passenger_invoice.other_fee_id,user_id= user_id) 
                     invoices_canceled.save()
                 
         

@@ -351,22 +351,12 @@ def get_passenger_is_invoiced_in_passenger_invoice(pnr):
 def get_is_one_or_more_passenger_is_invoiced(pnr):
     from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
     passenger_invoices = PassengerInvoice.objects.filter(pnr=pnr.id).exclude(status="quotation")
-    print('------------------- get_is_one_or_more_passenger_is_invoiced -----------------------')
     print(passenger_invoices)
     if not passenger_invoices.exists():
-        print('------- NONE ----------------')
         return None
 
     for passenger in passenger_invoices:
-        if (
-            (passenger.ticket and passenger.ticket.ticket_status == 1)
-            or (passenger.other_fee and passenger.other_fee.other_fee_status == 1)
-            or (passenger.fee and passenger.fee.ticket and passenger.fee.ticket.ticket_status == 1)
-            or (passenger.fee and passenger.fee.other_fee and passenger.fee.other_fee.other_fee_status == 1)
-        ):
-            if passenger.is_invoiced:
-                print('------- TRUE ----------------')
-
+        if passenger.is_invoiced:
                 return True
 
     return False

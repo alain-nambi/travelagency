@@ -345,50 +345,50 @@ class EmailListener:
         delete = bool(kwargs.get('delete'))
 
         # Start idling
-        self.server.idle()
-        print("Connection is now in IDLE mode.")
-        # Set idle timeout to 15 minutes
-        inner_timeout = get_time() + 60
-        # Until idle times out
-        # while True:
-        while (get_time() < inner_timeout):
-            # Check for a new response every 1 seconds
-            try:
-                responses = self.server.idle_check(timeout=1)
-                print("Server sent:", responses if responses else "nothing")
-                # If there is a response
-                if (responses):
-                    # Suspend the idling
-                    self.server.idle_done()
-                    try:
-                        # Process the new emails
-                        msgs, folder = self.scrape(move=move, unread=unread, delete=delete)
-                        # Run the process function
-                        file_list, attachment_list = process_func(msgs, folder)
-                        if len(attachment_list) == 0:
-                            from AmadeusDecoder.utilities.AmadeusParser import AmadeusParser
-                            amadeus_parser = AmadeusParser()
-                            amadeus_parser.save_data(file_list)
-                        else:
-                            from AmadeusDecoder.utilities.ZenithParser import ZenithParser
-                            zenith_parser = ZenithParser()
-                            zenith_parser.save_data(attachment_list)
-                            print('files:', attachment_list)
-                    except Exception as e:
-                        raise e
-                    finally:
-                        # Restart idling
-                        self.server.idle()
-            except Exception as e:
-                traceback.print_exc()
-                error_path = os.path.join(os.getcwd(), 'error.txt')
-                with open(error_path, 'a') as error_file:
-                    error_file.write('{}: \n'.format(datetime.datetime.now()))
-                    traceback.print_exc(file=error_file)
-                    error_file.write('\n')
-                traceback.print_exc()
-        # Stop idling
-        self.server.idle_done()
+        # self.server.idle()
+        # print("Connection is now in IDLE mode.")
+        # # Set idle timeout to 15 minutes
+        # inner_timeout = get_time() + 60
+        # # Until idle times out
+        # # while True:
+        # while (get_time() < inner_timeout):
+        #     # Check for a new response every 1 seconds
+        #     try:
+        #         responses = self.server.idle_check(timeout=1)
+        #         print("Server sent:", responses if responses else "nothing")
+        #         # If there is a response
+        #         if (responses):
+        #             # Suspend the idling
+        #             self.server.idle_done()
+        #             try:
+        #                 # Process the new emails
+        #                 msgs, folder = self.scrape(move=move, unread=unread, delete=delete)
+        #                 # Run the process function
+        #                 file_list, attachment_list = process_func(msgs, folder)
+        #                 if len(attachment_list) == 0:
+        #                     from AmadeusDecoder.utilities.AmadeusParser import AmadeusParser
+        #                     amadeus_parser = AmadeusParser()
+        #                     amadeus_parser.save_data(file_list)
+        #                 else:
+        #                     from AmadeusDecoder.utilities.ZenithParser import ZenithParser
+        #                     zenith_parser = ZenithParser()
+        #                     zenith_parser.save_data(attachment_list)
+        #                     print('files:', attachment_list)
+        #             except Exception as e:
+        #                 raise e
+        #             finally:
+        #                 # Restart idling
+        #                 self.server.idle()
+        #     except Exception as e:
+        #         traceback.print_exc()
+        #         error_path = os.path.join(os.getcwd(), 'error.txt')
+        #         with open(error_path, 'a') as error_file:
+        #             error_file.write('{}: \n'.format(datetime.datetime.now()))
+        #             traceback.print_exc(file=error_file)
+        #             error_file.write('\n')
+        #         traceback.print_exc()
+        # # Stop idling
+        # self.server.idle_done()
         return
 
     def listen(self, process_func=write_txt_file, **kwargs):

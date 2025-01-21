@@ -46,10 +46,15 @@ class InvoicesCanceled(models.Model, BaseModel):
     pnr = models.ForeignKey(
         "AmadeusDecoder.Pnr",
         on_delete = models.CASCADE,
-        related_name = 'pnr_unordered',
+        related_name = 'pnr_unordered'
     )
     
-    user = models.IntegerField(null=True)
+    user = models.ForeignKey(
+        'AmadeusDecoder.User',
+        on_delete=models.CASCADE,
+        related_name = 'user',
+        null= True
+    )
     
     invoice_number = models.CharField(max_length=100,null=False )
     date = models.DateTimeField(auto_now_add=True , null=False)
@@ -68,7 +73,8 @@ class InvoicesCanceled(models.Model, BaseModel):
         null=True, 
         related_name='pnr_unordered_other_fees',
     )
-    motif_id = models.ForeignKey("AmadeusDecoder.MotifPnr", on_delete = models.CASCADE, related_name='motif_pnr', default=1)
+    motif_id = models.ForeignKey("AmadeusDecoder.MotifPnr", on_delete = models.CASCADE, related_name='motif_pnr', null=True)
+    motif_odoo = models.CharField(max_length=200, null=True)
 
 class MotifPnr(models.Model):
     # motif pour décommander un PNR

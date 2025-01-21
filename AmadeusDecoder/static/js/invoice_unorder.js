@@ -80,6 +80,7 @@ function saveInvoiceCanceled(pnr_number,invoice_number,motif,user_id,designation
           invoice_number: invoice_number,
           motif: motif,
           user_id: user_id,
+          motif_odoo: null,
           csrfmiddlewaretoken: csrftoken,
       },
       success: (response) => {

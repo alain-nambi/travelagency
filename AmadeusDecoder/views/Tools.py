@@ -64,8 +64,6 @@ def get_invoice_number(request,numeroPnr):
     unique_invoice_numbers = PassengerInvoice.objects.filter(
         pnr_id=pnr.id,
         is_invoiced=True
-    ).filter(
-        Q(ticket__ticket_status=1) | Q(other_fee__other_fee_status=1)
     ).values_list('invoice_number', flat=True).distinct()
 
     # Récupérer les motifs uniques

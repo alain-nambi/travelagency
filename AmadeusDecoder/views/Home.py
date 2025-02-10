@@ -1813,10 +1813,36 @@ def unorder_pnr(request):
         
         if passenger_invoices:
             for passenger_invoice in passenger_invoices:
+                data = {
+                        "Client": {
+                            "id":  passenger_invoice.client.id,
+                            "nom": passenger_invoice.client.intitule,
+                            "email": passenger_invoice.client.email,
+                            "télephone": passenger_invoice.client.telephone,
+                            "adresse": passenger_invoice.client.address_1,
+                            "pays":passenger_invoice.client.city,
+                            "departement": passenger_invoice.client.departement,
+                            "code postal" : passenger_invoice.client.code_postal
+                        }
+                    }
                 # delete the corresponding passenger invoice if it exist
                 PassengerInvoice.objects.filter(id=passenger_invoice.id).delete()
                 
                 if passenger_invoice.ticket_id:
+                    fee = Fee.objects.get(ticket_id=passenger_invoice.ticket_id)
+                    data["Ticket"] = {
+                        "numero" : passenger_invoice.ticket_id,
+                        "passenger": passenger_invoice.ticket.passenger_id,
+                        "tarif_ht": float(passenger_invoice.ticket.transport_cost),
+                        "tax" : float(passenger_invoice.ticket.tax),
+                        "total": float(passenger_invoice.ticket.total)
+                    }
+                    data["Fee"] = {
+                        "ticket": fee.ticket_id if fee.ticket_id else fee.other_fee_id,
+                        "tarif" : float(fee.cost),
+                        "newest_cost" : float(fee.newest_cost),
+                        "old_cost" : float(fee.old_cost),
+                    }
                     #  delete the corresponding ticket if it exist
                     Ticket.objects.filter(id=passenger_invoice.ticket_id).update(is_invoiced=False)
                 
@@ -1825,20 +1851,36 @@ def unorder_pnr(request):
                     Fee.objects.filter(id=passenger_invoice.fee_id).update(is_invoiced=False)
                     
                 if passenger_invoice.other_fee_id:
+                    other_fee = Fee.objects.get(other_fee_id=passenger_invoice.other_fee_id)
+                    other_fee_segment = OtherFeeSegment.objects.get(other_fee_id=other_fee.id)
+                    data["Other_fee"]={
+                        "numero" : passenger_invoice.other_fee_id,
+                        "passenger": other_fee_segment.passenger_id,
+                        "tarif_ht": float(passenger_invoice.other_fee.cost),
+                        "tax" : float(passenger_invoice.other_fee.tax),
+                        "total": float(passenger_invoice.other_fee.total)
+                    }
+                    data["Fee"] = {
+                        "ticket": other_fee.ticket_id if other_fee.ticket_id else other_fee.other_fee_id,
+                        "tarif" : float(other_fee.cost),
+                        "newest_cost" : float(other_fee.newest_cost),
+                        "old_cost" : float(other_fee.old_cost),
+                    }
                     # delete the corresponding other fee if it exist
                     OthersFee.objects.filter(id=passenger_invoice.other_fee_id).update(is_invoiced=False)
 
-                if passenger_invoice.ticket_id or passenger_invoice.other_fee_id or passenger_invoice.fee_id:
+                if passenger_invoice.ticket_id or passenger_invoice.other_fee_id:
+
                     # save in the InvoicesCanceled
                     if motif is None:
                         print("Motif is None")
-                        invoices_canceled = InvoicesCanceled(pnr_id=pnr.id,invoice_number=invoice_number,ticket_id=passenger_invoice.ticket_id, other_fee_id = passenger_invoice.other_fee_id,motif_odoo=motif_odoo) 
+                        invoices_canceled = InvoicesCanceled(pnr_id=pnr.id,invoice_number=invoice_number,ticket_id=passenger_invoice.ticket_id, other_fee_id = passenger_invoice.other_fee_id,motif_odoo=motif_odoo,last_info=data) 
                     else:
                         print("Motif is not None")
-                        invoices_canceled = InvoicesCanceled(pnr_id=pnr.id,invoice_number=invoice_number,motif_id=motif,ticket_id=passenger_invoice.ticket_id, other_fee_id = passenger_invoice.other_fee_id,user_id= user_id) 
+                        invoices_canceled = InvoicesCanceled(pnr_id=pnr.id,invoice_number=invoice_number,motif_id=motif,ticket_id=passenger_invoice.ticket_id, other_fee_id = passenger_invoice.other_fee_id,user_id= user_id,last_info=data) 
+                        
                     invoices_canceled.save()
-                
-        
+ 
         return JsonResponse({'status':'ok'})
     return JsonResponse({'status':'error'})
 

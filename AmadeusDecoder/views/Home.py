@@ -1829,7 +1829,7 @@ def unorder_pnr(request):
                 PassengerInvoice.objects.filter(id=passenger_invoice.id).delete()
                 
                 if passenger_invoice.ticket_id:
-                    fee = Fee.objects.filter(ticket_id=passenger_invoice.ticket_id)
+                    fee = Fee.objects.get(ticket_id=passenger_invoice.ticket_id)
                     data["Ticket"] = {
                         "numero" : passenger_invoice.ticket_id,
                         "passenger": passenger_invoice.ticket.passenger_id,
@@ -1852,7 +1852,7 @@ def unorder_pnr(request):
                     Fee.objects.filter(id=passenger_invoice.fee_id).update(is_invoiced=False)
                     
                 if passenger_invoice.other_fee_id:
-                    other_fee = Fee.objects.filter(other_fee_id=passenger_invoice.other_fee_id)
+                    other_fee = Fee.objects.get(other_fee_id=passenger_invoice.other_fee_id)
                     other_fee_segment = OtherFeeSegment.objects.get(other_fee_id=other_fee.id)
                     data["Other_fee"]={
                         "numero" : passenger_invoice.other_fee_id,

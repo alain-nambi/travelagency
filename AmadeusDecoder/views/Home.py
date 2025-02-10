@@ -1839,7 +1839,7 @@ def unorder_pnr(request):
                     }
                     if fee:
                         data["Fee"] = {
-                            "ticket": fee.ticket_id if fee.ticket_id else fee.other_fee_id,
+                            "ticket":fee.ticket_id,
                             "tarif" : float(fee.cost),
                             "newest_cost" : float(fee.newest_cost),
                             "old_cost" : float(fee.old_cost),   
@@ -1863,7 +1863,7 @@ def unorder_pnr(request):
                     }
                     if other_fee:
                         data["Fee"] = {
-                            "ticket": other_fee.ticket_id if other_fee.ticket_id else other_fee.other_fee_id,
+                            "ticket": other_fee.ticket_id,
                             "tarif" : float(other_fee.cost),
                             "newest_cost" : float(other_fee.newest_cost),
                             "old_cost" : float(other_fee.old_cost),

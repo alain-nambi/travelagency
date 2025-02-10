@@ -1829,7 +1829,7 @@ def unorder_pnr(request):
                 PassengerInvoice.objects.filter(id=passenger_invoice.id).delete()
                 
                 if passenger_invoice.ticket_id:
-                    fee = Fee.objects.get(ticket_id=passenger_invoice.ticket_id)
+                    fee = Fee.objects.filter(ticket_id=passenger_invoice.ticket_id)
                     data["Ticket"] = {
                         "numero" : passenger_invoice.ticket_id,
                         "passenger": passenger_invoice.ticket.passenger_id,
@@ -1837,12 +1837,13 @@ def unorder_pnr(request):
                         "tax" : float(passenger_invoice.ticket.tax),
                         "total": float(passenger_invoice.ticket.total)
                     }
-                    data["Fee"] = {
-                        "ticket": fee.ticket_id if fee.ticket_id else fee.other_fee_id,
-                        "tarif" : float(fee.cost),
-                        "newest_cost" : float(fee.newest_cost),
-                        "old_cost" : float(fee.old_cost),
-                    }
+                    if fee:
+                        data["Fee"] = {
+                            "ticket": fee.ticket_id if fee.ticket_id else fee.other_fee_id,
+                            "tarif" : float(fee.cost),
+                            "newest_cost" : float(fee.newest_cost),
+                            "old_cost" : float(fee.old_cost),   
+                        }
                     #  delete the corresponding ticket if it exist
                     Ticket.objects.filter(id=passenger_invoice.ticket_id).update(is_invoiced=False)
                 
@@ -1851,7 +1852,7 @@ def unorder_pnr(request):
                     Fee.objects.filter(id=passenger_invoice.fee_id).update(is_invoiced=False)
                     
                 if passenger_invoice.other_fee_id:
-                    other_fee = Fee.objects.get(other_fee_id=passenger_invoice.other_fee_id)
+                    other_fee = Fee.objects.filter(other_fee_id=passenger_invoice.other_fee_id)
                     other_fee_segment = OtherFeeSegment.objects.get(other_fee_id=other_fee.id)
                     data["Other_fee"]={
                         "numero" : passenger_invoice.other_fee_id,
@@ -1860,12 +1861,13 @@ def unorder_pnr(request):
                         "tax" : float(passenger_invoice.other_fee.tax),
                         "total": float(passenger_invoice.other_fee.total)
                     }
-                    data["Fee"] = {
-                        "ticket": other_fee.ticket_id if other_fee.ticket_id else other_fee.other_fee_id,
-                        "tarif" : float(other_fee.cost),
-                        "newest_cost" : float(other_fee.newest_cost),
-                        "old_cost" : float(other_fee.old_cost),
-                    }
+                    if other_fee:
+                        data["Fee"] = {
+                            "ticket": other_fee.ticket_id if other_fee.ticket_id else other_fee.other_fee_id,
+                            "tarif" : float(other_fee.cost),
+                            "newest_cost" : float(other_fee.newest_cost),
+                            "old_cost" : float(other_fee.old_cost),
+                        }
                     # delete the corresponding other fee if it exist
                     OthersFee.objects.filter(id=passenger_invoice.other_fee_id).update(is_invoiced=False)
 

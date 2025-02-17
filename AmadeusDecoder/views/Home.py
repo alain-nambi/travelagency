@@ -1797,28 +1797,24 @@ def unorder_pnr(request):
         motif = None
         if motif_id is not None:
             motif = MotifPnr.objects.get(pk=motif_id)
-        
-        print('**************** UNORDER PNR **************************')
-        print(pnr_number)
-        print(invoice_number)
-        print(motif_odoo)
-        if motif : 
-            print(motif)
-        print(user_id)
-
+    
         
         pnr = Pnr.objects.get(number=pnr_number)
         passenger_invoices = PassengerInvoice.objects.filter(pnr_id=pnr.id, invoice_number=invoice_number).all()
         invoices_canceled = None
+        passenger_set = set()
+        pnr_passengers = PnrPassenger.objects.filter(pnr_id= pnr.id)
+        for pnr_passenger in pnr_passengers:
+            passenger_set.add(str(pnr_passenger.passenger.designation or "") + " " + str(pnr_passenger.passenger.name or "") +" "+ str(pnr_passenger.passenger.surname or ""))
         
         if passenger_invoices:
             for passenger_invoice in passenger_invoices:
                 data = {
-                        "Client": {
+                        "Client": { 
                             "id":  passenger_invoice.client.id,
                             "nom": passenger_invoice.client.intitule,
                             "email": passenger_invoice.client.email,
-                            "télephone": passenger_invoice.client.telephone,
+                            "telephone": passenger_invoice.client.telephone,
                             "adresse": passenger_invoice.client.address_1,
                             "pays":passenger_invoice.client.city,
                             "departement": passenger_invoice.client.departement,
@@ -1830,12 +1826,18 @@ def unorder_pnr(request):
                 
                 if passenger_invoice.ticket_id:
                     fee = Fee.objects.get(ticket_id=passenger_invoice.ticket_id)
+                    passager = Passenger.objects.get(id=passenger_invoice.ticket.passenger_id)
                     data["Ticket"] = {
-                        "numero" : passenger_invoice.ticket_id,
+                        "id":passenger_invoice.ticket_id,
+                        "type": passenger_invoice.ticket.ticket_type,
+                        "numero": passenger_invoice.ticket.number,
+                        "emission": passenger_invoice.ticket.issuing_date.strftime("%Y-%m-%d"),
                         "passenger": passenger_invoice.ticket.passenger_id,
+                        "passenger_name" : f"{getattr(passager, 'name', '') or ''} " f"{getattr(passager, 'surname', '') or ''}".strip() ,
                         "tarif_ht": float(passenger_invoice.ticket.transport_cost),
                         "tax" : float(passenger_invoice.ticket.tax),
-                        "total": float(passenger_invoice.ticket.total)
+                        "total": float(passenger_invoice.ticket.total),
+                        "emitter": passenger_invoice.ticket.emitter.username if passenger_invoice.ticket.emitter else ""
                     }
                     if fee:
                         data["Fee"] = {
@@ -1853,23 +1855,34 @@ def unorder_pnr(request):
                     
                 if passenger_invoice.other_fee_id:
                     other_fee = Fee.objects.get(other_fee_id=passenger_invoice.other_fee_id)
-                    other_fee_segment = OtherFeeSegment.objects.get(other_fee_id=other_fee.id)
+                    print("other_fee : ", other_fee)
+                    other_fee_segment = OtherFeeSegment.objects.filter(other_fee__id=passenger_invoice.other_fee_id)
+                    other_fee_segment = other_fee_segment.first()
+                    
+                    print("other_fee_segment : ", other_fee_segment)
                     data["Other_fee"]={
-                        "numero" : passenger_invoice.other_fee_id,
-                        "passenger": other_fee_segment.passenger_id,
+                        "id" : passenger_invoice.other_fee_id,
+                        "type": passenger_invoice.other_fee.fee_type,
+                        "designation": passenger_invoice.other_fee.designation,
+                        "emission": passenger_invoice.other_fee.creation_date.strftime("%Y-%m-%d"),
+                        "passenger": getattr(other_fee_segment, "passenger_id", ""),
+                        "passenger_name": f"{getattr(other_fee_segment.passenger, 'name', '') or ''} " f"{getattr(other_fee_segment.passenger, 'surname', '') or ''}".strip() if other_fee_segment else "",
                         "tarif_ht": float(passenger_invoice.other_fee.cost),
                         "tax" : float(passenger_invoice.other_fee.tax),
-                        "total": float(passenger_invoice.other_fee.total)
+                        "total": float(passenger_invoice.other_fee.total),
+                        "emitter": passenger_invoice.other_fee.emitter.username if passenger_invoice.other_fee.emitter else ""
                     }
                     if other_fee:
                         data["Fee"] = {
-                            "ticket": other_fee.ticket_id,
+                            "ticket": other_fee.other_fee_id,
                             "tarif" : float(other_fee.cost),
                             "newest_cost" : float(other_fee.newest_cost),
                             "old_cost" : float(other_fee.old_cost),
                         }
                     # delete the corresponding other fee if it exist
                     OthersFee.objects.filter(id=passenger_invoice.other_fee_id).update(is_invoiced=False)
+
+                data["passagers"] = list(passenger_set)
 
                 if passenger_invoice.ticket_id or passenger_invoice.other_fee_id:
 
@@ -1882,7 +1895,7 @@ def unorder_pnr(request):
                         invoices_canceled = InvoicesCanceled(pnr_id=pnr.id,invoice_number=invoice_number,motif_id=motif,ticket_id=passenger_invoice.ticket_id, other_fee_id = passenger_invoice.other_fee_id,user_id= user_id,last_info=data) 
                         
                     invoices_canceled.save()
- 
+
         return JsonResponse({'status':'ok'})
     return JsonResponse({'status':'error'})
 

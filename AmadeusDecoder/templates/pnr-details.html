@@ -634,8 +634,13 @@
 									{% with pnr|order_amount_total as order_amount_total %}
 									<strong class="text-primary mr-4"><u>Montant total:</u> <span id="pnr-amount-total" data-amount-total="{{ order_amount_total|floatformat:'2' }}">{{ order_amount_total|floatformat:'2' }}</span></strong>
 									{% endwith %}
-									<a class="text-success" href="" data-toggle="modal"
+									<a class="text-success mr-4" href="" data-toggle="modal"
 										data-target="#modal-information">Autres informations</a>
+									{% with pnr.id|check_uninvoicing as check_uninvoice %}
+										{% if check_uninvoice %}<a class="text-success" href="" data-toggle="modal"
+										data-target="#modal-historique">Historique </a>{% endif %}
+									{% endwith %}
+									
 								</div>
 								<div class="table-responsive">
 									<table
@@ -2412,6 +2417,168 @@
 				<button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
 				<button type="button" class="btn btn-danger" id="deletTicketModalConfirmation" data-dismiss="modal">Confirmer
 				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!--modal historique des modifications-->
+<div class="modal fade" id="modal-historique" style="display: none;" aria-hidden="true">
+	<div class="modal-dialog modal-xl modal-dialog-scrollable">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Historique des modifications</h4>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">×</span>
+				</button>
+			</div>
+			{% with pnr.id|get_last_info as last_info %}
+				
+				{% for invoice in last_info %}
+					<div class="modal-body s">
+						<div class="row">
+							<div class="col-md-12 px-2">
+								<h6> <span class="text-primary">Date d'annulation:</span><span class="text-dark"> {{invoice.cancel_date}}</span></h6>
+								<h6> <span class="text-primary">Date de commande: </span><span class="text-dark"></span></h6>
+								<h6> <span class="text-primary">Numéro de commande: </span><span class="text-dark">{{invoice.number}}</span></h6>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-12 px-2">
+								<h6 class="text-primary">Client</h6>
+								<div class="table-responsive">
+									<table
+										class="table table-bordered table-head-fixed text-nowrap">
+										<thead class="bg-info">
+											<tr>
+												<th width="20%">Nom</gnth>
+												<th width="20%">Email</th>
+												<th width="20%">Adresse</th>
+												<th width="20%">Téléphone</th>
+												
+											</tr>
+										</thead>
+										<tbody>
+											{% with invoice.client|json_loads as client %}
+												<tr>
+													<td>{{ client.nom }}</td>
+													<td>{{ client.email}}</td>
+													<td>{{ client.adresse}}</td>
+													<td>{{ client.telephone}}</td>
+													
+												</tr>
+											{% endwith %}
+											
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col-md-12 px-2">
+								<h6 class="text-primary">Passager(s)</h6>
+								{% with invoice.passengers|json_loads as passengers %}
+									<div class="row">
+										{% for passenger in passengers %}
+											<div class="col-md-4">{{passenger}}</div>
+										{% endfor %}
+									</div>
+								{% endwith %}
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-12 px-2">
+								<h6 class="text-primary">Billets</h6>
+								<div class="table-responsive">
+									<table class="table table-bordered table-head-fixed text-nowrap">
+										<thead class="bg-info">
+											<tr>
+												<th width="5%">Type</th>
+												<th width="10%">Article</th>
+												<th width="20%">Passager</th>
+												<th width="5%">Transport</th>
+												<th width="5%">Taxe</th>
+												<th width="5%">Total</th>
+												<th width="10%">Date d'émission</th>
+												<th width="5%">Emetteur</th>
+
+											</tr>
+										</thead>
+										<tbody>
+											{% if invoice.tickets %}
+												{% for ticket in invoice.tickets %}
+													<tr>
+														<td>{{ticket.type}}</td>
+														<td>{{ ticket.numero}}</td>
+														<td>{{ ticket.passenger_name }}</td>
+														<td>{{ticket.tarif_ht}}</td>
+														<td>{{ticket.tax}}</td>
+														<td>{{ticket.total}}</td>
+														<td>{{ticket.emission}}</td>
+														<td></td>
+													</tr>
+													{% for fee in invoice.fees %}
+														{% if fee.ticket == ticket.id %}
+															<tr>
+																<td>Fee</td>
+																<td>FRAIS DE SERVICE</td>
+																<td></td>
+																<td>{{fee.tarif}}</td>
+																<td></td>
+																<td>{{fee.tarif}}</td>
+																<td>{{ticket.emission}}</td>
+																<td></td>
+															</tr>
+														{% endif %}
+													{% endfor %}
+												{% endfor %}
+
+											{% endif %}
+
+											{% if invoice.other_fees %}
+												{% for other_fee in invoice.other_fees %}
+													<tr>
+														<td>{{other_fee.type}}</td>
+														<td>{{ other_fee.designation}}</td>
+														<td>{{ other_fee.passenger_name }}</td>
+														<td>{{other_fee.tarif_ht}}</td>
+														<td>{{other_fee.tax}}</td>
+														<td>{{other_fee.total}}</td>
+														<td>{{other_fee.emission}}</td>
+														<td></td>
+													</tr>
+													{% for fee in invoice.fees %}
+														{% if fee.ticket == other_fee.id %}
+															<tr>
+																<td>Fee</td>
+																<td>FRAIS DE SERVICE</td>
+																<td></td>
+																<td>{{fee.tarif}}</td>
+																<td></td>
+																<td>{{fee.tarif}}</td>
+																<td>{{other_fee.emission}}</td>
+																<td></td>
+															</tr>
+														{% endif %}
+													{% endfor %}
+												{% endfor %}
+
+											{% endif %}
+											
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+						
+					</div>
+				{% endfor %}
+				
+			{% endwith %}
+			
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Fermer</button>
 			</div>
 		</div>
 	</div>

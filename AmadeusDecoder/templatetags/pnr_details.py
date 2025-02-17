@@ -10,6 +10,7 @@ import json
 import traceback
 from AmadeusDecoder.models.invoice.Fee import OthersFee
 
+from AmadeusDecoder.models.pnr.PnrPassenger import PnrPassenger
 import AmadeusDecoder.utilities.configuration_data as configs
 
 from AmadeusDecoder.models.pnr.Pnr import Pnr
@@ -17,6 +18,7 @@ from AmadeusDecoder.models.user.Users import User
 from AmadeusDecoder.models.user.Users import Office
 from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
 from AmadeusDecoder.models.invoice.Ticket import Ticket
+from AmadeusDecoder.models.invoice.Invoice import InvoicesCanceled
 
 register = template.Library()
 
@@ -1764,4 +1766,66 @@ def get_check_passenger_missing(pnr_id, client_id):
 
     return count_passenger_missing
 
+@register.filter(name='check_uninvoicing')
+def check_uninvoicing(pnr_id):
+    invoice_canceled = InvoicesCanceled.objects.filter(pnr_id= pnr_id).all()
+    if invoice_canceled:
+        return True
+    return False
 
+@register.filter(name='get_last_info')
+def get_last_info(pnr_id):
+    invoice_canceled = InvoicesCanceled.objects.filter(pnr_id=pnr_id).all()
+    
+    invoice_data = []  # Liste pour stocker toutes les factures
+    
+    if invoice_canceled:
+        print("*************GET LAST INFO********************")
+        
+        invoice_dict = {}
+
+        for invoice in invoice_canceled:
+            formatted_date = invoice.date.strftime("%d %b %Y, %I:%M %p")  
+            
+            client_info = json.dumps(invoice.last_info.get("Client"), sort_keys=True) if invoice.last_info else None
+            passengers = json.dumps(invoice.last_info.get("passagers"), sort_keys=True) if invoice.last_info else None
+            
+            tickets_list = []
+            other_fee_list = []
+            fee_list = []
+
+            if invoice.last_info:
+                if invoice.last_info.get("Ticket"):
+                    tickets_list = [json.loads(json.dumps(invoice.last_info.get("Ticket"), sort_keys=True))]
+                if invoice.last_info.get("Other_fee"):
+                    other_fee_list = [json.loads(json.dumps(invoice.last_info.get("Other_fee"), sort_keys=True))]
+                if invoice.last_info.get("Fee"):
+                    fee_list = [json.loads(json.dumps(invoice.last_info.get("Fee"), sort_keys=True))]
+
+            invoice_num = invoice.invoice_number
+            if invoice_num not in invoice_dict:
+                invoice_dict[invoice_num] = {
+                    "number": invoice_num,
+                    "cancel_date": formatted_date,
+                    "client": client_info,
+                    "passengers": passengers,
+                    "tickets": [],
+                    "other_fees": [],
+                    "fees": []
+                }
+            
+            invoice_dict[invoice_num]["tickets"].extend(tickets_list)
+            invoice_dict[invoice_num]["other_fees"].extend(other_fee_list)
+            invoice_dict[invoice_num]["fees"].extend(fee_list)
+
+        # Convertir le dictionnaire en liste
+        invoice_data = list(invoice_dict.values())
+
+        print('*************** INVOICE DATA ***********************')
+        print(invoice_data)
+
+    return invoice_data
+
+@register.filter
+def json_loads(value):
+    return json.loads(value)

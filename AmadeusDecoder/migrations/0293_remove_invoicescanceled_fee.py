@@ -9,9 +9,9 @@ class Migration(migrations.Migration):
         ('AmadeusDecoder', '0292_merge_20240606_0957'),
     ]
 
-    operations = [
-        migrations.RemoveField(
-            model_name='invoicescanceled',
-            name='fee',
-        ),
-    ]
+    # operations = [
+    #     migrations.RemoveField(
+    #         model_name='invoicescanceled',
+    #         name='fee',
+    #     ),
+    # ]

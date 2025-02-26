@@ -1822,6 +1822,8 @@ def unorder_pnr(request):
                         }
                     }
                 # delete the corresponding passenger invoice if it exist
+                pi = PassengerInvoice.objects.filter(id=passenger_invoice.id).first()
+                order_date = pi.date_creation
                 PassengerInvoice.objects.filter(id=passenger_invoice.id).delete()
                 
                 if passenger_invoice.ticket_id:
@@ -1889,10 +1891,10 @@ def unorder_pnr(request):
                     # save in the InvoicesCanceled
                     if motif is None:
                         print("Motif is None")
-                        invoices_canceled = InvoicesCanceled(pnr_id=pnr.id,invoice_number=invoice_number,ticket_id=passenger_invoice.ticket_id, other_fee_id = passenger_invoice.other_fee_id,motif_odoo=motif_odoo,last_info=data) 
+                        invoices_canceled = InvoicesCanceled(order_date=order_date,pnr_id=pnr.id,invoice_number=invoice_number,ticket_id=passenger_invoice.ticket_id, other_fee_id = passenger_invoice.other_fee_id,motif_odoo=motif_odoo,last_info=data) 
                     else:
                         print("Motif is not None")
-                        invoices_canceled = InvoicesCanceled(pnr_id=pnr.id,invoice_number=invoice_number,motif_id=motif,ticket_id=passenger_invoice.ticket_id, other_fee_id = passenger_invoice.other_fee_id,user_id= user_id,last_info=data) 
+                        invoices_canceled = InvoicesCanceled(order_date=order_date,pnr_id=pnr.id,invoice_number=invoice_number,motif_id=motif,ticket_id=passenger_invoice.ticket_id, other_fee_id = passenger_invoice.other_fee_id,user_id= user_id,last_info=data) 
                         
                     invoices_canceled.save()
 

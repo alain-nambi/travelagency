@@ -76,6 +76,7 @@ class InvoicesCanceled(models.Model, BaseModel):
     motif_id = models.ForeignKey("AmadeusDecoder.MotifPnr", on_delete = models.CASCADE, related_name='motif_pnr', null=True)
     motif_odoo = models.CharField(max_length=200, null=True)
     last_info = models.JSONField(verbose_name="Ancienne information", null=True)
+    order_date= models.DateTimeField(null=True)
 
 class MotifPnr(models.Model):
     # motif pour décommander un PNR

@@ -1803,9 +1803,11 @@ def get_last_info(pnr_id):
                     fee_list = [json.loads(json.dumps(invoice.last_info.get("Fee"), sort_keys=True))]
 
             invoice_num = invoice.invoice_number
+            order_date = invoice.order_date
             if invoice_num not in invoice_dict:
                 invoice_dict[invoice_num] = {
                     "number": invoice_num,
+                    "order_date": order_date,
                     "cancel_date": formatted_date,
                     "client": client_info,
                     "passengers": passengers,

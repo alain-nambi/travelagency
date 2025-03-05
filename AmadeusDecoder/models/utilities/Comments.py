@@ -13,10 +13,11 @@ class Comment(models.Model):
         db_table = 't_comment'
 
     pnr_id = models.ForeignKey(Pnr, on_delete=models.CASCADE)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE,null=True)
     comment = models.TextField(max_length=800)
     state = models.BooleanField(default=False)
     creation_date = models.DateTimeField(auto_now=True)
+    user_odoo = models.TextField(max_length=50, null=True)
 
 
 class Response(models.Model):

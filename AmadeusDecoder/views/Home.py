@@ -1176,7 +1176,9 @@ def get_order(request, pnr_id):
                                         'Trajet': item.value.get('trajet'),
                                         'Date': item.value.get('date'),
                                         'ArrivalTime': item.value.get('arrivalTime'),
-                                        'DepartureTime': item.value.get('departureTime')
+                                        'DepartureTime': item.value.get('departureTime'),
+                                        'taximan': item.value.get('taximan'),
+                                        'passengers' : item.value.get('taxiPassenger')
                                         
                                     }
 
@@ -1188,7 +1190,7 @@ def get_order(request, pnr_id):
                                         'ArrivalTime': item.value.get('arrivalTime'),
                                         'DepartureTime': item.value.get('departureTime'),
                                         'Classe': item.value.get('classe'),
-                                        
+                                        'passengers': item.value.get('passenger')
                                     }
                                 print(_ht_details)
 
@@ -1656,7 +1658,6 @@ def import_product(request, pnr_id):
                 other_fee.save()
                 value = json.loads(product[8])
                 other_fee.value = value
-                other_fee.passenger_segment = value.get("client")
                 other_fee.save()
             
             else:

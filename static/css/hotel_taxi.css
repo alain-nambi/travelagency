@@ -157,3 +157,12 @@
   .bus-supplier-options li:focus {
     border: 1px solid rgb(69, 182, 219);
   }
+
+  @keyframes 
+  vscomp-animation-spin{to{transform:rotateZ(360deg)}}
+  .vscomp-popup-active{overflow:hidden !important}
+  .vscomp-ele{
+    display:inline-block;
+    max-width: none !important;
+    width:100%;
+  }

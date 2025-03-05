@@ -278,6 +278,7 @@ def getPassengersAndSegmets(request):
                 'passenger_id': passenger.passenger.id,
                 'passenger_name': passenger.passenger.name,
                 'passenger_surname': passenger.passenger.surname,
+                'passenger_designation': passenger.passenger.designation
             }
             passengers_data.append(passenger_data)
             

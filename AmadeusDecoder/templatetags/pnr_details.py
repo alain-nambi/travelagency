@@ -17,6 +17,7 @@ from AmadeusDecoder.models.user.Users import User
 from AmadeusDecoder.models.user.Users import Office
 from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
 from AmadeusDecoder.models.invoice.Ticket import Ticket
+import ast
 
 register = template.Library()
 
@@ -1790,13 +1791,16 @@ def get_hotel_details(other_fee_id):
         name = other_fee.value.get('name')
         arrival = datetime.strptime(other_fee.value.get('arrivalDate'), "%Y-%m-%d") 
         departure = datetime.strptime(other_fee.value.get('departureDate'), "%Y-%m-%d") 
+        client = other_fee.value.get('client')
+        print("*************************** HOTEL DETAILS **************************")
 
-        return {"name":name, "arrival": arrival.strftime("%d/%m/%Y"), "departure": departure.strftime("%d/%m/%Y")}
+        return {"name":name, "arrival": arrival.strftime("%d/%m/%Y"), "departure": departure.strftime("%d/%m/%Y"), "client":client}
 
 @register.filter(name='get_transport_details')
 def get_transport_details(other_fee_id):
     other_fee = OthersFee.objects.get(id=other_fee_id)
     product = Product.objects.filter(designation= other_fee.designation).first()
+    taximan = passenger = bus_passsenger= None
 
     if other_fee.value:
         if product.id in [12,15]:
@@ -1804,10 +1808,25 @@ def get_transport_details(other_fee_id):
             date = other_fee.value.get('date')
             arrivaltime = other_fee.value.get('arrivalTime')
             departuretime = other_fee.value.get('departureTime')
+
+            taxi_passenger_str = other_fee.value.get("taxiPassenger", "[]")  # Récupère la valeur ou une liste vide par défaut
+            passenger = ast.literal_eval(taxi_passenger_str) if isinstance(taxi_passenger_str, str) else taxi_passenger_str
+            
+            taximan = other_fee.value.get('taximan')
+            if taximan == "":
+                taximan = None
         if product.id in [8,9,14]:
             trajet = other_fee.value.get('trajet') +'/ Classe: '+ other_fee.value.get('classe')
             date = other_fee.value.get('date')
             arrivaltime = other_fee.value.get('arrivalTime')
             departuretime = other_fee.value.get('departureTime')
+            
+            bus_passenger_str = other_fee.value.get("passenger", "[]")  # Récupère la valeur ou une liste vide par défaut
+            bus_passsenger = ast.literal_eval(bus_passenger_str) if isinstance(bus_passenger_str, str) else bus_passenger_str
 
-        return {"trajet":trajet,"date":date, "arrivaltime": arrivaltime, "departuretime": departuretime}
+        print('********** TAXI DETAILS ***************')
+        print(passenger)
+        print(taximan)
+
+
+        return {"trajet":trajet,"date":date, "arrivaltime": arrivaltime, "departuretime": departuretime,"passengers":passenger,"taximan":taximan,"bus_passengers":bus_passsenger}

@@ -1005,7 +1005,8 @@
 														{% if needSlot %}
 															{% if other_fee.designation == 'HOTEL' %}
 																{% with other_fee.id|get_hotel_details as ht_details %}
-																	<p>Nom : {{ ht_details.name }}
+																	<p>Nom : {{ ht_details.name }} 
+																	<br>Client : {{ ht_details.client }}
 																	<br>Arrivée : {{ ht_details.arrival }}
 																	<br>Sortie : {{ ht_details.departure }}
 																	</p>
@@ -1014,6 +1015,9 @@
 															{% else %}
 																{% with other_fee.id|get_transport_details as tx_details %}
 																	<p>Trajet : {{ tx_details.trajet }}
+																	{% if tx_details.taximan is not None %}
+																		<br>Chauffeur : {{ tx_details.taximan }}
+																	{% endif %}
 																	<br>Départ : {{ tx_details.date }} {{ tx_details.departuretime }}
 																	<br>Arrivée :{{ tx_details.date }} {{ tx_details.arrivaltime }}
 																	</p>
@@ -1047,6 +1051,29 @@
 												<td>
 													{% if other_fee.passenger_segment is not None %}
 														{{ other_fee.passenger_segment }}
+													{%else%}
+														{% with other_fee.id|check_other_fee as needSlot %}
+															{% if needSlot %}
+																{% if other_fee.designation == 'TAXI' or other_fee.designation == 'TRANSFERT' %}
+																	{% with other_fee.id|get_transport_details as tx_details %}
+																	<ul>
+																		{% for passenger in tx_details.passengers %}
+																			<li>{{ passenger }}</li>
+																		{% endfor %}
+																	</ul>	
+																	{% endwith %}
+																{%endif%}
+																{% if other_fee.designation == 'BUS' or other_fee.designation == 'SNCF TGV AIR' or other_fee.designation == 'TRAIN : SNCF' %}
+																	{% with other_fee.id|get_transport_details as tx_details %}
+																	<ul>
+																		{% for passenger in tx_details.bus_passengers %}
+																			<li>{{ passenger }}</li>
+																		{% endfor %}
+																	</ul>	
+																	{% endwith %}
+																{%endif%}
+															{%endif%}
+														{% endwith %}
 													{% endif %}
 												</td>
 												
@@ -2479,7 +2506,7 @@
 						<label for="departure">Client</label>
 					</div>
 					<div class="col-md-8">
-						<select id="hotel_client" class="form-control form-control-sm" ></select>
+						<input type="text" class="form-control" id="hotel_client"/>
 					</div>
 					
 				</div>
@@ -2527,6 +2554,15 @@
 			</div>
 
 			<div class="modal-body">
+				<div class="input-group mb-2" id="taximanDiv" style="display: none;">
+					<div class="col-md-4">
+						<label for="departure">Chauffeur</label>
+					</div>
+					<div class="col-md-8">
+						<input type="text" class="form-control" id="taximan"/>
+					</div>
+					
+				</div>
 				<div class="input-group mb-2">
 				
 					<div class="col-md-4"> 
@@ -2547,6 +2583,17 @@
 							</div>
 					</div>
 				</div>
+				<div class="input-group mb-2">
+					<div class="col-md-4">
+						<label for="passager">Passager</label>
+					</div>
+					<div class="col-md-8">
+						<select id="taxi_passenger" multiple name="native-select" placeholder="Passager" data-search="false" data-silent-initial-value-set="true" >	
+						</select>
+					</div>
+					
+				</div>
+
 				<div class="input-group mb-2">
 					<div class="col-md-4"> 
 						<label for="date">Date</label>
@@ -2626,6 +2673,17 @@
 								<ul class="bus-supplier-options" id="bus-supplier-list"></ul>
 							</div>
 					</div>
+				</div>
+
+				<div class="input-group mb-2">
+					<div class="col-md-4">
+						<label for="bus_passager">Passager</label>
+					</div>
+					<div class="col-md-8">
+						<select id="bus_passenger" multiple name="native-select" placeholder="Passager" data-search="false" data-silent-initial-value-set="true" >	
+						</select>
+					</div>
+					
 				</div>
 
 				<div class="input-group mb-2">

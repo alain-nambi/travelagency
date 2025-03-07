@@ -1892,8 +1892,8 @@ def unorder_pnr(request):
                     if motif is None:
                         print("Motif is None")
                         invoices_canceled = InvoicesCanceled(order_date=order_date,pnr_id=pnr.id,invoice_number=invoice_number,ticket_id=passenger_invoice.ticket_id, other_fee_id = passenger_invoice.other_fee_id,motif_odoo=motif_odoo,last_info=data) 
-                        comment_odoo = "Annulation depuis Odoo.Motif: "+motif_odoo
-                        user_odoo = motif_odoo.split("-")[0]
+                        comment_odoo = "Annulation depuis Odoo.Motif: "+motif_odoo.split("-")[0]
+                        user_odoo = motif_odoo.split("-")[1]
                         comment = Comment(pnr_id= pnr, comment=comment_odoo, state=True, user_odoo=user_odoo)
                         comment.save()
                     else:

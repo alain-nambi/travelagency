@@ -74,9 +74,10 @@ def get_anomaly_comment_by_pnr(pnr):
 # return a username of user object
 @register.filter(name='username')
 def get_username_by_user(user_id):
-    from AmadeusDecoder.models.user.Users import User
-    user = User.objects.get(id=user_id)
-    return user.username
+    if user_id:
+        from AmadeusDecoder.models.user.Users import User
+        user = User.objects.get(id=user_id)
+        return user.username
 
 # return a text stripped of whitespace
 @register.filter(name='strip')

@@ -650,7 +650,7 @@ document
     console.log("------TICKET ----------------");
     console.log(ticket);
     console.log("ProductDropdown.value : ", productId);
-
+    
     // Affichage des éléments nécessaires
     document.querySelector(".tr-add-line").hidden = false;
     document.getElementById("add-product-service-line").hidden = false;
@@ -674,16 +674,24 @@ document
     }
 
     // Gestion spécifique des produits
-    if (productId === 19) {
-        if (ticket !== "") {
-            let selectedSegment = document.querySelector("#multipleSelect").getSelectedOptions();
-            console.log(selectedSegment);
-            addProduct(ticket, passenger, selectedSegment);
-        } else {
-            toastr.error("Veuillez entrer un Numéro de billet");
-            document.getElementById("ticket-avoir").style.borderColor = "red";
-            return; // Empêcher la suite si le ticket est vide
-        }
+    if (productId == 19) {
+      let selectedSegment = document.querySelector("#multipleSelect").getSelectedOptions();
+      console.log(selectedSegment);
+      console.log('Passenger : ',passenger);
+      
+      // addProduct(ticket, passenger, selectedSegment);
+      listNewProduct.push(
+        productId,
+        ProductTypeInitiale.textContent,
+        designation,
+        parseFloat(ProductTranspInput.value).toFixed(2),
+        parseFloat(ProductTaxInput.value).toFixed(2),
+        (parseFloat(ProductTranspInput.value) + parseFloat(ProductTaxInput.value)).toFixed(2),
+        ticket,
+        passenger,
+        selectedSegment,
+      );
+       
     }
 
     // Produits qui nécessitent des infos stockées dans sessionStorage
@@ -698,11 +706,16 @@ document
     };
 
     if (sessionData[productId] && sessionStorage.getItem(sessionData[productId])) {
+      console.log("SESSION DATA");
+      
         addProduct(sessionStorage.getItem(sessionData[productId]));
     }
 
-    // Produits génériques (tous ceux non concernés par les cas ci-dessus)
-    if (![10, 11, 8, 9, 14, 12, 15, 19].includes(productId)) {
+    // Produits génériques (tous ceux non concernés par les cas      
+    // ci-dessus)
+    if (![10, 11, 8, 9, 14, 12, 15,19].includes(productId)) {
+      console.log("Produits génériques (tous ceux non concernés par les cas");
+      
         addProduct();
     }
 

@@ -1675,22 +1675,26 @@ def import_product(request, pnr_id):
             
             # cas pour l'AVOIR COMPAGNIE
             if product[0] == 19:
+                print("************* cas pour l'AVOIR COMPAGNIE ******************")
+                passenger = Passenger.objects.get(pk=product[7])
                 if float(product[3]) > 0:
                     product[3] = -abs(product[3])
                     
-                other_fees = OthersFee(designation=product[7], cost=product[3], total=product[4],
-                                        pnr=pnr, fee_type=product[1],reference=product[6], 
+                other_fees = OthersFee(designation=product[6], cost=product[3], total=product[5],
+                                        pnr=pnr, fee_type=product[1],passenger=passenger,
                                         quantity=1, is_subjected_to_fee=False, creation_date=datetime.now(), emitter=emitter)
                 other_fees.save()
                 
-                for segment in product[9]:
-                    segment = PnrAirSegments.objects.get(pk=segment.get('value'))
-                    passenger = Passenger.objects.get(pk=product[8])
-                    passenger_segment = OtherFeeSegment(segment=segment,other_fee= other_fees, passenger=passenger)
-                    passenger_segment.save()
+                for segment in product[8]:
+                    if segment:
+                        segment = PnrAirSegments.objects.get(pk=segment.get('value'))
+                        passenger = Passenger.objects.get(pk=product[7])
+                        passenger_segment = OtherFeeSegment(segment=segment,other_fee= other_fees, passenger=passenger)
+                        passenger_segment.save()    
+
 
             # cas pour l'HOTEL et TAXI
-            if product[0] in [9,10,12,15,14,8,11]:
+            elif product[0] in [9,10,12,15,14,8,11]:
                 print('CAS POUR LA LOCATION DE VEHICULE')
                 other_fee = OthersFee(designation=product[2], cost=product[3], tax=product[4], total=product[5],
                                         pnr=pnr, fee_type=product[1], reference=product[7], emitter=emitter,
@@ -1701,6 +1705,7 @@ def import_product(request, pnr_id):
                 other_fee.save()
             
             else:
+                print("************************* cas pour tout le reste ************************")
                 other_fees = OthersFee.objects.filter(pnr=pnr_id, product_id=product[0])
                 other_fees = OthersFee(designation=product[2], cost=product[3], tax=product[4], total=product[5],
                                         pnr=pnr, fee_type=product[1], passenger_segment=product[6], reference=product[7], emitter=emitter,

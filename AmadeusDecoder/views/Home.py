@@ -23,7 +23,7 @@ from AmadeusDecoder.models.pnr.Pnr import Pnr
 from AmadeusDecoder.models.pnr.PnrPassenger import PnrPassenger
 from AmadeusDecoder.models.user.Users import User, UserCopying
 from AmadeusDecoder.models.invoice.Clients import Client
-from AmadeusDecoder.models.utilities.Comments import Comment, Response
+from AmadeusDecoder.models.utilities.Comments import Comment, Response, NotFetched
 from AmadeusDecoder.models.invoice.Ticket import Ticket
 from AmadeusDecoder.models.invoice.Fee import Fee, ReducePnrFeeRequest, OthersFee
 from AmadeusDecoder.models.invoice.Invoice import Invoice, InvoicesCanceled, MotifPnr
@@ -215,6 +215,13 @@ def home(request):
         page_obj = paginator.page(page_num)
     except (PageNotAnInteger, EmptyPage):
         page_obj = paginator.page(1)
+
+    #Not fetched pnr
+    today = datetime.today()
+    start_of_day = datetime.combine(today.date(), datetime.min.time())
+    end_of_day = datetime.combine(today.date(), datetime.max.time())
+
+    pnr_not_fetched = NotFetched.objects.filter(date_creation__range=(start_of_day, end_of_day))
     
     # Context
     context = {
@@ -223,6 +230,7 @@ def home(request):
         'pnr_count': paginator.count,
         'users': users,
         'search_query': search_query,
+        'pnr_not_fetched' : pnr_not_fetched,
     }
     pnr_not_invoiced = get_ticket_created_today_not_invoiced(request)
     context['pnr_not_invoiced'] = pnr_not_invoiced
@@ -916,8 +924,8 @@ def get_order(request, pnr_id):
     config = Configuration.objects.filter(name='Saving File Tools', value_name='File protocol', environment=settings.ENVIRONMENT)
 
     
-    file_dir = '/opt/odoo/issoufali-addons/import_saleorder/data/source'
-    customer_dir = '/opt/odoo/issoufali-addons/contacts_from_incadea/data/source'
+    file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
+    customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
     
     fieldnames_order = [
         'LineID',
@@ -1036,6 +1044,7 @@ def get_order(request, pnr_id):
             orders = PassengerInvoice.objects.filter(pnr=pnr_id, client=customer_id, is_invoiced=False)
             order_invoice_number = datetime.now().strftime('%Y%m%d%H%M') + str(random.randint(1,9)) # SET ORDER NUMBER
             for order in orders:
+                ticket_description= None
                 _ht_details = None
                 segments_parts = []
                 if order.status == 'sale' and order.is_invoiced == False:
@@ -1074,12 +1083,16 @@ def get_order(request, pnr_id):
                                         'ArrivalDatetime' : part.segment.arrivaltime.strftime('%d/%m/%Y %H:%M') if part.segment.segment_state == 0 and part.segment.arrivaltime else '',   
                                     }
                                     air_segments.append(_segment)
+                                # PENALITES ALTEA
+                                if part.segment and part.segment.segment_type is not None and part.segment.segment_type == 'SVC':
+                                    ticket_description = "Pénalité"
 
                         type_ticket = ''
                         if ticket.is_refund:
                             type_ticket = 'Remboursement'
                         else:
                             type_ticket = ticket.ticket_type
+
 
                         csv_order_lines.append({
                             'LineID': order.id, # type: ignore
@@ -1105,7 +1118,7 @@ def get_order(request, pnr_id):
                             'IssueDate': ticket.issuing_date.strftime('%d/%m/%Y') if ticket.issuing_date is not None else '',
                             'OrderNumber': order_invoice_number,
                             'OtherFeeId': '', 
-                            'Designation':'',
+                            'Designation':ticket_description if ticket_description is not None else '',
                         })
 
                         if len(csv_order_lines) == 0:
@@ -1161,14 +1174,44 @@ def get_order(request, pnr_id):
                     type_other_fee = ''
                     if order.other_fee is not None and order.other_fee.other_fee_status == 1:
                         other_fee = OthersFee.objects.filter(pk=order.other_fee.id)
+
+
                         _ht_details = None
                         for item in other_fee:
+                            
                             if item.fee_type == 'EMD' or item.fee_type == 'TKT' or item.fee_type == 'Cancellation' or item.fee_type == 'AVOIR COMPAGNIE':
                                 type_other_fee = item.fee_type
                             else:
                                 type_other_fee = 'EMD'
 
-                            print('------------------- HOTEL TAXI DETAILS -------------------------')
+                            #  PASSAGER ------------- 24/04/25
+                            other_fee_passenger = OtherFeeSegment.objects.filter(other_fee=item.id).first().passenger
+
+                            # segment --------- 24/04/2025
+                            print('----------------------- OTHER FEE SEGMENTS ----------------------')
+                            other_fee_segments_parts = []
+
+                            for other_fee_segment in OtherFeeSegment.objects.filter(other_fee=item.id).order_by('segment__id'):
+                                if other_fee_segment.segment:
+                                    other_fee_segments_parts.append(PnrAirSegments.objects.filter(pk=other_fee_segment.segment.id))
+
+                            print(other_fee_segments_parts)
+                            other_fee_air_segments = []
+                            
+                            for segment in other_fee_segments_parts:
+                                print('SEGMENT : ',segment)
+                                for part in segment:
+                                    _segment = {
+                                    'Name': part.segmentorder,
+                                    'Fly': '%s %s' % (part.servicecarrier.iata, part.flightno),
+                                    'Class': part.flightclass if part.flightclass is not None else '',
+                                    'Departure': part.codeorg.iata_code,
+                                    'Arrival': part.codedest.iata_code,
+                                    'DepartureDatetime' : part.departuretime.strftime('%d/%m/%Y %H:%M') if part.segment_state == 0 and part.departuretime else part.departuretime.strftime('%d/%m/%Y %H:%M') if part.departuretime else '',
+                                    'ArrivalDatetime' : part.arrivaltime.strftime('%d/%m/%Y %H:%M') if part.segment_state == 0 and part.arrivaltime else '',   
+                                    }
+                                    other_fee_air_segments.append(_segment)
+                            # ------------------- HOTEL TAXI DETAILS -------------------------
 
                             print('ITEM DESIGNATION : ',item.designation)
                             if item.designation in ['HOTEL','TAXI','TRANSFERT','BUS','SNCF TGV AIR','TRAIN : SNCF']:
@@ -1204,6 +1247,20 @@ def get_order(request, pnr_id):
                                     }
                                 print(_ht_details)
 
+                            # REAJUSTEMENT TARIFAIRE
+                            designation_label = None
+                            designation_number = None
+
+                            if 'reissuance adjustment' in item.designation.lower():
+                                if item.designation and ':' in item.designation:
+                                    parts = item.designation.split(':', 1)
+                                    designation_label = parts[0].strip()
+                                    designation_number = parts[1].strip()
+                                else:
+                                    designation_label = item.designation
+                                    designation_number = ''
+
+
                             csv_order_lines.append({
                                 'LineID': order.id,
                                 'Type': type_other_fee,
@@ -1213,11 +1270,11 @@ def get_order(request, pnr_id):
                                 'OrderRef': order.reference, 
                                 'Agency': '%s: %s' % (pnr_order.agency.name, pnr_order.agency.code) if pnr_order.agency is not None else pnr_order.agency_name if pnr_order.type == 'EWA' else '',
                                 'Follower': pnr_order.agent.username if pnr_order.agent is not None else pnr_order.agent_code if pnr_order.agent_code is not None else '',
-                                'TicketNumber': '',
+                                'TicketNumber': designation_number if designation_number is not None else '',
                                 'Civility': '',
-                                'PassengerFirstname': '',
-                                'PassengerLastname': '',
-                                'Segments': '', 
+                                'PassengerFirstname': other_fee_passenger.name if other_fee_passenger is not None else '',
+                                'PassengerLastname': other_fee_passenger.surname if other_fee_passenger is not None else '',
+                                'Segments': json.dumps(other_fee_air_segments), 
                                 'HT_details':json.dumps(_ht_details) if _ht_details is not None else '',                     
                                 'DocCurrency': 'EUR',
                                 'Transport': item.cost,
@@ -1228,7 +1285,7 @@ def get_order(request, pnr_id):
                                 'IssueDate': item.creation_date.strftime('%d/%m/%Y') if item.creation_date is not None else '',
                                 'OrderNumber': order_invoice_number,
                                 'OtherFeeId': item.id if item is not None else '',
-                                'Designation': item.designation if item is not None else '',
+                                'Designation': designation_label if designation_label is not None else item.designation if item else '',
                             })
                             
                             if len(csv_order_lines) == 0:
@@ -1341,8 +1398,8 @@ def get_quotation(request, pnr_id):
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) #get the parent folder of the current file
     config = Configuration.objects.filter(name='File saving configuration', value_name='Saving protocol', environment=settings.ENVIRONMENT)
 
-    file_dir = '/opt/issoufali-addons/import_saleorder/data/source'
-    customer_dir = '/opt/issoufali-addons/contacts_from_incadea/data/source'
+    file_dir = '/opt/issoufali/odoo/issoufali-addons/import_saleorder/data/source'
+    customer_dir = '/opt/issoufali/odoo/issoufali-addons/contacts_from_incadea/data/source'
     
     customer_row = {}
     fieldnames_order = [

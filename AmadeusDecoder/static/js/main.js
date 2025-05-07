@@ -3852,6 +3852,8 @@ if (buttonSendPnrNotUpdated != null) {
     e.preventDefault();
     $("#modalPnrNotUpdated").modal("hide");
     const PnrNumber = document.querySelector("#messagePnrNotUpdated");
+    const PnrContext = document.querySelector("#messagePnrContext");
+
     $.ajax({
       type: "POST",
       dataType: "json",
@@ -3859,6 +3861,8 @@ if (buttonSendPnrNotUpdated != null) {
       data: {
         csrfmiddlewaretoken: csrftoken,
         pnrNumber: PnrNumber.value,
+        pnrContext: PnrContext.value,
+
       },
       success: (response) => {
         toastr.info("PNR non remonté signalé.");
@@ -4632,6 +4636,8 @@ $.ajax({
   }
 });
 
-
-
+$("#getPnrNotFetchedList").on("click", function(e) {
+  e.preventDefault();
+  $("#modalListPnrNotUpdated").modal("show");
+});
 

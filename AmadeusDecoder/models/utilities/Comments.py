@@ -37,7 +37,8 @@ class NotFetched(models.Model):
     pnr_number = models.CharField(max_length=100, null=False)
     follower = models.ForeignKey(User, on_delete=models.CASCADE)
     date_creation = models.DateTimeField(auto_now=True)
-    
+    context = models.CharField(max_length=500, null=True)
+    status = models.IntegerField(default=0)
 
 class Anomalie(models.Model):
     

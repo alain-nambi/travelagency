@@ -172,10 +172,13 @@ def get_pnr_not_fetched(request):
     if request.method == 'POST':
         if 'pnrNumber' in request.POST:
             pnr_number = request.POST.get('pnrNumber')
+            pnr_context = request.POST.get('pnrContext')
+            
+
             user_follower = request.user.id
             if pnr_number != '' and pnr_number != None and not NotFetched.objects.filter(pnr_number=pnr_number).exists():
                 follower = User.objects.get(pk=int(user_follower))
-                pnr_not_fetched = NotFetched(pnr_number=pnr_number, follower=follower)
+                pnr_not_fetched = NotFetched(pnr_number=pnr_number, follower=follower, context=pnr_context,status=1)
                 pnr_not_fetched.save()
 
                 pnr = NotFetched.objects.get(pnr_number=pnr_number)
@@ -194,20 +197,18 @@ def get_pnr_not_fetched(request):
                                 <p>
                                     Ce PNR n'est pas remonté dans Gestion PNR </br>
                                     PNR concerné : {} </br>
+                                    Contexte : {} </br>
                                     Reporté par {} </br> 
                                 </p>
                                 <p> Cordialement, </p>
                             </body>
                             </html>
-                        """.format(pnr.pnr_number, pnr.follower.username)
+                        """.format(pnr.pnr_number,pnr.context, pnr.follower.username)
 
             Sending.send_email_pnr_not_fetched(
                 "anomalie.issoufali.pnr@gmail.com",
                 [
-                    "pp@phidia.onmicrosoft.com",
-                    "tahina@alita.re",
-                    "maphie@alita.re",
-                    "nomena@alita.re",
+                    "maphie@alita.re"
                 ],
                 subject,
                 message

@@ -6,6 +6,7 @@ from datetime import datetime, timedelta, timezone
 from django.apps.registry import apps
 
 from time import sleep
+import logging
 
 # import AmadeusDecoder.utilities.configuration_data as configs
 
@@ -99,6 +100,15 @@ def checking_pnr_not_sent_to_odoo():
     
     # ==================== PNR not sent to Odoo checking ====================
     MailNotification.pnr_not_sent_to_odoo(now)
+
+def check_pnr_remonte():
+    from AmadeusDecoder.utilities.MailNotificationParser import MailNotification
+    try:
+        now = datetime.now(timezone.utc).replace(microsecond=0)
+        MailNotification.pnr_remonte(now)
+
+    except Exception as e:
+       print("Erreur lors de l'exécution de pnr_remonte : ", e)
     
 def load_config(configs):
     print('Loading configurations ...')
@@ -134,10 +144,16 @@ class AmadeusdecoderConfig(AppConfig):
             return 
         os.environ['CMDLINERUNNER_RUN_ONCE'] = 'True'
         
-        # import AmadeusDecoder.utilities.configuration_data as configs
+        import AmadeusDecoder.utilities.configuration_data as configs
         
         # load_configs = Thread(target=load_config, args=(configs, ))
         # load_configs.start()
+
+        now = datetime.now()
+        print(' ==================== Mail notification for pnr remonte =====================')
+
+        timer_pnr_remonte = RepeatTimer(1, check_pnr_remonte)
+        timer_pnr_remonte.start()
         
         # sleep(2)
         

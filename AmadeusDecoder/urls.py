@@ -12,7 +12,7 @@ from .views.Login import *
 from .views.Home import *
 from .views.Comment import *
 from .views.Home_copy import home_copy
-
+ path('customer/details/<int:customer_id>',customer_details,name="customer_details"),
 
 urlpatterns = [
     path('', index, name = "index"),
@@ -82,5 +82,6 @@ urlpatterns = [
     path('home/add-service-supplier',add_service_supplier, name='add_service_supplier'),
     path('home/unorder-pnr/add-motif', addMotif,name="add_motif"),
     path('home/pnr/cancel/<int:pnr_id>',cancel_pnr,name="cancel_pnr"),
+    path('customer/details/<int:customer_id>',customer_details,name="customer_details"),
 
 ]

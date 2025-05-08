@@ -201,3 +201,9 @@ def get_pnr_created_today_not_invoiced(request):
     pnrs = Pnr.objects.filter(agent_id= request.user.id,system_creation_date__range=[start_date, end_date], is_invoiced= False)
     nbre_pnr = pnrs.count()
     return pnrs
+
+@login_required(login_url='index')
+def customer_details(request,customer_id):
+    details = Client.objects.get(pk=customer_id)
+    context = {'customer' : details}
+    return render(request,'customer.html',context)

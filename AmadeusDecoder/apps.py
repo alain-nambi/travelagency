@@ -139,11 +139,11 @@ class AmadeusdecoderConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'AmadeusDecoder'
 
-    def ready(self):
-        run_once = os.environ.get('CMDLINERUNNER_RUN_ONCE') 
-        if run_once is not None:
-            return 
-        os.environ['CMDLINERUNNER_RUN_ONCE'] = 'True'
+    # def ready(self):
+    #     run_once = os.environ.get('CMDLINERUNNER_RUN_ONCE') 
+    #     if run_once is not None:
+    #         return 
+    #     os.environ['CMDLINERUNNER_RUN_ONCE'] = 'True'
         
         # import AmadeusDecoder.utilities.configuration_data as configs
         
@@ -159,8 +159,8 @@ class AmadeusdecoderConfig(AppConfig):
         
         # print(configs.FEE_REQUEST_RESPONSE_RECIPIENT)
         
-        now = datetime.now()
-        repeat_timer_for_pnr_upload_notification = 0
+        # now = datetime.now()
+        # repeat_timer_for_pnr_upload_notification = 0
         #
         # def pnr_upload_repeat_timer(repeat_timer_for_pnr_upload_notification):
         #     print("📢 Mail notification for pnr not updated in pnr management...")

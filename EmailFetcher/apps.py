@@ -211,12 +211,12 @@ class EmailfetcherConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'EmailFetcher'
     
-    def ready(self):
-        run_once = os.environ.get('CMDLINERUNNER_RUN_ONCE_EMAIL')
+    # def ready(self):
+    #     run_once = os.environ.get('CMDLINERUNNER_RUN_ONCE_EMAIL')
         
-        if run_once is not None:
-            return
-        os.environ['CMDLINERUNNER_RUN_ONCE_EMAIL'] = 'True'
+    #     if run_once is not None:
+    #         return
+    #     os.environ['CMDLINERUNNER_RUN_ONCE_EMAIL'] = 'True'
         
         # load_configs = Thread(target=load_config)
         # load_configs.start()
@@ -225,8 +225,8 @@ class EmailfetcherConfig(AppConfig):
         # email_thread_once = Thread(target=fetch_email)
         # email_thread_once.start()
 
-        now = datetime.now()
-        repeat_timer_for_pnr_upload_notification = 0
+        # now = datetime.now()
+        # repeat_timer_for_pnr_upload_notification = 0
         
         # def pnr_upload_repeat_timer(repeat_timer_for_pnr_upload_notification):
         #     print("📢 Mail notification for pnr not updated in pnr management...")
@@ -261,9 +261,9 @@ class EmailfetcherConfig(AppConfig):
         # timer = RepeatTimer(60, pnr_unissued_opc_checking)  
         # timer.start()
         
-        print("📢 ==================== Mail notification for pnr with fee decrease request ====================")
-        timer_update_check = RepeatTimer(1, checking_pnr_with_fee_decrease_request)
-        timer_update_check.start()
+        # print("📢 ==================== Mail notification for pnr with fee decrease request ====================")
+        # timer_update_check = RepeatTimer(1, checking_pnr_with_fee_decrease_request)
+        # timer_update_check.start()
         
         # print('Product synchronisation is starting')
         # timer_synchro = RepeatTimer(5, running_product_synhcro)

@@ -221,49 +221,49 @@ class EmailfetcherConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'EmailFetcher'
     
-    def ready(self):
-        run_once = os.environ.get('CMDLINERUNNER_RUN_ONCE') 
-        if run_once is not None:
-            return 
-        os.environ['CMDLINERUNNER_RUN_ONCE'] = 'True'
+    # def ready(self):
+    #     run_once = os.environ.get('CMDLINERUNNER_RUN_ONCE') 
+    #     if run_once is not None:
+    #         return 
+    #     os.environ['CMDLINERUNNER_RUN_ONCE'] = 'True'
         
-        import AmadeusDecoder.utilities.configuration_data as configs
+    #     import AmadeusDecoder.utilities.configuration_data as configs
         
-        load_configs = Thread(target=load_config)
-        load_configs.start()
+    #     load_configs = Thread(target=load_config)
+    #     load_configs.start()
         
         
-        email_thread_once = Thread(target=fetch_email)
-        email_thread_once.start()
+    #     email_thread_once = Thread(target=fetch_email)
+    #     email_thread_once.start()
 
-        now = datetime.now()
-        repeat_timer_for_pnr_upload_notification = 0
+    #     now = datetime.now()
+    #     repeat_timer_for_pnr_upload_notification = 0
         
-        # Delete all files in attachments every 1 minutes 
-        task_schedule = RepeatTimer(1 * 60, delete_all_files_in_attachments_dir)
-        task_schedule.start()
+    #     # Delete all files in attachments every 1 minutes 
+    #     task_schedule = RepeatTimer(1 * 60, delete_all_files_in_attachments_dir)
+    #     task_schedule.start()
         
-        def pnr_upload_repeat_timer(repeat_timer_for_pnr_upload_notification):
-            print("📢 Mail notification for pnr not updated in pnr management...")
-            timer_update_check = RepeatTimer(repeat_timer_for_pnr_upload_notification, checking_pnr_not_uploaded_in_pnr_management)
-            timer_update_check.start()
+    #     def pnr_upload_repeat_timer(repeat_timer_for_pnr_upload_notification):
+    #         print("📢 Mail notification for pnr not updated in pnr management...")
+    #         timer_update_check = RepeatTimer(repeat_timer_for_pnr_upload_notification, checking_pnr_not_uploaded_in_pnr_management)
+    #         timer_update_check.start()
     
-        if now.weekday() in [0, 1, 2, 3, 4]: # [Lundi, Mardi, Mercredi, Jeudi, Vendredi]            
-            repeat_timer_for_pnr_upload_notification = 10 * 60
-            pnr_upload_repeat_timer(repeat_timer_for_pnr_upload_notification)
-        if now.weekday() in [5]: # [Samedi]            
-            repeat_timer_for_pnr_upload_notification = 60 * 60
-            pnr_upload_repeat_timer(repeat_timer_for_pnr_upload_notification)
-        if now.weekday() in [6]: # [Dimanche]
-            repeat_timer_for_pnr_upload_notification = 60 * 180
-            pnr_upload_repeat_timer(repeat_timer_for_pnr_upload_notification)
+    #     if now.weekday() in [0, 1, 2, 3, 4]: # [Lundi, Mardi, Mercredi, Jeudi, Vendredi]            
+    #         repeat_timer_for_pnr_upload_notification = 10 * 60
+    #         pnr_upload_repeat_timer(repeat_timer_for_pnr_upload_notification)
+    #     if now.weekday() in [5]: # [Samedi]            
+    #         repeat_timer_for_pnr_upload_notification = 60 * 60
+    #         pnr_upload_repeat_timer(repeat_timer_for_pnr_upload_notification)
+    #     if now.weekday() in [6]: # [Dimanche]
+    #         repeat_timer_for_pnr_upload_notification = 60 * 180
+    #         pnr_upload_repeat_timer(repeat_timer_for_pnr_upload_notification)
         
-        # print("==================== Mail notification for pnr not sent to Odoo ====================")
-        timer_update_check = RepeatTimer(1, checking_pnr_not_sent_to_odoo)
-        timer_update_check.start()
+    #     # print("==================== Mail notification for pnr not sent to Odoo ====================")
+    #     timer_update_check = RepeatTimer(1, checking_pnr_not_sent_to_odoo)
+    #     timer_update_check.start()
         
-        timer_pnr_remonte = RepeatTimer(1, check_pnr_remonte)
-        timer_pnr_remonte.start()
+    #     timer_pnr_remonte = RepeatTimer(1, check_pnr_remonte)
+    #     timer_pnr_remonte.start()
         
         # print('Mail notification is starting....')
         # timer_pnr_misssing = RepeatTimer(1, checking_pnr_missing)

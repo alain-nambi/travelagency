@@ -82,5 +82,6 @@ urlpatterns = [
     path('home/unorder-pnr/add-motif', addMotif,name="add_motif"),
     path('home/pnr/cancel/<int:pnr_id>',cancel_pnr,name="cancel_pnr"),
     path('customer/details/<int:customer_id>', customer_details, name="customer_details"),
+    path('customer/updateInfo', modify_customer_info, name='modify_customer_info'),
 
 ]

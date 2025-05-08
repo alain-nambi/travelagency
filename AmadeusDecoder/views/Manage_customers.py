@@ -82,10 +82,13 @@ def create_customer(request):
 
 @login_required(login_url='index')
 def modify_customer_info(request):
+    print("MODIFY CUSTOMER INFO")
     context = {}
     if request.method == 'POST':
-        if 'Address' and 'Address_2' and 'Country' and 'City' and 'Code_postal' and 'Departement' and 'Email' and 'Phone' and 'Id' in request.POST:
-            id = request.POST.get('Id')
+        required_fields = ['Address', 'Address_2', 'Country', 'City', 'Code_postal', 'Departement', 'Email', 'Phone', 'customerId']
+        print("POST data:", request.POST)
+        if all(field in request.POST for field in required_fields):
+            customerId = request.POST.get('customerId')
             address = request.POST.get('Address')
             address_2 = request.POST.get('Address_2')
             email = request.POST.get('Email')
@@ -94,7 +97,8 @@ def modify_customer_info(request):
             city = request.POST.get('City')
             code_postal = request.POST.get('Code_postal')
             departement = request.POST.get('Departement')
-            customer = Client.objects.filter(pk=id)
+            customer = Client.objects.filter(pk=customerId)
+
 
             if address is not None and address != '': customer.update(address_1= address)
             if address_2 is not None and address_2 != '': customer.update(address_2= address_2)

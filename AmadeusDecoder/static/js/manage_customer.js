@@ -89,17 +89,20 @@ $(document).ready(function() {
     },
     
     submitUpdate: function() {
+      console.log("SUBMITING UPDATE");
+      customerId = $("#customer_id").val();
+      
       const formData = {
         // Get form values
-        ville: elements.customer.update.ville.val(),
-        departement: elements.customer.update.departement.val(),
-        code_postal: elements.customer.update.postal.val(),
-        pays: elements.customer.update.pays.val(),
-        email: elements.customer.update.email.val(),
-        intitule: elements.customer.update.intitule.val(),
-        phone: elements.customer.update.phone.val(),
-        adress: elements.customer.update.adress.val(),
-        adress2: elements.customer.update.adress2.val(),
+        customerId: customerId,
+        Address: elements.customer.update.adress.val(),
+        Address_2: elements.customer.update.adress2.val(),
+        Email: elements.customer.update.email.val(),
+        Phone: elements.customer.update.phone.val(),
+        Country: elements.customer.update.pays.val(),
+        City: elements.customer.update.ville.val(),
+        Code_postal: elements.customer.update.postal.val(),
+        Departement: elements.customer.update.departement.val(),
         
         // Authentication data
         password: $('#password').val(),
@@ -108,9 +111,11 @@ $(document).ready(function() {
         csrfmiddlewaretoken: csrftoken
       };
       
+      console.log('FORM DATA : ',formData);
+      
       $.ajax({
         type: 'POST',
-        url: '/user/updateInfo',
+        url: '/customer/updateInfo',
         dataType: 'json',
         data: formData,
         success: function(data) {

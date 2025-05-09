@@ -160,18 +160,18 @@ class MailNotification():
                                 </html>
                             """
 
-                    try:
-                        Sending.send_email(
-                            "issoufali.pnr@outlook.com",
-                            [
-                                "dev@alita.re"
-                            ],
-                            subject,
-                            message
-                        )
-                    except Exception as e:
-                        print(f"Error sending pnr not sent to GP : {e}")
-                        raise e
+                    # try:
+                    #     Sending.send_email(
+                    #         "issoufali.pnr@outlook.com",
+                    #         [
+                    #             "dev@alita.re"
+                    #         ],
+                    #         subject,
+                    #         message
+                    #     )
+                    # except Exception as e:
+                    #     print(f"Error sending pnr not sent to GP : {e}")
+                    #     raise e
                 else:
                     print(f"📢 Pnr is already up to date on {date}, {time_now}")
             else:

@@ -87,29 +87,39 @@ def modify_customer_info(request):
     if request.method == 'POST':
         required_fields = ['Address', 'Address_2', 'Country', 'City', 'Code_postal', 'Departement', 'Email', 'Phone', 'customerId']
         print("POST data:", request.POST)
-        if all(field in request.POST for field in required_fields):
-            customerId = request.POST.get('customerId')
-            address = request.POST.get('Address')
-            address_2 = request.POST.get('Address_2')
-            email = request.POST.get('Email')
-            telephone = request.POST.get('Phone')
-            country = request.POST.get('Country')
-            city = request.POST.get('City')
-            code_postal = request.POST.get('Code_postal')
-            departement = request.POST.get('Departement')
-            customer = Client.objects.filter(pk=customerId)
+        try:
+            if all(field in request.POST for field in required_fields):
+                customerId = request.POST.get('customerId')
+                address = request.POST.get('Address')
+                address_2 = request.POST.get('Address_2')
+                email = request.POST.get('Email')
+                telephone = request.POST.get('Phone')
+                country = request.POST.get('Country')
+                city = request.POST.get('City')
+                code_postal = request.POST.get('Code_postal')
+                departement = request.POST.get('Departement')
+                customer = Client.objects.filter(pk=customerId)
+                if not customer.exists():
+                    return JsonResponse({'status': 404, 'message': "Client non trouvé"})
 
+                if address is not None and address != '': customer.update(address_1= address)
+                if address_2 is not None and address_2 != '': customer.update(address_2= address_2)
+                if email is not None and email != '': customer.update(email= email)
+                if telephone is not None and telephone != '': customer.update(telephone= telephone)
+                if country is not None and country != '': customer.update(country= country)
+                if city is not None and city != '': customer.update(city= city)
+                if code_postal is not None and code_postal != '': customer.update(code_postal= code_postal)
+                if departement is not None and departement != '': customer.update(departement= departement)
+        
+                return JsonResponse({'status': 200, 'message': f"Client modifié avec succès"})
+            else:
+                missing_fields = [field for field in required_fields if field not in request.POST]
+                return JsonResponse({'status': 400, 'message': f"Champs manquants: {', '.join(missing_fields)}"})
+        except Exception as e:
+            print(f"Error updating customer: {str(e)}")
+            return JsonResponse({'status': 500, 'message': f"Une erreur s'est produite: {str(e)}"})
+    return JsonResponse({'status': 405, 'message': "Méthode non autorisée"})
 
-            if address is not None and address != '': customer.update(address_1= address)
-            if address_2 is not None and address_2 != '': customer.update(address_2= address_2)
-            if email is not None and email != '': customer.update(email= email)
-            if telephone is not None and telephone != '': customer.update(telephone= telephone)
-            if country is not None and country != '': customer.update(country= country)
-            if city is not None and city != '': customer.update(city= city)
-            if code_postal is not None and code_postal != '': customer.update(code_postal= code_postal)
-            if departement is not None and departement != '': customer.update(departement= departement)
-
-    return JsonResponse(context)
 
 
 @login_required(login_url='index')

@@ -1188,13 +1188,98 @@ $(document).ready(function () {
 });
 
 // Search function for customers list
-$(document).ready(function () {
-  $("#input-customer").on("keyup", function () {
-    var value = $(this).val().toLowerCase();
+// $(document).ready(function () {
+//   $("#input-customer").on("keyup", function () {
+//     var value = $(this).val().toLowerCase();
 
-    $("tr.client-list").filter(function () {
-      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
-    });
+//     $("tr.client-list").filter(function () {
+//       $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+//     });
+//   });
+// });
+
+
+// Fonction de recherche améliorée pour la liste des clients
+$(document).ready(function() {
+  // Variable pour stocker le délai
+  let searchTimer;
+  
+  // Fonction pour mettre en évidence les termes de recherche
+  function highlightText(element, searchTerm) {
+    if (searchTerm.length < 2) return; // Ne pas mettre en évidence pour les recherches trop courtes
+    
+    const text = element.html();
+    const regex = new RegExp('(' + searchTerm + ')', 'gi');
+    const newText = text.replace(regex, '<span class="highlight">$1</span>');
+    element.html(newText);
+  }
+  
+  // Fonction pour afficher un message quand aucun résultat n'est trouvé
+  function showNoResults(show) {
+    if (show) {
+      if ($('#no-results-message').length === 0) {
+        $('table.all-customer').after('<div id="no-results-message" class="alert alert-info mt-3">Aucun client trouvé</div>');
+      }
+    } else {
+      $('#no-results-message').remove();
+    }
+  }
+  
+  // Fonction principale de recherche
+  $("#input-customer").on("keyup", function() {
+    // Annuler le délai précédent
+    clearTimeout(searchTimer);
+    
+    // Récupérer la valeur de recherche
+    const searchValue = $(this).val().toLowerCase().trim();
+    
+    // Définir un délai avant d'exécuter la recherche (300ms)
+    searchTimer = setTimeout(function() {
+      // Supprimer les surlignages précédents
+      $('span.highlight').contents().unwrap();
+      
+      // Si la recherche est vide, tout afficher
+      if (searchValue === "") {
+        $("tr.client-list").show();
+        showNoResults(false);
+        return;
+      }
+      
+      // Compteur pour les résultats trouvés
+      let resultsFound = 0;
+      
+      // Parcourir toutes les lignes de clients
+      $("tr.client-list").each(function() {
+        const row = $(this);
+        const rowText = row.text().toLowerCase();
+        
+        // Vérifier si le texte de la ligne contient la valeur recherchée
+        if (rowText.indexOf(searchValue) > -1) {
+          row.show();
+          resultsFound++;
+          
+          // Mettre en évidence les termes de recherche dans chaque cellule
+          row.find('td').each(function() {
+            highlightText($(this), searchValue);
+          });
+        } else {
+          row.hide();
+        }
+      });
+      
+      // Afficher un message si aucun résultat n'est trouvé
+      showNoResults(resultsFound === 0);
+      
+      // Ajouter un style pour le surlignage
+      if ($('style#highlight-style').length === 0) {
+        $('head').append('<style id="highlight-style">.highlight { background-color: yellow; font-weight: bold; }</style>');
+      }
+    }, 300); // Délai de 300ms
+  });
+  
+  // Effacer la recherche quand on clique sur le bouton de recherche
+  $(".input-group-append button").click(function() {
+    $("#input-customer").val("").trigger("keyup");
   });
 });
 

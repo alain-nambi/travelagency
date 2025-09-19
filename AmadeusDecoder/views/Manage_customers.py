@@ -201,3 +201,56 @@ def get_pnr_created_today_not_invoiced(request):
     pnrs = Pnr.objects.filter(agent_id= request.user.id,system_creation_date__range=[start_date, end_date], is_invoiced= False)
     nbre_pnr = pnrs.count()
     return pnrs
+
+def customer_details(request,customer_id):
+    details = Client.objects.get(pk=customer_id)
+    context = {'customer' : details}
+    return render(request,'customer.html',context)
+
+@login_required(login_url='index')
+def modify_customer(request):
+    context = {}
+    if request.method == 'POST':
+        
+        id = request.POST.get('Id')
+        address = request.POST.get('Address')
+        address_2 = request.POST.get('Address_2')
+        email = request.POST.get('Email')
+        telephone = request.POST.get('Phone')
+        country = request.POST.get('Country')
+        city = request.POST.get('City')
+        code_postal = request.POST.get('Code_postal')
+        departement = request.POST.get('Departement')
+        intitule = request.POST.get('intitule')
+        
+        customer = Client.objects.filter(pk=id)     
+        
+        connected_user_id = request.POST.get('connected_user')
+        password = request.POST.get('password')
+        
+        connected_user = User.objects.get(pk=connected_user_id)
+        connected_user_authenticated = authenticate(request, username=connected_user.email, password=password)
+        print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+        
+        print(telephone)
+        if connected_user_authenticated is not None:
+            if address is not None and address != '': customer.update(address_1= address)
+            if address_2 is not None and address_2 != '': customer.update(address_2= address_2)
+            if email is not None and email != '': customer.update(email= email)
+            if telephone is not None and telephone != '': 
+                print('telephone var mi')
+                customer.update(telephone= telephone)
+            if country is not None and country != '': customer.update(country= country)
+            if city is not None and city != '': customer.update(city= city)
+            if code_postal is not None and code_postal != '': customer.update(code_postal= code_postal)
+            if departement is not None and departement != '': customer.update(departement= departement)
+            if intitule is not None and intitule != '': customer.update(intitule= intitule)
+            
+            context['message'] = "Informations modifiées"
+            context['status'] = 200
+
+        else:
+            context['message'] = "Mot de passe incorrect"
+            context['status'] = 10
+
+    return JsonResponse(context)

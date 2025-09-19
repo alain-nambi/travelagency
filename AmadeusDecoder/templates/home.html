@@ -680,7 +680,7 @@
                   <div class="modal-header">
                     <h5 class="modal-title" id="modalPnrNotUpdatedTitle">
                       <i class="fa fa-upload"></i>
-                      PNR non remontés
+                      PNR non remonté
                     </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                       <span aria-hidden="true">&times;</span>
@@ -692,12 +692,7 @@
                         <label for="message-text" class="col-form-label">Numero PNR:</label>
                         <input type='text' class="form-control" id="messagePnrNotUpdated" placeholder="Veuillez saisir le numero du PNR..."></input>
                       </div>
-                      <div class="form-group">
-                        <label for="messagePnrContext" class="col-form-label">Contexte</label>
-                        <textarea class="form-control" id="messagePnrContext" placeholder="Veuillez saisir un contexte"></textarea>
-                      </div>
                     </form>
-                    <div><a href="" id="getPnrNotFetchedList">Voir la liste des PNR non remontés du jour</a></div>
                   </div>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
@@ -707,7 +702,7 @@
               </div>
             </div>
 
-            
+
  
             <!-- /.card-body -->
           </div>
@@ -718,57 +713,9 @@
             aria-hidden="true"></i>
         </a>
       </div>
-
-      <div class="modal fade" id="modalListPnrNotUpdated" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="modalListPnrNotUpdatedTitle">
-                <i class="fa fa-upload"></i>
-                PNR non remontés
-              </h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              <table class="table table-bordered table-head-fixed table-hover text-nowrap">
-              <thead id="thead-all-pnr">
-                <tr id="tr-all-pnr">
-                  <th>Numéro</th>
-                  <th>Signalé par</th>
-                  <th>Status</i></th>
-                  
-                </tr>
-              </thead>
-
-              <tbody class="tbody-pnr-after-search">
-              {% for pnr in pnr_not_fetched %}
-                <tr>
-                  <td>{{ pnr.pnr_number }}</td>
-                  <td>{{ pnr.follower.username }}</td>
-                  
-                  <td>
-                    {% if pnr.status == 1 %}
-                      <button type="button" class="btn btn-danger">Non Remonté</button>
-                    {% else %}
-                      <button type="button" class="btn btn-success">Remonté</button>
-                    {% endif %}
-                  </td>
-                </tr>
-              {% endfor %}
-                
-              </tbody>
-            </div>
-            
-          </div>
-        </div>
-      </div>
     </div>
   </section>
 </div>
-
-
 <div class="loading">
   <div class="spinner-wrapper">
     <span class="spinner-text">Chargement...</span>

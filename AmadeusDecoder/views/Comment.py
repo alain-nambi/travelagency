@@ -27,6 +27,7 @@ import json
 @login_required(login_url='index')
 def comment(request):
     if request.method == 'POST':
+        print("RESPONSE DETAILS")
         comment_value = request.POST.get('comment')
         pnr_id = request.POST.get('pnr_id')
         pnr_element = Pnr.objects.get(pk=int(pnr_id))
@@ -58,17 +59,15 @@ def comment(request):
                     </html>
                 """.format(comment_value, pnr_element.number, user_element.username)
 
-    Sending.send_email(
-        "anomalie.issoufali.pnr@gmail.com",
-        [
-            "pp@phidia.onmicrosoft.com",
-           "tahina@alita.re",
-            "maphie@alita.re",
-            "nomena@alita.re",
-        ],
-         subject,
-         message
-    )
+        Sending.send_email(
+            "anomalie.issoufali@alita.re",
+            [
+                "maphie@alita.re",
+                "nomena@alita.re",
+            ],
+            subject,
+            message
+        )
 
     return JsonResponse({'comment': 'Data successfully sent to database'})
 
@@ -107,6 +106,7 @@ def comment_detail(request, comment_id):
     context['comments'] = comments
 
     if request.method == 'POST':
+        print("+++++++++++++++ COMMENT RESPONSE +++++++++++++++++++++++")
         if 'comment-response' in request.POST:
             comment_response = request.POST.get('comment-response')
             user_id = User.objects.get(pk=int(request.user.id))
@@ -138,11 +138,9 @@ def comment_detail(request, comment_id):
                     """.format(comments.comment, comments.pnr_id.number, comments.user_id.username, comment_response)
 
             Sending.send_email(
-                "anomalie.issoufali.pnr@gmail.com",
+                "anomalie.issoufali@alita.re",
                 [   
                     comments.user_id.email,
-                    "pp@phidia.onmicrosoft.com",
-                    "tahina@alita.re",
                     "maphie@alita.re",
                     "nomena@alita.re",
                 ],
@@ -170,6 +168,7 @@ def update_comment_state(request):
 @login_required(login_url='index')
 def get_pnr_not_fetched(request):
     if request.method == 'POST':
+        print("PNR not fetched")
         if 'pnrNumber' in request.POST:
             pnr_number = request.POST.get('pnrNumber')
             pnr_context = request.POST.get('pnrContext')
@@ -177,6 +176,7 @@ def get_pnr_not_fetched(request):
 
             user_follower = request.user.id
             if pnr_number != '' and pnr_number != None and not NotFetched.objects.filter(pnr_number=pnr_number).exists():
+                print("We can send the mail")
                 follower = User.objects.get(pk=int(user_follower))
                 pnr_not_fetched = NotFetched(pnr_number=pnr_number, follower=follower, context=pnr_context,status=1)
                 pnr_not_fetched.save()
@@ -206,7 +206,7 @@ def get_pnr_not_fetched(request):
                         """.format(pnr.pnr_number,pnr.context, pnr.follower.username)
 
             Sending.send_email_pnr_not_fetched(
-                "anomalie.issoufali.pnr@gmail.com",
+                "anomalie.issoufali@alita.re",
                 [
                     "maphie@alita.re"
                 ],

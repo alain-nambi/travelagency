@@ -16,8 +16,8 @@ import AmadeusDecoder.utilities.configuration_data as configs
 #     'tahina@phidia.onmicrosoft.com',
 #     'pp@phidia.onmicrosoft.com']
 # EMAIL_SENDING_ERROR_NOTIFICATION = {"port":587, "smtp":"smtp.gmail.com", "address":"errorreport.issoufali.pnr@gmail.com", "password":"chnversafifnzagp"}
-# ANOMALY_EMAIL_SENDER = {"port":587, "smtp":"smtp.gmail.com", "address":"anomalie.issoufali.pnr@gmail.com", "password":"qczyzeytdvlbcysq"}
-# PNR_NOT_FETCHED_NOTIFICATION_SENDER = {"port":587, "smtp":"smtp.gmail.com", "address":"anomalie.issoufali.pnr@gmail.com", "password":"qczyzeytdvlbcysq"}
+# ANOMALY_EMAIL_SENDER = {"port":587, "smtp":"smtp.gmail.com", "address":"anomalie.issoufali@alita.re", "password":"qczyzeytdvlbcysq"}
+# PNR_NOT_FETCHED_NOTIFICATION_SENDER = {"port":587, "smtp":"smtp.gmail.com", "address":"anomalie.issoufali@alita.re", "password":"qczyzeytdvlbcysq"}
 # FEE_REQUEST_SENDER = {"port":587, "smtp":"smtp.gmail.com", "address":"feerequest.issoufali.pnr@gmail.com", "password":"tnkunwvygtdkxfxg"}
 # PNR_PARSING_ERROR_NOTIFICATION_SENDER = {"port":587, "smtp":"smtp.gmail.com", "address":"errorreport.issoufali.pnr@gmail.com", "password":"chnversafifnzagp"}
 # PNR_PARSING_ERROR_NOTIFICATION_RECIPIENTS = [
@@ -104,84 +104,78 @@ class Sending():
     @staticmethod
     def send_email(sender, recipients, subject, body, attachments=None):
 
-
-        message = MIMEMultipart()
-        email_sender = ANOMALY_EMAIL_SENDER["address"]
-
-        message['From'] = email_sender
-        message['To'] = ";".join(recipients)
-        message['Subject'] = subject + " - Application Gestion PNR"
-
-        message.attach(MIMEText(body, 'html'))
-
-        # 📎 Ajout des pièces jointes s'il y en a
-        if attachments:
-            for file_path in attachments:
-                try:
-                    with open(file_path, "rb") as f:
-                        part = MIMEBase("application", "octet-stream")
-                        part.set_payload(f.read())
-                        encoders.encode_base64(part)
-                        part.add_header(
-                            "Content-Disposition",
-                            f'attachment; filename="{os.path.basename(file_path)}"'
-                        )
-                        message.attach(part)
-                except Exception as e:
-                    print(f"Erreur lors de l'attachement du fichier {file_path} : {e}")
-
         try:
+            message = MIMEMultipart()
+            email_sender = ANOMALY_EMAIL_SENDER["address"]
+            password = ANOMALY_EMAIL_SENDER["password"].strip().rstrip('\r\n')
+
+            message['From'] = email_sender
+            message['To'] = ";".join(recipients)
+            message['Subject'] = subject + " - Application Gestion PNR"
+
+            message.attach(MIMEText(body, 'html'))
+
+            # 📎 Ajout des pièces jointes s'il y en a
+            if attachments:
+                for file_path in attachments:
+                    try:
+                        with open(file_path, "rb") as f:
+                            part = MIMEBase("application", "octet-stream")
+                            part.set_payload(f.read())
+                            encoders.encode_base64(part)
+                            part.add_header(
+                                "Content-Disposition",
+                                f'attachment; filename="{os.path.basename(file_path)}"'
+                            )
+                            message.attach(part)
+                    except Exception as e:
+                        print(f"Erreur lors de l'attachement du fichier {file_path} : {e}")
+            
+            # Connexion avec méthode d'authentification explicite
             server = smtplib.SMTP(ANOMALY_EMAIL_SENDER['smtp'], int(ANOMALY_EMAIL_SENDER['port']))
+            server.set_debuglevel(1)
             server.ehlo()
-            server.starttls()
-            server.ehlo()
-            server.login(email_sender, ANOMALY_EMAIL_SENDER['password'])
+            if server.has_extn('STARTTLS'):
+                server.starttls()
+                server.ehlo()
+        
+            # Essayer différentes méthodes d'authentification
+            try:
+                # Méthode 1: LOGIN
+                server.login(email_sender, password)
+            except smtplib.SMTPAuthenticationError:
+                try:
+                    # Méthode 2: PLAIN
+                    auth_string = f"\0{email_sender}\0{password}"
+                    server.docmd("AUTH", "PLAIN " + base64.b64encode(auth_string.encode()).decode())
+                except:
+                    # Méthode 3: CRAM-MD5 (si disponible)
+                    import hmac, hashlib
+                    def auth_cram_md5(challenge, email_sender, password):
+                        challenge = base64.b64decode(challenge)
+                        response = hmac.HMAC(password.encode(), challenge, hashlib.md5).hexdigest()
+                        return base64.b64encode(f"{email_sender} {response}".encode()).decode()
+                    
+                    resp = server.docmd("AUTH", "CRAM-MD5")
+                    if resp[0] == 334:
+                        server.docmd(auth_cram_md5(resp[1].decode(), email_sender, password))
+        
             text = message.as_string()
             server.sendmail(email_sender, recipients, text)
             print(f"{datetime.now()} NOTE: Email sent to {recipients}")
             server.quit()
-        except Exception as e:
-            print(f"{datetime.now()} ERROR: SMTP server connection error.")
-            print(f"{datetime.now()} ERROR: {e}")
-            Sending().catch_error_on_sending_email(email_sender)
-
-        return True
-    
-    # '''Class use when sending mail notification'''
-    # @staticmethod
-    # def send_email_pnr_not_sent(sender, recipients, subject, body):
-    #     message = MIMEMultipart()
-    #     email_sender = "anomalie.issoufali.pnr@gmail.com"
+            return True
         
-    #     message['From'] = email_sender
-    #     message['To'] = ";".join(recipients)
-    #     message['Subject'] = subject + " - Application Gestion PNR"
-
-    #     message.attach(MIMEText(body, 'html'))
-
-    #     try:
-    #         server = smtplib.SMTP('smtp.gmail.com', 587)
-    #         server.ehlo()
-    #         server.starttls()
-    #         server.ehlo()
-    #         server.login("anomalie.issoufali.pnr@gmail.com", "qczyzeytdvlbcysq")
-    #         text = message.as_string()
-    #         server.sendmail(email_sender, recipients, text)
-    #         print("{} NOTE: Email sent to \"{}\" address.".format(
-    #             datetime.now(), recipients))
-    #         server.quit()
-    #     except Exception as e:
-    #         print("{} ERROR: SMTP server connection error.".format(datetime.now()))
-    #         print("{} ERROR: {}".format(datetime.now(), e))
-    #         Sending().catch_error_on_sending_email("anomalie.issoufali.pnr@gmail.com")
-            
-    #     return True
+        except Exception as e:
+            print(f"{datetime.now()} ERROR: {e}")
+            return False
 
     @staticmethod
     def send_email_pnr_not_fetched(sender, recipients, subject, body):
-
+        print("++++++++++++++++++ INIT SENDING PNR NOT FETCHED MAIL ++++++++++++++++++")
         message = MIMEMultipart()
         email_sender = PNR_NOT_FETCHED_NOTIFICATION_SENDER['address']
+        password = PNR_NOT_FETCHED_NOTIFICATION_SENDER["password"].strip().rstrip('\r\n')
         
         message['From'] = email_sender
         message['To'] = ";".join(recipients)
@@ -191,21 +185,42 @@ class Sending():
 
         try:
             server = smtplib.SMTP(PNR_NOT_FETCHED_NOTIFICATION_SENDER['smtp'], int(PNR_NOT_FETCHED_NOTIFICATION_SENDER['port']))
+            server.set_debuglevel(1)
             server.ehlo()
-            server.starttls()
-            server.ehlo()
-            server.login(PNR_NOT_FETCHED_NOTIFICATION_SENDER['address'], PNR_NOT_FETCHED_NOTIFICATION_SENDER['password'])
+            if server.has_extn('STARTTLS'):
+                server.starttls()
+                server.ehlo()
+        
+            # Essayer différentes méthodes d'authentification
+            try:
+                # Méthode 1: LOGIN
+                server.login(email_sender, password)
+            except smtplib.SMTPAuthenticationError:
+                try:
+                    # Méthode 2: PLAIN
+                    auth_string = f"\0{email_sender}\0{password}"
+                    server.docmd("AUTH", "PLAIN " + base64.b64encode(auth_string.encode()).decode())
+                except:
+                    # Méthode 3: CRAM-MD5 (si disponible)
+                    import hmac, hashlib
+                    def auth_cram_md5(challenge, email_sender, password):
+                        challenge = base64.b64decode(challenge)
+                        response = hmac.HMAC(password.encode(), challenge, hashlib.md5).hexdigest()
+                        return base64.b64encode(f"{email_sender} {response}".encode()).decode()
+                    
+                    resp = server.docmd("AUTH", "CRAM-MD5")
+                    if resp[0] == 334:
+                        server.docmd(auth_cram_md5(resp[1].decode(), email_sender, password))
+        
             text = message.as_string()
             server.sendmail(email_sender, recipients, text)
-            print("{} NOTE: Email sent to \"{}\" address.".format(
-                datetime.now(), recipients))
+            print(f"{datetime.now()} NOTE: Email sent to {recipients}")
             server.quit()
+            return True
+        
         except Exception as e:
-            print("{} ERROR: SMTP server connection error.".format(datetime.now()))
-            print("{} ERROR: {}".format(datetime.now(), e))
-            Sending().catch_error_on_sending_email(PNR_NOT_FETCHED_NOTIFICATION_SENDER['address'])
-            
-        return True
+            print(f"{datetime.now()} ERROR: {e}")
+            return False
 
     @staticmethod
     def send_email_error(sender, recipients, subject, body):
@@ -239,7 +254,7 @@ class Sending():
     
     @staticmethod
     def send_email_request(sender, recipients, subject, body):
-
+        print("++++++++++++++++++ INIT SENDING REQUEST MAIL ++++++++++++++++++")
         message = MIMEMultipart()
         email_sender = FEE_REQUEST_SENDER['address']
         

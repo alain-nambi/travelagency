@@ -16,6 +16,8 @@ class RepeatTimer(Timer):
         while not self.finished.wait(self.interval):
             self.function(*self.args, **self.kwargs)
 
+def ready(self):
+    import AmadeusDecoder.signals
 
 'Function that call mail notification of direction'
 def start_pnr_daily_report_schedule():

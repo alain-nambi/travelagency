@@ -90,6 +90,7 @@ def home(request):
     pnr_creator_filter_cookies = request.COOKIES.get('creator_pnr_filter')
     date_range_filter_cookies = request.COOKIES.get('dateRangeFilter')
     issue_date_filter_cookies = request.COOKIES.get('dateIssueFilter')
+    print("ISSUE DATE FILTER COOKIES : ",issue_date_filter_cookies)
     is_invoiced_filter_cookies = request.COOKIES.get('filter_pnr')
     agency_name_filter_cookies = request.COOKIES.get('agency_name_filter')
     pnr_status_filter_cookies = request.COOKIES.get('filter_pnr_by_status')

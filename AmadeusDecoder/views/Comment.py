@@ -353,6 +353,7 @@ def save_ticket_anomalie(request):
             passenger_id = new_tickets[0]['passenger_id']
             segments = []
             ticket_type = new_tickets[0]['ticket_type']
+            issuing_date = new_tickets[0]['issuing_date']
         
             for segment in new_tickets[0]['segment']:
                 segments.append(segment.get('value'))
@@ -362,9 +363,9 @@ def save_ticket_anomalie(request):
             user_id = new_tickets[0]['user_id']
 
             if isticket == '0':
-                info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "passenger_id":passenger_id, "segment": segments, "ticket_status":1, 'ticket_type':ticket_type, 'fee': str(new_tickets[0]['fee']).capitalize(),'isticket':0} # ticket_status : 0 ticket existant , 1 ticket non existant
+                info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "passenger_id":passenger_id, "segment": segments, "ticket_status":1, 'ticket_type':ticket_type, "issuing_date":issuing_date, 'fee': str(new_tickets[0]['fee']).capitalize(),'isticket':0} # ticket_status : 0 ticket existant , 1 ticket non existant
             else:
-                info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "passenger_id":passenger_id, "segment": segments, "ticket_status":1, 'ticket_type':ticket_type, 'fee': str(new_tickets[0]['fee']).capitalize(), 'isticket':1} # ticket_status : 0 ticket existant , 1 ticket non existant
+                info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "passenger_id":passenger_id, "segment": segments, "ticket_status":1, 'ticket_type':ticket_type, "issuing_date":issuing_date, 'fee': str(new_tickets[0]['fee']).capitalize(), 'isticket':1} # ticket_status : 0 ticket existant , 1 ticket non existant
         else:
             ticket_number = request.POST.get('ticket_number')
             montant_hors_taxe = request.POST.get('montant_hors_taxe')
@@ -456,7 +457,6 @@ def update_ticket(request):
             ticket.ticket_status = 1
             ticket.state = 0
             ticket.emitter = None
-            ticket.issuing_date = datetime.now()
 
             if issuing_user.id in issuing_user.has_lift_tki_perm():
                 ticket.emitter = issuing_user
@@ -481,7 +481,7 @@ def update_ticket(request):
 
             if issuing_user.id in issuing_user.has_lift_tki_perm():
                 ticket.emitter = issuing_user
-            ticket.issuing_date=datetime.now()
+            ticket.issuing_date=anomalie.infos.get('issuing_date')
 
             print('************************IS TICKET : ', anomalie.infos.get('isticket'))
             ticket.is_refund = anomalie.infos.get('isticket') == '1'

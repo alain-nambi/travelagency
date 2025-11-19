@@ -105,7 +105,7 @@ class OthersFee(models.Model, BaseModel):
     issuing_agent_name = models.CharField(max_length=200, null=True)
     
     def __str__(self):
-        return self.designation
+        return self.designation or ""
 
 class Product(models.Model, BaseModel):
 

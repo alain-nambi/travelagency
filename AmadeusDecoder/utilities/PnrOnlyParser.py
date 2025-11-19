@@ -106,6 +106,8 @@ class PnrOnlyParser():
                     pnr.agent = user_agent  
                 else:
                     raise Exception('No agent found')
+                
+            print("********** PNR AGENT ************ : ",pnr.agent)
         except:
             pnr.agent_code = user_gds_id
         
@@ -142,6 +144,7 @@ class PnrOnlyParser():
             # current pnr emitter
             try:
                 current_pnr_emitter = User.objects.filter(gds_id=header_with_no_space[len(header_with_no_space) - 3].split('/')[0]).first()
+                print("********** CURRENT PNR EMITTER *************** : ",current_pnr_emitter)
             except:
                 print("Current PNR has no emitter found")
             
@@ -157,6 +160,7 @@ class PnrOnlyParser():
         pnr.is_read = False
         if pnr.agent is not None:
             current_pnr_emitter = pnr.agent
+            print("********** CURRENT PNR EMITTER *************** : ",current_pnr_emitter)
         return pnr, False, current_pnr_emitter
     
     # Check if regular pnr line: a regular one always start with a number followed by a blank space or a full stop'''
@@ -2013,6 +2017,7 @@ class PnrOnlyParser():
                                     ticket.get_issuing_user_different_creator()
                                     if ticket.emitter is None and current_pnr_emitter is not None:
                                         ticket.emitter = current_pnr_emitter
+                                        print("********** TICKET EMITTER *************** : ",ticket.emitter)
                                     # refund case
                                     if ticket.is_refund:
                                         temp_ticket_obj = Ticket.objects.filter(number=ticket.number.removesuffix('-R')).first()

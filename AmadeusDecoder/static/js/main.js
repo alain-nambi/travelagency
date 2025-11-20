@@ -199,6 +199,7 @@ $(document).ready(function () {
   const isPnrFilterSelected = getCookies("filter_pnr")
   const isCreatorSelected = getCookies("creator_pnr_filter")
   const isDateRangeSelected = getCookies("dateRangeFilter")
+  const isDateIssueSelected = getCookies("dateIssueFilter")
   const isStatusSelected = getCookies("filter_pnr_by_status")
   const isAgencySelected = getCookies("agency_name_filter")
 
@@ -446,6 +447,57 @@ $(document).ready(function () {
     `
   }
 
+  const isDateIssueSelectedValue = (date) => {
+    const dateStart = date.split(" * ")[0];
+    const dateEnd = date.split(" * ")[1];
+
+    // Convertir le chaine de caractère en objet Date() 
+    const objDateStart = new Date(dateStart);
+    const objDateEnd = new Date(dateEnd);
+
+    // Fonction pour formater une date en format FR
+    function formatDateFR(date) {
+      const options = { day: 'numeric', month: 'long', year: 'numeric' };
+      return date.toLocaleDateString('fr-FR', options);
+    }
+
+    return `
+      <div
+        style="
+          color: #fff;
+          background: #17a2b8;
+          border-radius: 6px;
+          cursor: drag;
+          padding: 2px 1px;
+        "
+        class="d-flex align-items-center ml-2 my-2"
+      >
+        <span  
+          cy-data="span-date-issue" 
+          style="font-size: 10px"
+          class="pl-2"
+        >
+          Date d'émission: ${formatDateFR(objDateStart)} au ${formatDateFR(objDateEnd)}
+        </span>
+        <button 
+          style="
+            border: none; 
+            background: transparent; 
+            color: #fff;
+          " 
+          title="Supprimer le filtre Date d'émission"
+          id="buttonDateIssueFilter"
+        >
+          <i 
+            id="iconCreatorFilter"
+            class="fas fa-times-circle pr-2 pl-1"
+            style="font-size: 14px;"
+          ></i>
+        </button>
+      </div>
+    `
+  }
+
   const isStatusSelectedValue = (status) => {
     return `
       <div
@@ -519,6 +571,12 @@ $(document).ready(function () {
     $("#listActiveFilter").append(`${isDateRangeSelectedValue(isDateRangeSelected)}`)
   }
 
+  // Add date issue selected value
+  if (isDateIssueSelected !== null) {
+    $("#listActiveFilter").append(`${isDateIssueSelectedValue(isDateIssueSelected)}`)
+  }
+  
+
   // Add agency selected value
   if (isAgencySelected !== null) {
     $("#listActiveFilter").append(`${isAgencySelectedValue(isAgencySelected)}`)
@@ -534,6 +592,10 @@ $(document).ready(function () {
     })
     $("#buttonDateRangeFilter").on("click", (e) => {
       Cookies.remove("dateRangeFilter", { path: "/home" })
+      window.location.reload()
+    })
+    $("#buttonDateIssueFilter").on("click", (e) => {
+      Cookies.remove("dateIssueFilter", { path: "/home" })
       window.location.reload()
     })
     $("#buttonStatusFilter").on("click", (e) => {
@@ -591,6 +653,8 @@ $(function () {
   const currentDateToString = new Date(Date.now());
   const options = { year: 'numeric', month: 'long', day: 'numeric' };
   const localeDateString = currentDateToString.toLocaleDateString('fr-FR', options);
+  console.log("localeDateString : ",localeDateString);
+  
 
   // Cache tous les éléments de menu de filtre lors du chargement de la page.
   const $wrapperMenuFilter = $(".wrapper-menu-filter");
@@ -598,6 +662,7 @@ $(function () {
   const $pnrMenu = $(".pnr-menu");
   const $pnrStatus = $(".pnr-status");
   const $dateRangeMenu = $(".date-range-menu");
+  const $dateIssueMenu = $(".date-issue-menu");
   const $creatorMenu = $(".creator-group-menu");
   const $agencyMenu = $(".agency-list-menu");
   const liElements = $(".filter-menu > .list");
@@ -608,6 +673,7 @@ $(function () {
   $pnrMenu.hide();
   $pnrStatus.hide();
   $dateRangeMenu.hide();
+  $dateIssueMenu.hide();
   $creatorMenu.hide();
   $agencyMenu.hide();
 
@@ -619,6 +685,7 @@ $(function () {
     $pnrMenu.hide();
     $pnrStatus.hide();
     $dateRangeMenu.hide();
+    $dateIssueMenu.hide();
     $creatorMenu.hide();
     $agencyMenu.hide();
   })
@@ -635,6 +702,7 @@ $(function () {
     $pnrMenu.hide();
     $pnrStatus.hide();
     $dateRangeMenu.hide();
+    $dateIssueMenu.hide();
     $creatorMenu.hide();
     $agencyMenu.hide();
   });
@@ -645,19 +713,20 @@ $(function () {
     // Vérifie si la variable isMenuOpen est définie et est de type boolean
     if (typeof isMenuOpen === 'boolean') {
       // Vérifie si le menu est ouvert (isMenuOpen est true) et si l'élément cliqué se trouve en dehors du menu
-      if (isMenuOpen && !event.target.closest("#buttonMenuFilter, .wrapper-menu-filter, .pnr-menu, .pnr-status, .date-range-menu, .creator-group-menu, .filter-menu > .list, .pnr-menu .pnr-list, .pnr-status .pnr-list, #reportrange, .daterangepicker, .next, .prev, .creator-group-menu, .agency-list, .agency-list-menu.absolute")) {
+      if (isMenuOpen && !event.target.closest("#buttonMenuFilter, .wrapper-menu-filter, .pnr-menu, .pnr-status, .date-range-menu, .date-issue-menu, .creator-group-menu, .filter-menu > .list, .pnr-menu .pnr-list, .pnr-status .pnr-list, #reportrange, .daterangepicker, .next, .prev, .creator-group-menu, .agency-list, .agency-list-menu.absolute")) {
         // Si les conditions sont remplies, cela signifie que vous avez cliqué en dehors du menu, donc le menu doit être fermé
 
         // Inverse la valeur de isMenuOpen (true devient false, et vice versa)
         isMenuOpen = !isMenuOpen;
 
         // Vérifie si les variables sont définies avant de les utiliser
-        if ($wrapperMenuFilter && $pnrMenu && $pnrStatus && $dateRangeMenu && $creatorMenu && $agencyMenu) {
+        if ($wrapperMenuFilter && $pnrMenu && $pnrStatus && $dateRangeMenu && $dateIssueMenu && $creatorMenu && $agencyMenu) {
           // Masque les éléments suivants pour les rendre invisibles sur la page
           $wrapperMenuFilter.hide();
           $pnrMenu.hide();
           $pnrStatus.hide();
           $dateRangeMenu.hide();
+          $dateIssueMenu.hide();
           $creatorMenu.hide();
           $agencyMenu.hide();
         } else {
@@ -678,6 +747,7 @@ $(function () {
     if (this.classList.contains("list-one")) {
       $pnrMenu.show();
       $dateRangeMenu.hide();
+      $dateIssueMenu.hide();
       $creatorMenu.hide();
       $pnrStatus.hide();
       $agencyMenu.hide();
@@ -685,6 +755,7 @@ $(function () {
 
     if (this.classList.contains("list-two")) {
       $dateRangeMenu.show();
+      $dateIssueMenu.hide();
       $pnrMenu.hide();
       $creatorMenu.hide();
       $pnrStatus.hide();
@@ -693,6 +764,7 @@ $(function () {
 
     if (this.classList.contains("list-three")) {
       $dateRangeMenu.hide();
+      $dateIssueMenu.hide();
       $pnrMenu.hide();
       $creatorMenu.show();
       $pnrStatus.hide();
@@ -701,6 +773,7 @@ $(function () {
 
     if (this.classList.contains("list-four")) {
       $dateRangeMenu.hide();
+      $dateIssueMenu.hide();
       $pnrMenu.hide();
       $creatorMenu.hide();
       $pnrStatus.show();
@@ -709,10 +782,20 @@ $(function () {
 
     if (this.classList.contains("list-six")) {
       $dateRangeMenu.hide();
+      $dateIssueMenu.hide();
       $pnrMenu.hide();
       $creatorMenu.hide();
       $pnrStatus.hide();
       $agencyMenu.show();
+    }
+
+    if (this.classList.contains("list-seven")) {
+      $dateRangeMenu.hide();
+      $dateIssueMenu.show();
+      $pnrMenu.hide();
+      $creatorMenu.hide();
+      $pnrStatus.hide();
+      $agencyMenu.hide();
     }
 
     this.classList.add("active");
@@ -844,6 +927,9 @@ $(function () {
   // Ajoutez la date locale dans les éléments HTML avec l'ID "dateRangeBegin" et "dateRangeEnd"
   $('#dateRangeBegin, #dateRangeEnd').text(localeDateString);
 
+  // Ajoutez la date locale dans les éléments HTML avec l'ID "issueDateStart" et "issueDateEnd"
+    $('#spanIssueDateStart, #spanIssueDateEnd').text(localeDateString);
+
   // Définit une fonction de rappel pour le choix de date
   function cbStart(start) {
     // Récupère la date de début et de fin depuis localStorage s'ils existent
@@ -915,9 +1001,85 @@ $(function () {
     cbEnd(startDateDisplay);
   });
 
+  // Définit une fonction de rappel pour le choix de date
+  function cbIssueStart(start) {
+    // Récupère la date de début et de fin depuis localStorage s'ils existent
+    const startIssueDateFromLocalStorage = JSON.parse(localStorage.getItem("startIssueDate"));
+
+    // Affiche la plage de dates sélectionnée dans l'élément avec l'ID "reportrange"
+    // Si aucune date n'a été récupérée depuis localStorage, affiche la plage de dates courante
+    const displayStartIssueDate = startIssueDateFromLocalStorage || start;
+    $('#spanIssueDateStart').html(displayStartIssueDate);
+  }
+
+  function cbIssueEnd(start) {
+    // Récupère la date de début et de fin depuis localStorage s'ils existent
+    const EndIssueDateFromLocalStorage = JSON.parse(localStorage.getItem("endIssueDate"));
+
+    // Affiche la plage de dates sélectionnée dans l'élément avec l'ID "reportrange"
+    // Si aucune date n'a été récupérée depuis localStorage, affiche la plage de dates courante
+    const displayStartIssueDate = EndIssueDateFromLocalStorage || start;
+    $('#spanIssueDateEnd').html(displayStartIssueDate);
+  }
+
+  // Initialise le plugin Issue Date filter sur l'élément avec l'ID "issueDate"
+  $('#issueDateStart').daterangepicker({
+    opens: 'right',
+    singleDatePicker: true,
+    showDropdowns: true,
+    minDate: "01/01/2023",
+    autoApply: true,
+  }, function (start, end, label) {
+    // Formate les dates de début et de fin pour l'affichage et le stockage
+    const storageFormat = 'YYYY-MM-DD';
+
+    const startIssueDateDisplay = start._d.toLocaleDateString('fr-FR', options);
+
+    const startIssueDateStorage = start.format(storageFormat);
+
+    // Stocke la plage de dates sélectionnée dans un cookie
+    document.cookie = `dateIssueStart=${startIssueDateStorage}; SameSite=Lax`;
+
+    // Stocke la date de début et de fin sélectionnée dans localStorage
+    localStorage.setItem("startIssueDate", JSON.stringify(startIssueDateDisplay));
+
+    // Met à jour la plage de dates affichée en appelant la fonction de rappel
+    cbIssueStart(startIssueDateDisplay);
+  });
+
+  $('#issueDateEnd').daterangepicker({
+    opens: 'right',
+    singleDatePicker: true,
+    showDropdowns: true,
+    minDate: "01/01/2023",
+    autoApply: true,
+  }, function (start, end, label) {
+    // Formate les dates de début et de fin pour l'affichage et le stockage
+    const storageFormat = 'YYYY-MM-DD';
+    
+    const startIssueDateDisplay = start._d.toLocaleDateString('fr-FR', options);
+    
+    const endDateIssueDisplay = end._d.toLocaleDateString('fr-FR', options);
+
+    const startIssueDateStorage = start.format(storageFormat);
+
+    // Stocke la plage de dates sélectionnée dans un cookie
+    document.cookie = `dateIssueEnd=${startIssueDateStorage}; SameSite=Lax`;
+
+    // Stocke la date de début et de fin sélectionnée dans localStorage
+    localStorage.setItem("endIssueDate", JSON.stringify(startIssueDateDisplay));
+
+    // Met à jour la plage de dates affichée en appelant la fonction de rappel
+    cbIssueEnd(startIssueDateDisplay);
+  });
+
+
   // Initialise la plage de dates affichée en appelant la fonction de rappel avec la date courante
   cbStart(localeDateString);
   cbEnd(localeDateString);
+
+  cbIssueStart(localeDateString);
+  cbIssueEnd(localeDateString);
 
   // Ajoute un gestionnaire d'événements pour le bouton de filtre pour forcer le rechargement de la page
   $("#buttonMenuFilterByCreationDateRange").on("click", () => {
@@ -1034,6 +1196,123 @@ $(function () {
 
     }
   })
+
+  // Ajoute un gestionnaire d'événements pour le bouton de filtre de la date d'émission pour forcer le rechargement de la page
+  $("#buttonMenuFilterIssueDate").on("click", () => {
+    const startIssueDateStorage = Cookies.get('dateIssueStart')
+    const endIssueDateStorage = Cookies.get('dateIssueEnd')
+
+    $('#reportrangebegin').removeClass('border border-danger')
+    $(".alert-report-range-begin").html('')
+
+    // Function to get the date range from a string date.
+    function getDateRange(stringDate) {
+      // Split the string date into an array of strings, separated by spaces.
+      const dateParts = stringDate.split(" ");
+
+      // Return the first element of the array, which is the date range.
+      return dateParts[0];
+    }
+
+    // Function to filter the months array by key.
+    function getMonth(months, key) {
+      // Find the index of the month object in the array that has the specified key.
+      const foundMonth = months.findIndex(m => Object.keys(m).includes(key.split(" ")[1]));
+
+      // If the month object is found, return the month number, otherwise return null.
+      return foundMonth < 10 ? "0" + (foundMonth + 1) : foundMonth + 1;
+    }
+
+    // Function to get the full year from a string date.
+    function getFullYear(stringDate) {
+      // Split the string date into an array of strings, separated by spaces.
+      const dateParts = stringDate.split(" ");
+
+      // Return the third element of the array, which is the full year.
+      return dateParts[2];
+    }
+
+    if (startIssueDateStorage && endIssueDateStorage) {
+      if (startIssueDateStorage > endIssueDateStorage) {
+        $('#issueDateStart').addClass('border border-danger')
+        if ($("#alertDateIssueStart").length < 1) {
+          $(".alert-issue-date-begin").append(`
+            <span id="alertDateIssueStart" class="text-sm text-danger mt-1 d-flex align-items-center" style="gap: 5px">
+              <i class="fa fa-circle-exclamation"></i>
+              La date de début doit être inférieure à la date de fin
+            </span>
+          `
+          )
+        }
+      } else {
+        document.cookie = `dateIssueFilter=${startIssueDateStorage} * ${endIssueDateStorage}; SameSite=Lax`;
+        setTimeout(() => {
+          window.location.reload()
+        }, 600)
+      }
+    } else {
+      // Get the start and end dates from the DOM.
+      const startDateIssue = $("#spanIssueDateStart").text().trim();
+      const endDateIssue = $("#spanIssueDateEnd").text().trim();
+
+      // Create an array of months.
+      const months = [
+        { janvier: "January" },
+        { février: "February" },
+        { mars: "March" },
+        { avril: "April" },
+        { mai: "May" },
+        { juin: "June" },
+        { juillet: "July" },
+        { août: "August" },
+        { septembre: "September" },
+        { octobre: "October" },
+        { novembre: "November" },
+        { décembre: "December" },
+      ];
+
+      // Get the start and end days.
+      const startIssueDay = getDateRange(startDateIssue);
+      const endIssueDay = getDateRange(endDateIssue);
+
+      // Get the start and end months.
+      const startIssueMonth = getMonth(months, startDateIssue);
+      const endIssueMonth = getMonth(months, endDateIssue);
+
+      // Get the start and end years.
+      const startIssueYear = getFullYear(startDateIssue);
+      const endIssueYear = getFullYear(endDateIssue);
+
+      // Create the start and end date cookies.
+      const startIssueDateCookie = `${startIssueYear}-${startIssueMonth}-${startIssueDay}`;
+      const endIssueDateCookie = `${endIssueYear}-${endIssueMonth}-${endIssueDay}`;
+
+      if (startIssueDateCookie > endIssueDateCookie) {
+        $('#issueDateStart').addClass('border border-danger')
+        if ($("#alertDateIssueStart").length < 1) {
+          $(".alert-issue-date-begin").append(`
+            <span id="alertDateIssueStart" class="text-sm text-danger mt-1 d-flex align-items-center" style="gap: 5px">
+              <i class="fa fa-circle-exclamation"></i>
+              La date de début doit être inférieure à la date de fin
+            </span>
+          `
+          )
+        }
+      } else {
+        // Set the date range filter cookie.
+        document.cookie = `dateIssueStart=${startIssueDateCookie}; SameSite=Lax`;
+        document.cookie = `dateIssueEnd=${endIssueDateCookie}; SameSite=Lax`;
+        document.cookie = `dateIssueFilter=${startIssueDateCookie} * ${endIssueDateCookie}; SameSite=Lax`;
+
+        // Reload the page after 600 milliseconds.
+        setTimeout(() => {
+          window.location.reload();
+        }, 600);
+      }
+
+    }
+  })
+  
 
   $("#buttonMenuFilterByCreator").on("click", (e) => {
     e.preventDefault()

@@ -510,6 +510,11 @@ $(document).ready(function () {
                     fee = feeCheckbox.checked;
                 }
 
+                var issuing_date = $('#issuing_date').val();
+                if (!issuing_date) {
+                    issuing_date = new Date().toISOString().split('T')[0];
+                }
+
                 const listNewTicketAnomalyInfo = []
                 listNewTicketAnomalyInfo.push({
                     segment: segment,
@@ -522,7 +527,7 @@ $(document).ready(function () {
                     ticket_type: type,
                     fee: fee, 
                     isticket: isTickets,
-
+                    issuing_date: issuing_date,
                 })
                 console.log(listNewTicketAnomalyInfo);
 

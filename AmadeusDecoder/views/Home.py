@@ -89,6 +89,8 @@ def home(request):
     # Get filters from cookies
     pnr_creator_filter_cookies = request.COOKIES.get('creator_pnr_filter')
     date_range_filter_cookies = request.COOKIES.get('dateRangeFilter')
+    issue_date_filter_cookies = request.COOKIES.get('dateIssueFilter')
+    print("ISSUE DATE FILTER COOKIES : ",issue_date_filter_cookies)
     is_invoiced_filter_cookies = request.COOKIES.get('filter_pnr')
     agency_name_filter_cookies = request.COOKIES.get('agency_name_filter')
     pnr_status_filter_cookies = request.COOKIES.get('filter_pnr_by_status')
@@ -106,6 +108,10 @@ def home(request):
 
     # Processing all available filters
     start_date_range_filter, end_date_range_filter = format_date_range(date_range_filter_cookies)
+    start_date_issue_filter, end_date_issue_filter = format_date_range(issue_date_filter_cookies)
+    print("START ISSUE DATE FILTER : ",start_date_issue_filter)
+    print("END ISSUE DATE FILTER : ",end_date_issue_filter)
+    
 
     # PNR order FILTER (sort)
     pnr_order_list_filter = {
@@ -141,7 +147,12 @@ def home(request):
     # Date range filter
     if start_date_range_filter and end_date_range_filter:
         filters &= Q(date_of_creation__range=[start_date_range_filter, end_date_range_filter])
+        
+    # Issue Date filter
+    if start_date_issue_filter and end_date_issue_filter:
+        filters &= Q(max_issuing_date__range=[start_date_issue_filter, end_date_issue_filter])
 
+    print("FILTERS : ",filters)
     # Invoiced status filter
     if is_invoiced_filter is not None:
         filters &= Q(is_invoiced=is_invoiced_filter)

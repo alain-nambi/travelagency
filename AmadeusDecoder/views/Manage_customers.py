@@ -170,7 +170,7 @@ def delete_customer(request, pnr_id):
 @login_required(login_url='index')
 def customers(request):  
     context = {}
-    context['clients'] = Client.objects.all()
+    context['clients'] = Client.objects.all().order_by('intitule')
     pnr_not_invoiced = get_pnr_created_today_not_invoiced(request)
     context['pnr_not_invoiced'] = pnr_not_invoiced
     context['notif_number'] = len(pnr_not_invoiced)
@@ -187,6 +187,7 @@ def customers(request):
         page_obj = paginator.page(paginator.num_pages)
     context['page_obj'] =  page_obj
     context['row_num'] =  row_num
+    context['pnr_count'] = paginator.count
 
     return render(request,'manage_customers.html', context)    
 
@@ -254,3 +255,83 @@ def modify_customer(request):
             context['status'] = 10
 
     return JsonResponse(context)
+
+def search_customers(request):
+    query = request.GET.get('query', '') # Utilisez request.GET pour les recherches
+    page_number = request.GET.get('page', 1) # Pour la pagination après recherche
+    
+    print("QUERY :", query)
+    print("page_number :", page_number)
+    
+
+    if query:
+        # Recherche insensible à la casse sur plusieurs champs
+        customers = Client.objects.filter(
+            Q(last_name__icontains=query) |
+            Q(first_name__icontains=query) |
+            Q(address_1__icontains=query) |
+            Q(type__icontains=query) |
+            Q(country__icontains=query) |
+            Q(intitule__icontains=query) # Incluez le champ intitule
+        ).order_by('last_name', 'first_name', 'intitule') # Tri par intitule aussi
+
+        # Exclure les noms nuls ou vides, comme discuté précédemment
+        # customers = customers.filter(
+        #     ~Q(last_name__isnull=True) | ~Q(first_name__isnull=True) | ~Q(intitule__isnull=True)
+        # ).exclude(last_name__exact='').exclude(first_name__exact='').exclude(intitule__exact='')
+
+    else:
+        customers = Client.objects.all().order_by('last_name', 'first_name', 'intitule')
+        # Exclure les noms nuls ou vides
+        customers = customers.filter(
+            ~Q(last_name__isnull=True) | ~Q(first_name__isnull=True) | ~Q(intitule__isnull=True)
+        ).exclude(last_name__exact='').exclude(first_name__exact='').exclude(intitule__exact='')
+
+
+    # --- Gestion de la pagination (si nécessaire) ---
+    from django.core.paginator import Paginator
+    paginator = Paginator(customers, 50) # 10 clients par page
+    page_obj = paginator.get_page(page_number)
+
+    # Préparer les données pour la réponse JSON
+    results = []
+    for client in page_obj:
+        # Construisez un dictionnaire pour chaque client
+        # et gérez la logique last_name/first_name/intitule ici aussi si vous voulez
+        # que le front-end reçoive la valeur "finale"
+        display_name_col1 = ''
+        display_name_col2 = ''
+
+        if client.last_name and client.first_name:
+            display_name_col1 = client.last_name
+            display_name_col2 = client.first_name
+        elif client.last_name:
+            display_name_col1 = client.last_name
+        elif client.first_name:
+            display_name_col1 = client.first_name
+        else:
+            display_name_col1 = client.intitule if client.intitule else ''
+
+        results.append({
+            'id': client.id,
+            'last_name': display_name_col1, # Ceci est le contenu de la 1ère colonne
+            'first_name': display_name_col2, # Ceci est le contenu de la 2ème colonne
+            'intitule': client.intitule,
+            'address_1': client.address_1,
+            'type': client.type,
+            'country': client.country,
+            # Ajoutez d'autres champs si nécessaire
+        })
+        print("***************** RESULT ************ :",results)
+        
+
+    return JsonResponse({
+        'results': results,
+        'has_next': page_obj.has_next(),
+        'has_previous': page_obj.has_previous(),
+        'next_page_number': page_obj.next_page_number() if page_obj.has_next() else None,
+        'previous_page_number': page_obj.previous_page_number() if page_obj.has_previous() else None,
+        'num_pages': paginator.num_pages,
+        'current_page': page_obj.number,
+        'total_results': paginator.count,
+    })

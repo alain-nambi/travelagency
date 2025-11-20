@@ -67,6 +67,14 @@
                               <i class="fa-solid fa-angle-right"></i>
                             </li>
 
+                            <li class="list list-seven mb-1">
+                              <div class="filter-menu list" id="showIssueDateFilter">
+                                <i class="fa-sharp fa-solid fa-calendar-days" style="padding-left: 1px !important;"></i>
+                                <span>Date d'émission</span>
+                              </div>
+                              <i class="fa-solid fa-angle-right"></i>
+                            </li>
+
                             <!-- Add creator filter -->
                             <li class="list list-three mb-1" cy-data="show-creator-filter">
                               <div class="filter-menu list" id="showFilterByCreator">
@@ -189,6 +197,31 @@
                         </div>
                         <div class="d-flex justify-content-end">
                           <button type="submit" class="d-flex align-items-center mt-1 px-2 py-0" id="buttonMenuFilterByCreationDateRange">
+                            <span class="text-sm">Afficher</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div class="date-issue-menu absolute">
+                        <div class="date-issue content">
+                          <div>
+                            <span class="text-sm font-weight-bold">Date de début</span>
+                            <div id="issueDateStart" class="my-2">
+                              <i class="fa fa-calendar"></i>&nbsp;
+                              <span class="text-sm" id="spanIssueDateStart"></span>
+                            </div>
+
+                            <!-- Alert date issue -->
+                            <div class="alert-issue-date-begin"></div>
+                            <span class="text-sm font-weight-bold">Date de fin</span>
+                            <div id="issueDateEnd" class="mt-2">
+                              <i class="fa fa-calendar"></i>&nbsp;
+                              <span class="text-sm" id="spanIssueDateEnd"></span>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                          <button type="submit" class="d-flex align-items-center mt-1 px-2 py-0" id="buttonMenuFilterIssueDate">
                             <span class="text-sm">Afficher</span>
                           </button>
                         </div>

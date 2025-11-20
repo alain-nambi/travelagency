@@ -84,4 +84,6 @@ urlpatterns = [
     path('home/pnr/cancel/<int:pnr_id>',cancel_pnr,name="cancel_pnr"),
     path('customer/details/<int:customer_id>',customer_details,name="customer_details"),
     path('customer/updateInfo',modify_customer,name='modify_customer'),
+    path('customer-search/',search_customers,name='search_customers'),
+    
 ]

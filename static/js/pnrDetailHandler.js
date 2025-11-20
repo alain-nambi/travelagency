@@ -674,7 +674,7 @@ document
     }
 
     // Gestion spécifique des produits
-    if (productId == 19) {
+    if (productId === 19) {
       let selectedSegment = document.querySelector("#multipleSelect").getSelectedOptions();
       console.log(selectedSegment);
       console.log('Passenger : ',passenger);
@@ -691,7 +691,6 @@ document
         passenger,
         selectedSegment,
       );
-       
     }
 
     // Produits qui nécessitent des infos stockées dans sessionStorage

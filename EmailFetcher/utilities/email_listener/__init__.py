@@ -359,84 +359,102 @@ class EmailListener:
         return msg_dict, folder
     
     def __idle(self, process_func=write_txt_file, **kwargs):
-        """Helper function, idles in an email folder processing incoming emails.
-
-        Args:
-            process_func (function): A function called to further process the
-                emails. The function must take only the list of file paths
-                returned by the scrape function as an argument. Defaults to the
-                example function write_txt_file in the email_processing module.
-            **kwargs (dict): Additional arguments for processing the email.
-                Optional arguments include:
-                    move (str): The folder to move emails to. If not set, the
-                        emails will not be moved.
-                    unread (bool): Whether the emails should be marked as unread.
-                        If not set, emails are kept as read.
-                    delete (bool): Whether the emails should be deleted. If not
-                        set, emails are not deleted.
-
-        Returns:
-            None
-
-        """
-
+        """Helper function, idles in an email folder processing incoming emails."""
         # Set the relevant kwarg variables
         move = kwargs.get('move')
         unread = bool(kwargs.get('unread'))
         delete = bool(kwargs.get('delete'))
 
-        # Start idling
-        self.server.idle()
-        print("Connection is now in IDLE mode.")
-        print(f"GET TIME : {get_time()}")
-        # Set idle timeout to 15 minutes
-        inner_timeout = get_time() + 60
-        # Until idle times out
-        # while True:
-        while (get_time() < inner_timeout):
-            # Check for a new response every 1 seconds
+        # Use shorter timeouts for more responsive debugging
+        check_timeout = 10  # Check every 10 seconds instead of a long timeout
+        max_idle_time = 10 * 60  # Restart IDLE completely every 10 minutes
+        
+        print(f"Starting IDLE monitoring at {get_time()}")
+    
+        while True:
             try:
-                responses = self.server.idle_check(timeout=1)
-                print("Server sent:", responses if responses else "nothing")
-                # If there is a response
-                if (responses):
-                    # Suspend the idling
-                    self.server.idle_done()
-                    try:
-                        # Process the new emails
-                        msgs, folder = self.scrape(move=move, unread=unread, delete=delete)
-                        # Run the process function
-                        file_list, attachment_list = process_func(msgs, folder)
+                # Start the IDLE mode
+                print(f"Entering IDLE mode at {get_time()}")
+                self.server.idle()
+                print("IDLE mode activated successfully")
+                
+                # Track when we started this IDLE session
+                idle_start_time = get_time()
+                
+                # Keep checking for responses with shorter timeouts
+                while (get_time() - idle_start_time) < max_idle_time:
+                    print(f"Checking for new emails at {get_time()}")
+                    
+                    # Use a shorter timeout for more frequent checks
+                    responses = self.server.idle_check(timeout=check_timeout)
+                    
+                    print("DEBUG: After idle_check call")
+                    print(f"Server sent: {responses if responses else 'nothing'}")
+                    
+                    # If we got a response indicating new mail
+                    if responses:
+                        print(f"Received response: {responses}")
+                        # End the IDLE state before processing
+                        print("Ending IDLE mode to process emails")
+                        self.server.idle_done()
                         
-                        if len(attachment_list) == 0:
-                            print("1")
-                            print(file_list)
-                            from AmadeusDecoder.utilities.AmadeusParser import AmadeusParser
-                            amadeus_parser = AmadeusParser()
-                            amadeus_parser.save_data(file_list)
-                        else:
-                            print("2")
-                            from AmadeusDecoder.utilities.ZenithParser import ZenithParser
-                            zenith_parser = ZenithParser()
-                            zenith_parser.save_data(attachment_list)
-                            print('files:', attachment_list)
-                    except Exception as e:
+                        try:
+                            print("Scraping emails")
+                            msgs, folder = self.scrape(move=move, unread=unread, delete=delete)
+                            
+                            print(f"Processing {len(msgs)} emails")
+                            file_list, attachment_list = process_func(msgs, folder)
+                            
+                            if len(attachment_list) == 0:
+                                print("Processing with AmadeusParser")
+                                from AmadeusDecoder.utilities.AmadeusParser import AmadeusParser
+                                amadeus_parser = AmadeusParser()
+                                amadeus_parser.save_data(file_list)
+                            else:
+                                print("Processing with ZenithParser")
+                                from AmadeusDecoder.utilities.ZenithParser import ZenithParser
+                                zenith_parser = ZenithParser()
+                                zenith_parser.save_data(attachment_list)
+                                print('files:', attachment_list)
+                        except Exception as e:
+                            print(f"Error processing emails: {str(e)}")
+                            traceback.print_exc()
+                        
+                        # Restart IDLE mode after processing
+                        print("Restarting IDLE mode")
                         self.server.idle()
-                        raise e
-                    finally:
-                        # Restart idling
-                        self.server.idle()
+                        print("IDLE mode reactivated")
+                        # Reset the start time
+                        idle_start_time = get_time()
+                
+                # End the IDLE state after max_idle_time
+                print(f"Reached max IDLE time of {max_idle_time} seconds, refreshing connection")
+                self.server.idle_done()
+                
+                # Optional: perform a NOOP to keep the connection alive
+                print("Sending NOOP to keep connection alive")
+                self.server.noop()
+                
             except Exception as e:
+                print(f"Error in IDLE loop: {str(e)}")
                 error_path = os.path.join(os.getcwd(), 'error.txt')
                 with open(error_path, 'a') as error_file:
-                    error_file.write('{}: \n'.format(datetime.datetime.now()))
+                    error_file.write(f'{datetime.datetime.now()}: \n')
                     traceback.print_exc(file=error_file)
                     error_file.write('\n')
                 traceback.print_exc()
-        # Stop idling
-        self.server.idle_done()
-        return
-
+                
+                # Try to properly end IDLE mode if it was active
+                try:
+                    print("Attempting to end IDLE mode after error")
+                    self.server.idle_done()
+                except:
+                    print("Could not end IDLE mode, connection might be broken")
+                
+                # Wait before retrying
+                print("Waiting 5 seconds before reconnecting")
+                time.sleep(5)
+            
     def listen(self, process_func=write_txt_file, **kwargs):
         """Listen in an email folder for incoming emails, and process them.
 

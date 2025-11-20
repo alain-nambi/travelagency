@@ -9,6 +9,12 @@ from AmadeusDecoder.models.invoice.Ticket import Ticket
 from AmadeusDecoder.utilities.SendMail import Sending
 from AmadeusDecoder.utilities.configuration_data import ANOMALY_EMAIL_SENDER
 
+import xlsxwriter
+from tempfile import NamedTemporaryFile
+from email.mime.base import MIMEBase
+from email import encoders
+import os
+
 class MailNotification():
 
     def passenger_segment_missing_notification(time_now):
@@ -63,7 +69,7 @@ class MailNotification():
                         """.format(pnr=pnr.number, segment=tickets_passenger_segment, date=pnr.system_creation_date.strftime("%d-%m-%Y %H-%M-%S"))
 
                 if pnr.agent is not None:
-                    recipients = [pnr.agent.email, "maphie@alita.re"]
+                    recipients = [pnr.agent.email, "maphie@alita.re","nomena@alita.re"]
 
                 # Sending.send_email(
                 #         "issoufali.pnr@outlook.com",
@@ -99,13 +105,13 @@ class MailNotification():
                         """.format(pnr=pnr.number, date=pnr.system_creation_date.strftime("%d-%m-%Y %H-%M-%S"))
 
                 if pnr.agent_id is not None:
-                    recipient = [pnr.agent_id.email,  "tahina@phidia.onmicrosoft.com", "maphiesarobidy@outlook.fr"]
-                # Sending.send_email(
-                #         "issoufali.pnr@outlook.com",
-                #         recipient,
-                #         subject,
-                #         message
-                #     )
+                    recipient = [pnr.agent_id.email,  "dev@alita.re"]
+                Sending.send_email(
+                        "issoufali.pnr@outlook.com",
+                        recipient,
+                        subject,
+                        message
+                    )
 
     def pnr_upload_notification(now):
         def weekend_processing_time(minutes):
@@ -155,16 +161,14 @@ class MailNotification():
                             """
 
                     try:
-                        # Sending.send_email(
-                        #     "issoufali.pnr@outlook.com",
-                        #     [
-                        #         "pp@phidia.onmicrosoft.com",
-                        #         "tahina@phidia.onmicrosoft.com",
-                        #         "maphiesarobidy@outlook.fr"
-                        #     ],
-                        #     subject,
-                        #     message
-                        # )
+                        Sending.send_email(
+                            "issoufali.pnr@outlook.com",
+                            [
+                                "dev@alita.re"
+                            ],
+                            subject,
+                            message
+                        )
                     except Exception as e:
                         print(f"Error sending pnr not sent to GP : {e}")
                         raise e
@@ -184,11 +188,11 @@ class MailNotification():
                 print("Sunday day")
                 weekend_processing_time(180)
         except Exception as e:
-            try:
-                # Sending.send_email_pnr_parsing("Aucun PNR non remonté")
-            except Exception as e:
-                print(f"Error sending pnr not sent to GP : {e}")
-                raise e
+            # try:
+            #     # Sending.send_email_pnr_parsing("Aucun PNR non remonté")
+            # except Exception as e:
+            print(f"Error sending pnr not sent to GP : {e}")
+            raise e
         
     def pnr_not_sent_to_odoo(now):
         dt_now = now
@@ -460,11 +464,7 @@ class MailNotification():
         ]
         
         mgbi_users_mail = [
-            "phpr974@gmail.com",
-            "pp@phidia.onmicrosoft.com",
-            "tahina@alita.re",
-            "maphie@alita.re",
-            "nomena@alita.re",
+            "dev@alita.re"
         ]
         
         other_users_mail = [
@@ -540,10 +540,10 @@ class MailNotification():
                 
                 # Envoyer le mail pour toutes les utilisateurs d"Isssoufali 
                 # Sending.send_email(
-                #     "maphieSarobidy@outlook.fr", 
-                #     # administrator_users_mail + other_users_mail + mgbi_users_mail,  
-                #     # subject, 
-                #     # message
+                #     "dev@alita.re",
+                    # administrator_users_mail + other_users_mail + mgbi_users_mail,  
+                    # subject, 
+                    # message
                 # )
             
             if len(no_anomaly_pnrs_before_afternoon_for_administrator) > 0:
@@ -575,10 +575,10 @@ class MailNotification():
                     </html>
                 """
                 
-                # # Envoyer le mail pour les administrateurs d"Isssoufali 
+                # Envoyer le mail pour les administrateurs d"Isssoufali 
                 # Sending.send_email(
-                #     "maphieSarobidy@outlook.fr", 
-                #     # administrator_users_mail + mgbi_users_mail,  
+                #     "dev@alita.re",
+                    # administrator_users_mail + mgbi_users_mail,  
                 #     subject, 
                 #     message
                 # )
@@ -623,12 +623,12 @@ class MailNotification():
                     </html>
                 """           
                     
-                # # Envoyer le mail pour toutes les utilisateurs d"Isssoufali 
+                # Envoyer le mail pour toutes les utilisateurs d"Isssoufali 
                 # Sending.send_email(
-                #     "maphieSarobidy@outlook.fr", 
-                #     # administrator_users_mail + other_users_mail + mgbi_users_mail,
-                #     # subject, 
-                #     # message
+                #     "dev@alita.re",
+                    # administrator_users_mail + other_users_mail + mgbi_users_mail,
+                    # subject, 
+                    # message
                 # )
                 
             if len(no_anomaly_pnrs_after_afternoon_for_administrator) > 0:
@@ -663,8 +663,8 @@ class MailNotification():
                     
                 # Envoyer le mail pour les administrateurs d"Isssoufali 
                 # Sending.send_email(
-                #     "maphieSarobidy@outlook.fr", 
-                #     # administrator_users_mail + mgbi_users_mail,  
+                #     "dev@alita.re",
+                    # administrator_users_mail + mgbi_users_mail,  
                 #     subject, 
                 #     message
                 # )
@@ -742,11 +742,7 @@ class MailNotification():
         ]
         
         mgbi_users_mail = [
-            "phpr974@gmail.com",
-            "pp@phidia.onmicrosoft.com",
-            "tahina@alita.re",
-            "maphie@alita.re",
-            "nomena@alita.re",
+            "dev@alita.re",
         ]
         
         other_users_mail = [
@@ -825,3 +821,174 @@ class MailNotification():
                 #     message
                 # )
                 print("EMAIL ENVOYE")
+
+
+    def pnr_remonte(now):
+
+        dt_now = now
+        day = dt_now.day
+        month = dt_now.month
+        year = dt_now.year
+        time_now = dt_now.time()
+        time_to_send = time(15, 0, 0)
+        
+        dt_to_start_sending_to_odoo = datetime(
+                                        day=day, 
+                                        month=month, 
+                                        year=year, 
+                                        hour=2, 
+                                        minute=0, 
+                                        second=0,
+                                        tzinfo=timezone.utc
+                                    )     
+        dt_to_end_sending_to_odoo = datetime(
+                                        day=day, 
+                                        month=month, 
+                                        year=year, 
+                                        hour=21, 
+                                        minute=0, 
+                                        second=0,
+                                        tzinfo=timezone.utc
+                                    )
+
+        # Liste des pnrs remontés
+        pnr_remonte = Pnr.objects.filter(
+                                                    Q(system_creation_date__gte=dt_to_start_sending_to_odoo) & 
+                                                    Q(system_creation_date__lte=dt_to_end_sending_to_odoo)
+                                                ).filter(agent_id=75).all()
+        
+        ISSOUFALI_URL = "https://pnr.issoufali.phidia.fr"
+        
+        # Parcourir les pnrs non envoyés avant-midi dans Odoo pour les administrateurs
+        def pnr_remonte_for_administrator():
+            new_line = "\n"
+            return(
+                f"""
+                    {
+                        new_line.join(
+                            f'''
+                                <tr>
+                                    <td style="border:1px solid #ddd;padding:8px;">
+                                        <a href="{ISSOUFALI_URL}/home/pnr/{pnr.id}" title="Ouvrir le pnr {pnr.id}" target="_blank">
+                                        {pnr.number}
+                                        </a>
+                                    </td>
+                                    <td style="border:1px solid #ddd;padding:8px;">
+                                        {pnr.system_creation_date.strftime('%d/%m/%Y %H:%M') if pnr.system_creation_date else ""}
+                                    </td>
+                                    <td style="border:1px solid #ddd;padding:8px;">
+                                        {pnr.get_max_issuing_date().strftime('%d/%m/%Y %H:%M') if pnr.get_max_issuing_date() else ""}
+                                    </td>
+                                    <td style="border:1px solid #ddd;padding:8px;">
+                                        {pnr.agent if pnr.agent is not None else ""}
+                                    </td>
+                                    <td style="border:1px solid #ddd;padding:8px;">
+                                        {pnr.status}
+                                    </td>
+                                    <td style="border:1px solid #ddd;padding:8px;">
+                                        {pnr.type}
+                                    </td>
+                                </tr>
+                            ''' for pnr in pnr_remonte
+                        )
+                    }
+                """
+            )
+        
+
+        def generate_excel_file(pnrs):
+            filename = f"PNR_remontes_{dt_now.strftime('%d-%m-%Y')}.xlsx"
+            file_path = os.path.join("/tmp", filename)
+
+            workbook = xlsxwriter.Workbook(file_path)
+            worksheet = workbook.add_worksheet()
+
+            date_format = workbook.add_format({'num_format': 'dd/mm/yyyy hh:mm', 'align': 'left'})
+
+            headers = ['Numéro PNR', 'Date de création', 'Date d\'émission', 'Suivi par', 'Status', 'Type']
+            for col_num, header in enumerate(headers):
+                worksheet.write(0, col_num, header)
+
+            for row_num, pnr in enumerate(pnrs, start=1):
+                system_creation_date = pnr.system_creation_date
+                if system_creation_date and hasattr(system_creation_date, 'tzinfo'):
+                    system_creation_date = system_creation_date.replace(tzinfo=None)
+
+                issuing_date = pnr.get_max_issuing_date()
+                if issuing_date and hasattr(issuing_date, 'tzinfo'):
+                    issuing_date = issuing_date.replace(tzinfo=None)
+
+                worksheet.write(row_num, 0, pnr.number)
+
+                if system_creation_date:
+                    worksheet.write_datetime(row_num, 1, system_creation_date, date_format)
+                else:
+                    worksheet.write(row_num, 1, "")
+
+                if issuing_date:
+                    worksheet.write_datetime(row_num, 2, issuing_date, date_format)
+                else:
+                    worksheet.write(row_num, 2, "")
+
+                worksheet.write(row_num, 3, pnr.agent.username if pnr.agent and pnr.agent.username else "")
+                worksheet.write(row_num, 4, pnr.status)
+                worksheet.write(row_num, 5, pnr.type)
+
+            workbook.close()
+            return file_path
+
+        print("============== TIME NOW : ", time_now)
+        print("============== TIME TO SEND : ", time_to_send)
+
+
+        if time_now == time_to_send: # 18h00
+            print("==================== PNR remonte du jour ====================")
+            print('++++++++ TAILLE : ', len(pnr_remonte) )
+            if len(pnr_remonte) > 0:
+                subject = f'PNR remontés ce {dt_now.strftime("%d-%m-%Y")}'                    
+                message = f"""        
+                    <!DOCTYPE html>
+                    <html>
+                    <body>
+                        <p> Bonjour, </p>
+                        <p> Vous trouverez ci-après la liste des pnrs remontés le {dt_now.strftime("%d-%m-%Y")}. </p>
+                        <p> Bonne récéption. </p>
+                        <p> Cordialement. </p>
+                        <table id="customers" style="border-collapse: collapse;width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Numéro PNR</th>
+                                    <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Date de création</th>
+                                    <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Date d"émission</th>
+                                    <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Suivi par</th>
+                                    <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Status</th>
+                                    <th style="border:1px solid #ddd;padding:8px;padding-top:12px;padding-bottom:12px;text-align:left;background-color:#17a2b8;color:white;">Type</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {pnr_remonte_for_administrator()}
+                            </tbody>
+                        </table>
+                    </body>
+                    </html>
+                """
+
+                excel_file = generate_excel_file(pnr_remonte)
+                
+                # Envoyer le mail pour toutes les utilisateurs d"Isssoufali 
+                try:
+                    Sending.send_email(
+                        "anomalie.issoufali.pnr@gmail.com",
+                        ["asmakalfane@agences-issoufali.com","david.domitin@agences-issoufali.com","direction@mgbi.mg","dev@mgbi.mg"],
+                        # ["maphie@alita.re","nomena@alita.re"],
+                        subject, 
+                        message,
+                        attachments=[excel_file]
+                    )
+                finally:
+                    if os.path.exists(excel_file):
+                        os.remove(excel_file)
+    
+    
+
+

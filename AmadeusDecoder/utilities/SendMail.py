@@ -2,7 +2,9 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from datetime import datetime
 import smtplib
-
+from email.mime.base import MIMEBase
+from email import encoders
+import os
 import AmadeusDecoder.utilities.configuration_data as configs
 
 # EMAIL_SENDING_ERROR_NOTIFICATION_RECIPIENTS = [
@@ -100,33 +102,49 @@ class Sending():
     
     '''Class use when sending mail notification'''
     @staticmethod
-    def send_email(sender, recipients, subject, body):
+    def send_email(sender, recipients, subject, body, attachments=None):
+
 
         message = MIMEMultipart()
         email_sender = ANOMALY_EMAIL_SENDER["address"]
-        
+
         message['From'] = email_sender
         message['To'] = ";".join(recipients)
         message['Subject'] = subject + " - Application Gestion PNR"
 
         message.attach(MIMEText(body, 'html'))
 
+        # 📎 Ajout des pièces jointes s'il y en a
+        if attachments:
+            for file_path in attachments:
+                try:
+                    with open(file_path, "rb") as f:
+                        part = MIMEBase("application", "octet-stream")
+                        part.set_payload(f.read())
+                        encoders.encode_base64(part)
+                        part.add_header(
+                            "Content-Disposition",
+                            f'attachment; filename="{os.path.basename(file_path)}"'
+                        )
+                        message.attach(part)
+                except Exception as e:
+                    print(f"Erreur lors de l'attachement du fichier {file_path} : {e}")
+
         try:
             server = smtplib.SMTP(ANOMALY_EMAIL_SENDER['smtp'], int(ANOMALY_EMAIL_SENDER['port']))
             server.ehlo()
             server.starttls()
             server.ehlo()
-            server.login(ANOMALY_EMAIL_SENDER['address'], ANOMALY_EMAIL_SENDER['password'])
+            server.login(email_sender, ANOMALY_EMAIL_SENDER['password'])
             text = message.as_string()
             server.sendmail(email_sender, recipients, text)
-            print("{} NOTE: Email sent to \"{}\" address.".format(
-                datetime.now(), recipients))
+            print(f"{datetime.now()} NOTE: Email sent to {recipients}")
             server.quit()
         except Exception as e:
-            print("{} ERROR: SMTP server connection error.".format(datetime.now()))
-            print("{} ERROR: {}".format(datetime.now(), e))
-            Sending().catch_error_on_sending_email(ANOMALY_EMAIL_SENDER['address'])
-            
+            print(f"{datetime.now()} ERROR: SMTP server connection error.")
+            print(f"{datetime.now()} ERROR: {e}")
+            Sending().catch_error_on_sending_email(email_sender)
+
         return True
     
     # '''Class use when sending mail notification'''

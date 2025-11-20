@@ -370,12 +370,13 @@ def save_ticket_anomalie(request):
             ticket_number = request.POST.get('ticket_number')
             montant_hors_taxe = request.POST.get('montant_hors_taxe')
             taxe = request.POST.get('taxe')
+            issuing_date = request.POST.get('issuing_date')
             pnr_id = request.POST.get('pnr_id')
             user_id = request.POST.get('user_id')
             
             pnr = Pnr.objects.filter(id=pnr_id).first()
             
-            info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "ticket_status":0,'isticket':0} # ticket_status : 0 ticket existant , 1 ticket non existant
+            info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "issuing_date":issuing_date, "ticket_status":0,'isticket':0} # ticket_status : 0 ticket existant , 1 ticket non existant
             
         if montant_hors_taxe == "" or taxe == "":
             return JsonResponse(
@@ -457,6 +458,7 @@ def update_ticket(request):
             ticket.ticket_status = 1
             ticket.state = 0
             ticket.emitter = None
+            ticket.issuing_date = anomalie.infos.get('issuing_date')
 
             if issuing_user.id in issuing_user.has_lift_tki_perm():
                 ticket.emitter = issuing_user

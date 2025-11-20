@@ -440,6 +440,10 @@ $(document).ready(function () {
                 var mnt_hors_taxe = $('#montant_hors_taxe').val();
                 var taxe = $('#taxe').val();
                 var user_id = $('#user_id').val();
+                var issuing_date = $('#issuing_date').val();
+                if (!issuing_date) {
+                    issuing_date = new Date().toISOString().split('T')[0];
+                }
 
                 $.ajax({
                     type: "POST",
@@ -448,6 +452,7 @@ $(document).ready(function () {
                     data: {
                         ticket_number: ticketNumber,
                         montant_hors_taxe: mnt_hors_taxe,
+                        issuing_date: issuing_date,
                         taxe: taxe,
                         user_id: user_id,
                         pnr_id: pnr_id,

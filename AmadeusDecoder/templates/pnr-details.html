@@ -1553,7 +1553,13 @@
 							<div id='taxSection'>
 								<label for="taxe" class="col-form-label">Taxe</label>
 								<input type='text' name="taxe" class="form-control" id="taxe" value="0">
+								<div>
+									<label for="issuing_date" class="col-form-label">Date d'émission</label>
+									<input class="form-control" id="issuing_date" type="date" >
+								</div>
 							</div>
+
+
 								<input type='hidden' name="user_id" value="{{user.id}}" class="form-control" id="user_id" >
 
 							<div id='other_info'>
@@ -1575,11 +1581,6 @@
 									<label for="selectPassenger" class="col-form-label">Passenger</label>
 									<select id="selectPassenger" class="form-control form-control">
 									</select>
-								</div>
-
-								<div>
-									<label for="issuing_date" class="col-form-label">Date d'émission</label>
-									<input class="form-control" id="issuing_date" type="date" >
 								</div>
 
 								<div>

@@ -129,6 +129,10 @@ class User(AbstractBaseUser, BaseModel):
 
     def has_module_perms(self, app_label):
         return True
+    
+    def has_lift_tki_perm(self):
+        # retourne une liste des utilisateurs qui ont la permission de remonter un billet
+        return [34,35]
 
 class Activation(models.Model, BaseModel):
 

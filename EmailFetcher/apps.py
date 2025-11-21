@@ -100,6 +100,16 @@ def checking_pnr_not_sent_to_odoo():
     
     # ==================== PNR not sent to Odoo checking ====================
     MailNotification.pnr_not_sent_to_odoo(now)
+
+# ================= PNR remontes par Mme Ioly ======= 29/04/25 =============
+def check_pnr_remonte():
+    from AmadeusDecoder.utilities.MailNotificationParser import MailNotification
+    try:
+        now = datetime.now(timezone.utc).replace(microsecond=0)
+        MailNotification.pnr_remonte(now)
+
+    except Exception as e:
+       print("Erreur lors de l'exécution de pnr_remonte : ", e)
     
 # # send fee modification history
 def send_fee_update_list():
@@ -183,8 +193,10 @@ def delete_all_files_in_attachments_dir():
     """
     Deletes all files and directories recursively in the attachments directory.
     """
+    print("*-- Deletes all files and directories recursively in the attachments directory --*")
+    
     # Define the path to the attachments directory
-    attachments_dir = os.path.join(os.getcwd(), "EmailFetcher", "utilities", "attachments_dir")
+    attachments_dir = os.path.join("opt", "travelagency", "EmailFetcher", "utilities", "attachments_dir")
     
     # Iterate over all items (files and directories) in the attachments directory
     for item in os.scandir(attachments_dir):
@@ -216,9 +228,6 @@ class EmailfetcherConfig(AppConfig):
     #         return
     #     os.environ['CMDLINERUNNER_RUN_ONCE_EMAIL'] = 'True'
         
-        # load_configs = Thread(target=load_config)
-        # load_configs.start()
-        #
         
         # email_thread_once = Thread(target=fetch_email)
         # email_thread_once.start()
@@ -248,6 +257,27 @@ class EmailfetcherConfig(AppConfig):
         # print("==================== Mail notification for pnr not sent to Odoo ====================")
         # timer_update_check = RepeatTimer(1, checking_pnr_not_sent_to_odoo)
         # timer_update_check.start()
+        
+        # print('Mail notification is starting....')
+        # timer_pnr_misssing = RepeatTimer(1, checking_pnr_missing)
+        # timer_pnr_misssing.start()
+        # timer_passenger_segment_missing = RepeatTimer(1, checking_passenger_segment_missing)
+        # timer_passenger_segment_missing.start()
+
+        # print('Daily Pnr created starting')
+        # timer_schedule = RepeatTimer(60, start_pnr_daily_report_schedule)
+        # timer_schedule.start()
+
+        # print('Pnr unissued OPC checking is running...')
+        # timer = RepeatTimer(60, pnr_unissued_opc_checking)  
+        # timer.start()
+        
+        # print("📢 ==================== Mail notification for pnr with fee decrease request ====================")
+        # timer_update_check = RepeatTimer(1, checking_pnr_with_fee_decrease_request)
+        # timer_update_check.start()
+        
+        timer_pnr_remonte = RepeatTimer(1, check_pnr_remonte)
+        timer_pnr_remonte.start()
         
         # print('Mail notification is starting....')
         # timer_pnr_misssing = RepeatTimer(1, checking_pnr_missing)

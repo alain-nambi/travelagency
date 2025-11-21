@@ -2,6 +2,7 @@
 Created on 8 Sep 2022
 
 '''
+from datetime import datetime, timezone
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.db.models import Q
@@ -41,7 +42,7 @@ def create_customer(request):
             new_customer = None
 
             for word in intitule:
-                q &= Q(intitule__icontains = word)
+                q &= Q(intitule__iexact = word)
             
             customer = Client.objects.filter(q)
             if customer.exists():
@@ -170,6 +171,9 @@ def delete_customer(request, pnr_id):
 def customers(request):  
     context = {}
     context['clients'] = Client.objects.all()
+    pnr_not_invoiced = get_pnr_created_today_not_invoiced(request)
+    context['pnr_not_invoiced'] = pnr_not_invoiced
+    context['notif_number'] = len(pnr_not_invoiced)
     
     object_list = context['clients']
     row_num = request.GET.get('paginate_by', 50) or 50
@@ -181,6 +185,19 @@ def customers(request):
         page_obj = paginator.page(1)
     except EmptyPage:
         page_obj = paginator.page(paginator.num_pages)
-    context = {'page_obj': page_obj, 'row_num': row_num}
+    context['page_obj'] =  page_obj
+    context['row_num'] =  row_num
+
     return render(request,'manage_customers.html', context)    
 
+# ------- Notification ---------------------------------
+def get_pnr_created_today_not_invoiced(request):
+    # get number of pnr not invoiced today
+    today = datetime.now().date()
+    
+    start_date = datetime(today.year, today.month, today.day, 0, 0, 0, tzinfo=timezone.utc)
+    end_date = datetime(today.year, today.month, today.day, 23, 59, 59, tzinfo=timezone.utc)
+
+    pnrs = Pnr.objects.filter(agent_id= request.user.id,system_creation_date__range=[start_date, end_date], is_invoiced= False)
+    nbre_pnr = pnrs.count()
+    return pnrs

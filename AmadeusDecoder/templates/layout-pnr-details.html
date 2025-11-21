@@ -40,7 +40,12 @@
 
  <!-- style -->
  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+ <link rel="stylesheet" href="{% static 'css/notification.css' %}">
+ <link rel="stylesheet" href="{% static 'css/pnr_motif.css' %}">
+
  <link rel="stylesheet" href="{% static 'css/select-custom.css' %}">
+ <link rel="stylesheet" href="{% static 'css/hotel_taxi.css' %}">
+
  <!-- tablesort-->
  <link href="{% static 'css/theme.default.css' %}" rel="stylesheet">
  <!-- <link href="{% static 'css/select2.min.css' %}" rel="stylesheet"> -->
@@ -77,7 +82,7 @@ old -->
 			    {% include "commandes_modal.html" %}
         </li>
         <li class="nav-item d-flex flex-column">
-          <span id="mail-user" data-mail="issoufali.pnr@outlook.com;{{request.user.email}}">issoufali.pnr@outlook.com;{{request.user.email}}</span>
+          <span id="mail-user" data-mail="issoufali.pnr@gmail.com;{{request.user.email}}">issoufali.pnr@gmail.com;{{request.user.email}}</span>
           <a type="button" class="btn btn-outline-primary" onclick="copymailuser()">Zenith</a> 
         </li>
 
@@ -93,6 +98,7 @@ old -->
         </li>
 
         {% if request.user.role_id == 1 %}
+        {% with pnr|is_one_or_more_passenger_is_invoiced as is_one_or_more_passenger_is_invoiced %}
           <li class="nav-item ml-1">
             <div id="uncommand_api">
               <button 
@@ -101,18 +107,33 @@ old -->
                 data-toggle="modal" 
                 data-target="#modalUncommandApi" 
                 title="Décommander le PNR"
-                id = "uncommand_api"
+                id = "uncommand_api" 
+                {% if not is_one_or_more_passenger_is_invoiced %} disabled {% endif%}
               >
-                <span>Décommander le PNR</span>
+                <span>Décommander le PNR </span>
               </button>
             </div>
           </li>
+          {% endwith %}
+        {% endif %}
+
+        {% if notif_number != 0 %}
+          <div class="row" style=" margin-left:1rem;">
+            <div class ="alert" style="background: #FAE6E6;padding: .5em .5em .5em 1em;margin-right:20px;box-shadow: inset 6px 0 #CC0000;">
+              
+              <h6><i class="fa fa-exclamation-triangle blink" style="font-size: 1em; color: #CC0000;margin:0 6px 0 0;" aria-hidden="true"></i>
+                <b>{% if notif_number == 1%}  BILLET NON COMMANDE {% else %} BILLETS NON COMMANDES {% endif %} </b>
+              </h6>
+              <div class="alert_text">Il reste <span class="blink" style="color: #CC0000;"><b>{{notif_number}}</b></span> 
+              {% if notif_number == 1%} billet à commander. {% else %} billets à commander{% endif %}</div>
+            </div>
+          </div>
         {% endif %}
           
         <li class="nav-item ml-1">
           <div class="input-group input-group float-sm-right mb-1">
             <input type="text" name="table_search" id="inputSearchByPnrNumber" class="form-control form-control-md"
-              placeholder="Saisir le numéro du PNR" maxlength="6">
+              placeholder="Saisir N°billet ou N° PNR" maxlength="16">
             <div class="input-group-append">
               <button type="submit" id="buttonPnrSearchByPnrNumber" class="btn btn-default py-0" title="Accéder au PNR par le numéro pnr">
                 <i class="fa fa-arrow-right-from-bracket"></i>
@@ -305,6 +326,7 @@ old -->
                 <p>Clients</p>
               </a>
             </li>
+            
             {% endif %}
             <!--menu agent contrôle role_id=4-->
             {% if request.user.role_id == 4 %} 
@@ -651,11 +673,22 @@ old -->
           <strong class="text-center">© 2023 <a href="https://phidia.fr">Phidia</a>.</strong> Tous droits réservés.
           <b>Version</b> 1.6.12
         </div>
+        {% if request.user.role_id == 1 and pnr.state != 4 and not pnr.is_invoiced %}
+          <button 
+            type="button" 
+            class="btn btn-danger mr-2" id='ExcelUpload' onclick="location.href='{% url 'cancel_pnr' pnr.id %}'"
+            style="padding: 0.1rem 0.5rem !important">
+            <i class="fa fa-archive text-white" data-toggle="tooltip" data-placement="top"  title="Annuler le dossier"></i>
+            <span class="text-white">Annuler</span>
+          </button>
+
+        {% endif %}
+        
         {% with pnr|pnr_comment_state as pnr_comment_state %} 
           <!-- -1: pas d'anomalie, 0: non traitée, 1: traitée -->
           <button 
             type="button" 
-            class="btn {% if pnr_comment_state == 0 %} btn-danger {% elif pnr_comment_state == 1 %} btn-success {% else %} btn-secondary {% endif %} mr-2" 
+            class="{% if pnr.state == 4 %} disabled {% endif %} btn {% if pnr_comment_state == 0 %} btn-danger {% elif pnr_comment_state == 1 %} btn-success {% else %} btn-secondary {% endif %} mr-2" 
             data-toggle="modal" 
             data-target="#modal-constat" 
             style="padding: 0.1rem 0.5rem !important">
@@ -707,6 +740,7 @@ old -->
   <script src="{% static 'js/main.js' %}"></script>
   <script src="{% static 'js/comment.js' %}"></script>
   <script src="{% static 'js/anomalie.js' %}"></script>
+  <script src="{% static 'js/notification.js' %}"></script>
   <script src="{% static 'js/virtual-select.min.js' %}"></script>
   {% comment %} <script src="{% static 'js/virtual-select.js' %}"></script> {% endcomment %}
 
@@ -714,7 +748,10 @@ old -->
   <script src="{% static 'js/CustomerHandler.js' %}"></script>
   <script src="{% static 'js/pnrDetailHandler.js' %}"></script>
   <script src="{% static 'js/invoice_unorder.js' %}"></script>
+  <script src="{% static 'js/hotel_taxi.js' %}"></script>
+  <script src="{% static 'js/bus.js' %}"></script>
 
+  <script src="{% static 'js/location_veh.js' %}"></script>
 
   <script>
     $('.tooltips.empty-passenger').append("<span></span>");

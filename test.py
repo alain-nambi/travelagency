@@ -25,7 +25,7 @@ if __name__ == '__main__':
     temp = AmadeusParser() 
     file = '0_fnd@amadeus.com'
     # file = 12656_famenontsoa@outlook.com'
-    temp.set_path(os.getcwd() + '/EmailFetcher/utilities/attachments_dir/' + file + '/' + file.removeprefix('VK8PP7_Fixed/') + '.txt')
+    temp.set_path(os.getcwd() + '/EmailFetcher/utilities/test/' + file + '/' + file.removeprefix('VK8PP7_Fixed/') + '.txt')
 
     contents = temp.read_file()
     needed_content = temp.needed_content(contents)
@@ -83,7 +83,7 @@ if __name__ == '__main__':
                     continue
                 if contents[j].startswith('RP') and not contents[j].startswith('RPP'):
                     try:
-                        temp.parse_pnr(contents[j:], needed_content, temp.get_email_date())
+                        temp.parse_pnr(contents[j:], needed_content, temp.get_email_date(), all_content_information=contents)
                         break
                     except:
                         print('File (PNR) with error: ' + file)

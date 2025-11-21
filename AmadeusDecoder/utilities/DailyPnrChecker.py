@@ -88,11 +88,7 @@ def notify_direction(pnrs):
     # others = ['nasolo@phidia.onmicrosoft.com']
     others = [
             'missoufali@agences-issoufali.com',
-            'pp@phidia.onmicrosoft.com'
-            'maphiesarobidy@outlook.fr',
-            'naval@phidia.onmicrosoft.com',
-            'alain@phidia.onmicrosoft.com',
-            'tahina@phidia.onmicrosoft.com'
+            'dev@alita.re',
             ]
 
     for item in others:
@@ -209,17 +205,17 @@ def notify_direction(pnrs):
                     </p>
                     <p>
                         <strong>Ceci est un email automatique, merci de ne pas répondre.</strong></br>
-                        Services supports : tahina@phidia.onmicrosoft.com
+                        Services supports : dev@alita.re
                     </p> 
                 </body>
                 </html>
             """.format(today.strftime('%d-%m-%Y'), message, ', '.join(pnrs_without_user))
 
-    Sending.send_email(
-        "issoufali.pnr@outlook.com",
-        recipients,
-        subject,
-        body
-    )
+    # Sending.send_email(
+    #     "issoufali.pnr@outlook.com",
+    #     recipients,
+    #     subject,
+    #     body
+    # )
 
 

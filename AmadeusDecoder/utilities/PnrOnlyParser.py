@@ -1814,7 +1814,7 @@ class PnrOnlyParser():
         return customer_addresses
     
     # save data
-    def parse_pnr(self, contents, needed_content, email_date):
+    def parse_pnr(self, contents, needed_content, email_date, all_content_information):
         print(self.get_path())
         print('PNR FILE DETECTED')
         sid = transaction.savepoint()
@@ -1836,7 +1836,7 @@ class PnrOnlyParser():
                 
                 # save raw data
                 try:
-                    RawData().save_raw_data(normalized_file, pnr, None)
+                    RawData().save_raw_data(all_content_information, pnr, None)
                 except:
                     traceback.print_exc()
                     error_file.write('{}: \n'.format(datetime.now()))

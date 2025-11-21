@@ -9,6 +9,12 @@ from AmadeusDecoder.models.invoice.Ticket import Ticket
 from AmadeusDecoder.utilities.SendMail import Sending
 from AmadeusDecoder.utilities.configuration_data import ANOMALY_EMAIL_SENDER
 
+import xlsxwriter
+from tempfile import NamedTemporaryFile
+from email.mime.base import MIMEBase
+from email import encoders
+import os
+
 class MailNotification():
 
     def passenger_segment_missing_notification(time_now):
@@ -63,7 +69,7 @@ class MailNotification():
                         """.format(pnr=pnr.number, segment=tickets_passenger_segment, date=pnr.system_creation_date.strftime("%d-%m-%Y %H-%M-%S"))
 
                 if pnr.agent is not None:
-                    recipients = [pnr.agent.email, "maphiesarobidy@outlook.fr", "naval@phidia.onmicrosoft.com", "alain@phidia.onmicrosoft.com"]
+                    recipients = [pnr.agent.email, "maphie@alita.re","nomena@alita.re"]
 
                 # Sending.send_email(
                 #         "issoufali.pnr@outlook.com",
@@ -188,11 +194,11 @@ class MailNotification():
                 print("Sunday day")
                 weekend_processing_time(180)
         except Exception as e:
-            try:
-                Sending.send_email_pnr_parsing("Aucun PNR non remonté")
-            except Exception as e:
-                print(f"Error sending pnr not sent to GP : {e}")
-                raise e
+            # try:
+            #     # Sending.send_email_pnr_parsing("Aucun PNR non remonté")
+            # except Exception as e:
+            print(f"Error sending pnr not sent to GP : {e}")
+            raise e
         
     def pnr_not_sent_to_odoo(now):
         dt_now = now
@@ -464,14 +470,7 @@ class MailNotification():
         ]
         
         mgbi_users_mail = [
-            "phpr974@gmail.com",
-            "pp@phidia.onmicrosoft.com",
-            "tahina@phidia.onmicrosoft.com",
-            "alain@phidia.onmicrosoft.com",
-            "olyviahasina.razakamanantsoa@outlook.fr",
-            "maphiesarobidy@outlook.fr",
-            "naval@phidia.onmicrosoft.com",
-            "alain@phidia.onmicrosoft.com",
+            "dev@alita.re"
         ]
         
         other_users_mail = [
@@ -749,14 +748,7 @@ class MailNotification():
         ]
         
         mgbi_users_mail = [
-            "phpr974@gmail.com",
-            "pp@phidia.onmicrosoft.com",
-            "tahina@phidia.onmicrosoft.com",
-            "alain@phidia.onmicrosoft.com",
-            "olyviahasina.razakamanantsoa@outlook.fr",
-            "maphieSarobidy@outlook.fr",
-            "alainnambi@gmail.com",
-            "naval@phidia.onmicrosoft.com",
+            "dev@alita.re",
         ]
         
         other_users_mail = [

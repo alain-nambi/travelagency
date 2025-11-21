@@ -4,10 +4,10 @@
 <!-- Main content -->
 <div class="content-wrapper">
   <section class="content">
-    <div class="container-fluid">
+    <div class="container-fluid unorderedPnrContainer">
       <div class="row ">
         <div class="col-12">
-          <div class="card card-primary card-outline content-all-pnr" id="pnrManagementMenu">
+          <div class="card card-primary card-outline content-all-pnr visible" id="pnrManagementMenu">
             <!-- /.card-header -->
             <div class="card-header justify-content-between py-0">
               <div class="row align-items-center">
@@ -45,7 +45,7 @@
                 </div>
               </div>
             </div>
-            <div class="card-body p-0" id="showTableForAllPnr">
+            <div class="card-body  p-0" id="showTableForAllPnr">
               <table class="table table-bordered table-head-fixed table-hover text-nowrap" id="all-unordered-pnr">
                 <thead id="thead-all-pnr">
 
@@ -61,8 +61,7 @@
                     </th>
 
                     <th>Motif</th>
-                    
-                    
+                  
                     <th class="pnr-creator-list">
                       <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
                         Créateur
@@ -84,7 +83,7 @@
                             class="tooltips state_2 float-right" 
                             tooltip="" 
                             tooltip-position="top"
-                            tooltip-type="warning" 
+                            tooltip-type="warning" >
                             <i class="fa fa-exclamation-triangle warning"></i>
                           </span>
 
@@ -93,7 +92,7 @@
                       <td> {{invoices.invoice_number}} </td>
 
                       <td>{{ invoices.date|date:"d/m/y H:i" }}</td>
-                      <td>{{ invoices.motif }}</td>
+                      <td>{{ invoices.motif_id.designation }}</td>
                       
                       <td>
                           {{ invoices.user.username}}

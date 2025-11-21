@@ -5,6 +5,8 @@ Created on 27 Aug 2022
 '''
 from django.db import models
 from AmadeusDecoder.models.BaseModel import BaseModel
+from django.contrib.postgres.fields import HStoreField
+
 
 class Fee(models.Model, BaseModel):
     '''
@@ -85,7 +87,7 @@ class OthersFee(models.Model, BaseModel):
 
     designation = models.CharField(max_length=100, null=True)
     quantity = models.IntegerField(default=1)
-    value = models.DecimalField(max_digits=13, decimal_places=4, null=True)
+    value = HStoreField(null=True)
     cost = models.DecimalField(max_digits=13, decimal_places=4, default=0.0)
     tax = models.DecimalField(max_digits=13, decimal_places=4, default=0.0)
     total = models.DecimalField(max_digits=13, decimal_places=4, default=0.0)

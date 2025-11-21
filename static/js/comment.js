@@ -87,3 +87,136 @@ const updateStateDetail = (event, commentId)=> {
         }
     });
 };
+
+
+// Sélection des éléments DOM
+const showOtherCommandsMenu = document.getElementById("showOtherCommandsMenu");
+const otherCommandsMenu = document.querySelector(".other-commands-menu");
+const fixedHeaderCard = document.querySelector(".fixed-header")
+const stickyTrTable = document.querySelector(".sticky-tr-table")
+const stickyTbody = document.querySelector(".tbody-pnr")
+const pnrManagementMenuTrigger = document.querySelector("#pnrManagementMenu")
+const commentContainer = document.querySelector(".comment-container")
+const manageCustomerContainer = document.querySelector('.manage-customers-container')
+const manageUserContainer = document.querySelector(".manage-users-container")
+const unorderedPnr = document.querySelector('.unorderedPnrContainer')
+
+if (showOtherCommandsMenu) {
+    // Fonction pour mettre à jour le style des éléments
+    function updateElementStyles(isShown) {
+        if (!isShown) {
+            console.log('Minimiser');
+            
+            if (fixedHeaderCard && stickyTrTable && pnrManagementMenuTrigger) {
+                fixedHeaderCard.style = "top: 5rem !important";
+                stickyTrTable.style = "top: 4.4rem !important";
+                pnrManagementMenuTrigger.style = "margin-top: 2.7rem !important; visibility: visible";
+            }
+        } else {
+            console.log(' Afficher les autres commandes');
+
+            if (fixedHeaderCard && stickyTrTable && pnrManagementMenuTrigger) {
+                fixedHeaderCard.style.removeProperty("top");
+                stickyTrTable.style.removeProperty("top");
+                pnrManagementMenuTrigger.style.removeProperty("margin-top");
+            }
+        }
+
+        if (manageCustomerContainer) {
+            console.log('manageCustomerContainer');
+
+            manageCustomerContainer.style.marginTop = isShown ? "4.25rem" : "0.25rem";
+        }
+    
+        if (commentContainer) {
+            console.log('commentContainer');
+
+            commentContainer.style.marginTop = isShown ? "2rem" : "0.4rem";
+        }
+
+        if (manageUserContainer) {
+            console.log('manageUserContainer');
+
+            manageUserContainer.style.marginTop = isShown ? "6.2rem" : "5rem";
+        }
+
+        if (unorderedPnr) {
+            console.log('unorderedPnr');
+
+            unorderedPnr.style.marginTop = isShown ? "5.2rem" : "5rem";
+        }
+    }
+
+    // Initialisation du statut du menu depuis le localStorage
+    let isCommandMenuShown = JSON.parse(localStorage.getItem("isCommandMenuShown")) || false;
+
+    if (!isCommandMenuShown) {
+        otherCommandsMenu.classList.add('d-none');
+        otherCommandsMenu.classList.remove('d-block');
+    }
+
+    if (fixedHeaderCard && stickyTrTable && pnrManagementMenuTrigger || commentContainer || manageCustomerContainer || manageUserContainer) {
+        updateElementStyles(isCommandMenuShown)
+    }
+    
+    const buttonText = isCommandMenuShown ? 'Minimiser les commandes' : 'Afficher autres commandes';
+    showOtherCommandsMenu.textContent = buttonText;
+
+    // Fonction pour basculer l'affichage du menu
+    function toggleCommandMenu() {
+        isCommandMenuShown = !isCommandMenuShown;
+
+        // Enregistrement de l'état actuel du menu dans le localStorage
+        localStorage.setItem("isCommandMenuShown", isCommandMenuShown);
+
+        const buttonText = isCommandMenuShown ? 'Minimiser les commandes' : 'Afficher autres commandes';
+        const displayClass = isCommandMenuShown ? 'd-block' : 'd-none';
+        
+        // Mise à jour du texte du bouton et de la classe d'affichage du menu
+        showOtherCommandsMenu.textContent = buttonText;
+        otherCommandsMenu.classList.remove('d-none', 'd-block');
+        otherCommandsMenu.classList.add(displayClass);
+    }
+
+    // Ajout de l'événement click sur le bouton showOtherCommandsMenu
+    showOtherCommandsMenu.addEventListener("click", (event) => {
+        event.preventDefault();
+        toggleCommandMenu();
+
+        if (fixedHeaderCard && stickyTrTable && pnrManagementMenuTrigger || commentContainer || manageCustomerContainer || manageUserContainer) {
+            // Mise à jour du style des éléments
+            updateElementStyles(isCommandMenuShown)
+        }
+    });
+}
+
+const unCheckAllCheckboxUninvoiced = document.getElementById("unCheckAllCheckboxUninvoiced")
+
+if (unCheckAllCheckboxUninvoiced) {
+    unCheckAllCheckboxUninvoiced.addEventListener("click", (event) => {
+        const pnrId = unCheckAllCheckboxUninvoiced.dataset.pnrId
+        console.log(pnrId);
+        $.ajax({
+            type: 'POST',
+            url: '/check-uninvoiced-status/',
+            dataType: 'json',
+            data: {
+                pnr_id: pnrId,
+                csrfmiddlewaretoken: csrftoken,
+            },
+            success: (response) => {
+                console.log(response.status);
+                if (response.status === 'ok') {
+                    toastr.success('Votre demande a été acceptée');
+                    window.location.reload()
+                }
+            },
+            error: (response) => {
+                console.log(response)
+            }
+        });
+    })
+}
+
+
+

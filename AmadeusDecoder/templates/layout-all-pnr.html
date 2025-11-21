@@ -54,6 +54,8 @@
 
   <!-- tablesort-->
   <link href="{% static 'css/theme.default.css' %}" rel="stylesheet">
+  <link href="{% static 'css/notification.css' %}" rel="stylesheet">
+
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" integrity="sha512-is1TN9d5Tt0OFxQTczhF1BPaJRaNzbSRKjk9yvExCHuCgfROU67TpE+67x35lbHEaQmbUxZ1Xjq18pIFpxGNmg==" crossorigin="anonymous">
 
@@ -87,7 +89,7 @@ old -->
         </li>
         <li class="nav-item ml-5 d-flex align-items-center" style="gap: 0.5rem;">
           <div class="align-items-center">
-            <span id="mail-user" data-mail="issoufali.pnr@outlook.com;{{request.user.email}}">issoufali.pnr@outlook.com;{{request.user.email}}</span>
+            <span id="mail-user" data-mail="issoufali.pnr@gmail.com;{{request.user.email}}">issoufali.pnr@gmail.com;{{request.user.email}}</span>
             <a type="button" class="btn btn-outline-primary" onclick="copymailuser()">Zenith</a> 
             
           </div>
@@ -116,6 +118,19 @@ old -->
                 Pnr non remonté
               </button>
             </div>
+            {% if notif_number != 0 %}
+            <div class="row" style=" margin-left:1rem;">
+              <div class ="alert" style="background: #FAE6E6;padding: .5em 1em .5em 2em;margin: 0 0 0 0;box-shadow: inset 6px 0 #CC0000;">
+                
+                {% comment %} <h5><i class="fa fa-exclamation-triangle blink" style="font-size: 1em; color: #CC0000;margin:0 6px 0 0;" aria-hidden="true"></i>
+                  <b>{% if notif_number == 1%}  BILLET NON COMMANDE {% else %} BILLETS NON COMMANDES {% endif %} </b>
+                </h5> {% endcomment %}
+                <div class="alert_text">Il reste <span class="blink" style="color: #CC0000;"><b>{{notif_number}}</b></span> 
+                {% if notif_number == 1%} billet à commander. {% else %} billets à commander{% endif %}</div>
+              </div>
+            </div>
+            {% endif %}
+            
 
         </li>
       </ul>
@@ -313,6 +328,7 @@ old -->
                 <p>Clients</p>
               </a>
             </li>
+            
             {% endif %}
             <!--menu agent contrôle role_id=4-->
             {% if request.user.role_id == 4 %}
@@ -450,6 +466,9 @@ old -->
     <script src="{% static 'js/UnorderedPnrHandler.js' %}"></script>
     <script src="{% static 'js/anomalie.js' %}"></script>
     <script src="{% static 'js/pnr_non_remonte.js' %}"></script>
+    <script src="{% static 'js/notification.js' %}"></script>
+
+
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/colresizable/1.6.0/colResizable-1.6.min.js" integrity="sha512-pMZ2rgWRGMywzbRAVwGk+auTREN0ldKKjACUSB4cneTgD3kn/6pu//Lxi4l8xSRkY83HENr1vztTnGDySWs0Mg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 

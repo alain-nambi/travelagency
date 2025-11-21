@@ -11,6 +11,7 @@ from .views.Setting import setting
 from .views.Login import *
 from .views.Home import *
 from .views.Comment import *
+from .views.Home_copy import home_copy
 
 
 urlpatterns = [
@@ -80,5 +81,12 @@ urlpatterns = [
     path('anomaly/accept/unremounted-pnr',accept_unremounted_pnr, name='accept_unremounted_pnr'),
     path('anomaly/refuse/unremounted-pnr',refuse_unremounted_pnr, name='refuse_unremounted_pnr'),
     path('home/unremounted-pnr-research', unremounted_pnr_research, name= 'unremounted_pnr_research'),
+    path('check-uninvoiced-status/', uncheck_ticket_in_passenger_invoiced, name='uncheck_ticket_in_passenger_invoiced'),
+    path('home/get-service-supplier-list',get_service_supplier_list,name='get_service_supplier_list'),
+    path('home/save-hotel',save_hotel,name='save_hotel'),
+    path('home/save-taxi',save_taxi,name='save_taxi'),
+    path('home/add-service-supplier',add_service_supplier, name='add_service_supplier'),
+    path('home/unorder-pnr/add-motif', addMotif,name="add_motif"),
+    path('home/pnr/cancel/<int:pnr_id>',cancel_pnr,name="cancel_pnr"),
 
 ]

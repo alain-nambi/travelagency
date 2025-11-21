@@ -9,7 +9,7 @@ from django.db.models import Q
 import json
 import traceback
 from AmadeusDecoder.models.invoice.Fee import OthersFee
-
+from AmadeusDecoder.models.invoice.Fee import Product
 import AmadeusDecoder.utilities.configuration_data as configs
 
 from AmadeusDecoder.models.pnr.Pnr import Pnr
@@ -17,10 +17,16 @@ from AmadeusDecoder.models.user.Users import User
 from AmadeusDecoder.models.user.Users import Office
 from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
 from AmadeusDecoder.models.invoice.Ticket import Ticket
+import ast
 
 register = template.Library()
 
 AIRPORT_AGENCY_CODE = configs.AIRPORT_AGENCY_CODE
+
+@register.filter(name='check_invoiced_status')
+def check_invoiced_status(pnr):
+    passenger_invoice_obj = PassengerInvoice.objects.filter(pnr_id=pnr.id).exclude(is_invoiced=True)
+    return passenger_invoice_obj.exists()
 
 @register.filter(name='pnr_office')
 def get_pnr_office(pnr):
@@ -346,24 +352,25 @@ def get_passenger_is_invoiced_in_passenger_invoice(pnr):
 def get_is_one_or_more_passenger_is_invoiced(pnr):
     from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
     passenger_invoices = PassengerInvoice.objects.filter(pnr=pnr.id).exclude(status="quotation")
-    is_invoice = []
-
-    if passenger_invoices.exists():
-        for passenger in passenger_invoices:
-            if passenger.ticket is not None and passenger.ticket.ticket_status == 1:
-                is_invoice.append(passenger.is_invoiced)
-            if passenger.other_fee is not None and passenger.other_fee.other_fee_status == 1:
-                is_invoice.append(passenger.is_invoiced)
-            if passenger.fee is not None and passenger.fee.ticket is not None and passenger.fee.ticket.ticket_status == 1:
-                is_invoice.append(passenger.is_invoiced)
-            if passenger.fee is not None and passenger.fee.other_fee is not None and passenger.fee.other_fee.other_fee_status == 1:
-                is_invoice.append(passenger.is_invoiced)
-        if True in is_invoice:
-            return True
-        else:
-            return False
-    else:
+    print('------------------- get_is_one_or_more_passenger_is_invoiced -----------------------')
+    print(passenger_invoices)
+    if not passenger_invoices.exists():
+        print('------- NONE ----------------')
         return None
+
+    for passenger in passenger_invoices:
+        if (
+            (passenger.ticket and passenger.ticket.ticket_status == 1)
+            or (passenger.other_fee and passenger.other_fee.other_fee_status == 1)
+            or (passenger.fee and passenger.fee.ticket and passenger.fee.ticket.ticket_status == 1)
+            or (passenger.fee and passenger.fee.other_fee and passenger.fee.other_fee.other_fee_status == 1)
+        ):
+            if passenger.is_invoiced:
+                print('------- TRUE ----------------')
+
+                return True
+
+    return False
 
 # @register.filter(name='detail_customer')
 # def get_detail_customer(id):
@@ -1768,4 +1775,68 @@ def get_check_passenger_missing(pnr_id, client_id):
 
     return count_passenger_missing
 
+@register.filter(name='check_other_fee')
+def check_other_fee(other_fee_id):
+    other_fee = OthersFee.objects.get(id=other_fee_id)
+    product = Product.objects.filter(designation= other_fee.designation).first()
+    if product and product.code == 'SLOT':
+        return True
+    return False
 
+
+@register.filter(name='get_hotel_details')
+def get_hotel_details(other_fee_id):
+    other_fee = OthersFee.objects.get(id=other_fee_id)
+    if other_fee.value:
+        name = other_fee.value.get('name')
+        arrival = datetime.strptime(other_fee.value.get('arrivalDate'), "%Y-%m-%d") 
+        departure = datetime.strptime(other_fee.value.get('departureDate'), "%Y-%m-%d") 
+        client = other_fee.value.get('client')
+
+        return {"name":name, "arrival": arrival.strftime("%d/%m/%Y"), "departure": departure.strftime("%d/%m/%Y"), "client":client}
+
+@register.filter(name='get_transport_details')
+def get_transport_details(other_fee_id):
+    other_fee = OthersFee.objects.get(id=other_fee_id)
+    product = Product.objects.filter(designation= other_fee.designation).first()
+    taximan = passenger = bus_passsenger= None
+
+    if other_fee.value:
+        if product.id in [12,15]:
+            trajet = other_fee.value.get('trajet')
+            date = other_fee.value.get('date')
+            arrivaltime = other_fee.value.get('arrivalTime')
+            departuretime = other_fee.value.get('departureTime')
+
+            taxi_passenger_str = other_fee.value.get("taxiPassenger", "[]")  # Récupère la valeur ou une liste vide par défaut
+            passenger = ast.literal_eval(taxi_passenger_str) if isinstance(taxi_passenger_str, str) else taxi_passenger_str
+            
+            taximan = other_fee.value.get('taximan')
+            if taximan == "":
+                taximan = None
+        if product.id in [8,9,14]:
+            trajet = other_fee.value.get('trajet') +'/ Classe: '+ other_fee.value.get('classe')
+            date = other_fee.value.get('date')
+            arrivaltime = other_fee.value.get('arrivalTime')
+            departuretime = other_fee.value.get('departureTime')
+            
+            bus_passenger_str = other_fee.value.get("passenger", "[]")  # Récupère la valeur ou une liste vide par défaut
+            bus_passsenger = ast.literal_eval(bus_passenger_str) if isinstance(bus_passenger_str, str) else bus_passenger_str
+
+        if product.id == 11:
+            print("LOCATION DE VEHICULE *****************************")
+            print(other_fee.value.get('fournisseur'))
+            return {
+                "fournisseur": other_fee.value.get('fournisseur'),
+                "conducteur": other_fee.value.get('conducteur'),
+                "modele": other_fee.value.get('modele'),
+                "lieu_prise": other_fee.value.get('lieu_prise'),
+                "date_prise": other_fee.value.get('date_prise'),
+                "heure_prise": other_fee.value.get('heure_prise'),
+                "lieu_return": other_fee.value.get('lieu_return'),
+                "date_return": other_fee.value.get('date_return'),
+                "heure_return": other_fee.value.get('heure_return')
+            }
+
+
+        return {"trajet":trajet,"date":date, "arrivaltime": arrivaltime, "departuretime": departuretime,"passengers":passenger,"taximan":taximan,"bus_passengers":bus_passsenger}

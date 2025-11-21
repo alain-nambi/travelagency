@@ -1,5 +1,5 @@
 import ast
-from datetime import datetime
+from datetime import datetime, timezone
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 
@@ -21,7 +21,6 @@ from AmadeusDecoder.utilities.SendMail import Sending
 from AmadeusDecoder.models.invoice.Ticket import Ticket
 
 from datetime import date, timedelta
-from django.utils import timezone
 
 from django.db.models import Q
 from django.core.serializers import serialize
@@ -99,6 +98,10 @@ def comment_list(request):
     except EmptyPage:
         page_obj = paginator.page(paginator.num_pages)
     context = {'page_obj': page_obj, 'row_num': row_num, 'pnr_count' : comments_count}
+
+    pnr_not_invoiced = get_ticket_created_today_not_invoiced(request)
+    context['pnr_not_invoiced'] = pnr_not_invoiced
+    context['notif_number'] = len(pnr_not_invoiced)
 
     return render(request, 'comment-list.html', context)
 
@@ -228,7 +231,7 @@ def get_unshowed_tickets(request):
     context = {}
     if request.method == 'POST':
         pnr_id = request.POST.get('pnr_id')
-        tickets_query = Ticket.objects.filter(pnr_id= pnr_id).filter((Q(transport_cost=0) & Q(tax=0) & Q(total=0)) | Q(is_no_adc=True)).all()
+        tickets_query = Ticket.objects.filter(pnr_id= pnr_id).exclude( (Q(ticket_status=1) & ~Q(state=2)) | Q(ticket_type='TST') | Q(is_invoiced=True))
         tickets= []
         for ticket in tickets_query:
             ticket_data = {
@@ -250,32 +253,31 @@ def verif_ticket(request):
     if request.method == 'POST':
         ticket_number = request.POST.get('ticket_number')
         pnr_id = request.POST.get('pnr_id')
-
         ticket = Ticket.objects.filter(number=ticket_number).first()
         
-        verif = 'False'
-        if ticket is not None:
-            if ticket.pnr_id == pnr_id:
-                if ticket.is_no_adc == False:
-                    verif='True'
-                if ticket.is_no_adc == True and ticket.total != 0:
-                    verif= 'is_no_adc'
-                if ticket.is_no_adc == True and ticket.total == 0:
-                    verif= 'is_no_adc'
-            elif ticket.pnr_id == pnr_id and ticket.total > 0:
-                verif = 'ticket_already_exist'
-                # ticket existant mais pour un autre pnr
-            else:
-                if ticket.pnr_id:
-                    verif = {
-                        'exist': True,
-                        'pnr': ticket.pnr.number,
-                    }
-                else: 
-                    verif = 'pnr'
-
+        response = {'verif': 'False'}
         
-    return JsonResponse({'verif': verif})
+        if ticket is not None:
+            if int(ticket.pnr_id) == int(pnr_id):
+                if ticket.is_no_adc:
+                    response['verif'] = 'is_no_adc'
+                elif ticket.state !=2 and ticket.ticket_status == 1:
+                    response['verif'] = 'True'
+                elif ticket.state !=2 and ticket.ticket_status != 1:
+                    response['verif'] = 'Exist'
+                elif ticket.state ==2 and ticket.ticket_status == 1:
+                    response['verif'] = 'Tarification'
+            else:
+                response['verif'] = {
+                    'exist': True,
+                    'pnr': ticket.pnr.number,
+                }
+        else:
+            response['verif'] = 'False'
+
+        return JsonResponse(response)
+    else:
+        return JsonResponse({'error': 'Invalid request'})
 
 # get by pnr
 @login_required(login_url='index')
@@ -354,6 +356,7 @@ def save_ticket_anomalie(request):
                 return JsonResponse({'error':'ticket number > 17 '})
         
             # get all data
+            isticket = new_tickets[0]['isticket']
             montant_hors_taxe = new_tickets[0]['montant_hors_taxe']
             taxe = new_tickets[0]['taxe']
             pnr_id = new_tickets[0]['pnr_id']
@@ -367,9 +370,11 @@ def save_ticket_anomalie(request):
             pnr = Pnr.objects.filter(id=pnr_id).first()
                 
             user_id = new_tickets[0]['user_id']
-            
-            info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "passenger_id":passenger_id, "segment": segments, "ticket_status":1, 'ticket_type':ticket_type, 'fee': str(new_tickets[0]['fee']).capitalize()} # ticket_status : 0 ticket existant , 1 ticket non existant
-        
+
+            if isticket == '0':
+                info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "passenger_id":passenger_id, "segment": segments, "ticket_status":1, 'ticket_type':ticket_type, 'fee': str(new_tickets[0]['fee']).capitalize(),'isticket':0} # ticket_status : 0 ticket existant , 1 ticket non existant
+            else:
+                info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "passenger_id":passenger_id, "segment": segments, "ticket_status":1, 'ticket_type':ticket_type, 'fee': str(new_tickets[0]['fee']).capitalize(), 'isticket':1} # ticket_status : 0 ticket existant , 1 ticket non existant
         else:
             ticket_number = request.POST.get('ticket_number')
             montant_hors_taxe = request.POST.get('montant_hors_taxe')
@@ -379,7 +384,7 @@ def save_ticket_anomalie(request):
             
             pnr = Pnr.objects.filter(id=pnr_id).first()
             
-            info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "ticket_status":0} # ticket_status : 0 ticket existant , 1 ticket non existant
+            info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "ticket_status":0,'isticket':0} # ticket_status : 0 ticket existant , 1 ticket non existant
             
         if montant_hors_taxe == "" or taxe == "":
             return JsonResponse(
@@ -391,7 +396,7 @@ def save_ticket_anomalie(request):
         
         user = User.objects.filter(id= user_id).first()
 
-        anomalie = Anomalie(pnr=pnr, categorie='Billet non remonté', infos=info, issuing_user = user, creation_date=timezone.now())
+        anomalie = Anomalie(pnr=pnr, categorie='Billet non remonté', infos=info, issuing_user = user, creation_date=datetime.now())
         anomalie.save()   
         anomalie_id = anomalie.id
         response_data = {'status':'ok','anomalie_id':anomalie_id}
@@ -424,6 +429,10 @@ def get_all_anomalies(request):
         page_obj = paginator.page(paginator.num_pages)
         
     context = {'page_obj': page_obj, 'row_num': row_num}
+
+    pnr_not_invoiced = get_ticket_created_today_not_invoiced(request)
+    context['pnr_not_invoiced'] = pnr_not_invoiced
+    context['notif_number'] = len(pnr_not_invoiced)
     
     return render(request,'anomalies-list.html',context)
 
@@ -451,25 +460,42 @@ def update_ticket(request):
             ticket.transport_cost = anomalie.infos.get('montant')
             ticket.tax = anomalie.infos.get('taxe')
             ticket.total = float(anomalie.infos.get('montant')) + float(anomalie.infos.get('taxe'))
+            # set is_no_adc if total = 0
+            if ticket.total == 0:
+                ticket.is_no_adc = True
             ticket.ticket_status = 1
+            ticket.state = 0
             ticket.emitter = None
             ticket.issuing_date = datetime.now()
+
+            if issuing_user.id in issuing_user.has_lift_tki_perm():
+                ticket.emitter = issuing_user
             ticket.save()
            
         else:
             # Create a new ticket
+            print('****************************** CREATE TICKET ****************************')
             ticket = Ticket()
             ticket.transport_cost=anomalie.infos.get('montant')
             ticket.number=anomalie.infos.get('ticket_number')
             ticket.tax=anomalie.infos.get('taxe')
             ticket.total = float(anomalie.infos.get('montant')) + float(anomalie.infos.get('taxe'))
+            # set is_no_adc if total = 0
+            if ticket.total == 0:
+                ticket.is_no_adc = True
             ticket.ticket_status=1
             ticket.pnr_id=anomalie.pnr_id
             ticket.passenger_id=anomalie.infos.get('passenger_id')
             ticket.ticket_type=anomalie.infos.get('ticket_type')
             ticket.is_subjected_to_fees=anomalie.infos.get('fee')
-            ticket.emitter=None
+
+            if issuing_user.id in issuing_user.has_lift_tki_perm():
+                ticket.emitter = issuing_user
             ticket.issuing_date=datetime.now()
+
+            print('************************IS TICKET : ', anomalie.infos.get('isticket'))
+            ticket.is_refund = anomalie.infos.get('isticket') == '1'
+            print(ticket.is_refund)
             ticket.save()
             
             # get the corresponding segment
@@ -493,7 +519,7 @@ def update_ticket(request):
             new_user_copying.save()
         
         anomalie.status = 1
-        anomalie.response_date = timezone.now()
+        anomalie.response_date = datetime.now()
         anomalie.save()
    
         return JsonResponse('ok', safe=False)
@@ -504,7 +530,7 @@ def refuse_anomaly(request):
         anomalie_id = request.POST.get('anomalie_id')
         anomalie = Anomalie.objects.get(pk=anomalie_id)
         anomalie.status = 2
-        anomalie.response_date = timezone.now()
+        anomalie.response_date = datetime.now()
         anomalie.admin_id = request.user
         anomalie.save()
         return JsonResponse('ok',safe=False)
@@ -830,3 +856,24 @@ def unremounted_pnr_research(request):
 
 
 
+# ------- Notification ---------------------------------
+def get_ticket_created_today_not_invoiced(request):
+    # get number of ticket not invoiced today
+    today = datetime.now().date()
+
+    start_date = datetime(today.year, today.month, today.day, 0, 0, 0, tzinfo=timezone.utc)
+    end_date = datetime(today.year, today.month, today.day, 23, 59, 59, tzinfo=timezone.utc)
+    
+    print('REQUEST USER : ',request.user.id)
+    current_user = User.objects.get(id= request.user.id)
+    print('CURRENT USER : ',current_user)
+    if current_user.role_id == 1:
+        tickets = Ticket.objects.filter(pnr_id__system_creation_date__range=[start_date, end_date], is_invoiced= False, fare=0, ticket_status=1, state=0)
+    else:
+        tickets = Ticket.objects.filter(pnr__agent_id = current_user.id,pnr_id__system_creation_date__range=[start_date, end_date], is_invoiced= False, fare=0, ticket_status=1, state=0)
+    
+    print('PNRS : ',tickets)
+    nbre_pnr = tickets.count()
+    print('------------- NOTIF NUMBER----------------- : ',nbre_pnr)
+
+    return tickets

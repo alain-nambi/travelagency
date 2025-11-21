@@ -207,6 +207,18 @@
 												</p>
 											{% endif %}
 
+											{% if pnr.state == 4 %} 
+											<p>
+												<button 
+													type="button" 
+													class="btn btn-danger mr-2" 
+													style="padding: 0.1rem 0.5rem !important">
+													<i class="fa fa-times-circle-o text-white" data-toggle="tooltip" data-placement="top" title="dossier annulé!"></i>
+													<span class="text-white"><b>DOSSIER ANNULÉ</b></span>
+												</button>
+											</p>
+											{% endif %}
+
 
 										</div>
 										<div class="col-md-3 px-2">
@@ -530,7 +542,7 @@
 										<div class="col-md-2 text-end all-btn">
 											{% if request.user.role_id == 3 or 1 %}
 											<a id="create-devis"
-											   class="{% if pnr.status == 'Emis' %} disabled {% endif %} btn btn-sm-block btn-info create-devis mb-2 py-0 px-1"
+											   class="{% if pnr.status == 'Emis' or pnr.state == 4 %} disabled {% endif %} btn btn-sm-block btn-info create-devis mb-2 py-0 px-1"
 											>
 												<i class="fa fa-pen"></i>
 												Créer devis
@@ -539,7 +551,7 @@
 											{% with pnr|passenger_is_invoiced_in_passenger_invoice as passenger_is_invoiced_in_passenger_invoice %} 
 												<a 
 													id="edit"
-													class="btn btn-sm-block btn-primary edit mb-2 py-0 px-1" {% if pnr.is_invoiced and passenger_is_invoiced_in_passenger_invoice %} hidden="true" {% endif %}
+													class="{% if pnr.state == 4 %} disabled {% endif %} btn btn-sm-block btn-primary edit mb-2 py-0 px-1" {% if pnr.is_invoiced and passenger_is_invoiced_in_passenger_invoice %} hidden="true" {% endif %}
 												>
 													<i class="fas fa-edit"></i>
 													Modifier
@@ -572,7 +584,7 @@
 											<button 
 												type="button" 
 												id="create-command" 
-												class="btn btn-sm-block btn-info mb-2 py-0 px-1" 
+												class="{% if pnr.state == 4 %} disabled {% endif %} btn btn-sm-block btn-info mb-2 py-0 px-1" 
 												data-toggle="modal"
 												data-target="#modal-confirm-cmd" 
 												{% if pnr.is_invoiced or pnr.status == "Non émis" or pnr.state == 1 %} 
@@ -582,6 +594,21 @@
 												<i class="fas fa-plus"></i>
 												Créer commande
 											</button>
+
+											{% with pnr|check_invoiced_status as check_invoiced_status %}
+												{% if check_invoiced_status %}
+													<button 
+														type="button" 
+														id="unCheckAllCheckboxUninvoiced" 
+														class="btn btn-sm-block btn-secondary mb-2 py-0 px-1"
+														data-pnr-id="{{ pnr.id }}" 
+													>
+														<i class="fas fa-plus"></i>
+														<span class="text-sm">Annuler la sélection</span>
+													</button>
+												{% endif %}
+											{% endwith %}
+											
 
 											{% with pnr|check_if_one_or_many_passenger_is_invoiced as check_if_one_or_many_passenger_is_invoiced %}
 												{% with pnr.id|customer_has_not_had_order as customer_has_not_had_order %}
@@ -785,7 +812,7 @@
 														{{ "Remboursement"}}
 													{% endif %}
 												</td>
-												{% if user.id == 58 or user.id == 42 %}
+												{% if user.id == 58 or user.id == 70 or user.id == 71 or user.id == 72 %}
 													<td>
 														{% if not ticket.is_invoiced  %} 
 															<button class="btn btn-warning px-2 py-1 deleteticket" title='Annuler le ticket' type="button" data-toggle="modal" 
@@ -986,10 +1013,47 @@
 												<td><span class="billet">{{ other_fee.designation }}</span></td>
 												{% if other_fee|ancillary_passenger is not None %}
 												<td>
-													{{ other_fee|ancillary_passenger }}
-													{% if other_fee.fee_type == 'AVOIR COMPAGNIE' %}
-														<br>{{ other_fee.id|route_avoir }}
-													{% endif %}
+													{% with other_fee.id|check_other_fee as needSlot %}
+														{% if needSlot %}
+															{% if other_fee.designation == 'HOTEL' %}
+																{% with other_fee.id|get_hotel_details as ht_details %}
+																	<p>Nom : {{ ht_details.name }} 
+																	<br>Client : {{ ht_details.client }}
+																	<br>Arrivée : {{ ht_details.arrival }}
+																	<br>Sortie : {{ ht_details.departure }}
+																	</p>
+																{% endwith %}
+															
+															{% else %}
+																{% with other_fee.id|get_transport_details as tx_details %}
+																	{% if tx_details.fournisseur is not None %}
+																		<!-- Cas pour la location de véhicule -->
+																		<p>Fournisseur : {{ tx_details.fournisseur }}</p>
+																		<p>Conducteur : {{ tx_details.conducteur }}</p>
+																		<p>Modèle : {{ tx_details.modele }}</p>
+																		<p>Prise du Véhicule : {{ tx_details.lieu_prise }} - {{ tx_details.date_prise }} {{ tx_details.heure_prise }}</p>
+																		<p>Retour du Véhicule : {{ tx_details.lieu_return }} - {{ tx_details.date_return }} {{ tx_details.heure_return }}</p>
+																	{% else %}
+																		<p>Trajet : {{ tx_details.trajet }}
+																		{% if tx_details.taximan is not None %}
+																			<br>Chauffeur : {{ tx_details.taximan }}
+																		{% endif %}
+																		<br>Départ : {{ tx_details.date }} {{ tx_details.departuretime }}
+																		<br>Arrivée :{{ tx_details.date }} {{ tx_details.arrivaltime }}
+																		</p>
+																	{% endif %}
+																{% endwith %}
+															{% endif %}
+															
+															
+														{% else %}
+															{{ other_fee|ancillary_passenger }}
+															{% if other_fee.fee_type == 'AVOIR COMPAGNIE' %}
+																<br>{{ other_fee.id|route_avoir }}
+															{% endif %}
+														{% endif %}
+													{% endwith %}
+
 												</td>
 													
 												{% else %}
@@ -1008,6 +1072,29 @@
 												<td>
 													{% if other_fee.passenger_segment is not None %}
 														{{ other_fee.passenger_segment }}
+													{%else%}
+														{% with other_fee.id|check_other_fee as needSlot %}
+															{% if needSlot %}
+																{% if other_fee.designation == 'TAXI' or other_fee.designation == 'TRANSFERT' %}
+																	{% with other_fee.id|get_transport_details as tx_details %}
+																	<ul>
+																		{% for passenger in tx_details.passengers %}
+																			<li>{{ passenger }}</li>
+																		{% endfor %}
+																	</ul>	
+																	{% endwith %}
+																{%endif%}
+																{% if other_fee.designation == 'BUS' or other_fee.designation == 'SNCF TGV AIR' or other_fee.designation == 'TRAIN : SNCF' %}
+																	{% with other_fee.id|get_transport_details as tx_details %}
+																	<ul>
+																		{% for passenger in tx_details.bus_passengers %}
+																			<li>{{ passenger }}</li>
+																		{% endfor %}
+																	</ul>	
+																	{% endwith %}
+																{%endif%}
+															{%endif%}
+														{% endwith %}	
 													{% endif %}
 												</td>
 												
@@ -1047,7 +1134,7 @@
 													{% endif %}
 												</td>
 												<td></td>
-												{% if user.id == 58 or user.id == 42 %}
+												{% if user.id == 58 or user.id == 70 or user.id == 71 or user.id == 72 %}
 													<td>
 														{% if not other_fee.is_invoiced  %}
 															<button class="btn btn-warning px-2 py-1 deleteticket" title='Annuler le ticket' type="button" data-toggle="modal" 
@@ -1203,6 +1290,7 @@
 												</td>
 												<td>
 													<select id="select_Passenger" class="form-control form-control-sm" ></select>
+													<div id="ht_details"></div>
 												</td>
 												<td><input type="number" step="0.01" name="transport-input-line" class="form-control form-control-sm" id="transport-input-line"
 													placeholder="Transport" name="transport-input-line" style="text-align:right;" value=""></td>
@@ -1215,6 +1303,7 @@
  
 														<select id="multipleSelect" multiple name="native-select" placeholder="Segment" data-search="false" data-silent-initial-value-set="true">
 														</select>
+													<div id="ht_passenger"></div>
 												</td>
 												<td></td>
 												<td></td>
@@ -1439,7 +1528,7 @@
 			</div>
 				<div class="modal-body">
 					
-					{% if user.role_id == 1 or pnr.is_archived%}
+					{% if user.role_id == 1 or pnr.is_archived or user.id in user.has_lift_tki_perm%}
 					<div style="margin-bottom:5px;">
 						<button class="btn btn-info" id="comment-ticket" enabled>Billet non remonté</button>
 					</div>
@@ -1457,20 +1546,19 @@
 								
 							</div>
 
-							
-
 							<div id='info'>
 								<label for="montant_hors_taxe" class="col-form-label">Montant Hors Taxe</label>
-								<input type='number' name="montant_hors_taxe" class="form-control" id="montant_hors_taxe">
-								<label for="taxe" class="col-form-label">Taxe</label>
-								<input type='number' name="taxe" class="form-control" id="taxe">
-								<input type='hidden' name="user_id" value="{{user.id}}" class="form-control" id="user_id" >
-								
+								<input type='text' name="montant_hors_taxe" class="form-control" id="montant_hors_taxe">
 							</div>
+							<div id='taxSection'>
+								<label for="taxe" class="col-form-label">Taxe</label>
+								<input type='text' name="taxe" class="form-control" id="taxe" value="0">
+							</div>
+								<input type='hidden' name="user_id" value="{{user.id}}" class="form-control" id="user_id" >
 
 							<div id='other_info'>
 								<div>
-									<label for="taxe" class="col-form-label">Type du Billet</label>
+									<label for="type" class="col-form-label">Type du Billet</label>
 									<select id="selectType" class="form-control form-control select-type">
 										<option value='TKT'>TKT</option>
 										<option value='EMD'>EMD</option>
@@ -2346,7 +2434,19 @@
 							<label for="message-text" class="col-form-label">Numero de commande:</label>
 							<select class="custom-select" id="selectNumCommande"></select>
 							<label for="message-text" class="col-form-label">Motif:</label>
-							<input type='text' name="motif" required class="form-control" id="motif" placeholder="Saisir le motif afin de décommander le PNR"></input>
+							<div id='custom-select-status' class='hidden-visually' aria-live="polite"></div>
+							<div class="pnr_motif_select" id="myCustomSelect">
+								<input type="text" id="custom-select-input" class="select-css">
+								<span class="custom-select-icons">
+									<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" viewBox="0 0 16 16" focusable="false" aria-hidden="true" id="icon-circle-down" class="icon" role="img">
+										<path d="M16 8c0-4.418-3.582-8-8-8s-8 3.582-8 8 3.582 8 8 8 8-3.582 8-8zM1.5 8c0-3.59 2.91-6.5 6.5-6.5s6.5 2.91 6.5 6.5-2.91 6.5-6.5 6.5-6.5-2.91-6.5-6.5z"></path>
+										<path d="M4.957 5.543l-1.414 1.414 4.457 4.457 4.457-4.457-1.414-1.414-3.043 3.043z"></path>
+									</svg>
+																	
+								</span>
+								<ul class="custom-select-options hidden-all" id="custom-select-list"></ul>
+							</div>
+							{% comment %} <input type='text' name="motif" required class="form-control" id="motif" placeholder="Saisir le motif afin de décommander le PNR"></input> {% endcomment %}
 						{% else %}
 							<span>Aucune commande n'a été faite pour ce PNR</span>
 						{% endif %}
@@ -2390,4 +2490,388 @@
 	</div>
 </div>
 
+<div class="modal fade" id="modalHotelInfo" aria-modal="true" >
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Informations Hôtel</h4>
+				<button class="close" type="button" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">x</span>
+				</button>
+			</div>
+
+			<div class="modal-body">
+				<div class="input-group mb-2">
+					<div class="col-md-4"> 
+						<label for="hotelName">Nom</label>
+					</div>
+					<div class="col-md-8"> 
+						<div id='select-hotel-supplier' class='hidden-visually' aria-live="polite"></div>
+							<div class="hotelselect" id="myHotelSupplier">
+								<input type="text" id="hotel-supplier-input" class="select-css">
+								<span class="custom-select-icons">
+									<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" viewBox="0 0 16 16" focusable="false" aria-hidden="true" id="icon-circle-down" class="icon" role="img">
+										<path d="M16 8c0-4.418-3.582-8-8-8s-8 3.582-8 8 3.582 8 8 8 8-3.582 8-8zM1.5 8c0-3.59 2.91-6.5 6.5-6.5s6.5 2.91 6.5 6.5-2.91 6.5-6.5 6.5-6.5-2.91-6.5-6.5z"></path>
+										<path d="M4.957 5.543l-1.414 1.414 4.457 4.457 4.457-4.457-1.414-1.414-3.043 3.043z"></path>
+									</svg>
+																	
+								</span>
+								<ul class="hotel-supplier-options hidden-all" id="hotel-supplier-list"></ul>
+							</div>
+					</div>
+				</div>
+
+				<div class="input-group mb-2">
+					<div class="col-md-4">
+						<label for="departure">Client</label>
+					</div>
+					<div class="col-md-8">
+						<input type="text" class="form-control" id="hotel_client"/>
+					</div>
+					
+				</div>
+				
+				<div class="input-group mb-2">
+					<div class="col-md-4"> 
+						<label for="Arrival">Arrivée</label>
+					</div>
+					<div class="col-md-4"> 
+						<input type="date" class="form-control" id="arrivalDate" name="arrival_date">
+					</div>
+					
+				</div>
+				<div class="input-group mb-2">
+					<div class="col-md-4">
+						<label for="departure">Départ</label>
+					</div>
+					<div class="col-md-4">
+						<input type="date" class="form-control" id="departureDate" name="departure_date">
+					</div>
+					
+				</div>
+
+				
+
+				
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+				<button type="button" class="btn btn-success" id="ConfirmAddHotel" data-dismiss="modal">Confirmer
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="modalTaxiInfo" aria-modal="true" >
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" id ="modalTaxiTitle"></h4>
+				<button class="close" type="button" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">x</span>
+				</button>
+			</div>
+
+			<div class="modal-body">
+				<div class="input-group mb-2" id="taximanDiv" style="display: none;">
+					<div class="col-md-4">
+						<label for="departure">Chauffeur</label>
+					</div>
+					<div class="col-md-8">
+						<input type="text" class="form-control" id="taximan"/>
+					</div>
+					
+				</div>
+
+				<div class="input-group mb-2">
+				
+					<div class="col-md-4"> 
+						<label for="taxiName">Trajet</label>
+					</div>
+					<div class="col-md-8"> 
+						<div id='select-taxi-supplier' class='hidden-visually' aria-live="polite"></div>
+							<div class="taxiselect" id="myTaxiSupplier">
+								<input type="text" id="taxi-supplier-input" class="select-css">
+								<span class="custom-select-icons">
+									<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" viewBox="0 0 16 16" focusable="false" aria-hidden="true" id="icon-circle-down" class="icon" role="img">
+										<path d="M16 8c0-4.418-3.582-8-8-8s-8 3.582-8 8 3.582 8 8 8 8-3.582 8-8zM1.5 8c0-3.59 2.91-6.5 6.5-6.5s6.5 2.91 6.5 6.5-2.91 6.5-6.5 6.5-6.5-2.91-6.5-6.5z"></path>
+										<path d="M4.957 5.543l-1.414 1.414 4.457 4.457 4.457-4.457-1.414-1.414-3.043 3.043z"></path>
+									</svg>
+																	
+								</span>
+								<ul class="taxi-supplier-options" id="taxi-supplier-list"></ul>
+							</div>
+					</div>
+				</div>
+
+				<div class="input-group mb-2">
+					<div class="col-md-4">
+						<label for="passager">Passager</label>
+					</div>
+					<div class="col-md-8">
+						<select id="taxi_passenger" multiple name="native-select" placeholder="Passager" data-search="false" data-silent-initial-value-set="true" >	
+						</select>
+					</div>
+					
+				</div>
+
+				<div class="input-group mb-2">
+					<div class="col-md-4"> 
+						<label for="date">Date</label>
+					</div>
+					<div class="col-md-8"> 
+						<input type="date" class="form-control" id="taxiDate" name="date">
+					</div>
+					
+				</div>
+				<div class="input-group mb-2">
+					<div class="col-md-4">
+						<label for="time">Heure de départ</label>
+					</div>
+				
+					<div class="col-md-8">
+						<input type="time" class="form-control" id="taxiDepartureTime" name="time">
+					</div>
+				</div>
+
+				<div class="input-group mb-2">
+					<div class="col-md-4">
+						<label for="time">Heure d'arrivée</label>
+					</div>
+				
+					<div class="col-md-8">
+						<input type="time" class="form-control" id="taxiArrivalTime" name="time">
+					</div>
+				</div>
+				
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+				<button type="button" class="btn btn-success" id="ConfirmAddTaxi" data-dismiss="modal">Confirmer
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="modalBusInfo" aria-modal="true" >
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" id ="modalBusTitle"></h4>
+				<button class="close" type="button" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">x</span>
+				</button>
+			</div>
+
+			<div class="modal-body">
+				<div class="input-group mb-2">
+					<div class="col-md-4">
+						<label for="class">Trajet</label>
+					</div>
+				
+					<div class="col-md-8">
+						<input type="text" class="form-control" id="bus_trajet" name="time">
+					</div>
+				</div>
+
+				<div class="input-group mb-2">
+				
+					<div class="col-md-4"> 
+						<label for="taxiName">Classe</label>
+					</div>
+					<div class="col-md-8"> 
+						<div id='select-bus-supplier' class='hidden-visually' aria-live="polite"></div>
+							<div class="busselect" id="myBusSupplier">
+								<input type="text" id="bus-supplier-input" class="select-css">
+								<span class="custom-select-icons">
+									<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" viewBox="0 0 16 16" focusable="false" aria-hidden="true" id="icon-circle-down" class="icon" role="img">
+										<path d="M16 8c0-4.418-3.582-8-8-8s-8 3.582-8 8 3.582 8 8 8 8-3.582 8-8zM1.5 8c0-3.59 2.91-6.5 6.5-6.5s6.5 2.91 6.5 6.5-2.91 6.5-6.5 6.5-6.5-2.91-6.5-6.5z"></path>
+										<path d="M4.957 5.543l-1.414 1.414 4.457 4.457 4.457-4.457-1.414-1.414-3.043 3.043z"></path>
+									</svg>
+																	
+								</span>
+								<ul class="bus-supplier-options" id="bus-supplier-list"></ul>
+							</div>
+					</div>
+				</div>
+
+				<div class="input-group mb-2">
+					<div class="col-md-4">
+						<label for="bus_passager">Passager</label>
+					</div>
+					<div class="col-md-8">
+						<select id="bus_passenger" multiple name="native-select" placeholder="Passager" data-search="false" data-silent-initial-value-set="true" >	
+						</select>
+					</div>
+					
+				</div>
+
+				<div class="input-group mb-2">
+					<div class="col-md-4"> 
+						<label for="date">Date</label>
+					</div>
+					<div class="col-md-8"> 
+						<input type="date" class="form-control" id="busDate" name="date">
+					</div>
+					
+				</div>
+
+				<div class="input-group mb-2">
+					<div class="col-md-4">
+						<label for="time">Heure de départ</label>
+					</div>
+				
+					<div class="col-md-8">
+						<input type="time" class="form-control" id="busDepartureTime" name="time">
+					</div>
+				</div>
+
+				<div class="input-group mb-2">
+					<div class="col-md-4">
+						<label for="time">Heure d'arrivée</label>
+					</div>
+				
+					<div class="col-md-8">
+						<input type="time" class="form-control" id="busArrivalTime" name="time">
+					</div>
+				</div>
+				
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+				<button type="button" class="btn btn-success" id="ConfirmAddBus" data-dismiss="modal">Confirmer
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="modalLocationInfo" aria-modal="true" >
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" id ="modalLocationTitle">Location de Véhicule</h4>
+				<button class="close" type="button" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">x</span>
+				</button>
+			</div>
+
+			<div class="modal-body">
+
+				<div class="input-group mb-2">
+				
+					<div class="col-md-4"> 
+						<label for="fournisseur_car">Fournisseur</label>
+					</div>
+					<div class="col-md-8"> 
+						<div id='select-location-supplier' class='hidden-visually' aria-live="polite"></div>
+							<div class="locationselect" id="myLocationSupplier">
+								<input type="text" id="location-supplier-input" class="select-css">
+								<span class="custom-select-icons">
+									<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16" viewBox="0 0 16 16" focusable="false" aria-hidden="true" id="icon-circle-down" class="icon" role="img">
+										<path d="M16 8c0-4.418-3.582-8-8-8s-8 3.582-8 8 3.582 8 8 8 8-3.582 8-8zM1.5 8c0-3.59 2.91-6.5 6.5-6.5s6.5 2.91 6.5 6.5-2.91 6.5-6.5 6.5-6.5-2.91-6.5-6.5z"></path>
+										<path d="M4.957 5.543l-1.414 1.414 4.457 4.457 4.457-4.457-1.414-1.414-3.043 3.043z"></path>
+									</svg>
+																	
+								</span>
+								<ul class="location-supplier-options" id="location-supplier-list"></ul>
+							</div>
+					</div>
+				</div>
+
+				<div class="input-group mb-2">
+					<div class="col-md-4">
+						<label for="conducteur">Conducteur</label>
+					</div>
+				
+					<div class="col-md-8">
+						<input type="text" class="form-control" id="conducteur" name="time">
+					</div>
+				</div>
+
+				<div class="input-group mb-2">
+					<div class="col-md-4">
+						<label for="modele">Modèle</label>
+					</div>
+				
+					<div class="col-md-8">
+						<input type="text" class="form-control" id="modele" name="time">
+					</div>
+				</div>
+
+				<div class="input-group mb-2">
+					<div class="col-md-12">
+						<label for="">Prise du véhicule</label>
+					</div>
+					
+				</div>
+
+
+				<div class="input-group mb-2">
+					<div class="col-md-4">
+						<label for="date_prise_car">Date et Heure</label>
+					</div>
+					<div class="col-md-4"> 
+						<input type="date" class="form-control" id="date_prise_car" name="date">
+					</div>
+					<div class="col-md-4">
+						<input type="time" class="form-control" id="time_prise_car" name="time">
+					</div>
+					
+				</div>
+
+				<div class="input-group mb-2">
+					<div class="col-md-4"> 
+						<label for="date">Lieu</label>
+					</div>
+					<div class="col-md-8"> 
+						<input type="text" class="form-control" id="lieu_car" name="date">
+					</div>
+					
+				</div>
+
+				<div class="input-group mb-2">
+					<div class="col-md-12">
+						<label for="">Restitution du véhicule</label>
+					</div>
+					
+				</div>
+
+
+				<div class="input-group mb-2">
+					<div class="col-md-4">
+						<label for="date_return_car">Date et Heure</label>
+					</div>
+					<div class="col-md-4"> 
+						<input type="date" class="form-control" id="date_return_car" name="date">
+					</div>
+					<div class="col-md-4">
+						<input type="time" class="form-control" id="time_return_car" name="time">
+					</div>
+					
+				</div>
+
+				<div class="input-group mb-2">
+					<div class="col-md-4"> 
+						<label for="date">Lieu</label>
+					</div>
+					<div class="col-md-8"> 
+						<input type="text" class="form-control" id="lieu_return_car" name="date">
+					</div>
+					
+				</div>
+
+				
+				
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Annuler</button>
+				<button type="button" class="btn btn-success" id="ConfirmAddLocation" data-dismiss="modal">Confirmer
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
 {% endblock content %}

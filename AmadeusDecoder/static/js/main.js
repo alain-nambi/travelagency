@@ -102,17 +102,17 @@ if (listActiveFilter) {
 /* END OF LIST ACTIVE FILTER FOR FILTER MENU IN HOMEPAGE */
 
 //spinner loading
-$(document).ready(function () {
-  "use strict";
-  $(".loading").show("fade");
-  $(".spinner-wrapper").show();
-  $(".spinner-wrapper").css("position", "fixed");
-  setTimeout(function () {
-    $(".content-all-pnr").css({ visibility: "visible" });
-    $(".spinner-wrapper").hide();
-    $(".spinner-wrapper").css("position", "relative");
-  }, 2000);
-});
+// $(document).ready(function () {
+//   "use strict";
+//   $(".loading").show("fade");
+//   $(".spinner-wrapper").show();
+//   $(".spinner-wrapper").css("position", "fixed");
+//   setTimeout(function () {
+//     $(".content-all-pnr").css({ visibility: "visible" });
+//     $(".spinner-wrapper").hide();
+//     $(".spinner-wrapper").css("position", "relative");
+//   }, 2000);
+// });
 
 // Add agency selected value in document cookies
 const agencyListSelection = document.querySelector("#agencyListSelection")
@@ -316,6 +316,8 @@ $(document).ready(function () {
 
         if (creators.length == 1 && creators[0] == "0") {
           usernames = "Tout"
+        } else if (creators.includes('Empty')) {
+          usernames = "Non attribué"
         }
         else if (creators.length == 1 && creators[0] == "Empty") {
           usernames = 'Non attribué'
@@ -1058,32 +1060,32 @@ var $toggleButton = $("#pushed-sidebar");
 var $pushSelectors = $("#pushed-content");
 var sidebarIsOpen;
 var openSidebarOnLoad = false;
-function toggleSidebar() {
-  sidebarIsOpen = !sidebarIsOpen;
-  if ($pushSelectors.hasClass("sidebar-collapse")) {
-    $pushSelectors.removeClass("sidebar-collapse");
-  }
-  if (sidebarIsOpen) {
-    $pushSelectors.addClass("sidebar-collapse");
-    localStorage.setItem("sidebar", "opened");
-  } else {
-    $pushSelectors.removeClass("sidebar-collapse");
-    localStorage.setItem("sidebar", "closed");
-  }
-}
-if (localStorage.getItem("sidebar") === null) {
-  sidebarIsOpen = openSidebarOnLoad;
-} else {
-  if (localStorage.getItem("sidebar") === "opened") {
-    sidebarIsOpen = true;
-  } else {
-    sidebarIsOpen = false;
-  }
-}
-if (sidebarIsOpen) {
-  $pushSelectors.removeClass("sidebar-collapse");
-}
-$toggleButton.on("click", toggleSidebar);
+// function toggleSidebar() {
+//   sidebarIsOpen = !sidebarIsOpen;
+//   if ($pushSelectors.hasClass("sidebar-collapse")) {
+//     $pushSelectors.removeClass("sidebar-collapse");
+//   }
+//   if (sidebarIsOpen) {
+//     $pushSelectors.addClass("sidebar-collapse");
+//     localStorage.setItem("sidebar", "opened");
+//   } else {
+//     $pushSelectors.removeClass("sidebar-collapse");
+//     localStorage.setItem("sidebar", "closed");
+//   }
+// }
+// if (localStorage.getItem("sidebar") === null) {
+//   sidebarIsOpen = openSidebarOnLoad;
+// } else {
+//   if (localStorage.getItem("sidebar") === "opened") {
+//     sidebarIsOpen = true;
+//   } else {
+//     sidebarIsOpen = false;
+//   }
+// }
+// if (sidebarIsOpen) {
+//   $pushSelectors.removeClass("sidebar-collapse");
+// }
+// $toggleButton.on("click", toggleSidebar);
 
 // //sort table in all-pnr
 // $(function () {
@@ -1160,19 +1162,19 @@ $(".filter").click(function () {
   // $('.tr-filter').prop('hidden', false);
   $(".filter").prop("hidden", false);
 });
-//search function in all pnr
-$(document).ready(function () {
-  /*$("#input-pnr").on("keyup", function () {
-    var value = $(this).val().toLowerCase();
-    $("tr.pnr-class").filter(function () {
-      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
-    });
-  });*/
-  // Modif pnr research via btn
-  $("#pnr-research").on("click", function () {
-    searchFunction();
-  });
-});
+// //search function in all pnr
+// $(document).ready(function () {
+//   /*$("#input-pnr").on("keyup", function () {
+//     var value = $(this).val().toLowerCase();
+//     $("tr.pnr-class").filter(function () {
+//       $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+//     });
+//   });*/
+//   // Modif pnr research via btn
+//   $("#pnr-research").on("click", function () {
+//     searchFunction();
+//   });
+// });
 
 //search function in all constat
 $(document).ready(function () {
@@ -1831,6 +1833,7 @@ function eraseCache() {
 
 $(".card-header").addClass("fixed-header");
 $("#tr-all-pnr").addClass("sticky-tr-table");
+
 
 // //card-header sticky
 // $(window).scroll(function () {
@@ -2794,13 +2797,13 @@ function searchFunction(pageSize, isDateOrderByAsc, isDateOrderByChecked, isSort
 }
 
 // Permet de rechercher un PNR en pressant le clavier "Entrer" avec le clé du code
-$(document).ready(function () {
-  $("#input-pnr").keyup(function (e) {
-    if (e.keyCode == 13) {
-      searchFunction();
-    }
-  });
-});
+// $(document).ready(function () {
+//   $("#input-pnr").keyup(function (e) {
+//     if (e.keyCode == 13) {
+//       searchFunction();
+//     }
+//   });
+// });
 
 //====== PNR SEARCH BY NUMBER IN DETAILS PNR =======//
 const inputSearchByPnrNumber = document.getElementById(
@@ -4120,23 +4123,23 @@ if (select__modalCreateReceipt != null) {
   }
 }
 
-function searchPnrByNumber(pnrNumber) {
+function searchPnrByNumber(value) {
   let currentUrl = document.location.href;
   let splitCurrentUrl = currentUrl.split("/");
 
-  if (pnrNumber.length == 6) {
+  if (value.length >= 6) {
     $.ajax({
       type: "POST",
       url: "/home/pnr_search_by_pnr_number",
       dataType: "json",
       data: {
-        PnrNumber: pnrNumber,
+        PnrNumber: value,
         csrfmiddlewaretoken: csrftoken,
       },
       success: (data) => {
         let newPnrId = data.pnr_id;
         if (newPnrId.length == 0) {
-          toastr.error("Aucun PNR ne correspond à ce numéro !");
+          toastr.error(`Aucun résultat pour ${value}`);
         } else {
           splitCurrentUrl[5] = newPnrId;
           let newUrl = splitCurrentUrl.join("/");

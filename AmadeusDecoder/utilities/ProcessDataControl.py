@@ -153,27 +153,23 @@ def control_data_gp_odoo() :
                     </p>
                     <p>
                         <strong>Ceci est un email automatique, merci de ne pas répondre.</strong></br>
-                        Services supports : tahina@phidia.onmicrosoft.com
+                        Services supports : dev@alita.re
                     </p> 
                 </body>
                 </html>
             """.format(message_head_pnr_not_found=message_head_pnr_not_found, message_for_not_found=message_for_not_found, message_head= message_head,message_body=message_body)
     											
     recipients = [
-        "olyviahasina.razakamanantsoa@outlook.fr",
-        "maphiesarobidy@outlook.fr",
-        "naval@phidia.onmicrosoft.com",
-        "alain@phidia.onmicrosoft.com",
-        "tahina@phidia.onmicrosoft.com"
+        "dev@alita.re",
     ]		
     subject = "Contrôle des données Gestion PNR - Odoo"						
 
-    Sending.send_email(
-        "issoufali.pnr@outlook.com",
-        recipients,
-        subject,
-        body
-    )
+    # Sending.send_email(
+    #     "issoufali.pnr@outlook.com",
+    #     recipients,
+    #     subject,
+    #     body
+    # )
             
 
 
@@ -356,11 +352,11 @@ def connect_odoo_db(host, port, database, user, pwd) :
             "nasolo@phidia.onmicrosoft.com"
         ]								
 
-        Sending.send_email_error(
-            "error.issoufali.pnr@outlook.com",
-            recipients,
-            subject,
-            body
-        )
+        # Sending.send_email_error(
+        #     "error.issoufali.pnr@outlook.com",
+        #     recipients,
+        #     subject,
+        #     body
+        # )
 
     return connexion_state

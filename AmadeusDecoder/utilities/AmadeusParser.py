@@ -187,7 +187,7 @@ class AmadeusParser(PnrOnlyParser, TicketOnlyParser, PnrCostParser, EMDOnlyParse
                             continue
                         if contents[j].startswith('RP') and not contents[j].startswith('RPP'):
                             try:
-                                temp.parse_pnr(contents[j:], needed_content, temp.get_email_date())
+                                temp.parse_pnr(contents[j:], needed_content, temp.get_email_date(), all_content_information=contents)
                                 break
                             except Exception as e:
                                 print('File (PNR Altea) with error: ' + str(temp.get_path()))

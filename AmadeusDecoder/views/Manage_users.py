@@ -6,6 +6,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from datetime import datetime, timezone
+from AmadeusDecoder.models.invoice.Ticket import Ticket
 
 from AmadeusDecoder.models.user.Users import User
 from AmadeusDecoder.models.user.Users import Role
@@ -27,6 +29,10 @@ def users(request):
     except EmptyPage:
         page_obj = paginator.page(paginator.num_pages)
     context = {'page_obj': page_obj, 'row_num': row_num}
+
+    pnr_not_invoiced = get_ticket_created_today_not_invoiced(request)
+    context['pnr_not_invoiced'] = pnr_not_invoiced
+    context['notif_number'] = len(pnr_not_invoiced)
     return render(request,'manage_users.html', context)
 
 
@@ -48,4 +54,24 @@ def register(request):
     
     return render(request,'add-user.html', context)
 
+# ------- Notification ---------------------------------
+def get_ticket_created_today_not_invoiced(request):
+    # get number of ticket not invoiced today
+    today = datetime.now().date()
 
+    start_date = datetime(today.year, today.month, today.day, 0, 0, 0, tzinfo=timezone.utc)
+    end_date = datetime(today.year, today.month, today.day, 23, 59, 59, tzinfo=timezone.utc)
+    
+    print('REQUEST USER : ',request.user.id)
+    current_user = User.objects.get(id= request.user.id)
+    print('CURRENT USER : ',current_user)
+    if current_user.role_id == 1:
+        tickets = Ticket.objects.filter(pnr_id__system_creation_date__range=[start_date, end_date], is_invoiced= False, fare=0, ticket_status=1, state=0)
+    else:
+        tickets = Ticket.objects.filter(pnr__agent_id = current_user.id,pnr_id__system_creation_date__range=[start_date, end_date], is_invoiced= False, fare=0, ticket_status=1, state=0)
+    
+    print('PNRS : ',tickets)
+    nbre_pnr = tickets.count()
+    print('------------- NOTIF NUMBER----------------- : ',nbre_pnr)
+
+    return tickets

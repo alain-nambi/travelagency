@@ -10,7 +10,7 @@ import random
 import pandas as pd
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import redirect, render, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
@@ -28,7 +28,7 @@ from AmadeusDecoder.models.invoice.Clients import Client
 from AmadeusDecoder.models.utilities.Comments import Comment, Response
 from AmadeusDecoder.models.invoice.Ticket import Ticket
 from AmadeusDecoder.models.invoice.Fee import Fee, ReducePnrFeeRequest, OthersFee
-from AmadeusDecoder.models.invoice.Invoice import Invoice, InvoicesCanceled
+from AmadeusDecoder.models.invoice.Invoice import Invoice, InvoicesCanceled, MotifPnr
 from AmadeusDecoder.models.invoice.InvoiceDetails import InvoiceDetails
 from AmadeusDecoder.models.pnr.Passenger import Passenger, PassengerType
 from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
@@ -36,6 +36,7 @@ from AmadeusDecoder.models.invoice.Fee import Product
 from AmadeusDecoder.models.pnrelements.PnrAirSegments import PnrAirSegments
 from AmadeusDecoder.models.history.History import History
 from AmadeusDecoder.models.configuration.Configuration import Configuration
+from AmadeusDecoder.models.pnrelements.SpecialServiceRequest import ServiceSupplier
 
 from AmadeusDecoder.utilities.FtpConnection import upload_file
 from AmadeusDecoder.utilities.SendMail import Sending
@@ -49,195 +50,26 @@ import AmadeusDecoder.utilities.configuration_data as configs
 FEE_REQUEST_SENDER = configs.FEE_REQUEST_SENDER
 FEE_REQUEST_RECIPIENT = configs.FEE_REQUEST_RECIPIENT
 
+
+from django.shortcuts import render
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from ..models.pnr.OptimizedPnrList import OptimisedPnrList
+
+
 @login_required(login_url='index')
-def home(request): 
-    context = {}
-
-    users = User.objects.exclude(username__in=('Moïse ISSOUFALI', 'Paul ISSOUFALI')).exclude(role=1).order_by('username')
-    
-    try:
-        if request.COOKIES.get('filter_pnr') == "True":
-            is_invoiced = True
-        if request.COOKIES.get('filter_pnr') == "False":
-            is_invoiced = False
-        if request.COOKIES.get('filter_pnr') == "None":
-            is_invoiced = None
-        if request.COOKIES.get('filter_pnr') is None:
-            is_invoiced = False
-    except:
-        is_invoiced = False
-        
-    # Récupère la valeur de l'objet cookie nommé "dateRangeFilter"
-    date_range_filter = request.COOKIES.get('dateRangeFilter')
-
-    # Initialise les variables start_date et end_date à None
-    start_date, end_date = None, None
-
-    # Vérifie si date_range_filter contient une valeur non nulle ou non vide
-    if date_range_filter:
-
-        # Itère sur une liste des formats de date possibles pour la conversion
-        for format in ("%d-%m-%Y", "%Y-%m-%d"):
-
-            try:
-                # Convertit les deux dates start_date et end_date à partir de la chaîne de date dans date_range_filter
-                start_date, end_date = [datetime.strptime(d, format) for d in date_range_filter.split(" * ")]
-
-                # Rend les deux dates timezone-aware en utilisant le fuseau horaire UTC
-                start_date = datetime(start_date.year, start_date.month, start_date.day, 0, 0, 0, tzinfo=timezone.utc)
-                end_date = datetime(end_date.year, end_date.month, end_date.day, 23, 59, 59, tzinfo=timezone.utc)
-
-                # Sort de la boucle for si la conversion réussit
-                break
-                
-            except ValueError:
-                # Passe à l'essai suivant si la conversion échoue
-                pass
-
-    # print("Date de début:", start_date)
-    # print("Date de fin:", end_date)
-
-    try:
-        status_value_from_cookie = int(request.COOKIES.get('filter_pnr_by_status'))
-    except:
-        status_value_from_cookie = 0
-
-    creation_date_order_by = request.COOKIES.get('creation_date_order_by')
-    # desc : date order by descending
-    # asc : date order by ascending
-    try:
-        if creation_date_order_by == "desc":
-            date_order_by = "-"
-        elif creation_date_order_by == "asc":
-            date_order_by = ""
-        else:
-            date_order_by = "-"
-    except:
-        date_order_by = "-"
-    # Set max timezone
-    maximum_timezone = "2023-01-01 01:00:00.000000+03:00"
-    
-    try:
-        filtered_creator = request.COOKIES.get('creator_pnr_filter')
-        filtered_creator_cookie = None
-        if str(json.loads(filtered_creator)[0]) == "0":
-            filtered_creator_cookie = None
-        elif str(json.loads(filtered_creator)[0]) == 'Empty':
-            filtered_creator_cookie = 'Empty'
-        else:
-            filtered_creator_cookie = [int(user_id) for user_id in json.loads(filtered_creator)]
-            
-        # print(filtered_creator_cookie)
-        # print(type(filtered_creator_cookie))
-    except Exception as e:
-        filtered_creator_cookie = None
-        # print(f"Error on filter creator ${e}")
-
-    # Retrieve the value of the "isSortedByCreator" cookie from the request
-    is_sorter_by_creator = request.COOKIES.get('isSortedByCreator')
-
-    # Initialize the sort_creator variable to a default value
-    # Set order_by username ascendant
-    sort_creator = None
-
-    # Determine the value of "sort_creator" based on the value of the cookie
-    if is_sorter_by_creator is not None:
-        sort_creator = is_sorter_by_creator
-
-    # print(sort_creator)
-    
-    agency_name_filter = request.COOKIES.get('agency_name_filter')
-    
-    agency_name = Q()
-    if agency_name_filter and agency_name_filter != "0":
-        agency_name = Q(agency_name__icontains=agency_name_filter) | Q(agency__name__icontains=agency_name_filter) if agency_name_filter else Q()
-    elif agency_name_filter == "0":
-        agency_name = Q(agency_name="", agent_code="", agency=None)
-        
-    # print(f"AGENCY NAME : {agency_name}")
-    
-    # Hide cancelled PNR
-    # pnr_is_canceled = Q(is_canceled=False)
-    
-    if request.user.id in [4, 5]: #==> [Farida et Mouniati peuvent voir chacun l'ensemble de leurs pnr]
-        pnr_list = []
-        pnr_count = 0
-        issuing_users = request.user.copied_documents.all()
-
-        # Create date filter query object or an empty query object if dates are absent
-        date_filter = Q(system_creation_date__range=[start_date, end_date]) if start_date and end_date else Q()
-        max_system_creation_date = Q(system_creation_date__gt=maximum_timezone)
-        status_value = Q(status_value=status_value_from_cookie) if status_value_from_cookie in [0, 1] else Q()
-        
-        agent = Q()
-        if filtered_creator_cookie == 'Empty':
-            agent = Q(agent_id=None)
-        elif filtered_creator_cookie is not None and filtered_creator_cookie != 'Empty':
-            agent = Q(agent_id__in=filtered_creator_cookie)
-        else:
-            agent = Q(agent_id=4) | Q(agent_id=5)
-        
-        if is_invoiced is None:
-            for issuing_user in issuing_users:
-                pnr =   Pnr.objects.filter(
-                            number=issuing_user.document, 
-                        ).filter(
-                            status_value,
-                            date_filter,
-                            max_system_creation_date,
-                            agency_name,
-                            agent,
-                            
-                        ).first()
-                    
-                if pnr not in pnr_list and pnr is not None:
-                    pnr_list.append(pnr)
-
-            print(agent)
-            
-            pnr_obj =   Pnr.objects.filter(
-                            status_value,
-                        ).filter(
-                            date_filter,
-                            agent,
-                            max_system_creation_date,
-                            agency_name,
-                            agent,
-                        ).order_by(date_order_by + 'system_creation_date')
-                    
-            for pnr in pnr_obj:
-                if pnr not in pnr_list:
-                    pnr_list.append(pnr)
-
-            # Sort the list based on the agent username or system creation date
-            if sort_creator is not None:
-                if sort_creator == 'agent__username':
-                    # Sort Pnrs by agent's username and agent_id None in the last part of list
-                    pnr_list = sorted(
-                        pnr_list, 
-                        key=lambda pnr: (
-                            pnr.agent is None, 
-                            pnr.agent.username if pnr.agent else ''
-                        ), 
-                        reverse=False
+def home(request):
+    def format_date_range(date_range):
+        if date_range:
+            for fmt in ("%d-%m-%Y", "%Y-%m-%d"):
+                try:
+                    start_date, end_date = [datetime.strptime(d, fmt) for d in date_range.split(" * ")]
+                    return (
+                        start_date.replace(hour=0, minute=0, second=0, tzinfo=timezone.utc),
+                        end_date.replace(hour=23, minute=59, second=59, tzinfo=timezone.utc)
                     )
-                elif sort_creator == '-agent__username':
-                    # Sort Pnrs by agent's username in reverse order and agent_id None in the last part of list
-                    pnr_list = sorted(
-                        pnr_list, 
-                        key=lambda pnr: (
-                            pnr.agent.username if pnr.agent else ''
-                        ), 
-                        reverse=True
-                    )
-            else:
-                # If no sorting parameter provided, sort by system creation date
-                if date_order_by == "-":
-                    # Sort Pnrs by system creation date in reverse order
-                    pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=True)
-                else:
-                    # Sort Pnrs by system creation date in ascending order
-                    pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=False)
+                except ValueError:
+                    continue
+        return None, None
 
             pnr_count = len(pnr_list)
         else:
@@ -423,12 +255,17 @@ def home(request):
             if date_order_by == "-":
                 # Sort Pnrs by system creation date in reverse order
                 pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=True)
+    def format_filter_creator(pnr_creator):
+        try:
+            parsed_creator = json.loads(pnr_creator)
+            # Check if 'Empty' is in the list
+            if 'Empty' in parsed_creator:
+                return "no_creator"
             else:
-                # Sort Pnrs by system creation date in ascending order
-                pnr_list = sorted(pnr_list, key=lambda pnr: pnr.system_creation_date, reverse=False)
-        
-        # Compute count of Pnrs in the list
-        pnr_count = len(pnr_list)
+                # Ensure all elements are valid integers
+                return [int(user_id) for user_id in parsed_creator if str(user_id).isdigit()]
+        except (json.JSONDecodeError, TypeError, ValueError):
+            return None
 
         offices = Airport.objects.all()
         passengerTypes = PassengerType.objects.all()
@@ -461,187 +298,155 @@ def home(request):
         
         if filtered_creator_cookie is not None and filtered_creator_cookie != 'Empty': 
             max_system_creation_date = Q(system_creation_date__gt=maximum_timezone)
+    # Query users and set filters
+    users = User.objects.exclude(
+                username__in=('Moïse ISSOUFALI', 'Paul ISSOUFALI')
+            ).exclude(role=1).order_by('username').values('id', 'username')
 
-            # Create date filter query object or an empty query object if dates are absent
-            date_filter = Q(system_creation_date__range=[start_date, end_date]) if start_date and end_date else Q()
+    # Get filters from cookies
+    pnr_creator_filter_cookies = request.COOKIES.get('creator_pnr_filter')
+    date_range_filter_cookies = request.COOKIES.get('dateRangeFilter')
+    is_invoiced_filter_cookies = request.COOKIES.get('filter_pnr')
+    agency_name_filter_cookies = request.COOKIES.get('agency_name_filter')
+    pnr_status_filter_cookies = request.COOKIES.get('filter_pnr_by_status')
+    sorted_creator_filter_cookies = request.COOKIES.get('isSortedByCreator')
+    
+    sorted_creator_filter = {
+        "agent__username": "creator",
+        "-agent__username": "-creator"
+    }.get(sorted_creator_filter_cookies, None)
 
-            pnr_queryset  = Pnr.objects.filter(
-                                Q(agent_id__in=filtered_creator_cookie)
-                            ).filter(
-                                status_value,
-                                max_system_creation_date,
-                                date_filter,
-                                agency_name,
-                                
-                            )
+    # Get all PNR users's following
+    pnr_follower = format_filter_creator(pnr_creator_filter_cookies)
+    
+    # print(pnr_follower)
 
-            if is_invoiced is not None:
-                pnr_queryset =  pnr_queryset.filter(Q(is_invoiced=is_invoiced))
+    # Processing all available filters
+    start_date_range_filter, end_date_range_filter = format_date_range(date_range_filter_cookies)
 
-            # Sort the list based on the agent username or system creation date
-            if sort_creator is not None:
-                if sort_creator == 'agent__username':
-                    # Sort Pnrs by agent's username and agent_id None in the last part of list
-                    pnr_list = sorted(
-                        pnr_queryset, 
-                        key=lambda pnr: (
-                            pnr.agent is None, 
-                            pnr.agent.username if pnr.agent else ''
-                        ), 
-                        reverse=False
-                    )
-                elif sort_creator == '-agent__username':
-                    # Sort Pnrs by agent's username in reverse order and agent_id None in the last part of list
-                    pnr_list = sorted(
-                        pnr_queryset, 
-                        key=lambda pnr: (
-                            pnr.agent.username if pnr.agent else ''
-                        ), 
-                        reverse=True
-                    )
-            else:
-                # If no sorting parameter provided, sort by system creation date
-                if date_order_by == "-":
-                    # Sort Pnrs by system creation date in reverse order
-                    pnr_list = sorted(pnr_queryset, key=lambda pnr: pnr.system_creation_date, reverse=True)
-                else:
-                    # Sort Pnrs by system creation date in ascending order
-                    pnr_list = sorted(pnr_queryset, key=lambda pnr: pnr.system_creation_date, reverse=False)
+    # PNR order FILTER (sort)
+    pnr_order_list_filter = {
+        "asc": "date_of_creation",
+        "desc": "-date_of_creation"
+    }.get(request.COOKIES.get("creation_date_order_by"), "-date_of_creation")
 
-            pnr_list = list(pnr_list)
-            pnr_count = pnr_queryset.count()
+    # Status invoice PNR FILTER
+    is_invoiced_filter = {
+        "True": True,
+        "False": False,
+        "None": None
+    }.get(is_invoiced_filter_cookies, False)
 
-            print('Not all')
-        elif filtered_creator_cookie is None : ##### Si 'Tout' est sélectionner dans le filtre créateur
-            print('Creator selected is not non attribué and is all')
-            if filtered_creator_cookie != 'Empty':
-                max_system_creation_date = Q(system_creation_date__gt=maximum_timezone)
+    # User following PNR FILTER
+    pnr_follower_filter = None
+    if pnr_follower:
+        pnr_follower_filter = list(users.filter(id__in=pnr_follower).values_list('username', flat=True)) if pnr_follower != "no_creator" else pnr_follower
 
-                # Create date filter query object or an empty query object if dates are absent
-                date_filter = Q(system_creation_date__range=[start_date, end_date]) if start_date and end_date else Q()
+    # Agency names FILTER
+    agency_name_filter = agency_name_filter_cookies
+
+    # PNR status FILTER (Émis ou Non émis)
+    pnr_status_filter = {
+        '0': 'Emis',
+        '1': 'Non émis',
+        "2": None
+    }.get(pnr_status_filter_cookies)
+
+    # Setting Q filters
+    filters = Q()
+
+    # Date range filter
+    if start_date_range_filter and end_date_range_filter:
+        filters &= Q(date_of_creation__range=[start_date_range_filter, end_date_range_filter])
+
+    # Invoiced status filter
+    if is_invoiced_filter is not None:
+        filters &= Q(is_invoiced=is_invoiced_filter)
+
+    # PNR follower filter
+    if pnr_follower_filter:
+        if pnr_follower_filter == 'no_creator':
+            filters &= Q(creator=None) | Q(creator="")
+        else:
+            filters &= Q(creator__in=pnr_follower_filter) | Q(emitter__in=pnr_follower_filter)
             
-                pnr_queryset =  Pnr.objects.filter(
-                                    status_value,
-                                    max_system_creation_date,
-                                    date_filter,
-                                    agency_name,
-                                    
-                                )
+    # print(pnr_follower_filter)
 
-                if is_invoiced is not None:
-                    pnr_queryset =  pnr_queryset.filter(Q(is_invoiced=is_invoiced))
+    # Agency name filter
+    if agency_name_filter:
+        if agency_name_filter == "0":
+            filters &= Q(agency_office_name=None, agency_office_code=None, agency_name='')
+        else:
+            filters &= Q(agency_office_name__icontains=agency_name_filter) | Q(agency_name__icontains=agency_name_filter)
 
-                # Sort the list based on the agent username or system creation date
-                if sort_creator is not None:
-                    if sort_creator == 'agent__username':
-                        # Sort Pnrs by agent's username and agent_id None in the last part of list
-                        pnr_list = sorted(
-                            pnr_queryset, 
-                            key=lambda pnr: (
-                                pnr.agent is None, 
-                                pnr.agent.username if pnr.agent else ''
-                            ), 
-                            reverse=False
-                        )
-                    elif sort_creator == '-agent__username':
-                        # Sort Pnrs by agent's username in reverse order and agent_id None in the last part of list
-                        pnr_list = sorted(
-                            pnr_queryset, 
-                            key=lambda pnr: (
-                                pnr.agent.username if pnr.agent else ''
-                            ), 
-                            reverse=True
-                        )
-                else:
-                    # If no sorting parameter provided, sort by system creation date
-                    if date_order_by == "-":
-                        # Sort Pnrs by system creation date in reverse order
-                        pnr_list = sorted(pnr_queryset, key=lambda pnr: pnr.system_creation_date, reverse=True)
-                    else:
-                        # Sort Pnrs by system creation date in ascending order
-                        pnr_list = sorted(pnr_queryset, key=lambda pnr: pnr.system_creation_date, reverse=False)
+    # PNR status filter
+    if pnr_status_filter:
+        filters &= Q(status__iexact=pnr_status_filter)
+        
+    # Process search query
+    search_query = request.GET.get('search_query', '').strip()
+    # print(f'Search Query *** {search_query}')
+    
+    if search_query:
+        filters = Q(number__icontains=search_query) | Q(passengers__icontains=search_query) | \
+                   Q(agency_office_code__icontains=search_query) | Q(agency_office_name__icontains=search_query) | Q(agency_name__icontains=search_query) | \
+                   Q(creator__icontains=search_query) | Q(emitter__icontains=search_query) | \
+                   Q(client__icontains=search_query)
+                   
+    pnr_list = []
+    
+    # Get the filtered list and paginate
+    if pnr_order_list_filter:
+        pnr_list = OptimisedPnrList.objects.filter(filters).order_by(pnr_order_list_filter)
+    if sorted_creator_filter:
+        pnr_list = OptimisedPnrList.objects.filter(filters).order_by(sorted_creator_filter)
 
-                pnr_list = list(pnr_list)
-                pnr_count = pnr_queryset.count()
+    # Define user-specific filters
+    # special_usernames = ['Mouniati', 'Farida']
+    # special_user_ids = [4, 5]
 
-                print('All')
+    # Check if the user meets the special condition for Farida and Mouniati user
+    # if request.user.username in special_usernames or request.user.id in special_user_ids:
+    #     user_filter = Q(creator__iexact='Mouniati') | Q(emitter__iexact='Mouniati') | \
+    #                   Q(creator__iexact='Farida') | Q(emitter__iexact='Farida')
+        
+    #     if pnr_follower_filter == 'no_creator':
+    #         pnr_list = pnr_list.filter(Q(creator__isnull=True) | Q(creator=""))
+    #     else:
+    #         pnr_list = pnr_list.filter(user_filter)
 
-        elif filtered_creator_cookie == 'Empty':
-            max_system_creation_date = Q(system_creation_date__gt=maximum_timezone)
+    # Check if the user is a comptoir agent with role_id equals to 3
+    elif request.user.role_id == 3:
+        user_filter = Q(creator__iexact=request.user.username) | Q(emitter__iexact=request.user.username)
+        
+        if pnr_follower_filter == 'no_creator':
+            pnr_list = pnr_list.filter(Q(creator__isnull=True) | Q(creator=""))
+        else:
+            pnr_list = pnr_list.filter(user_filter)
 
-            # Create date filter query object or an empty query object if dates are absent
-            date_filter = Q(system_creation_date__range=[start_date, end_date]) if start_date and end_date else Q()
+    
+    paginator = Paginator(pnr_list, request.GET.get('paginate_by', 25))
+    
+    page_num = request.GET.get('page', 1)
+    try:
+        page_obj = paginator.page(page_num)
+    except (PageNotAnInteger, EmptyPage):
+        page_obj = paginator.page(1)
+    
+    # Context
+    context = {
+        'page_obj': page_obj,
+        'row_num': paginator.per_page,
+        'pnr_count': paginator.count,
+        'users': users,
+        'search_query': search_query,
+    }
+    pnr_not_invoiced = get_ticket_created_today_not_invoiced(request)
+    context['pnr_not_invoiced'] = pnr_not_invoiced
+    context['notif_number'] = len(pnr_not_invoiced)
 
-            pnr_queryset  = Pnr.objects.filter(
-                                Q(agent_id=None),
-                                status_value,
-                                max_system_creation_date,
-                                date_filter,
-                                agency_name,
-                                
-                            )
+    return render(request, 'home.html', context)
 
-            if is_invoiced is not None:
-                pnr_queryset =  pnr_queryset.filter(Q(is_invoiced=is_invoiced))
-
-            # Sort the list based on the agent username or system creation date
-            if sort_creator is not None:
-                if sort_creator == 'agent__username':
-                    # Sort Pnrs by agent's username and agent_id None in the last part of list
-                    pnr_list = sorted(
-                        pnr_queryset, 
-                        key=lambda pnr: (
-                            pnr.agent is None, 
-                            pnr.agent.username if pnr.agent else ''
-                        ), 
-                        reverse=False
-                    )
-                elif sort_creator == '-agent__username':
-                    # Sort Pnrs by agent's username in reverse order and agent_id None in the last part of list
-                    pnr_list = sorted(
-                        pnr_queryset, 
-                        key=lambda pnr: (
-                            pnr.agent.username if pnr.agent else ''
-                        ), 
-                        reverse=True
-                    )
-            else:
-                # If no sorting parameter provided, sort by system creation date
-                if date_order_by == "-":
-                    # Sort Pnrs by system creation date in reverse order
-                    pnr_list = sorted(pnr_queryset, key=lambda pnr: pnr.system_creation_date, reverse=True)
-                else:
-                    # Sort Pnrs by system creation date in ascending order
-                    pnr_list = sorted(pnr_queryset, key=lambda pnr: pnr.system_creation_date, reverse=False)
-
-            pnr_list = list(pnr_list)
-            pnr_count = pnr_queryset.count()
-
-            print('no creator')
-
-        offices = Airport.objects.all()
-        passengerTypes = PassengerType.objects.all()
-        airlines = Airline.objects.filter(iata__isnull=False).all()
-
-        row_num = request.GET.get('paginate_by', 50) or 50
-        page_num = request.GET.get('page', 1)
-        paginator = Paginator(pnr_list, row_num)
-        try:
-            page_obj = paginator.page(page_num)
-        except PageNotAnInteger:
-            page_obj = paginator.page(1)
-        except EmptyPage:
-            page_obj = paginator.page(paginator.num_pages)
-        context = {
-            'page_obj': page_obj, 
-            'row_num': row_num,
-            'pnr_count': pnr_count,
-            'users': users,
-            'offices': offices,
-            'passengerTypes' : passengerTypes,
-            'airlines' : airlines
-        }
-        return render(request,'home.html', context)
 
 @login_required(login_url='index')
 def pnr_details(request, pnr_id):
@@ -673,7 +478,10 @@ def pnr_details(request, pnr_id):
     context['responses'] = Response.objects.filter(pnr_id=pnr_id)
     context['products'] = Product.objects.all()
     context['raw_data'] = pnr_detail.pnr_data.all().order_by('-data_datetime')
-
+    pnr_not_invoiced = get_ticket_created_today_not_invoiced(request)
+    context['pnr_not_invoiced'] = pnr_not_invoiced
+    context['notif_number'] = len(pnr_not_invoiced)
+    
     # PNR not invoiced 
     if pnr_detail.status_value == 0:
         __ticket_base = pnr_detail.tickets.filter(ticket_status=1).exclude(Q(total=0))
@@ -776,7 +584,7 @@ def pnr_research(request):
         search_results = []
         
         pnr_research = request.POST.get('pnr_research')
-        pnr_results = Pnr.objects.all().filter(Q(number__icontains=pnr_research)).filter(Q(system_creation_date__gt=maximum_timezone))
+        pnr_results = Pnr.objects.all().filter(Q(number__icontains=pnr_research)).filter(Q(system_creation_date__gt=maximum_timezone)).exclude(state=4)
         for p1 in pnr_results :
             search_results.append(p1)
         # search with passenger
@@ -862,16 +670,63 @@ def pnr_research(request):
 def pnr_search_by_pnr_number(request):
     context = {}
     maximum_timezone = "2023-01-01 01:00:00.000000+03:00"
+    
+    # Check if the request method is POST
     if request.method == 'POST':
-        pnr_number = request.POST.get('PnrNumber', None)
-        if pnr_number is not None:
-            pnr = Pnr.objects.all().filter(number=pnr_number).filter(Q(system_creation_date__gt=maximum_timezone)).first()
-            if pnr is not None:
-                context['pnr_id'] = pnr.id
-            else:
+        # Get the PnrNumber from the POST data
+        value = request.POST.get('PnrNumber', None)
+        
+        value_length = len(value)
+        
+        # Check if the value is not None
+        if value is not None:
+            try:
+                # If the value length is 6, search for a Pnr with this number
+                if value_length == 6:
+                    pnr = Pnr.objects.filter(number=value,
+                                             system_creation_date__gt=maximum_timezone).first()
+                    
+                    context['pnr_id'] = pnr.id if pnr else []
+                
+                # Determine if the value length and characteristics match the criteria
+                # -R means refund : to make ability to search refund
+                elif (value_length >= 13 and value.isdigit()) or value_length == 16 or (value_length >= 13 and '-R' in value):
+                    # Search for a Ticket with this number
+                    ticket = Ticket.objects.filter(
+                        number__icontains=value,
+                        ticket_status=1,
+                        pnr__system_creation_date__gt=maximum_timezone
+                    ).first()
+                    
+                    # Print the ticket for debugging
+                    print("TICKET => ", ticket)
+                    
+                    if ticket:
+                        context['pnr_id'] = ticket.pnr.id
+                    else:
+                        # If no ticket is found, search for an OthersFee with this designation
+                        other_fee = OthersFee.objects.filter(
+                            designation__icontains=value, 
+                            other_fee_status=1,
+                            pnr__system_creation_date__gt=maximum_timezone
+                        ).first()
+                        
+                        # Print the other fee for debugging
+                        print("OTHER FEE => ", other_fee)
+                        
+                        context['pnr_id'] = other_fee.pnr.id if other_fee else []
+                else:
+                    # If the value length doesn't match the criteria, set pnr_id to an empty list
+                    context['pnr_id'] = []
+            except Exception as e:
+                # Log the exception for debugging purposes
+                print(f"Error occurred: {e}")
                 context['pnr_id'] = []
         else:
+            # If value is None, set pnr_id to an empty list
             context['pnr_id'] = []
+    
+    # Return the context as a JSON response
     return JsonResponse(context)
 
 # @login_required(login_url='index')
@@ -1307,6 +1162,7 @@ def get_order(request, pnr_id):
         'PassengerFirstname',
         'PassengerLastname',
         'Segments',
+        'HT_details',
         'DocCurrency',
         'Transport',
         'Tax',
@@ -1409,6 +1265,7 @@ def get_order(request, pnr_id):
             orders = PassengerInvoice.objects.filter(pnr=pnr_id, client=customer_id, is_invoiced=False)
             order_invoice_number = datetime.now().strftime('%Y%m%d%H%M') + str(random.randint(1,9)) # SET ORDER NUMBER
             for order in orders:
+                _ht_details = None
                 segments_parts = []
                 if order.status == 'sale' and order.is_invoiced == False:
                     segments_parts = []
@@ -1467,6 +1324,7 @@ def get_order(request, pnr_id):
                             'PassengerFirstname': ticket.passenger.name, # type: ignore
                             'PassengerLastname': ticket.passenger.surname, # type: ignore
                             'Segments': json.dumps(air_segments),
+                            'HT_details':json.dumps(_ht_details) if _ht_details is not None else '',
                             'DocCurrency': 'EUR',
                             'Transport': ticket.transport_cost,
                             'Tax': ticket.tax,
@@ -1490,6 +1348,7 @@ def get_order(request, pnr_id):
 
                     if order.fee is not None:
                         fee = Fee.objects.filter(pk=order.fee.id)
+                        _ht_details = None
                         for item in fee:
                             if order.fee.ticket is not None and order.fee.ticket.ticket_status == 1 and order.fee.ticket.id == item.ticket.id:
                                 csv_order_lines.append({
@@ -1505,7 +1364,8 @@ def get_order(request, pnr_id):
                                     'Civility': '',
                                     'PassengerFirstname': '',
                                     'PassengerLastname': '',
-                                    'Segments': '',                      
+                                    'Segments': '',
+                                    'HT_details':json.dumps(_ht_details) if _ht_details is not None else '',                      
                                     'DocCurrency': 'EUR',
                                     'Transport': item.cost,
                                     'Tax': item.tax,
@@ -1530,11 +1390,112 @@ def get_order(request, pnr_id):
                     type_other_fee = ''
                     if order.other_fee is not None and order.other_fee.other_fee_status == 1:
                         other_fee = OthersFee.objects.filter(pk=order.other_fee.id)
+                        _ht_details = None
+                        other_fee_passenger = None
                         for item in other_fee:
+                            
                             if item.fee_type == 'EMD' or item.fee_type == 'TKT' or item.fee_type == 'Cancellation' or item.fee_type == 'AVOIR COMPAGNIE':
                                 type_other_fee = item.fee_type
                             else:
                                 type_other_fee = 'EMD'
+
+                            #  PASSAGER ------------- 24/04/25
+                            if OtherFeeSegment.objects.filter(other_fee=item.id).first():
+                                other_fee_passenger = OtherFeeSegment.objects.filter(other_fee=item.id).first().passenger
+
+                            # segment --------- 24/04/2025
+                            print('----------------------- OTHER FEE SEGMENTS ----------------------')
+                            other_fee_segments_parts = []
+
+                            for other_fee_segment in OtherFeeSegment.objects.filter(other_fee=item.id).order_by('segment__id'):
+                                if other_fee_segment.segment:
+                                    other_fee_segments_parts.append(PnrAirSegments.objects.filter(pk=other_fee_segment.segment.id))
+
+                            print(other_fee_segments_parts)
+                            other_fee_air_segments = []
+                            
+                            for segment in other_fee_segments_parts:
+                                print('SEGMENT : ',segment)
+                                for part in segment:
+                                    _segment = {
+                                    'Name': part.segmentorder,
+                                    'Fly': '%s %s' % (part.servicecarrier.iata, part.flightno),
+                                    'Class': part.flightclass if part.flightclass is not None else '',
+                                    'Departure': part.codeorg.iata_code,
+                                    'Arrival': part.codedest.iata_code,
+                                    'DepartureDatetime' : part.departuretime.strftime('%d/%m/%Y %H:%M') if part.segment_state == 0 and part.departuretime else part.departuretime.strftime('%d/%m/%Y %H:%M') if part.departuretime else '',
+                                    'ArrivalDatetime' : part.arrivaltime.strftime('%d/%m/%Y %H:%M') if part.segment_state == 0 and part.arrivaltime else '',   
+                                    }
+                                    other_fee_air_segments.append(_segment)
+
+                            print('------------------- HOTEL TAXI DETAILS -------------------------')
+
+                            print('ITEM DESIGNATION : ',item.designation)
+                            if item.designation in ['HOTEL','TAXI','TRANSFERT','BUS','SNCF TGV AIR','TRAIN : SNCF','LOCATION VEH']:
+                                if item.designation == 'HOTEL':
+                                    _ht_details= { 
+                                        'Type': 'HOTEL',
+                                        'Name': item.value.get('name'),
+                                        'ArrivalDate': item.value.get('arrivalDate'),
+                                        'DepartureDate': item.value.get('departureDate'),
+                                        'Client' : item.value.get('client')
+                                    }
+
+                                # taxi et transfert
+                                if item.designation in ['TAXI','TRANSFERT']:
+                                    _ht_details= { 
+                                        'Type': 'TAXI' if item.designation == 'TAXI' else 'TRANSFERT' ,
+                                        'Trajet': item.value.get('trajet'),
+                                        'Date': item.value.get('date'),
+                                        'ArrivalTime': item.value.get('arrivalTime'),
+                                        'DepartureTime': item.value.get('departureTime'),
+                                        'taximan': item.value.get('taximan'),
+                                        'passengers' : item.value.get('taxiPassenger')
+                                    }
+                                
+                                # BUS, TRAIN, TGV
+                                if item.designation in ['BUS','SNCF TGV AIR','TRAIN : SNCF']:
+                                    _ht_details= { 
+                                        'Type': 'TRAIN : SNCF' if item.designation == 'TRAIN : SNCF' else 'SNCF TGV AIR' if item.designation == 'SNCF TGV AIR' else 'BUS',
+                                        'Trajet': item.value.get('trajet'),
+                                        'Date': item.value.get('date'),
+                                        'ArrivalTime': item.value.get('arrivalTime'),
+                                        'DepartureTime': item.value.get('departureTime'),
+                                        'Classe': item.value.get('classe'),
+                                        'passengers': item.value.get('passenger')
+                                    }
+                                print(_ht_details)
+
+                                # location de véhicule
+                                if item.designation in ['LOCATION VEH']:
+                                    _ht_details= {
+                                        'Type': 'LOCATION VEHICULE',
+                                        'Fournisseur': item.value.get('fournisseur'),
+                                        'Conducteur': item.value.get('conducteur'),
+                                        'Modele': item.value.get('modele'),
+                                        
+                                        'lieuPrise': item.value.get('lieu_prise'),
+                                        'DatePrise': item.value.get('date_prise'),
+                                        'HeurePrise': item.value.get('heure_prise'),
+
+                                        'lieuReturn': item.value.get('lieu_return'),
+                                        'DateReturn': item.value.get('date_return'),
+                                        'HeureReturn': item.value.get('heure_return'),
+                                    }
+
+                            # REAJUSTEMENT TARIFAIRE
+                            designation_label = None
+                            designation_number = None
+
+                            if 'reissuance adjustment' in item.designation.lower():
+                                if item.designation and ':' in item.designation:
+                                    parts = item.designation.split(':', 1)
+                                    designation_label = parts[0].strip()
+                                    designation_number = parts[1].strip()
+                                else:
+                                    designation_label = item.designation
+                                    designation_number = ''
+                                    
                             csv_order_lines.append({
                                 'LineID': order.id,
                                 'Type': type_other_fee,
@@ -1546,9 +1507,10 @@ def get_order(request, pnr_id):
                                 'Follower': pnr_order.agent.username if pnr_order.agent is not None else pnr_order.agent_code if pnr_order.agent_code is not None else '',
                                 'TicketNumber': '',
                                 'Civility': '',
-                                'PassengerFirstname': '',
-                                'PassengerLastname': '',
-                                'Segments': '',                      
+                                'PassengerFirstname': other_fee_passenger.name if other_fee_passenger is not None else '',
+                                'PassengerLastname': other_fee_passenger.surname if other_fee_passenger is not None else '',
+                                'Segments': json.dumps(other_fee_air_segments),
+                                'HT_details':json.dumps(_ht_details) if _ht_details is not None else '',                     
                                 'DocCurrency': 'EUR',
                                 'Transport': item.cost,
                                 'Tax': item.tax,
@@ -1558,7 +1520,7 @@ def get_order(request, pnr_id):
                                 'IssueDate': item.creation_date.strftime('%d/%m/%Y') if item.creation_date is not None else '',
                                 'OrderNumber': order_invoice_number,
                                 'OtherFeeId': item.id if item is not None else '',
-                                'Designation': item.designation if item is not None else '',
+                                'Designation': designation_label if designation_label is not None else item.designation if item else '',
                             })
                             
                             if len(csv_order_lines) == 0:
@@ -1571,6 +1533,7 @@ def get_order(request, pnr_id):
                                 order.other_fee.save()
 
                     if order.fee is not None:
+                        _ht_details = None
                         fee = Fee.objects.filter(pk=order.fee.id)
                         for item in fee:
                             if order.fee.other_fee is not None and order.fee.other_fee.other_fee_status == 1 and order.fee.other_fee.id == item.other_fee.id:
@@ -1587,7 +1550,8 @@ def get_order(request, pnr_id):
                                     'Civility': '',
                                     'PassengerFirstname': '',
                                     'PassengerLastname': '',
-                                    'Segments': '',                      
+                                    'Segments': '',
+                                    'HT_details':json.dumps(_ht_details) if _ht_details is not None else '',                       
                                     'DocCurrency': 'EUR',
                                     'Transport': item.cost,
                                     'Tax': item.tax,
@@ -1687,6 +1651,7 @@ def get_quotation(request, pnr_id):
         'PassengerFirstname',
         'PassengerLastname',
         'Segments',
+        'HT_details',
         'DocCurrency',
         'Transport',
         'Tax',
@@ -1762,6 +1727,7 @@ def get_quotation(request, pnr_id):
                     air_segments = []
                     segment_names = []
                     segment_dates = []
+                    _ht_details = None
                     if segments_parts is not None:
                         for part in segments_parts:
                             if part.segment and part.segment.segment_type is not None and part.segment.segment_type == 'Flight':
@@ -1790,6 +1756,7 @@ def get_quotation(request, pnr_id):
                         'PassengerFirstname': ', '.join(tst_passenger_firstname),
                         'PassengerLastname': ', '.join(tst_passenger_name),
                         'Segments': json.dumps(air_segments),
+                        'HT_details':json.dumps(_ht_details) if _ht_details is not None else '',
                         'DocCurrency': 'EUR',
                         'Transport': ticket.transport_cost,
                         'Tax': ticket.tax,
@@ -1807,6 +1774,7 @@ def get_quotation(request, pnr_id):
                         order.save()
 
                 if order.fee is not None:
+                    _ht_details = None
                     fee = Fee.objects.filter(pk=order.fee.id)
                     for item in fee:
                         if order.fee.ticket is not None and order.fee.ticket.id == item.ticket.id:
@@ -1823,7 +1791,8 @@ def get_quotation(request, pnr_id):
                                 'Civility': '',
                                 'PassengerFirstname': '',
                                 'PassengerLastname': '',
-                                'Segments': '',                     
+                                'Segments': '',
+                                'HT_details':json.dumps(_ht_details) if _ht_details is not None else '',                     
                                 'DocCurrency': 'EUR',
                                 'Transport': item.cost,
                                 'Tax': item.tax,
@@ -1841,6 +1810,7 @@ def get_quotation(request, pnr_id):
                                 order.save()
                             
                 if order.other_fee is not None:
+                    _ht_details = None
                     other_fee = OthersFee.objects.filter(pk=order.other_fee.id)
                     for item in other_fee:
                         if item.fee_type == 'EMD' and item.fee_type == 'TKT' and item.fee_type == 'Cancellation' and item.fee_type == 'AVOIR COMPAGNIE':
@@ -1860,7 +1830,8 @@ def get_quotation(request, pnr_id):
                             'Civility': '',
                             'PassengerFirstname': '',
                             'PassengerLastname': '',
-                            'Segments': '',                      
+                            'Segments': '',
+                            'HT_details':json.dumps(_ht_details) if _ht_details is not None else '',                      
                             'DocCurrency': 'EUR',
                             'Transport': item.cost,
                             'Tax': item.tax,
@@ -1878,6 +1849,7 @@ def get_quotation(request, pnr_id):
                             order.save()
 
                 if order.invoice_id is not None:
+                    _ht_details = None
                     segments_parts = PnrAirSegments.objects.filter(pnr=pnr_id)
                     air_segments = []
                     segment_names = []
@@ -1907,6 +1879,7 @@ def get_quotation(request, pnr_id):
                         'PassengerFirstname': '',
                         'PassengerLastname': '',
                         'Segments': json.dumps(air_segments),
+                        'HT_details':json.dumps(_ht_details) if _ht_details is not None else '',
                         'DocCurrency': 'EUR',
                         'Transport': order.invoice_id.detail.total if order.invoice_id is not None else '0',
                         'Tax': '0',
@@ -1970,21 +1943,36 @@ def import_product(request, pnr_id):
         if 'listNewProduct' in request.POST:
             product = json.loads(request.POST.get('listNewProduct'))
             pnr = Pnr.objects.get(pk=int(pnr_id))
+            print("****************** PRODUCT *********************")
+            print(product)
             
-            if product[0] == '19':
+            # cas pour l'AVOIR COMPAGNIE
+            if product[0] == 19:
+                passenger = Passenger.objects.get(pk=product[7])
                 if float(product[3]) > 0:
                     product[3] = -abs(product[3])
                     
-                other_fees = OthersFee(designation=product[7], cost=product[3], total=product[4],
-                                        pnr=pnr, fee_type=product[1],reference=product[6], 
+                other_fees = OthersFee(designation=product[6], cost=product[3], total=product[5],
+                                        pnr=pnr, fee_type=product[1],passenger=passenger,
                                         quantity=1, is_subjected_to_fee=False, creation_date=datetime.now(), emitter=emitter)
                 other_fees.save()
                 
-                for segment in product[9]:
-                    segment = PnrAirSegments.objects.get(pk=segment.get('value'))
-                    passenger = Passenger.objects.get(pk=product[8])
-                    passenger_segment = OtherFeeSegment(segment=segment,other_fee= other_fees, passenger=passenger)
-                    passenger_segment.save()
+                for segment in product[8]:
+                    if segment:
+                        segment = PnrAirSegments.objects.get(pk=segment.get('value'))
+                        passenger_segment = OtherFeeSegment(segment=segment,other_fee= other_fees, passenger=passenger)
+                        passenger_segment.save()
+
+            # cas pour l'HOTEL et TAXI
+            elif product[0] in [9,10,12,15,14,8,11]:
+                print('CAS POUR LA LOCATION DE VEHICULE')
+                other_fee = OthersFee(designation=product[2], cost=product[3], tax=product[4], total=product[5],
+                                        pnr=pnr, fee_type=product[1], reference=product[7], emitter=emitter,
+                                        quantity=1, is_subjected_to_fee=False,creation_date=datetime.now())
+                other_fee.save()
+                value = json.loads(product[8])
+                other_fee.value = value
+                other_fee.save()
             
             else:
                 other_fees = OthersFee.objects.filter(pnr=pnr_id, product_id=product[0])
@@ -1992,6 +1980,8 @@ def import_product(request, pnr_id):
                                         pnr=pnr, fee_type=product[1], passenger_segment=product[6], reference=product[7], emitter=emitter,
                                         quantity=1, is_subjected_to_fee=False, creation_date=datetime.now())
                 other_fees.save()
+
+
             
             # save creator user to user copying
             try:
@@ -2166,12 +2156,13 @@ def remove_other_fee_service(request):
         return JsonResponse({'status': 'not_found'})
 
 # décommander  un PNR
-@login_required(login_url="index")
+
 def unorder_pnr(request):
     if request.method == 'POST':
         pnr_number = request.POST.get('pnr_number')
         invoice_number = request.POST.get('invoice_number')
-        motif = request.POST.get('motif')
+        motif_id = request.POST.get('motif')
+        motif = MotifPnr.objects.get(pk=motif_id)
         user_id = request.POST.get('user_id')
         
         if motif is None:
@@ -2200,9 +2191,38 @@ def unorder_pnr(request):
 
                 if passenger_invoice.ticket_id or passenger_invoice.other_fee_id or passenger_invoice.fee_id:
                     # save in the InvoicesCanceled
-                    invoices_canceled = InvoicesCanceled(pnr_id=pnr.id,invoice_number=invoice_number,motif=motif,ticket_id=passenger_invoice.ticket_id, other_fee_id = passenger_invoice.other_fee_id,user_id=user_id, fee_id=passenger_invoice.fee_id) 
+                    invoices_canceled = InvoicesCanceled(pnr_id=pnr.id,invoice_number=invoice_number,motif_id=motif,ticket_id=passenger_invoice.ticket_id, other_fee_id = passenger_invoice.other_fee_id,user_id=user_id) 
                     invoices_canceled.save()
                 
+        
+        return JsonResponse({'status':'ok'})
+    return JsonResponse({'status':'error'})
+
+@login_required(login_url="index")
+# cancel order in passeger invoice
+def uncheck_ticket_in_passenger_invoiced(request):
+    if request.method == 'POST':
+        pnr_number = request.POST.get('pnr_id')
+
+        if pnr_number:
+            passenger_invoice_obj = PassengerInvoice.objects.filter(pnr_id=pnr_number).exclude(is_invoiced=True)
+        
+            if passenger_invoice_obj:
+                for passenger_invoice in passenger_invoice_obj:
+                    # delete the corresponding passenger invoice if it exist
+                    PassengerInvoice.objects.filter(id=passenger_invoice.id).delete()
+                    
+                    if passenger_invoice.ticket_id:
+                        #  delete the corresponding ticket if it exist
+                        Ticket.objects.filter(id=passenger_invoice.ticket_id).update(is_invoiced=False)
+                    
+                    if passenger_invoice.fee_id:
+                        #  delete the corresponding fee if it exist
+                        Fee.objects.filter(id=passenger_invoice.fee_id).update(is_invoiced=False)
+                        
+                    if passenger_invoice.other_fee_id:
+                        # delete the corresponding other fee if it exist
+                        OthersFee.objects.filter(id=passenger_invoice.other_fee_id).update(is_invoiced=False)
         
         return JsonResponse({'status':'ok'})
     return JsonResponse({'status':'error'})
@@ -2226,6 +2246,10 @@ def get_all_pnr_unordered(request):
     except EmptyPage:
         page_obj = paginator.page(paginator.num_pages)
     context = {'page_obj': page_obj, 'row_num': row_num, 'pnr_count' : pnr_count}
+
+    pnr_not_invoiced = get_ticket_created_today_not_invoiced(request)
+    context['pnr_not_invoiced'] = pnr_not_invoiced
+    context['notif_number'] = len(pnr_not_invoiced)
     
     return render(request,'unordered_pnr.html', context)
 
@@ -2237,7 +2261,7 @@ def unordered_pnr_research(request):
         search_results = []
         
         pnr_research = request.POST.get('pnr_research')
-        pnr_results = InvoicesCanceled.objects.all().filter(Q(invoice_number__icontains=pnr_research) | Q(pnr__id__icontains=pnr_research)| Q(motif__icontains=pnr_research) | Q(pnr__number__icontains=pnr_research)).distinct('pnr_id')
+        pnr_results = InvoicesCanceled.objects.all().filter(Q(invoice_number__icontains=pnr_research) | Q(pnr__id__icontains=pnr_research)| Q(motif_id__designation__icontains=pnr_research) | Q(pnr__number__icontains=pnr_research)).distinct('pnr_id')
         
         if pnr_results.exists():
             for p1 in pnr_results :
@@ -2283,7 +2307,7 @@ def unordered_pnr_research(request):
             values['pnr_id'] = invoice.pnr.id
             values['pnr_number'] = invoice.pnr.number
             values['invoice_number'] = invoice.invoice_number
-            values['motif'] = invoice.motif
+            values['motif'] = invoice.motif_id.designation
             values['date'] = invoice.date
             values['user'] = invoice.user.username
             results.append(values)
@@ -2352,3 +2376,126 @@ def ticket_delete(request):
 
 
         return JsonResponse({'status':'ok'})
+
+# ------- Notification ---------------------------------
+def get_ticket_created_today_not_invoiced(request):
+    # get number of ticket not invoiced today
+    today = datetime.now().date()
+
+    start_date = datetime(today.year, today.month, today.day, 0, 0, 0, tzinfo=timezone.utc)
+    end_date = datetime(today.year, today.month, today.day, 23, 59, 59, tzinfo=timezone.utc)
+    
+    print('REQUEST USER : ',request.user.id)
+    current_user = User.objects.get(id= request.user.id)
+    print('CURRENT USER : ',current_user)
+    if current_user.role_id == 1:
+        tickets = Ticket.objects.filter(pnr_id__system_creation_date__range=[start_date, end_date], is_invoiced= False, fare=0, ticket_status=1, state=0)
+    else:
+        tickets = Ticket.objects.filter(pnr__agent_id = current_user.id,pnr_id__system_creation_date__range=[start_date, end_date], is_invoiced= False, fare=0, ticket_status=1, state=0)
+    
+    print('PNRS : ',tickets)
+    nbre_pnr = tickets.count()
+    print('------------- NOTIF NUMBER----------------- : ',nbre_pnr)
+
+    return tickets
+
+# --------------- HOTEL & TAXI -- ---------------------------
+@login_required(login_url="index")
+def get_service_supplier_list(request):
+    
+    if request.method == 'GET':
+        hotel_suppliers = ServiceSupplier.objects.filter(service__id=10).all()
+        hSupplier = []
+        for supplier in hotel_suppliers:
+            hSupplier.append({"id":supplier.id,"name":supplier.name})
+
+        taxi_suppliers = ServiceSupplier.objects.filter(service__id=12).all()
+        tSupplier = []
+        for supplier in taxi_suppliers:
+            tSupplier.append({"id":supplier.id,"name":supplier.name})
+
+        bus_classes = ServiceSupplier.objects.filter(service__id=9).all()
+        busClass = []
+        for supplier in bus_classes:
+            busClass.append({"id":supplier.id,"name":supplier.name})
+
+        car_suppliers = ServiceSupplier.objects.filter(service__id=11).all()
+        car_supplier = []
+        for supplier in car_suppliers:
+            car_supplier.append({"id":supplier.id,"name":supplier.name})
+
+        context = {"hotel_suppliers":hSupplier,"taxi_suppliers":tSupplier,"car_suppliers":car_supplier}
+        return JsonResponse(context)
+    
+@login_required(login_url='index')
+def add_service_supplier(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        service_id = request.POST.get('service')
+
+        service_supplier = ServiceSupplier(name=name,service_id= service_id)
+        service_supplier.save()
+
+        return JsonResponse({'success':True, 'message': 'Service supplier added successfully'})
+
+@login_required(login_url="index")
+def save_hotel(request):
+    if request.method == 'POST':
+        hotel_name = request.POST.get('name')
+        arrivalDate = request.POST.get('arrivalDate')
+        arrivalTime = request.POST.get('arrivalTime')
+        departureDate = request.POST.get('departureDate')
+        departureTime = request.POST.get('departureTime')
+        room = request.POST.get('room')
+        adults = request.POST.get('adults')
+        kids = request.POST.get('kids')
+        pnr_id = request.POST.get('pnr_id')
+
+        hotel_detail = {'name':hotel_name,'arrivalDate':arrivalDate,'arrivalTime':arrivalTime,'departureDate':departureDate,'departureTime':departureTime,'room':room,'adults':adults,'kids':kids}
+
+        other_fee = OthersFee(designation="HOTEL",value=hotel_detail,pnr_id=pnr_id,fee_type="Supplement",creation_date=datetime.now())
+        other_fee.save()
+
+        context = {"hotel_detail":hotel_detail}
+
+        return JsonResponse(context)
+
+@login_required(login_url="index")
+def save_taxi(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        date = request.POST.get('date')
+        heure = request.POST.get('heure')
+        passagers = request.POST.get('passagers')
+        location = request.POST.get('location')
+
+        pnr_id = request.POST.get('pnr_id')
+
+        taxi_detail = {'name':name,'date':date,'heure':heure,'passagers':passagers,'depart':location}
+
+        other_fee = OthersFee(designation="TAXI",value=taxi_detail,pnr_id=pnr_id,fee_type="Supplement",creation_date=datetime.now())
+        other_fee.save()
+
+        context = {"taxi_detail":taxi_detail}
+
+        return JsonResponse(context)
+
+# Motif pour décommander un PNR
+@login_required(login_url='index')
+def addMotif(request):
+    if request.method == 'POST':
+        designation = request.POST.get('designation')
+        motifpnr = MotifPnr(designation=designation)
+        motifpnr.save()
+        context={'motif_id':motifpnr.id}
+        return JsonResponse(context)
+
+@login_required(login_url='index')
+def cancel_pnr(request, pnr_id):
+    print("CANCEL PNR")
+    pnr = Pnr.objects.get(id=pnr_id)
+    pnr.state = 4
+    status_value = 4
+    pnr.status = "Annulé"
+    pnr.save()
+    return redirect('pnr_details',pnr_id)

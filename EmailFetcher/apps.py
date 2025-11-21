@@ -276,8 +276,8 @@ class EmailfetcherConfig(AppConfig):
         # timer_update_check = RepeatTimer(1, checking_pnr_with_fee_decrease_request)
         # timer_update_check.start()
         
-        timer_pnr_remonte = RepeatTimer(1, check_pnr_remonte)
-        timer_pnr_remonte.start()
+        # timer_pnr_remonte = RepeatTimer(1, check_pnr_remonte)
+        # timer_pnr_remonte.start()
         
         # print('Mail notification is starting....')
         # timer_pnr_misssing = RepeatTimer(1, checking_pnr_missing)

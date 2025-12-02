@@ -1853,7 +1853,13 @@ def search_client_by_intitule(request):
         return JsonResponse([], safe=False)
     # Filter the Client objects that have an 'intitule' field containing the search term,
     # then select only the 'id' and 'intitule' fields to optimize performance
-    clients = Client.objects.filter(intitule__icontains=term).values('id', 'intitule')
+    clients = Client.objects.filter(
+        Q(intitule__icontains=term) |
+        Q(address_1__icontains=term) |
+        Q(address_2__icontains=term) |
+        Q(city__icontains=term) |
+        Q(code_postal__icontains=term) |
+        Q(telephone__icontains=term)).values('id', 'intitule')
     # Convert the filtered QuerySet into a list
     client_list = list(clients)
     # Return the filtered list as a JSON response with the 'safe' argument set to False to allow serializing lists

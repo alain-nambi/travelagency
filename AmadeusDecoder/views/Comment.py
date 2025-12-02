@@ -168,16 +168,15 @@ def get_pnr_not_fetched(request):
     print("PNR NON REMONTE")
     if request.method == 'POST':
         if 'pnrNumber' in request.POST:
-            print("pnrNumber is in request POST")
             pnr_number = request.POST.get('pnrNumber')
-            print(pnr_number)
-            print(pnr_number != '' and pnr_number != None)
-            print(NotFetched.objects.filter(pnr_number=pnr_number).exists())
+            context = request.POST.get('context')
+            
             user_follower = request.user.id
             if pnr_number != '' and pnr_number != None and not NotFetched.objects.filter(pnr_number=pnr_number).exists():
                 print("We can send the mail")
                 follower = User.objects.get(pk=int(user_follower))
                 pnr_not_fetched = NotFetched(pnr_number=pnr_number, follower=follower)
+                pnr_not_fetched = NotFetched(pnr_number=pnr_number, follower=follower, context=context)
                 pnr_not_fetched.save()
 
                 pnr = NotFetched.objects.get(pnr_number=pnr_number)
@@ -196,18 +195,18 @@ def get_pnr_not_fetched(request):
                                 <p>
                                     Ce PNR n'est pas remonté dans Gestion PNR </br>
                                     PNR concerné : {} </br>
+                                    Contexte : {} </br>
                                     Reporté par {} </br> 
                                 </p>
                                 <p> Cordialement, </p>
                             </body>
                             </html>
-                        """.format(pnr.pnr_number, pnr.follower.username)
+                        """.format(pnr.pnr_number,pnr.context, pnr.follower.username)
 
                 Sending.send_email_pnr_not_fetched(
                     "anomalie.issoufali@alita.re",
                     [
                         "dev@alita.re",
-                        "maphie@alita.re"
                     ],
                     subject,
                     message
@@ -575,3 +574,92 @@ def get_ticket_created_today_not_invoiced(request):
     print('------------- NOTIF NUMBER----------------- : ',nbre_pnr)
 
     return tickets
+
+@login_required(login_url="index")
+def get_all_pnr_not_fetched(request):
+    
+    # Récupérer les paramètres du filtre
+    pnr_number = request.GET.get('pnr_number','').strip()
+    context_filter = request.GET.get('context','').strip()
+    follower_id = request.GET.get('follower__id','').strip()
+    status = request.GET.get('status','').strip()
+    date_creation_str = request.GET.get('date_creation','').strip()
+    
+    # Construire la queryset de base
+    pnr_not_fetched = NotFetched.objects.all()
+    
+    # Appliquer les filtres
+    if pnr_number:
+        pnr_not_fetched = pnr_not_fetched.filter(pnr_number__icontains=pnr_number)
+    if context_filter:
+        pnr_not_fetched = pnr_not_fetched.filter(context__icontains=context_filter)
+    if follower_id:
+        pnr_not_fetched = pnr_not_fetched.filter(follower=follower_id)
+    if status:
+        pnr_not_fetched = pnr_not_fetched.filter(status=status)
+    if date_creation_str:
+        try:
+            filter_date = datetime.strptime(date_creation_str, "%Y-%m-%d").date()
+            pnr_not_fetched = pnr_not_fetched.filter(date_creation__date= filter_date)
+        except ValueError:
+            pass  # ignorer les dates invalides
+    
+    pnr_not_fetched = pnr_not_fetched.order_by('-date_creation')
+    # Liste des agents (uniquement ceux présents dans les PNR non remontés)
+    agent_list = User.objects.filter(id__in=NotFetched.objects.values_list('follower', flat=True).distinct()).order_by('username')
+    
+    # Pagination
+    pnr_count = pnr_not_fetched.count()
+    row_num = request.GET.get('paginate_by', 23)
+    try:
+        row_num = int(row_num)
+    except (ValueError, TypeError):
+        row_num = 23
+    
+    paginator = Paginator(pnr_not_fetched, row_num)
+    page_num = request.GET.get('page', 1)
+    try:
+        page_obj = paginator.page(page_num)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+        
+    # Contexte à passer au template
+    context = {
+        'page_obj': page_obj,
+        'row_num': row_num,
+        'pnr_count': pnr_count,
+        'agent_list': agent_list,
+        
+        # pré-remplir les filtres
+        'pnr_number': pnr_number,
+        'context': context_filter,
+        'follower_id': follower_id,
+        'status': status,
+        'date_creation': date_creation_str,
+        
+    }
+    
+    return render(request, 'pnr_not_fetched.html', context)
+    
+def get_updated_pnrs(request):
+    # Récupérer le timestamp de la dernière verification
+    last_timestamp = request.GET.get('since')
+    if not last_timestamp:
+        return JsonResponse({'updated_pnrs': []})
+    
+    try:
+        # Gérer le format ISO (avec ou sans 'Z')
+        ts = last_timestamp.replace('Z', '+00:00') if last_timestamp.endswith('Z') else last_timestamp
+        last_time = datetime.fromisoformat(ts)
+        
+    except(ValueError, AttributeError):
+        return JsonResponse({'updated_pnrs': []})
+    
+    updated = NotFetched.objects.filter(status=0, updated_at__gt = last_time).values_list('pnr_number', flat=True)
+    return JsonResponse({'updated_pnrs': list(updated)})
+        
+    
+    
+    

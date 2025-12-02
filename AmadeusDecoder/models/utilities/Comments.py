@@ -34,9 +34,12 @@ class NotFetched(models.Model):
     class Meta:
         db_table = 't_pnr_not_fetched'
 
-    pnr_number = models.CharField(max_length=100, null=False)
+    pnr_number = models.CharField(max_length=100, null=False, db_index= True)
+    context = models.TextField(max_length=250, null=True)
+    status = models.IntegerField(default=1)
     follower = models.ForeignKey(User, on_delete=models.CASCADE)
     date_creation = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now=True, db_index=True)
     
 
 class Anomalie(models.Model):

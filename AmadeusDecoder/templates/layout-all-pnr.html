@@ -239,6 +239,14 @@ old -->
                 <p>Anomalies PNR</p>
               </a>
             </li>
+
+            <li class="nav-item">
+              <a href="{% url 'get_all_pnr_not_fetched' %}" class="nav-link">
+                <i class="fas fa-times-circle nav-icon"></i>
+                <p>PNR Non remonté</p>
+              </a>
+            </li>
+
             <li class="nav-item">
               <a href="{% url 'get_all_pnr_unordered' %}" class="nav-link">
                 <i class="fas fa-trash-can nav-icon"></i>
@@ -431,7 +439,7 @@ old -->
     <script src="{% static 'js/anomalie.js' %}"></script>
     <script src="{% static 'js/notification.js' %}"></script>
     <script src="{% static 'js/manage_customer.js' %}"></script>
-
+    <script src="{% static 'js/pnr_not_fetched.js' %}"></script>
 
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/colresizable/1.6.0/colResizable-1.6.min.js" integrity="sha512-pMZ2rgWRGMywzbRAVwGk+auTREN0ldKKjACUSB4cneTgD3kn/6pu//Lxi4l8xSRkY83HENr1vztTnGDySWs0Mg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

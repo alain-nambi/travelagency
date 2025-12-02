@@ -2095,8 +2095,8 @@ function eraseCache() {
   window.location.reload();
 }
 
-$(".card-header").addClass("fixed-header");
-$("#tr-all-pnr").addClass("sticky-tr-table");
+// $(".card-header").addClass("fixed-header");
+// $("#tr-all-pnr").addClass("sticky-tr-table");
 
 
 // //card-header sticky
@@ -4116,6 +4116,8 @@ if (buttonSendPnrNotUpdated != null) {
     e.preventDefault();
     $("#modalPnrNotUpdated").modal("hide");
     const PnrNumber = document.querySelector("#messagePnrNotUpdated");
+    const context = document.querySelector("#contextPnrNotUpdated");
+
     $.ajax({
       type: "POST",
       dataType: "json",
@@ -4123,6 +4125,7 @@ if (buttonSendPnrNotUpdated != null) {
       data: {
         csrfmiddlewaretoken: csrftoken,
         pnrNumber: PnrNumber.value,
+        context: context.value,
       },
       success: (response) => {
         toastr.info("PNR non remonté signalé.");

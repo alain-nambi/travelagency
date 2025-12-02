@@ -92,5 +92,6 @@ urlpatterns = [
     path('customer/details/<int:customer_id>',customer_details,name="customer_details"),
     path('customer/updateInfo',modify_customer,name='modify_customer'),
     path('customer-search/',search_customers,name='search_customers'),
-
+    path('home/get-all-pnr-not-fetched',get_all_pnr_not_fetched, name='get_all_pnr_not_fetched'),
+    path('ajax/updated-pnrs/', get_updated_pnrs, name='get_updated_pnrs'),
 ]

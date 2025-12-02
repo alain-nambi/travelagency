@@ -1,0 +1,115 @@
+{% extends "layout-all-pnr.html" %}
+{% block content %}
+<!-- Main content -->
+<div class="content-wrapper">
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row ">
+        <div class="col-12">
+          <div class="card card-primary card-outline ">
+            <div class="card-header">
+              <div class="row align-items-center">
+                <div class="col-md-2 float-left">
+                  <h4 class="text-primary title-all-pnr mt-1 mb-0">PNR Non Remonté</h4>
+                </div>
+
+                <div class="col-md-2 text-right">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearFilters()">
+                    <i class="fas fa-filter-circle-xmark"></i> Réinitialiser les filtres
+                  </button>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="card-body">
+              <table class="table table-bordered table-head-fixed table-hover text-nowrap">
+                <thead id="thead-all-pnr">
+                    <tr id="tr-all-pnr">
+                        <th>Numéro</th>
+                        <th>Contexte</th>
+                        <th>Agent</th>
+                        <th>Date</th>
+                        <th>Statut</th>
+                    </tr>
+                    <!-- Ligne des filtres -->
+                    <tr id="filter-row">
+                        <th><input type="text" class="form-control form-control-sm" placeholder="Filtrer n°" data-column="pnr_number"></th>
+                        <th><input type="text" class="form-control form-control-sm" placeholder="Filtrer contexte" data-column="context"></th>
+                        <th>
+                            <select class="form-control form-control-sm" data-column="follower__id">
+                                <option value="" {% if not follower__username %}selected{% endif %}>Tous les agents</option>
+                                {% for agent in agent_list %}
+                                    <option 
+                                    value="{{ agent.id }}" 
+                                    {% if follower__username == agent.username %}selected{% endif %}
+                                    >
+                                    {{ agent.username }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </th>
+                        <th>
+                        <!-- Pour la date, tu peux garder un champ texte ou utiliser un datepicker selon ton besoin -->
+                        <input type="date" class="form-control form-control-sm" value="{{ date_creation|default:''}}" data-column="date_creation">
+                        </th>
+                        <th>
+                        <select class="form-control form-control-sm" data-column="status">
+                            <option value="">Tous</option>
+                            <option value="1">Non Remonté</option>
+                            <option value="0">Remonté</option>
+                        </select>
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                  {% for pnr_not_fetched in page_obj %}
+                  
+                  
+                    <tr data-pnr="{{ pnr_not_fetched.pnr_number}}">
+                      <td class="d-flex align-items-center justify-content-between" style="gap:5px">
+                        <span class="pnr-num-class">{{ pnr_not_fetched.pnr_number }}</span>
+                          <span 
+                            class="tooltips state_2 float-right" 
+                            tooltip="" 
+                            tooltip-position="top"
+                            tooltip-type="warning" >
+                           
+                          </span>
+
+
+                      </td>
+                      <td> {{pnr_not_fetched.context}} </td>
+
+                      <td>{{ pnr_not_fetched.follower.username}}</td>
+                      <td>{{ pnr_not_fetched.date_creation|date:"d/m/y H:i" }}</td>
+                      
+                      <td>
+                          {% if pnr_not_fetched.status == 1 %}
+                            <button class="btn btn-danger py-0" >Non Remonté</button>
+                          {% else %}
+                            <button class="btn btn-success py-0" >Remonté</button>
+                          {% endif %}
+                      </td>
+                      
+                    </tr>
+                  
+                  {% endfor %}
+                </tbody>
+
+              </table>
+
+            </div>
+          </div>
+        </div>
+
+        <a class="" onclick="eraseCache()" role="button" title="Actualiser"><i class="fa fa-refresh fa-2x reload"
+            aria-hidden="true"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+</div>
+
+{% endblock content %}

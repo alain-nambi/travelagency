@@ -222,6 +222,7 @@ class EmailfetcherConfig(AppConfig):
     name = 'EmailFetcher'
     
     def ready(self):
+        import AmadeusDecoder.models.utilities.signals
         run_once = os.environ.get('CMDLINERUNNER_RUN_ONCE') 
         if run_once is not None:
             return 

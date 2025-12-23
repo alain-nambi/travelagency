@@ -4,6 +4,7 @@ $('#comment-ticket-form').hide();
 $('#other_info').hide();
 $('#info').hide();
 $('#taxSection').hide();
+$('#emitterSection').hide();
 $('#Erreur').hide();
 $('#fee').hide();
 $('#comment-ticket-cancel-button').hide();
@@ -19,7 +20,7 @@ $('#comment-ticket').on('click', ()=> {
     $('#comment-ticket').hide();  
 })
 
-function createButton(container, ticketNumber, transportCost, taxe) {
+function createButton(container, ticketNumber, transportCost, taxe, emitter_id, emitter_name, emitters) {
     // Créer un bouton correspondant à un billet
     var button = document.createElement("button");
     button.className = 'btn btn-info';
@@ -35,6 +36,7 @@ function createButton(container, ticketNumber, transportCost, taxe) {
         $('#info').show();
         $('#comment-ticket-next-button').show();
         $('#taxSection').show();
+        $('#emitterSection').show();
 
         $('#ticket_number').val(ticketNumber);
         $('#ticket_number').prop('disabled', true);
@@ -42,6 +44,21 @@ function createButton(container, ticketNumber, transportCost, taxe) {
         $('#montant_hors_taxe').val(transportCost);
         $('#taxe').val(taxe);
 
+        const $emitterSelect = $('#emitter');
+        console.log('Emitter id : ',emitter_id );
+        
+        if (emitter_id == null){
+            emitters.forEach(emitter => {
+                $emitterSelect.append(`<option value="${emitter.id}">${emitter.username}</option>`);
+            });
+        }
+        else{
+            $emitterSelect.empty();
+            $emitterSelect.append(`<option value="${emitter_id}">${emitter_name}</option>`);
+            $emitterSelect.prop('disabled', true);
+        }
+        
+        
 
         // Afficher le bouton annuler
         $('#comment-ticket-cancel-button').show();
@@ -103,7 +120,10 @@ function get_unshowed_ticket(pnr_id,container){
 
                 // créer les boutons correspondants au billets
                 data.tickets.forEach((ticket)=>{
-                    createButton(container,ticket.number,ticket.transport_cost,ticket.taxe)
+                    const emitter_id = ticket.emitter_id ? ticket.emitter_id : null;
+                    const emitter_name = ticket.emitter_name ? ticket.emitter_name : null;
+
+                    createButton(container,ticket.number,ticket.transport_cost,ticket.taxe, emitter_id,emitter_name, data.emitters)
                 })
 
                 // Ajouter un bouton pour un nouveau billet
@@ -141,6 +161,7 @@ function get_unshowed_ticket(pnr_id,container){
         },
     });
 }
+
 
 // ---------------------- verif ticket Value
 $(document).ready(function () {
@@ -424,7 +445,8 @@ $(document).ready(function () {
                                 // Don't allow to modify ticket number
                                 $('#ticket_number').attr('disabled', true)
                                 showInfoSection();
-                                showOtherInfoSection();
+                                let emitters = data.context.emitters
+                                showOtherInfoSection(emitters);
                                 showCancelButton();
                             }
                         });
@@ -440,10 +462,7 @@ $(document).ready(function () {
                 var mnt_hors_taxe = $('#montant_hors_taxe').val();
                 var taxe = $('#taxe').val();
                 var user_id = $('#user_id').val();
-                var issuing_date = $('#issuing_date').val();
-                if (!issuing_date) {
-                    issuing_date = new Date().toISOString().split('T')[0];
-                }
+                var emitter_id = $('#emitter').val();
 
                 $.ajax({
                     type: "POST",
@@ -452,10 +471,10 @@ $(document).ready(function () {
                     data: {
                         ticket_number: ticketNumber,
                         montant_hors_taxe: mnt_hors_taxe,
-                        issuing_date: issuing_date,
                         taxe: taxe,
                         user_id: user_id,
                         pnr_id: pnr_id,
+                        emitter_id: emitter_id,
                         csrfmiddlewaretoken: csrftoken,
                     },
                     success: function (data) {
@@ -485,6 +504,7 @@ $(document).ready(function () {
                 var taxe = $('#taxe').val();
                 var user_id = $('#user_id').val();
                 var passenger_id = $('#selectPassenger').val();
+                var emitter_id = $('#emitter').val();
                 var segment ;
 
                 if($('#selectSegment').is(":hidden") ){
@@ -533,6 +553,8 @@ $(document).ready(function () {
                     fee: fee, 
                     isticket: isTickets,
                     issuing_date: issuing_date,
+                    emitter_id: emitter_id,
+
                 })
                 console.log(listNewTicketAnomalyInfo);
 
@@ -577,14 +599,21 @@ $(document).ready(function () {
         }
 
         // Fonction pour montrer la section d'autres informations
-        function showOtherInfoSection() {
+        function showOtherInfoSection(emitters) {
             $('#other_info').show();
+            $('#emitterSection').show();
+
             let isticket = $('#ticket_number').attr('data-isticket');
             if (isticket == 1){ // i c'est un remboursement
                 $('#selectType').val('EMD');
                 $('#selectType').prop('disabled',true);
                 $('#fee').hide();
             }
+
+            const $emitterSelect = $('#emitter');
+            emitters.forEach(emitter => {
+                $emitterSelect.append(`<option value="${emitter.id}">${emitter.username}</option>`);
+            });
         }
 
         

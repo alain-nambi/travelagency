@@ -221,19 +221,29 @@ def get_unshowed_tickets(request):
     context = {}
     if request.method == 'POST':
         pnr_id = request.POST.get('pnr_id')
+        emitters = User.objects.filter(is_active=True).exclude(role_id= 1)
+        emitter_list = [
+            {'id':user.id, 'username': user.username} for user in emitters
+        ]
         tickets_query = Ticket.objects.filter(pnr_id= pnr_id).exclude( (Q(ticket_status=1) & ~Q(state=2)) | Q(ticket_type='TST') | Q(is_invoiced=True))
         tickets= []
         for ticket in tickets_query:
+            emitter_id = ticket.emitter.id if ticket.emitter else None
+            emitter_name = ticket.emitter.username if ticket.emitter else None
             ticket_data = {
                 'ticket_id' : ticket.id,
                 'pnr_id' : ticket.pnr_id,
                 'number' : ticket.number,
                 'transport_cost' : ticket.transport_cost,
                 'taxe' : ticket.tax,
-                'total' : ticket.total
+                'total' : ticket.total,
+                'emitter_id' : emitter_id,
+                'emitter_name' : emitter_name
+                
             }
             tickets.append(ticket_data)
         context['tickets'] = tickets
+        context['emitters'] = emitter_list
         context['status'] = 200
     return JsonResponse(context)
 
@@ -301,9 +311,15 @@ def getPassengersAndSegmets(request):
                 'vol_number' : air_segment.flightno
             }
             segments_data.append(segment_data)
+            
+        emitters = User.objects.filter(is_active=True).exclude(role_id= 1)
+        emitter_list = [
+            {'id':user.id, 'username': user.username} for user in emitters
+        ]
 
         context['passengers'] = passengers_data
         context['segments'] = segments_data
+        context['emitters'] = emitter_list
 
     return JsonResponse({'context': context})
 
@@ -354,6 +370,7 @@ def save_ticket_anomalie(request):
             segments = []
             ticket_type = new_tickets[0]['ticket_type']
             issuing_date = new_tickets[0]['issuing_date']
+            emitter_id = new_tickets[0]['emitter_id']
         
             for segment in new_tickets[0]['segment']:
                 segments.append(segment.get('value'))
@@ -363,20 +380,20 @@ def save_ticket_anomalie(request):
             user_id = new_tickets[0]['user_id']
 
             if isticket == '0':
-                info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "passenger_id":passenger_id, "segment": segments, "ticket_status":1, 'ticket_type':ticket_type, "issuing_date":issuing_date, 'fee': str(new_tickets[0]['fee']).capitalize(),'isticket':0} # ticket_status : 0 ticket existant , 1 ticket non existant
+                info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "passenger_id":passenger_id, "segment": segments, "ticket_status":1, 'ticket_type':ticket_type, "issuing_date":issuing_date, "emitter_id":emitter_id,'fee': str(new_tickets[0]['fee']).capitalize(),'isticket':0} # ticket_status : 0 ticket existant , 1 ticket non existant
             else:
-                info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "passenger_id":passenger_id, "segment": segments, "ticket_status":1, 'ticket_type':ticket_type, "issuing_date":issuing_date, 'fee': str(new_tickets[0]['fee']).capitalize(), 'isticket':1} # ticket_status : 0 ticket existant , 1 ticket non existant
+                info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "passenger_id":passenger_id, "segment": segments, "ticket_status":1, 'ticket_type':ticket_type, "issuing_date":issuing_date, "emitter_id":emitter_id,'fee': str(new_tickets[0]['fee']).capitalize(), 'isticket':1} # ticket_status : 0 ticket existant , 1 ticket non existant
         else:
             ticket_number = request.POST.get('ticket_number')
             montant_hors_taxe = request.POST.get('montant_hors_taxe')
             taxe = request.POST.get('taxe')
-            issuing_date = request.POST.get('issuing_date')
             pnr_id = request.POST.get('pnr_id')
             user_id = request.POST.get('user_id')
+            emitter_id = request.POST.get('emitter_id')
             
             pnr = Pnr.objects.filter(id=pnr_id).first()
             
-            info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "issuing_date":issuing_date, "ticket_status":0,'isticket':0} # ticket_status : 0 ticket existant , 1 ticket non existant
+            info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "ticket_status":0,'isticket':0, "emitter_id":emitter_id} # ticket_status : 0 ticket existant , 1 ticket non existant
             
         if montant_hors_taxe == "" or taxe == "":
             return JsonResponse(
@@ -466,7 +483,6 @@ def update_ticket(request):
            
         else:
             # Create a new ticket
-            print('****************************** CREATE TICKET ****************************')
             ticket = Ticket()
             ticket.transport_cost=anomalie.infos.get('montant')
             ticket.number=anomalie.infos.get('ticket_number')
@@ -485,7 +501,6 @@ def update_ticket(request):
                 ticket.emitter = issuing_user
             ticket.issuing_date=anomalie.infos.get('issuing_date')
 
-            print('************************IS TICKET : ', anomalie.infos.get('isticket'))
             ticket.is_refund = anomalie.infos.get('isticket') == '1'
             print(ticket.is_refund)
             ticket.save()

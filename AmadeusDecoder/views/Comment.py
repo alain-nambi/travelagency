@@ -463,6 +463,8 @@ def update_ticket(request):
         issuing_user = anomalie.issuing_user
         ticket = Ticket.objects.filter(number=anomalie.infos.get('ticket_number')).first()
         pnr = Pnr.objects.get(pk=anomalie.pnr_id)
+        emitter_id = anomalie.infos.get('emitter_id')
+        emitter = User.objects.get(pk=emitter_id)
         
         if ticket is not None:
             # update the existing ticket
@@ -477,8 +479,7 @@ def update_ticket(request):
             ticket.emitter = None
             ticket.issuing_date = anomalie.infos.get('issuing_date')
 
-            if issuing_user.id in issuing_user.has_lift_tki_perm():
-                ticket.emitter = issuing_user
+            ticket.emitter = emitter
             ticket.save()
            
         else:
@@ -497,8 +498,7 @@ def update_ticket(request):
             ticket.ticket_type=anomalie.infos.get('ticket_type')
             ticket.is_subjected_to_fees=anomalie.infos.get('fee')
 
-            if issuing_user.id in issuing_user.has_lift_tki_perm():
-                ticket.emitter = issuing_user
+            ticket.emitter = emitter
             ticket.issuing_date=anomalie.infos.get('issuing_date')
 
             ticket.is_refund = anomalie.infos.get('isticket') == '1'

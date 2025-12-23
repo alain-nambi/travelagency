@@ -1417,7 +1417,7 @@ $("#all-pnr").tablesorter({
     },
     // Use a custom date parser for elements with the class "pnr-issuing-date"
     ".pnr-issuing-date": {
-      sorter: "customDateParser",
+      sorter: "false",
     },
   },
   // Enable additional tablesorter widgets

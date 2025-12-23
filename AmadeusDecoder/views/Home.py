@@ -14,7 +14,7 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
+from django.db.models import Q, F, OrderBy
 from django.forms.models import model_to_dict
 from django.conf import settings
 from AmadeusDecoder.models.invoice.TicketPassengerSegment import OtherFeeSegment, TicketPassengerSegment

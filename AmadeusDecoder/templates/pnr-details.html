@@ -816,7 +816,7 @@
 													<td>
 														{% if not ticket.is_invoiced  %} 
 															<button class="btn btn-warning px-2 py-1 deleteticket" title='Annuler le ticket' type="button" data-toggle="modal" 
-																	data-target="#modalRemoveTicket" data-ticket-table="ticket" data-ticket-number="{{ticket.number}}" data-ticket-id="{{ticket.id}}">
+																	data-target="#modalRemoveTicket" data-ticket-table="ticket" data-ticket-number="{{ticket.number}}" data-ticket-id="{{ticket.id}}" data-ticket-designation="{{ticket.designation}}" data-is-ticket="true">
 																<i class="fa-solid fa-trash"></i>
 															</button>
 														{% endif %}
@@ -852,7 +852,27 @@
 														{% else %}
 														<td> </td>
 														{% endif %}
-														<td><span class="montant">{{ temp_other_fee.cost|floatformat:'2' }}</span>
+														<td>
+															<span class="montant outsourcing-display">{{ temp_other_fee.cost|floatformat:'2' }}</span>
+															{% if temp_other_fee.designation == 'FRAIS DE SOUS-TRAITANCE' or temp_other_fee.designation == 'FRAIS SOUS-TRAITANCE' %}
+																<input id="outsourcing-cost" 
+																	data-other-fee-is-invoiced="{{ temp_other_fee.is_invoiced }}"
+																	class="inputeditable_traitance montant outsourcing-fee-cost" 
+																	data-user-id = "{{request.user.id}}"
+																	data-role-id="{{request.user.role_id}}"
+																	data-other-fee-id="{{temp_other_fee.id}}" 
+																	data-total-other-fee-cost="{{ temp_other_fee.total|floatformat:'2' }}"
+																	data-other-fee-cost="{{ temp_other_fee.cost|floatformat:'2' }}" 
+																	value="{{ temp_other_fee.cost|floatformat:'2' }}" 
+																	name="traitance-fees-cost-{{temp_other_fee.id}}"
+																	style='width:70px;'
+																	hidden="true"
+																/>
+															{% else %}
+																<span class="montant">{{ temp_other_fee.cost|floatformat:'2' }}</span>
+															{% endif %}
+																
+															
 														</td>
 														<td><span class="montant">{{ temp_other_fee.tax|floatformat:'2' }}</span></td>
 														<td><span class="montant ticket" value="{{ temp_other_fee.total|floatformat:'2' }}">{{ temp_other_fee.total|floatformat:'2' }}</span></td>
@@ -899,16 +919,30 @@
 																{{ '' }}
 															{% endif %}
 														<td></td>
-														{% if user.role_id == 1 %}
-															<td>
-																{% if not ticket.is_invoiced  %} 
-																	<button class="btn btn-warning px-2 py-1 deleteticket" title='Annuler le ticket' type="button" data-toggle="modal" 
-																			data-target="#modalRemoveTicket" data-ticket-table="ticket" data-ticket-number="{{ticket.number}}" data-ticket-id="{{ticket.id}}">
-																		<i class="fa-solid fa-trash"></i>
-																	</button>
-																{% endif %}
-																
-															</td>
+														{% if user.role_id == 1 or temp_other_fee.designation == 'FRAIS DE SOUS-TRAITANCE' or temp_other_fee.designation == 'FRAIS SOUS-TRAITANCE'%}
+															{% if temp_other_fee.designation == 'FRAIS DE SOUS-TRAITANCE' or temp_other_fee.designation == 'FRAIS SOUS-TRAITANCE' %}
+																<td>
+																	{% if not ticket.is_invoiced  %} 
+																		<button class="btn btn-warning px-2 py-1 deleteticket" title='Annuler le frais de sous traitance' type="button" data-toggle="modal" 
+																				data-target="#modalRemoveTicket" data-ticket-table="ticket" data-ticket-number="{{ticket.number}}" data-ticket-id="{{ticket.id}}" data-ticket-designation="{{ticket.designation}}" data-is-ticket="false">
+																			<i class="fa-solid fa-trash"></i>
+																		</button>
+																	{% endif %}
+																	
+																</td>
+															{% else %}
+																<td>
+																	{% if not ticket.is_invoiced  %} 
+																		<button class="btn btn-warning px-2 py-1 deleteticket" title='Annuler le ticket' type="button" data-toggle="modal" 
+																				data-target="#modalRemoveTicket" data-ticket-table="ticket" data-ticket-number="{{ticket.number}}" data-ticket-id="{{ticket.id}}" data-ticket-designation="{{ticket.designation}}" data-is-ticket="true">
+																			<i class="fa-solid fa-trash"></i>
+																		</button>
+																	{% endif %}
+																	
+																</td>
+															{% endif %}
+														{% else %}
+															<td></td>	 
 														{% endif %}
 														<td></td>
 														{% if other_fees_orders or temp_other_fee.is_invoiced.is_invoiced %}
@@ -1059,7 +1093,25 @@
 												{% else %}
 												<td> </td>
 												{% endif %}
-												<td><span class="montant">{{ other_fee.cost|floatformat:'2' }}</span>
+												<td>
+													<span class="montant outsourcing-display">{{ other_fee.cost|floatformat:'2' }}</span>
+													{% if other_fee.designation == 'FRAIS DE SOUS-TRAITANCE' or other_fee.designation == 'FRAIS SOUS-TRAITANCE' %}
+														<input id="outsourcing-cost" 
+															data-other-fee-is-invoiced="{{ other_fee.is_invoiced }}"
+															class="inputeditable_traitance montant outsourcing-fee-cost" 
+															data-user-id = "{{request.user.id}}"
+															data-role-id="{{request.user.role_id}}"
+															data-other-fee-id="{{other_fee.id}}" 
+															data-total-other-fee-cost="{{ other_fee.total|floatformat:'2' }}"
+															data-other-fee-cost="{{ other_fee.cost|floatformat:'2' }}" 
+															value="{{ other_fee.cost|floatformat:'2' }}" 
+															name="traitance-fees-cost-{{other_fee.id}}"
+															style='width:70px;'
+															hidden="true"
+														/>
+													{% else %}
+														<span class="montant">{{ temp_other_fee.cost|floatformat:'2' }}</span>
+													{% endif %}
 												</td>
 												<td><span class="montant">{{ other_fee.tax|floatformat:'2' }}</span></td>
 												<td><span class="montant ticket" value="{{ other_fee.total|floatformat:'2' }}">{{ other_fee.total|floatformat:'2' }}</span></td>
@@ -1134,18 +1186,30 @@
 													{% endif %}
 												</td>
 												<td></td>
-												{% if user.id == 58 or user.id == 70 or user.id == 71 or user.id == 72 %}
-													<td>
-														{% if not other_fee.is_invoiced  %}
-															<button class="btn btn-warning px-2 py-1 deleteticket" title='Annuler le ticket' type="button" data-toggle="modal" 
-																	data-target="#modalRemoveTicket" data-ticket-table="other_fee" data-ticket-number="{{other_fee.number}}" data-ticket-designation="{{other_fee.designation}}" data-ticket-id="{{other_fee.id}}">
-																<i class="fa-solid fa-trash"></i>
-															</button>
-														{% endif %}
-														
-													</td>
+												{% if user.role_id == 1 or other_fee.designation == 'FRAIS DE SOUS-TRAITANCE' or other_fee.designation == 'FRAIS SOUS-TRAITANCE'%}
+													{% if other_fee.designation == 'FRAIS DE SOUS-TRAITANCE' or other_fee.designation == 'FRAIS SOUS-TRAITANCE' %}
+														<td>
+															{% if not other_fee.is_invoiced  %}
+																<button class="btn btn-warning px-2 py-1 deleteticket" title='Annuler le frais de sous traitance' type="button" data-toggle="modal" 
+																		data-target="#modalRemoveTicket" data-ticket-table="other_fee" data-ticket-number="{{other_fee.number}}" data-ticket-designation="{{other_fee.designation}}" data-ticket-id="{{other_fee.id}}" data-is-ticket="{% if other_fee.fee_type == 'FEE' %}true{% else %}false{% endif %}">
+																	<i class="fa-solid fa-trash"></i>
+																</button>
+															{% endif %}
+															
+														</td>
+													{% else %}
+														<td>
+															{% if not other_fee.is_invoiced  %}
+																<button class="btn btn-warning px-2 py-1 deleteticket" title='Annuler le ticket' type="button" data-toggle="modal" 
+																		data-target="#modalRemoveTicket" data-ticket-table="other_fee" data-ticket-number="{{other_fee.number}}" data-ticket-designation="{{other_fee.designation}}" data-ticket-id="{{other_fee.id}}" data-is-ticket="true">
+																	<i class="fa-solid fa-trash"></i>
+																</button>
+															{% endif %}
+															
+														</td>
+													{% endif %}
 												{% else %}
-													<td> {{ '' }} </td>	 
+													<td></td>	 
 												{% endif %}
 
 												<td>
@@ -2475,16 +2539,14 @@
 	<div class="modal-dialog modal-md">
 		<div class="modal-content">
 			<div class="modal-header">
+				<input type="hidden" id="isTicket" />
 				<h4 class="modal-title">Annuler billet (voidé ou remonté par erreur)</h4>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">×</span>
 				</button>
 			</div>
 			<div class="modal-body">
-				<span>
-					Voulez-vous vraiment annuler le billet
-					<span id="ticketNumber"></span> ?
-				</span>
+				<span id="confirmation-text"></span>
 				<input type="hidden" id="ticketId" />
 				<input type="hidden" id="ticketTable" />
 			</div>

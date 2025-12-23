@@ -2,6 +2,11 @@
 const ServiceFeesInput = document.querySelectorAll(
   ".inputeditable.montant.fee-cost"
 );
+
+const OutsourcingInput = document.querySelectorAll(
+  ".inputeditable_traitance"
+);
+
 const MontantTotal = document.getElementById("pnr-amount-total");
 const AmoutTicket = document.querySelectorAll(".montant.ticket");
 const CreateOrder = document.getElementById("create-final-command");
@@ -91,6 +96,40 @@ ServiceFeesInput.forEach((inputFees, index) => {
             
             
         }
+    })
+});
+//////////
+
+//Handling amout total calculation outsourcing fee modification
+////////
+
+OutsourcingInput.forEach((inputFees) => {
+
+    inputFees.addEventListener('change', (e) => {
+        const input = e.target;
+        const row = input.closest('tr');
+        const OutsourcingTotal = row.cells[5];
+
+        let other_fee_cost = parseFloat(e.target.value) || 0;
+
+        if (OutsourcingTotal){
+          OutsourcingTotal.textContent = other_fee_cost.toFixed(2);
+        }
+
+        let grandTotal = 0;
+        // Somme de toutes les lignes
+        document.querySelectorAll('tr').forEach(row =>{
+          const totalCellInRow = row.cells[5];
+          if(totalCellInRow){
+            const value = parseFloat(totalCellInRow.textContent) || 0;
+            grandTotal += value;
+            console.log('Grand Total : ',grandTotal);
+            
+          }
+        })
+
+        // Mettre à jour l'affichage du montant total
+        MontantTotal.textContent = grandTotal.toFixed(2);
     })
 });
 //////////
@@ -814,6 +853,8 @@ document.getElementById("save").addEventListener("click", (e) => {
   let listFeeCost = [];
   let listotherFeesChecked = [];
   let listTicketCheckboxesAddAfterOrderAlreadyCreated = [];
+  let listOutsourcingFee = [];
+
 
   document.querySelectorAll(".ticket-checkbox-passenger").forEach((input) => {
     if (
@@ -834,6 +875,13 @@ document.getElementById("save").addEventListener("click", (e) => {
     const Value = input.value;
     listFeeCost.push([Id, Value]);
   });
+
+  const InputOutsourcing = document.querySelectorAll(".outsourcing-fee-cost");
+  InputOutsourcing.forEach((input) => {
+    const Id = input.getAttribute("data-other-fee-id");
+    const Value = input.value;
+    listOutsourcingFee.push([Id, Value]);
+  })
 
   const listPassengersCheckboxes = document.querySelectorAll(
     ".passengers-align-checkboxes-first"
@@ -895,6 +943,7 @@ document.getElementById("save").addEventListener("click", (e) => {
         ),
         customerId: customerListSelection.value,
         feeCost: JSON.stringify(listFeeCost),
+        outsourcingFee: JSON.stringify(listOutsourcingFee),
         otherfeesIdsChecked: JSON.stringify(listotherFeesChecked),
       },
       success: (response) => {
@@ -1440,14 +1489,23 @@ $(document).ready(function () {
 // Afficher le modal de confirmation de suppression de ticket non commandé
 $(document).ready(function () {
   $('.deleteticket').click(function () {
-    // if the ticket is of type TKT
-    $('#ticketNumber').text($(this).data('ticket-number'));
+    
+    var ticketNumber = $(this).data('ticket-number');
     $('#ticketId').val($(this).data('ticket-id'));
     $('#ticketTable').val($(this).data('ticket-table'));
-    // if the ticket is of type EMD
-    if ($(this).data('ticket-designation')) {
-      $('#ticketNumber').text($(this).data('ticket-designation'));
-    }
+    is_ticket = $(this).data('is-ticket')
+    $('#isTicket').val(is_ticket);
+    console.log("IS TICKET : ",is_ticket);
+    // Convertir en booléen
+    var isRealTicket = (is_ticket === true);
+    console.log("IS REAL TICKET : ",isRealTicket);
+
+    // Mettre à jour le texte de la modale
+    var message = isRealTicket
+        ? "Voulez-vous vraiment annuler le billet " + ticketNumber + " ?"
+        : "Voulez-vous vraiment annuler le frais correspondant au billet " + ticketNumber + " ?";
+    
+    $('#confirmation-text').text(message);
     
   });
 });
@@ -1457,7 +1515,8 @@ $(document).ready(function(){
   $('#deletTicketModalConfirmation').click(function () {
     var ticketId = $('#ticketId').val();
     var ticketTable = $('#ticketTable').val();
-    var ticketNumber = $('#ticketNumber').val();
+    // var ticketNumber = $('#ticketNumber').val();
+    var isTicket = $('#isTicket').val();
 
     $.ajax({
       type: "POST",
@@ -1465,8 +1524,8 @@ $(document).ready(function(){
       dataType: "json",
       data: {
           ticketId: ticketId,
-          ticketNumber: ticketNumber,
           ticketTable: ticketTable,
+          isTicket: isTicket,
           csrfmiddlewaretoken: csrftoken,
       },
       success: function (data) {

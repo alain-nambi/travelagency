@@ -112,10 +112,20 @@ def home(request):
     start_date_issue_filter, end_date_issue_filter = format_date_range(issue_date_filter_cookies)
 
     # PNR order FILTER (sort)
-    pnr_order_list_filter = {
-        "asc": "date_of_creation",
-        "desc": "-date_of_creation"
-    }.get(request.COOKIES.get("creation_date_order_by"), "-date_of_creation")
+    issuing_order = request.COOKIES.get("issuing_date_order_by")
+    creation_order = request.COOKIES.get("creation_date_order_by")
+    print('******************** CREATION ORDER : ',creation_order)
+    
+    
+    if issuing_order in ("asc", "desc"):
+        # Tri par date d'émission avec les valeurs vide à la fin
+        pnr_order_list_filter = OrderBy(F('max_issuing_date'), descending=(issuing_order == "desc"), nulls_last=True)
+    elif creation_order in ("asc", "desc"):
+        # Tri par date de création sans valeurs null
+        pnr_order_list_filter = "date_of_creation" if creation_order == "asc" else "-date_of_creation"
+    else:
+        # Tri par défaut
+        pnr_order_list_filter = "-date_of_creation"
 
     # Status invoice PNR FILTER
     is_invoiced_filter = {
@@ -186,11 +196,15 @@ def home(request):
                    
     pnr_list = []
     
-    # Get the filtered list and paginate
-    if pnr_order_list_filter:
-        pnr_list = OptimisedPnrList.objects.filter(filters).order_by(pnr_order_list_filter)
+    # Appliquer les filtres et le tri
+    base_queryset = OptimisedPnrList.objects.filter(filters)
+    
+    # Appliquer le tri principal
+    pnr_list = base_queryset.order_by(pnr_order_list_filter)
+    
+    # Appliquer le tri par créateur si demandé
     if sorted_creator_filter:
-        pnr_list = OptimisedPnrList.objects.filter(filters).order_by(sorted_creator_filter)
+        pnr_list = pnr_list.order_by(sorted_creator_filter)
 
     # Define user-specific filters
     # special_usernames = ['Mouniati', 'Farida']
@@ -910,6 +924,17 @@ def save_pnr_detail_modification(request, pnr_id):
                     service_fee.update(cost=cost, total=cost, old_cost=current_cost)
                     # save fee update history
                     History().fee_history(service_fee.first(), request.user, current_cost, cost, initial_total)
+                    
+        if 'outsourcingFee' in request.POST:
+            outsourcing_cost = json.loads(request.POST.get('outsourcingFee'))
+            print('outsourcingFee : ', outsourcing_cost)
+            for item in outsourcing_cost:
+                print('item : ',item)
+                cost = item[1]
+                outsourcing_fee = OthersFee.objects.filter(pk = int(item[0]))
+                
+                if outsourcing_fee.exists():
+                    outsourcing_fee.update(cost= cost, total = cost)
 
     return JsonResponse(context)
 
@@ -2112,57 +2137,68 @@ def ticket_delete(request):
     if request.method == 'POST':
         ticketId = request.POST.get('ticketId')
         ticketTable = request.POST.get('ticketTable')
-        ticketNumber = request.POST.get('ticketNumber')
-
+        # ticketNumber = request.POST.get('ticketNumber')
+        isTicket = request.POST.get('isTicket')
+        
         print('------------------------------------------------------')
         print(ticketId)
         
-        # for ticket
-        if ticketTable == 'ticket':
-            ticket = Ticket.objects.get(pk=ticketId)
-            ticket.ticket_status = 0
-            ticket.save()
+        if isTicket:
+            
+            # for ticket
+            if ticketTable == 'ticket':
+                ticket = Ticket.objects.get(pk=ticketId)
+                ticket.ticket_status = 0
+                ticket.save()
 
-            # Verify in PassengerInvoice
-            passengers_invoice = PassengerInvoice.objects.filter(ticket_id = ticketId)
-            # delete the corresponding passenger invoice
-            if passengers_invoice is not None:
-                for passenger_invoice in passengers_invoice:
-                    print('PASSENGER INVOICE VAR')
-                    passenger_invoice.delete()
-                
-            # get the corresponding fee
-            fees = Fee.objects.filter(ticket_id=ticketId)
-            # delete the corresponding passenger invoice
-            if fees is not None:
-                for fee in fees:
-                    print('FEE VAR')
-                    passenger_invoice_fee = PassengerInvoice.objects.filter(fee_id=fee.id)
-                    passenger_invoice_fee.delete()
+                # Verify in PassengerInvoice
+                passengers_invoice = PassengerInvoice.objects.filter(ticket_id = ticketId)
+                # delete the corresponding passenger invoice
+                if passengers_invoice is not None:
+                    for passenger_invoice in passengers_invoice:
+                        print('PASSENGER INVOICE VAR')
+                        passenger_invoice.delete()
+                    
+                # get the corresponding fee
+                fees = Fee.objects.filter(ticket_id=ticketId)
+                # delete the corresponding passenger invoice
+                if fees is not None:
+                    for fee in fees:
+                        print('FEE VAR')
+                        passenger_invoice_fee = PassengerInvoice.objects.filter(fee_id=fee.id)
+                        passenger_invoice_fee.delete()
 
+            # for other fees
+            else:
+                other_fee = OthersFee.objects.get(pk=ticketId)
+                other_fee.other_fee_status = 0
+                other_fee.save()
 
-        # for other fees
+                passengers_invoice = PassengerInvoice.objects.filter(other_fee_id=ticketId)
+                if passengers_invoice is not None:
+                    for passenger_invoice in passengers_invoice:
+                        # delete the corresponding passenger invoice
+                        passenger_invoice.delete()
+
+                # get its corresponding fee
+                fees = Fee.objects.filter(other_fee_id=ticketId)
+                if fees is not None:
+                    for fee in fees:
+                        # delete its corresponding passenger invoice
+                        print('FEE VAR')
+                        passenger_invoice_fee = PassengerInvoice.objects.filter(fee_id=fee.id)
+                        passenger_invoice_fee.delete()
+
         else:
-            other_fee = OthersFee.objects.get(pk=ticketId)
-            other_fee.other_fee_status = 0
-            other_fee.save()
-
-            passengers_invoice = PassengerInvoice.objects.filter(other_fee_id=ticketId)
-            if passengers_invoice is not None:
-                for passenger_invoice in passengers_invoice:
-                    # delete the corresponding passenger invoice
-                    passenger_invoice.delete()
-
-            # get its corresponding fee
-            fees = Fee.objects.filter(other_fee_id=ticketId)
-            if fees is not None:
-                for fee in fees:
-                    # delete its corresponding passenger invoice
-                    print('FEE VAR')
-                    passenger_invoice_fee = PassengerInvoice.objects.filter(fee_id=fee.id)
-                    passenger_invoice_fee.delete()
-
-
+            print('is Ticket :',isTicket)
+            print('ticket id : ',ticketId)
+            outsourcing_fee = OthersFee.objects.get(ticket_id=ticketId)
+            print('outsourcing_fee : ', outsourcing_fee)
+            if outsourcing_fee is not None:
+                outsourcing_fee.other_fee_status = 0
+                outsourcing_fee.ticket_id = None
+                outsourcing_fee.save()
+                
         return JsonResponse({'status':'ok'})
 
 # ------- Notification ---------------------------------

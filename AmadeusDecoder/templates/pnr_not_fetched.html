@@ -67,7 +67,7 @@
                   {% for pnr_not_fetched in page_obj %}
                   
                   
-                    <tr data-pnr="{{ pnr_not_fetched.pnr_number}}">
+                    <tr data-pnr-id="{{ pnr_not_fetched.id}}" onclick="location.href='{{ pnr_not_fetched.details_url }}'" style="cursor: pointer;">
                       <td class="d-flex align-items-center justify-content-between" style="gap:5px">
                         <span class="pnr-num-class">{{ pnr_not_fetched.pnr_number }}</span>
                           <span 
@@ -87,7 +87,7 @@
                       
                       <td>
                           {% if pnr_not_fetched.status == 1 %}
-                            <button class="btn btn-danger py-0" >Non Remonté</button>
+                            <button class="btn btn-danger py-0" onclick="event.stopPropagation(); event.preventDefault(); updateNotFetchedState(event, {{pnr_not_fetched.id}});">Non Remonté</button>
                           {% else %}
                             <button class="btn btn-success py-0" >Remonté</button>
                           {% endif %}
@@ -111,5 +111,78 @@
     </div>
   </section>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const POLLING_URL = "{% url 'get_updated_pnrs' %}";
 
+  let lastCheck = localStorage.getItem('lastPnrCheck') || new Date(Date.now() - 60000).toISOString();
+
+  function updatePnrStatus(ids) {
+      ids.forEach(id => {
+          const row = document.querySelector(`tr[data-pnr-id="${id}"]`);
+          if (row && row.querySelector('.btn-danger')) {
+              row.querySelector('td:last-child').innerHTML = '<button class="btn btn-success py-0">Remonté</button>';
+              row.classList.add('table-success');
+          }
+      });
+  }
+
+  function pollForUpdates() {
+    fetch(POLLING_URL + "?since=" + encodeURIComponent(lastCheck))
+        .then(r => r.json())
+        .then(data => {
+          console.log('Data: ',data)
+          console.log('Update: ',data.updated_ids)
+          console.log('My update: ',data.has_my_update)
+          
+          // 1. Mettre à jour la liste 
+            if (data.updated_ids?.length) {
+                console.log('Updating rows:', data.updated_ids);
+                updatePnrStatus(data.updated_ids);
+            }
+
+            // 2. Faire clignoter le bouton (uniquement si c'est mon PNR)
+            if (data.has_my_update) {
+              const btn = document.getElementById('pnr-not-fetched');
+              if (btn && !btn.classList.contains('blink')) {
+                  console.log("Bouton trouvé, ajout du clignotement !");
+                  btn.classList.add('blink');
+
+                  // Créer ou mettre à jour le badge
+                  let badge = btn.querySelector('.pnr-badge');
+                  if (!badge) {
+                      badge = document.createElement('span');
+                      badge.className = 'pnr-badge';
+                      btn.style.position = 'relative'; // Nécessaire pour le positionnement absolu du badge
+                      btn.appendChild(badge);
+                  }
+                  
+                  // Compter le nombre de PNR
+                  const count = data.updated_ids?.length || 1;
+                  badge.textContent = count;
+
+                  // Arrêter le clignotement et retirer le badge au clic
+                  const stopBlink = () => {
+                      btn.classList.remove('blink');
+                      if (badge) {
+                          badge.remove();
+                      }
+                      btn.removeEventListener('click', stopBlink);
+                  };
+                  btn.addEventListener('click', stopBlink);
+              } else if (!btn) {
+                  console.log("Bouton NON trouvé !");
+              }
+            }
+
+            lastCheck = new Date().toISOString();
+            localStorage.setItem('lastPnrCheck', lastCheck);
+        })
+        .catch(err => console.error("Polling error:", err));
+  }
+
+  setInterval(pollForUpdates, 6000);
+  pollForUpdates();
+});
+</script>
 {% endblock content %}

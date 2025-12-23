@@ -1517,6 +1517,8 @@ $(document).ready(function () {
   const spanOtherFeeDesignation = document.querySelector("#otherFeeDesignation")
   const textConfirmationDeleteOtherFeeService = document.querySelector("#textConfirmationDeleteOtherFeeService")
 
+  let input__outsourcing = document.querySelectorAll("input.outsourcing-fee-cost");
+
   $("#edit").click(function () {
     // Function to handle the click event on the confirmation button
     const handleConfirmationButtonClick = async (otherFee, csrftoken) => {
@@ -1698,6 +1700,35 @@ $(document).ready(function () {
       });
     }
 
+    //  modification outsourcing 
+    if (input__outsourcing != null) {
+      input__outsourcing.forEach((input) => {
+        let isInvoiced = input.getAttribute("data-other-fee-is-invoiced");
+
+        if (isInvoiced != null) {
+          console.log(isInvoiced);
+
+          if (isInvoiced == "True") {
+            input.setAttribute("disabled", true);
+            input.classList.add("inputeditable_traitance");
+          }
+          if (isInvoiced == "False") {
+            input.removeAttribute("disabled");
+            input.classList.remove("inputeditable_traitance");
+
+                // Modification montant frais de sous traitance
+            document.querySelectorAll('.outsourcing-fee-cost').forEach(input => {
+              input.hidden = false;
+            });
+            document.querySelectorAll('.outsourcing-display').forEach(input => {
+              input.hidden = true;
+            });
+          }
+        }
+
+      });
+    }
+
     if (buttonModifyCustomer != null) {
       buttonModifyCustomer.forEach((button) => {
         button.classList.remove("d-none");
@@ -1750,6 +1781,15 @@ $(document).ready(function () {
   });
 
   $("#cancel").click(function () {
+
+    // modification outsourcing
+    document.querySelectorAll('.outsourcing-fee-cost').forEach(input => {
+      input.hidden = true;
+    });
+    document.querySelectorAll('.outsourcing-display').forEach(input => {
+      input.hidden = false;
+    });
+    
     if (buttonDeleteOtherFeeService) {
       buttonDeleteOtherFeeService.forEach((deleteButton) => {
         deleteButton.classList.replace("d-block", "d-none");
@@ -4045,21 +4085,21 @@ $(".pnr-creation-date").click((e) => {
     // Set 'isOrderedByDateCreated' to false in localStorage
     localStorage.setItem("isOrderedByDateCreated", "false")
     // Set the 'creation_date_order_by' cookie to "asc" with SameSite=Lax attribute
-    document.cookie = `creation_date_order_by="asc"; SameSite=Lax`
+    document.cookie = "creation_date_order_by=asc; path=/home; SameSite=Lax"
   } else {
     // Check if 'isOrderedByDateCreated' is currently false
     if (isOrderedByDateCreated == "false") {
       // Set 'isOrderedByDateCreated' to true in localStorage
       localStorage.setItem("isOrderedByDateCreated", "true")
       // Set the 'creation_date_order_by' cookie to "desc" with SameSite=Lax attribute
-      document.cookie = `creation_date_order_by="desc"; SameSite=Lax`
+      document.cookie = "creation_date_order_by=desc; path=/home; SameSite=Lax"
     }
     // Check if 'isOrderedByDateCreated' is currently true
     if (isOrderedByDateCreated == "true") {
       // Set 'isOrderedByDateCreated' to false in localStorage
       localStorage.setItem("isOrderedByDateCreated", "false")
       // Set the 'creation_date_order_by' cookie to "asc" with SameSite=Lax attribute
-      document.cookie = `creation_date_order_by="asc"; SameSite=Lax`
+      document.cookie = "creation_date_order_by=asc; path=/home; SameSite=Lax"
     }
   }
 
@@ -4088,6 +4128,74 @@ if (isOrderedByDateCreated !== null) {
   }
 }
 // ================ End of Adding a filter to the list of dates created pnr ======================== //
+
+// ================ Adds a filter to the list of issuing date  ======================== //
+
+let isOrderedByIssuingDate = localStorage.getItem("isOrderedByIssuingDate");
+const icon__pnrIssuingDate = document.getElementById("icon__pnrIssuingDate");
+
+$(".pnr-issuing-date").click((e) => {
+  e.preventDefault();
+
+  // Remove the 'isSortedByCreator' cookie (obsolete code, can be removed)
+  Cookies.remove('isSortedByCreator', { path: '/' })
+
+  // Remove the 'isSortedByCreator' value from localStorage
+  localStorage.removeItem('isSortedByCreator')
+
+  // Remove the 'isOrderedByDateCreated' value from localStorage
+  Cookies.remove('creation_date_order_by', { path: '/home' });
+  localStorage.removeItem('isOrderedByDateCreated')
+
+
+  // Check if the 'isOrderedByIssuingDate' value is null
+  if (isOrderedByIssuingDate == null) {
+    // Set 'isOrderedByIssuingDate' to false in localStorage
+    localStorage.setItem("isOrderedByIssuingDate", "false")
+    // Set the 'issuing_date_order_by' cookie to "asc" with SameSite=Lax attribute
+    document.cookie = "issuing_date_order_by=asc; path=/home; SameSite=Lax"
+  } else {
+    // Check if 'isOrderedByIssuingDate' is currently false
+    if (isOrderedByIssuingDate == "false") {
+      // Set 'isOrderedByIssuingDate' to true in localStorage
+      localStorage.setItem("isOrderedByIssuingDate", "true")
+      // Set the 'issuing_date_order_by' cookie to "desc" with SameSite=Lax attribute
+      document.cookie = "issuing_date_order_by=desc; path=/home; SameSite=Lax";
+    }
+    // Check if 'isOrderedByIssuingDate' is currently true
+    if (isOrderedByIssuingDate == "true") {
+      // Set 'isOrderedByIssuingDate' to false in localStorage
+      localStorage.setItem("isOrderedByIssuingDate", "false")
+      // Set the 'issuing_date_order_by' cookie to "asc" with SameSite=Lax attribute
+      document.cookie = "issuing_date_order_by=asc; path=/home; SameSite=Lax"
+    }
+  }
+  
+  // Reload the page to apply the new sorting order
+  window.location.reload();
+});
+
+if (isOrderedByIssuingDate !== null) {
+  if (isOrderedByIssuingDate == "true") {
+    if (icon__pnrIssuingDate != null) {
+      icon__pnrIssuingDate.classList.remove("fa-arrows-up-down");
+      icon__pnrIssuingDate.classList.remove("fa-arrow-up");
+      icon__pnrIssuingDate.classList.add("fa-arrow-down");
+    }
+  }
+  if (isOrderedByIssuingDate == "false") {
+    if (icon__pnrIssuingDate != null) {
+      icon__pnrIssuingDate.classList.remove("fa-arrows-up-down");
+      icon__pnrIssuingDate.classList.remove("fa-arrow-down");
+      icon__pnrIssuingDate.classList.add("fa-arrow-up");
+    }
+  }
+} else {
+  if (icon__pnrIssuingDate != null) {
+    icon__pnrIssuingDate.classList.add("fa-arrows-up-down");
+  }
+}
+// ================ End of Adding a filter to the list of issuing date ======================== //
 
 //========= ADD BUTTON TO SEND PNR NOT UPDATED IN ODOO ============>
 const buttonSendPnrNotUpdated = document.getElementById(
@@ -4124,7 +4232,7 @@ if (buttonSendPnrNotUpdated != null) {
       url: `get-not-fetched-pnr/`,
       data: {
         csrfmiddlewaretoken: csrftoken,
-        pnrNumber: PnrNumber.value,
+        pnrNumber: PnrNumber.value.toUpperCase(),
         context: context.value,
       },
       success: (response) => {

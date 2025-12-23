@@ -415,7 +415,12 @@
                         <i class="fa fa-sm fa-solid" id="icon__pnrDateCreation"></i>
                       </div>
                     </th>
-                    <th data-resizable-column-id="date_emission" class="pnr-issuing-date">Date d'émission</th>
+                    <th data-resizable-column-id="date_emission" class="pnr-issuing-date" style="cursor: pointer;">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
+                        Date d'émission
+                        <i class="fa fa-sm fa-solid" id="icon__pnrIssuingDate"></i>
+                      </div>
+                    </th>
                     <th data-resizable-column-id="montant">Montant</th>
                     <th data-resizable-column-id="status">Statut</th>
                     <th data-resizable-column-id="opc">OPC</th>
@@ -685,7 +690,12 @@
                         <i class="fa fa-sm fa-solid fa-arrows-up-down" id="icon__pnrDateCreationSearch"></i>
                       </div>
                     </th>
-                    <th class="pnr-issuing-date" style="cursor: pointer;">Date d'émission</th>
+                    <th class="pnr-issuing-date" style="cursor: pointer;">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px" id="issuingDateOrder">
+                        Date d'émission
+                        <i class="fa fa-sm fa-solid" id="icon__pnrIssuingDate"></i>
+                      </div>
+                    </th>
                     <th style="cursor: pointer;">Montant</th>
                     <th style="cursor: pointer;">Statut</th>
                     <th style="cursor: pointer;">OPC</th>
@@ -723,14 +733,20 @@
                     <form method='POST'>
                       <div class="form-group">
                         <label for="message-text" class="col-form-label">Numero PNR:</label>
-                        <input type='text' class="form-control" id="messagePnrNotUpdated" placeholder="Veuillez saisir le numero du PNR..."></input>
+                        <input type='text' class="form-control" id="messagePnrNotUpdated" maxlength="6" style="text-transform: uppercase;" placeholder="Veuillez saisir le numero du PNR..."></input>
                       </div>
 
                       <div class="form-group">
                         <label for="message-text" class="col-form-label">Contexte:</label>
                         <input type='text' class="form-control" id="contextPnrNotUpdated" placeholder="Veuillez saisir le contexte..."></input>
                       </div>
-                      
+
+                      <div class="form-group">
+                        <a href="#" id="openPnrHistory" class="text-primary">
+                          <i class="fas fa-history"></i> Voir mes PNR signalés
+                        </a>
+                      </div>
+
                     </form>
                   </div>
                   <div class="modal-footer">
@@ -741,8 +757,33 @@
               </div>
             </div>
 
+            <!-- Sidebar pour l'historique des PNR -->
+            <div id="pnrHistorySidebar" class="pnr-right-sidebar">
+              <div class="right-sidebar-header">
+                <h5>
+                  <i class="fas fa-history"></i>
+                  Mes PNR signalés
+                </h5>
+                <button type="button" class="close-right-sidebar" id="closeRightSidebar">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
 
- 
+              <div class="right-sidebar-search">
+                <input type="text" id="searchPnrHistory" class="form-control" placeholder="Rechercher un PNR...">
+              </div>
+
+              <div class="right-sidebar-content" id="rightSidebarContent">
+                <div class="text-center py-4">
+                  <div class="spinner-border text-primary" role="status">
+                    <span class="sr-only">Chargement...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Overlay pour fermer le right-sidebar -->
+            <div id="rightSidebarOverlay" class="right-sidebar-overlay"></div>
             <!-- /.card-body -->
           </div>
           <!-- /.card -->
@@ -762,6 +803,80 @@
   </div>
 </div>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const POLLING_URL = "{% url 'get_updated_pnrs' %}";
+
+  let lastCheck = localStorage.getItem('lastPnrCheck') || new Date(Date.now() - 60000).toISOString();
+
+  function updatePnrStatus(ids) {
+      ids.forEach(id => {
+          const row = document.querySelector(`tr[data-pnr-id="${id}"]`);
+          if (row && row.querySelector('.btn-danger')) {
+              row.querySelector('td:last-child').innerHTML = '<button class="btn btn-success py-0">Remonté</button>';
+              row.classList.add('table-success');
+          }
+      });
+  }
+
+  function pollForUpdates() {
+    fetch(POLLING_URL + "?since=" + encodeURIComponent(lastCheck))
+        .then(r => r.json())
+        .then(data => {
+          console.log('Data: ',data)
+          console.log('Update: ',data.updated_ids)
+          console.log('My update: ',data.has_my_update)
+          
+          // 1. Mettre à jour la liste 
+            if (data.updated_ids?.length) {
+                console.log('Updating rows:', data.updated_ids);
+                updatePnrStatus(data.updated_ids);
+            }
+
+            // 2. Faire clignoter le bouton (uniquement si c'est mon PNR)
+            if (data.has_my_update) {
+              const btn = document.getElementById('pnr-not-fetched');
+              if (btn && !btn.classList.contains('blink')) {
+                  console.log("Bouton trouvé, ajout du clignotement !");
+                  btn.classList.add('blink');
+
+                  // Créer ou mettre à jour le badge
+                  let badge = btn.querySelector('.pnr-badge');
+                  if (!badge) {
+                      badge = document.createElement('span');
+                      badge.className = 'pnr-badge';
+                      btn.style.position = 'relative'; // Nécessaire pour le positionnement absolu du badge
+                      btn.appendChild(badge);
+                  }
+                  
+                  // Compter le nombre de PNR
+                  const count = data.updated_ids?.length || 1;
+                  badge.textContent = count;
+
+                  // Arrêter le clignotement et retirer le badge au clic
+                  const stopBlink = () => {
+                      btn.classList.remove('blink');
+                      if (badge) {
+                          badge.remove();
+                      }
+                      btn.removeEventListener('click', stopBlink);
+                  };
+                  btn.addEventListener('click', stopBlink);
+              } else if (!btn) {
+                  console.log("Bouton NON trouvé !");
+              }
+            }
+
+            lastCheck = new Date().toISOString();
+            localStorage.setItem('lastPnrCheck', lastCheck);
+        })
+        .catch(err => console.error("Polling error:", err));
+  }
+
+  setInterval(pollForUpdates, 6000);
+  pollForUpdates();
+});
+</script>
 
 {% endblock content %}
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>

@@ -2,7 +2,8 @@ import ast
 from datetime import datetime, timezone
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
-
+from django.utils import timezone as tz
+from django.urls import reverse
 
 from django.contrib.auth.decorators import login_required
 from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice
@@ -605,18 +606,31 @@ def get_all_pnr_not_fetched(request):
             pass  # ignorer les dates invalides
     
     pnr_not_fetched = pnr_not_fetched.order_by('-date_creation')
-    # Liste des agents (uniquement ceux présents dans les PNR non remontés)
-    agent_list = User.objects.filter(id__in=NotFetched.objects.values_list('follower', flat=True).distinct()).order_by('username')
     
-    # Pagination
-    pnr_count = pnr_not_fetched.count()
-    row_num = request.GET.get('paginate_by', 23)
-    try:
-        row_num = int(row_num)
-    except (ValueError, TypeError):
-        row_num = 23
+    # Récupérer les numéros de PNR pour faire un lookup massif
+    pnr_numbers = pnr_not_fetched.values_list('pnr_number', flat=True)
+    pnr_map = {p.number: p for p in Pnr.objects.filter(number__in=pnr_numbers)}
+
+    # Construire une liste enrichie
+    enriched_pnrs = []
+    for nf in pnr_not_fetched:
+        real_pnr = pnr_map.get(nf.pnr_number)
+        if real_pnr:
+            pnr_id = real_pnr.id
+            details_url = reverse('pnr_details', args=[real_pnr.id])
+        else:
+            pnr_id = None
+            details_url = ''
+        
+        # Ajouter les attributs dynamiques
+        nf.pnr_id = pnr_id
+        nf.details_url = details_url
+        enriched_pnrs.append(nf)
     
-    paginator = Paginator(pnr_not_fetched, row_num)
+    # Pagination manuelle (car on a une liste, pas une QuerySet)
+    pnr_count = len(enriched_pnrs)
+    row_num = int(request.GET.get('paginate_by', 23) or 23)
+    paginator = Paginator(enriched_pnrs, row_num)
     page_num = request.GET.get('page', 1)
     try:
         page_obj = paginator.page(page_num)
@@ -625,41 +639,120 @@ def get_all_pnr_not_fetched(request):
     except EmptyPage:
         page_obj = paginator.page(paginator.num_pages)
         
-    # Contexte à passer au template
+    # Liste des agents
+    agent_list = User.objects.filter(
+        id__in=NotFetched.objects.values_list('follower', flat=True).distinct()
+    ).order_by('username')
+        
+    # Contexte
     context = {
         'page_obj': page_obj,
         'row_num': row_num,
         'pnr_count': pnr_count,
         'agent_list': agent_list,
-        
-        # pré-remplir les filtres
         'pnr_number': pnr_number,
         'context': context_filter,
         'follower_id': follower_id,
         'status': status,
         'date_creation': date_creation_str,
-        
     }
     
     return render(request, 'pnr_not_fetched.html', context)
-    
+  
 def get_updated_pnrs(request):
-    # Récupérer le timestamp de la dernière verification
     last_timestamp = request.GET.get('since')
     if not last_timestamp:
-        return JsonResponse({'updated_pnrs': []})
+        return JsonResponse({'updated_ids': []})
     
     try:
-        # Gérer le format ISO (avec ou sans 'Z')
-        ts = last_timestamp.replace('Z', '+00:00') if last_timestamp.endswith('Z') else last_timestamp
-        last_time = datetime.fromisoformat(ts)
+        # Nettoyer le format ISO
+        if last_timestamp.endswith('Z'):
+            last_timestamp = last_timestamp[:-1] + '+00:00'
         
-    except(ValueError, AttributeError):
-        return JsonResponse({'updated_pnrs': []})
-    
-    updated = NotFetched.objects.filter(status=0, updated_at__gt = last_time).values_list('pnr_number', flat=True)
-    return JsonResponse({'updated_pnrs': list(updated)})
+        last_time = datetime.fromisoformat(last_timestamp)
         
+        # Rendre timezone-aware si nécessaire
+        if tz.is_naive(last_time):
+            last_time = tz.make_aware(last_time, tz.utc)
+        
+        # Debug : log pour vérifier
+        print(f"Checking updates since: {last_time}")
+        
+        # Récupérer id ET follower (qui est l'ID de l'utilisateur)
+        updated_entries = NotFetched.objects.filter(
+            status=0,
+            updated_at__gt=last_time
+        ).values_list('id', 'follower')  # retourne (id, follower_id)
+
+        # Extraire les IDs (pour la mise à jour globale)
+        updated_ids = [entry[0] for entry in updated_entries]
+
+        # Vérifier si l'utilisateur connecté est concerné
+        user_id = request.user.id if request.user.is_authenticated else None
+        has_my_update = any(entry[1] == user_id for entry in updated_entries)
+
+        return JsonResponse({
+            'updated_ids': updated_ids,
+            'has_my_update': has_my_update
+        })
+        
+    except (ValueError, AttributeError) as e:
+        print(f"Error parsing timestamp: {e}")
+        return JsonResponse({'updated_ids': [], 'has_my_update': False})
+               
     
+@login_required(login_url='index')
+def update_not_fetched_state(request):
+    context = {}
+    if request.method == 'POST':
+        if 'not_fetched_id' in request.POST:
+            not_fetched_id = request.POST.get('not_fetched_id')
+            try:
+                # Utiliser get et save au lieu de update pour déclencher auto_now
+                not_fetched = NotFetched.objects.get(pk=int(not_fetched_id))
+                not_fetched.status = 0
+                not_fetched.save()  # Ceci mettra à jour updated_at automatiquement
+                context['not_fetched'] = [not_fetched.__dict__]
+            except NotFetched.DoesNotExist:
+                context['error'] = 'PNR not found'
+    return JsonResponse(context)
+
+@login_required(login_url='index')
+def get_my_pnr_history(request):
+    """Récupère l'historique des PNR non remonté signalés par l'utilisateur connecté"""
     
+    my_pnrs = NotFetched.objects.filter(
+        follower=request.user
+    ).order_by('-date_creation').values(
+        'id',
+        'pnr_number',
+        'context',
+        'status',
+        'date_creation'
+    )[:50]  # Limiter aux 50 derniers
     
+    pnrs_data = []
+    for item in my_pnrs:
+        pnr_data = {
+            'id': item['id'],
+            'pnr_number': item['pnr_number'],
+            'context': item['context'],
+            'status': item['status'],
+            'date_creation': item['date_creation'],
+            'pnr_id': None,
+            'details_url': None,
+        }
+        
+        # Si remonté, on fournt le lien vers le PNR
+        try:
+            real_pnr = Pnr.objects.get(number=item['pnr_number'].upper())
+            pnr_data['pnr_id'] = real_pnr.id
+            pnr_data['details_url'] = reverse('pnr_details', args=[real_pnr.id])
+        except Pnr.DoesNotExist:
+            # Le PNR n'existe pas encore dans la table principale → pas de lien
+            pnr_data['pnr_id'] = None
+            pnr_data['details_url'] = None
+            
+        pnrs_data.append(pnr_data)
+        
+    return JsonResponse({'pnrs': pnrs_data})

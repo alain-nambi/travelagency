@@ -94,4 +94,7 @@ urlpatterns = [
     path('customer-search/',search_customers,name='search_customers'),
     path('home/get-all-pnr-not-fetched',get_all_pnr_not_fetched, name='get_all_pnr_not_fetched'),
     path('ajax/updated-pnrs/', get_updated_pnrs, name='get_updated_pnrs'),
+    path('not-fetched-list/update-state/', update_not_fetched_state, name = "update-not-fetched-state"),
+    path('not-fetched-list/my-history/', views.get_my_pnr_history, name='get_my_pnr_history'),
+    
 ]

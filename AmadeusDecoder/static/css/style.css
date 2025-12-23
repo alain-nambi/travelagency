@@ -178,7 +178,13 @@ input#fee-cost{
 }
 input#fee-cost::placeholder {
 	color: #000;
-  }
+}
+
+input#outsourcing-cost{
+	line-height: 0;
+	text-align: right;
+	color: #000;
+}
   
 .inputeditable{
 	position:relative;
@@ -187,7 +193,15 @@ input#fee-cost::placeholder {
 	border:none;
 	text-align: right;
 	right: -0.15rem;
-  }
+}
+
+.inputeditable_traitance{
+	position:relative;
+	cursor:text;
+	background: none;
+	text-align: right;
+	right: -0.15rem;
+}
 
 .sticky-tr-table {
 	position: sticky;

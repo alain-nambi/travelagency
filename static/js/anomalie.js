@@ -20,7 +20,7 @@ $('#comment-ticket').on('click', ()=> {
     $('#comment-ticket').hide();  
 })
 
-function createButton(container, ticketNumber, transportCost, taxe, emitter_id, emitter_name, emitters) {
+function createButton(container, ticketNumber, transportCost, taxe, emitter_id, emitter_name,issuing_date, emitters) {
     // Créer un bouton correspondant à un billet
     var button = document.createElement("button");
     button.className = 'btn btn-info';
@@ -43,6 +43,7 @@ function createButton(container, ticketNumber, transportCost, taxe, emitter_id, 
 
         $('#montant_hors_taxe').val(transportCost);
         $('#taxe').val(taxe);
+        $('#issuing_date').val(issuing_date);
 
         const $emitterSelect = $('#emitter');
         console.log('Emitter id : ',emitter_id );
@@ -123,7 +124,7 @@ function get_unshowed_ticket(pnr_id,container){
                     const emitter_id = ticket.emitter_id ? ticket.emitter_id : null;
                     const emitter_name = ticket.emitter_name ? ticket.emitter_name : null;
 
-                    createButton(container,ticket.number,ticket.transport_cost,ticket.taxe, emitter_id,emitter_name, data.emitters)
+                    createButton(container,ticket.number,ticket.transport_cost,ticket.taxe, emitter_id,emitter_name,ticket.issuing_date, data.emitters)
                 })
 
                 // Ajouter un bouton pour un nouveau billet
@@ -354,6 +355,8 @@ $(document).ready(function () {
                         showCancelButton();
                         $('#montant_hors_taxe').val(result.ticket_cost);
                         $('#taxe').val(result.ticket_tax);
+                        
+                        
 
                     } if (result === 'is_no_adc'){
                         toastr.info('Ticket Is no adc')
@@ -464,6 +467,11 @@ $(document).ready(function () {
                 var user_id = $('#user_id').val();
                 var emitter_id = $('#emitter').val();
 
+                var issuing_date = $('#issuing_date').val();
+                if (!issuing_date) {
+                    issuing_date = new Date().toISOString().split('T')[0];
+                }
+
                 $.ajax({
                     type: "POST",
                     url: "/home/save-ticket-anomalie",
@@ -475,6 +483,7 @@ $(document).ready(function () {
                         user_id: user_id,
                         pnr_id: pnr_id,
                         emitter_id: emitter_id,
+                        issuing_date: issuing_date,
                         csrfmiddlewaretoken: csrftoken,
                     },
                     success: function (data) {

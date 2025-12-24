@@ -237,6 +237,7 @@ def get_unshowed_tickets(request):
                 'transport_cost' : ticket.transport_cost,
                 'taxe' : ticket.tax,
                 'total' : ticket.total,
+                'issuing_date': ticket.issuing_date,
                 'emitter_id' : emitter_id,
                 'emitter_name' : emitter_name
                 
@@ -390,10 +391,11 @@ def save_ticket_anomalie(request):
             pnr_id = request.POST.get('pnr_id')
             user_id = request.POST.get('user_id')
             emitter_id = request.POST.get('emitter_id')
+            issuing_date = request.POST.get('issuing_date')
             
             pnr = Pnr.objects.filter(id=pnr_id).first()
             
-            info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "ticket_status":0,'isticket':0, "emitter_id":emitter_id} # ticket_status : 0 ticket existant , 1 ticket non existant
+            info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "ticket_status":0,'isticket':0, "issuing_date":issuing_date,"emitter_id":emitter_id} # ticket_status : 0 ticket existant , 1 ticket non existant
             
         if montant_hors_taxe == "" or taxe == "":
             return JsonResponse(
@@ -476,7 +478,6 @@ def update_ticket(request):
                 ticket.is_no_adc = True
             ticket.ticket_status = 1
             ticket.state = 0
-            ticket.emitter = None
             ticket.issuing_date = anomalie.infos.get('issuing_date')
 
             ticket.emitter = emitter

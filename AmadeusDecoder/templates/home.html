@@ -406,9 +406,25 @@
                     <th width="20%">Agence</th>
                   </tr> -->
                   <tr id="tr-all-pnr">
-                    <th data-resizable-column-id="numero">Numéro</th>
-                    <th data-resizable-column-id="passagers">Passagers</th>
-                    <th data-resizable-column-id="client">Client</th>
+                    <th data-resizable-column-id="numero" class="pnrNumberOrderClass" style="cursor: pointer;">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
+                        Numéro
+                        <i class="fa fa-sm fa-solid" id="icon__pnrNumber"></i>
+                      </div>
+                    </th>
+                    <th data-resizable-column-id="passagers" class="passengerOrderClass" style="cursor: pointer;">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
+                        Passagers
+                        <i class="fa fa-sm fa-solid" id="icon__passenger"></i>
+                      </div>
+                    </th>
+                    <th data-resizable-column-id="client" class="clientOrderClass" style="cursor: pointer;">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
+                        Clients
+                        <i class="fa fa-sm fa-solid" id="icon__client"></i>
+                      </div>
+                    </th>
+
                     <th data-resizable-column-id="date_creation" class="pnr-creation-date" style="cursor: pointer;">
                       <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
                         Date de création
@@ -421,19 +437,56 @@
                         <i class="fa fa-sm fa-solid" id="icon__pnrIssuingDate"></i>
                       </div>
                     </th>
-                    <th data-resizable-column-id="montant">Montant</th>
-                    <th data-resizable-column-id="status">Statut</th>
-                    <th data-resizable-column-id="opc">OPC</th>
-                    <th data-resizable-column-id="type">Type</th>
+                    <th data-resizable-column-id="montant" class="montantOrderClass" style="cursor: pointer;">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
+                        Montant
+                        <i class="fa fa-sm fa-solid" id="icon__montant"></i>
+                      </div>
+                    </th>
+
+                    <th data-resizable-column-id="status" class="statusOrderClass" style="cursor: pointer;">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
+                        Status
+                        <i class="fa fa-sm fa-solid" id="icon__status"></i>
+                      </div>
+                    </th>
+
+                    <th data-resizable-column-id="opc" class="opcOrderClass" style="cursor: pointer;">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
+                        OPC
+                        <i class="fa fa-sm fa-solid" id="icon__opc"></i>
+                      </div>
+                    </th>
+                    <th data-resizable-column-id="type" class="typeOrderClass" style="cursor: pointer;">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
+                        Type
+                        <i class="fa fa-sm fa-solid" id="icon__type"></i>
+                      </div>
+                    </th>
                     <th data-resizable-column-id="createur" class="pnr-creator-list">
                       <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
                         Créateur
                         <i class="fa fa-sm fa-solid" id="icon__pnrCreator"></i>
                       </div>
                     </th>
-                    <th data-resizable-column-id="emetteur">Emetteur</th>
-                    <th data-resizable-column-id="agence">Agence</th>
-                    <th data-resizable-column-id="code">Code</th>
+                    <th data-resizable-column-id="emetteur" class="emitterOrderClass" style="cursor: pointer;">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
+                        Emetter
+                        <i class="fa fa-sm fa-solid" id="icon__emetteur"></i>
+                      </div>
+                    </th>
+                    <th data-resizable-column-id="agence" class="agenceOrderClass" style="cursor: pointer;">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
+                        Agence
+                        <i class="fa fa-sm fa-solid" id="icon__agence"></i>
+                      </div>
+                    </th>
+                    <th data-resizable-column-id="code" class="codeOrderClass" style="cursor: pointer;">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px">
+                        Code
+                        <i class="fa fa-sm fa-solid" id="icon__code"></i>
+                      </div>
+                    </th>
                   </tr>
                 </thead>
                   <!-- <tr class="tr-filter" hidden>
@@ -681,9 +734,24 @@
               <table class="table table-bordered table-head-fixed table-hover text-nowrap" id="all-pnr-after-search">
                 <thead id="thead-all-pnr">
                   <tr id="tr-all-pnr">
-                    <th style="cursor: pointer;">Numéro</th>
-                    <th style="cursor: pointer;">Passagers</th>
-                    <th style="cursor: pointer;">Client</i></th>
+                    <th style="cursor: pointer;" class="pnrNumberOrderClass">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px" id="pnrNumberOrder">
+                        Numéro
+                        <i class="fa fa-sm fa-solid fa-arrows-up-down" id="icon__pnrNumberSearch"></i>
+                      </div>
+                    </th>
+                    <th style="cursor: pointer;" class ="passengerOrderClass">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px" id="passengerOrder">
+                        Passagers
+                        <i class="fa fa-sm fa-solid fa-arrows-up-down" id="icon__passengerSearch"></i>
+                      </div>
+                    </th>
+                    <th style="cursor: pointer;" class="clientOrderClass">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px" id="clientOrder">
+                        Clients
+                        <i class="fa fa-sm fa-solid fa-arrows-up-down" id="icon__clientSearch"></i>
+                      </div>
+                    </i></th>
                     <th style="cursor: pointer;" class="dateCreationOrderClass">
                       <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px" id="dateCreationOrder">
                         Date de création
@@ -696,19 +764,54 @@
                         <i class="fa fa-sm fa-solid" id="icon__pnrIssuingDate"></i>
                       </div>
                     </th>
-                    <th style="cursor: pointer;">Montant</th>
-                    <th style="cursor: pointer;">Statut</th>
-                    <th style="cursor: pointer;">OPC</th>
-                    <th style="cursor: pointer;">Type</th>
+                    <th style="cursor: pointer;" class="MontantOrderClass">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px" id="montantOrder">
+                        Montant
+                        <i class="fa fa-sm fa-solid fa-arrows-up-down" id="icon__montantSearch"></i>
+                      </div>
+                    </th>
+                    <th style="cursor: pointer;" class="statusOrderClass">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px" id="statusOrder">
+                        Statut
+                        <i class="fa fa-sm fa-solid fa-arrows-up-down" id="icon__statusSearch"></i>
+                      </div>
+                    </th>
+                    <th style="cursor: pointer;" class="opcOrderClass">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px" id="opcOrder">
+                        OPC
+                        <i class="fa fa-sm fa-solid fa-arrows-up-down" id="icon__opcSearch"></i>
+                      </div>
+                    </th>
+                    <th style="cursor: pointer;" class="typeOrderClass">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px" id="typeOrder">
+                        Type
+                        <i class="fa fa-sm fa-solid fa-arrows-up-down" id="icon__typeSearch"></i>
+                      </div>
+                    </th>
                     <th class="pnr-creator-list-after-search">
                       <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px" id="creatorSorter">
                         Créateur
                         <i class="fa fa-sm fa-solid fa-arrows-up-down" id="icon__pnrCreatorSearch"></i>
                       </div>
                     </th>
-                    <th>Emetteur</th>
-                    <th>Agence</th>
-                    <th>Code</th>
+                    <th style="cursor: pointer;" class="emitterOrderClass">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px" id="emitterOrder">
+                        Emetteur
+                        <i class="fa fa-sm fa-solid fa-arrows-up-down" id="icon__emitterSearch"></i>
+                      </div>
+                    </th>
+                    <th style="cursor: pointer;" class="agenceOrderClass">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px" id="agenceOrder">
+                        Agence
+                        <i class="fa fa-sm fa-solid fa-arrows-up-down" id="icon__agenceSearch"></i>
+                      </div>
+                    </th>
+                    <th style="cursor: pointer;" class="codeOrderClass">
+                      <div class="d-flex align-items-center justify-content-between text-sm" style="gap: 5px" id="codeOrder">
+                        Code
+                        <i class="fa fa-sm fa-solid fa-arrows-up-down" id="icon__codeSearch"></i>
+                      </div>
+                    </th>
                   </tr>
                 </thead>
                 <tbody class="tbody-pnr-after-search">

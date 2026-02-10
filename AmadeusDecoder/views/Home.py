@@ -112,20 +112,31 @@ def home(request):
     start_date_issue_filter, end_date_issue_filter = format_date_range(issue_date_filter_cookies)
 
     # PNR order FILTER (sort)
-    issuing_order = request.COOKIES.get("issuing_date_order_by")
-    creation_order = request.COOKIES.get("creation_date_order_by")
-    print('******************** CREATION ORDER : ',creation_order)
-    
-    
-    if issuing_order in ("asc", "desc"):
-        # Tri par date d'émission avec les valeurs vide à la fin
-        pnr_order_list_filter = OrderBy(F('max_issuing_date'), descending=(issuing_order == "desc"), nulls_last=True)
-    elif creation_order in ("asc", "desc"):
-        # Tri par date de création sans valeurs null
-        pnr_order_list_filter = "date_of_creation" if creation_order == "asc" else "-date_of_creation"
-    else:
-        # Tri par défaut
-        pnr_order_list_filter = "-date_of_creation"
+    ORDER_CONFIG = {
+        "issuing_date_order_by": (F('max_issuing_date'), True),
+        "creation_date_order_by": ('date_of_creation', False),
+        "pnr_number_order_by": ('number', False),
+        "passenger_order_by": ('passengers', False),
+        "client_order_by": ('client', False),
+        "status_order_by": ('status', False),
+        "opc_order_by": ('pnr_min_doc_state', False),
+        "type_order_by": ('type', False),
+        "emitter_order_by": ('emitter', False),
+        "code_order_by": ('agency_office_code', False),
+    }
+
+    pnr_order_list_filter = "-date_of_creation"  # default sort
+
+    for cookie_name, (field, use_nulls_last) in ORDER_CONFIG.items():
+        order_val = request.COOKIES.get(cookie_name)
+        if order_val in ("asc", "desc"):
+            descending = (order_val == "desc")
+            if use_nulls_last:
+                pnr_order_list_filter = OrderBy(field, descending=descending, nulls_last=True)
+            else:
+                prefix = "-" if descending else ""
+                pnr_order_list_filter = f"{prefix}{field}"
+            break
 
     # Status invoice PNR FILTER
     is_invoiced_filter = {

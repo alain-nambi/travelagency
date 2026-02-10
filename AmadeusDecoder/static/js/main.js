@@ -1419,6 +1419,38 @@ $("#all-pnr").tablesorter({
     ".pnr-issuing-date": {
       sorter: "false",
     },
+
+    ".codeOrderClass":{
+      sorter: false,
+    },
+
+    ".emitterOrderClass":{
+      sorter: false,
+    },
+
+    ".typeOrderClass":{
+      sorter: false,
+    },
+
+    ".opcOrderClass":{
+      sorter: false,
+    },
+
+    ".statusOrderClass":{
+      sorter: false,
+    },
+
+    ".clientOrderClass":{
+      sorter: false,
+    },
+
+    ".passengerOrderClass":{
+      sorter: false,
+    },
+
+    ".pnrNumberOrderClass":{
+      sorter: false,
+    },
   },
   // Enable additional tablesorter widgets
   widgets: ["zebra", "columns", "stickyHeaders"],
@@ -4067,135 +4099,165 @@ if (pnrCreatorFilter != null) {
  * END OF ADDING FILTER BY CREATOR TO PNR LIST
  */
 
-// ================ Adds a filter to the list of dates created pnr ======================== //
-let isOrderedByDateCreated = localStorage.getItem("isOrderedByDateCreated");
-const icon__pnrDateCreation = document.getElementById("icon__pnrDateCreation");
+// ================ Adds a filter for all the columns ======================== //
 
-$(".pnr-creation-date").click((e) => {
-  e.preventDefault();
+// === Fonction générique pour gérer le tri d'une colonne ===
+function setupColumnSorting({
+  localStorageKey,
+  cookieName,
+  iconElement,
+  clickSelector,
+}) {
+  const currentOrder = localStorage.getItem(localStorageKey);
 
-  // Remove the 'isSortedByCreator' cookie (obsolete code, can be removed)
-  Cookies.remove('isSortedByCreator', { path: '/' })
-
-  // Remove the 'isSortedByCreator' value from localStorage
-  localStorage.removeItem('isSortedByCreator')
-
-  // Check if the 'isOrderedByDateCreated' value is null
-  if (isOrderedByDateCreated == null) {
-    // Set 'isOrderedByDateCreated' to false in localStorage
-    localStorage.setItem("isOrderedByDateCreated", "false")
-    // Set the 'creation_date_order_by' cookie to "asc" with SameSite=Lax attribute
-    document.cookie = "creation_date_order_by=asc; path=/home; SameSite=Lax"
-  } else {
-    // Check if 'isOrderedByDateCreated' is currently false
-    if (isOrderedByDateCreated == "false") {
-      // Set 'isOrderedByDateCreated' to true in localStorage
-      localStorage.setItem("isOrderedByDateCreated", "true")
-      // Set the 'creation_date_order_by' cookie to "desc" with SameSite=Lax attribute
-      document.cookie = "creation_date_order_by=desc; path=/home; SameSite=Lax"
-    }
-    // Check if 'isOrderedByDateCreated' is currently true
-    if (isOrderedByDateCreated == "true") {
-      // Set 'isOrderedByDateCreated' to false in localStorage
-      localStorage.setItem("isOrderedByDateCreated", "false")
-      // Set the 'creation_date_order_by' cookie to "asc" with SameSite=Lax attribute
-      document.cookie = "creation_date_order_by=asc; path=/home; SameSite=Lax"
+  // Gérer l’icône au chargement
+  if (iconElement) {
+    iconElement.classList.remove("fa-arrows-up-down", "fa-arrow-up", "fa-arrow-down");
+    if (currentOrder === "true") {
+      iconElement.classList.add("fa-arrow-down");
+    } else if (currentOrder === "false") {
+      iconElement.classList.add("fa-arrow-up");
+    } else {
+      iconElement.classList.add("fa-arrows-up-down");
     }
   }
 
-  // Reload the page to apply the new sorting order
-  window.location.reload();
+  // Gérer le clic
+  $(clickSelector).click((e) => {
+    e.preventDefault();
+
+    // Effacer tous les autres tris
+    const allSortingKeys = [
+      'isOrderedByDateCreated',
+      'isOrderedByIssuingDate',
+      'isOrderedByPnrNumber',
+      'isOrderedByPassenger',
+      'isOrderedByClient',
+      'isOrderedByStatus',
+      'isOrderedByOpc',
+      'isOrderedByType',
+      'isOrderedByEmitter',
+      'isOrderedByCode'
+    ];
+    const allCookieNames = [
+      'creation_date_order_by',
+      'issuing_date_order_by',
+      'pnr_number_order_by',
+      'passenger_order_by',
+      'client_order_by',
+      'status_order_by',
+      'opc_order_by',
+      'type_order_by',
+      'emitter_order_by',
+      'code_order_by'
+    ];
+
+    // Supprimer du localStorage
+    allSortingKeys.forEach(key => {
+      if (key !== localStorageKey) localStorage.removeItem(key);
+    });
+
+    // Supprimer les cookies
+    allCookieNames.forEach(name => {
+      if (name !== cookieName) Cookies.remove(name, { path: '/home' });
+    });
+
+    // Déterminer le nouvel état
+    let newOrder, newDirection;
+    if (currentOrder === null) {
+      newOrder = "false";
+      newDirection = "asc";
+    } else if (currentOrder === "false") {
+      newOrder = "true";
+      newDirection = "desc";
+    } else {
+      // currentOrder === "true"
+      newOrder = "false";
+      newDirection = "asc";
+    }
+
+    // Sauvegarder
+    localStorage.setItem(localStorageKey, newOrder);
+    document.cookie = `${cookieName}=${newDirection}; path=/home; SameSite=Lax`;
+
+    // Recharger
+    window.location.reload();
+  });
+}
+
+// Configuration de chaque colonne
+setupColumnSorting({
+  localStorageKey: "isOrderedByDateCreated",
+  cookieName: "creation_date_order_by",
+  iconElement: document.getElementById("icon__pnrDateCreation"),
+  clickSelector: ".pnr-creation-date"
 });
 
-if (isOrderedByDateCreated !== null) {
-  if (isOrderedByDateCreated == "true") {
-    if (icon__pnrDateCreation != null) {
-      icon__pnrDateCreation.classList.remove("fa-arrows-up-down");
-      icon__pnrDateCreation.classList.remove("fa-arrow-up");
-      icon__pnrDateCreation.classList.add("fa-arrow-down");
-    }
-  }
-  if (isOrderedByDateCreated == "false") {
-    if (icon__pnrDateCreation != null) {
-      icon__pnrDateCreation.classList.remove("fa-arrows-up-down");
-      icon__pnrDateCreation.classList.remove("fa-arrow-down");
-      icon__pnrDateCreation.classList.add("fa-arrow-up");
-    }
-  }
-} else {
-  if (icon__pnrDateCreation != null) {
-    icon__pnrDateCreation.classList.add("fa-arrows-up-down");
-  }
-}
-// ================ End of Adding a filter to the list of dates created pnr ======================== //
-
-// ================ Adds a filter to the list of issuing date  ======================== //
-
-let isOrderedByIssuingDate = localStorage.getItem("isOrderedByIssuingDate");
-const icon__pnrIssuingDate = document.getElementById("icon__pnrIssuingDate");
-
-$(".pnr-issuing-date").click((e) => {
-  e.preventDefault();
-
-  // Remove the 'isSortedByCreator' cookie (obsolete code, can be removed)
-  Cookies.remove('isSortedByCreator', { path: '/' })
-
-  // Remove the 'isSortedByCreator' value from localStorage
-  localStorage.removeItem('isSortedByCreator')
-
-  // Remove the 'isOrderedByDateCreated' value from localStorage
-  Cookies.remove('creation_date_order_by', { path: '/home' });
-  localStorage.removeItem('isOrderedByDateCreated')
-
-
-  // Check if the 'isOrderedByIssuingDate' value is null
-  if (isOrderedByIssuingDate == null) {
-    // Set 'isOrderedByIssuingDate' to false in localStorage
-    localStorage.setItem("isOrderedByIssuingDate", "false")
-    // Set the 'issuing_date_order_by' cookie to "asc" with SameSite=Lax attribute
-    document.cookie = "issuing_date_order_by=asc; path=/home; SameSite=Lax"
-  } else {
-    // Check if 'isOrderedByIssuingDate' is currently false
-    if (isOrderedByIssuingDate == "false") {
-      // Set 'isOrderedByIssuingDate' to true in localStorage
-      localStorage.setItem("isOrderedByIssuingDate", "true")
-      // Set the 'issuing_date_order_by' cookie to "desc" with SameSite=Lax attribute
-      document.cookie = "issuing_date_order_by=desc; path=/home; SameSite=Lax";
-    }
-    // Check if 'isOrderedByIssuingDate' is currently true
-    if (isOrderedByIssuingDate == "true") {
-      // Set 'isOrderedByIssuingDate' to false in localStorage
-      localStorage.setItem("isOrderedByIssuingDate", "false")
-      // Set the 'issuing_date_order_by' cookie to "asc" with SameSite=Lax attribute
-      document.cookie = "issuing_date_order_by=asc; path=/home; SameSite=Lax"
-    }
-  }
-  
-  // Reload the page to apply the new sorting order
-  window.location.reload();
+setupColumnSorting({
+  localStorageKey: "isOrderedByIssuingDate",
+  cookieName: "issuing_date_order_by",
+  iconElement: document.getElementById("icon__pnrIssuingDate"),
+  clickSelector: ".pnr-issuing-date"
 });
 
-if (isOrderedByIssuingDate !== null) {
-  if (isOrderedByIssuingDate == "true") {
-    if (icon__pnrIssuingDate != null) {
-      icon__pnrIssuingDate.classList.remove("fa-arrows-up-down");
-      icon__pnrIssuingDate.classList.remove("fa-arrow-up");
-      icon__pnrIssuingDate.classList.add("fa-arrow-down");
-    }
-  }
-  if (isOrderedByIssuingDate == "false") {
-    if (icon__pnrIssuingDate != null) {
-      icon__pnrIssuingDate.classList.remove("fa-arrows-up-down");
-      icon__pnrIssuingDate.classList.remove("fa-arrow-down");
-      icon__pnrIssuingDate.classList.add("fa-arrow-up");
-    }
-  }
-} else {
-  if (icon__pnrIssuingDate != null) {
-    icon__pnrIssuingDate.classList.add("fa-arrows-up-down");
-  }
-}
-// ================ End of Adding a filter to the list of issuing date ======================== //
+setupColumnSorting({
+  localStorageKey: "isOrderedByPnrNumber",
+  cookieName: "pnr_number_order_by",
+  iconElement: document.getElementById("icon__pnrNumber"),
+  clickSelector: ".pnrNumberOrderClass"
+});
+
+setupColumnSorting({
+  localStorageKey: "isOrderedByPassenger",
+  cookieName: "passenger_order_by",
+  iconElement: document.getElementById("icon__passenger"),
+  clickSelector: ".passengerOrderClass"
+});
+
+setupColumnSorting({
+  localStorageKey: "isOrderedByClient",
+  cookieName: "client_order_by",
+  iconElement: document.getElementById("icon__client"),
+  clickSelector: ".clientOrderClass"
+});
+
+setupColumnSorting({
+  localStorageKey: "isOrderedByStatus",
+  cookieName: "status_order_by",
+  iconElement: document.getElementById("icon__status"),
+  clickSelector: ".statusOrderClass"
+});
+
+setupColumnSorting({
+  localStorageKey: "isOrderedByOpc",
+  cookieName: "opc_order_by",
+  iconElement: document.getElementById("icon__opc"),
+  clickSelector: ".opcOrderClass"
+});
+
+setupColumnSorting({
+  localStorageKey: "isOrderedByType",
+  cookieName: "type_order_by",
+  iconElement: document.getElementById("icon__type"),
+  clickSelector: ".typeOrderClass"
+});
+
+setupColumnSorting({
+  localStorageKey: "isOrderedByEmitter",
+  cookieName: "emitter_order_by",
+  iconElement: document.getElementById("icon__emetteur"),
+  clickSelector: ".emitterOrderClass"
+});
+
+
+setupColumnSorting({
+  localStorageKey: "isOrderedByCode",
+  cookieName: "code_order_by",
+  iconElement: document.getElementById("icon__code"),
+  clickSelector: ".codeOrderClass"
+});
+
+// ================ End of Adding a filter to all the columns  ======================== //
 
 //========= ADD BUTTON TO SEND PNR NOT UPDATED IN ODOO ============>
 const buttonSendPnrNotUpdated = document.getElementById(

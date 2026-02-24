@@ -1298,18 +1298,6 @@ def get_order(request, pnr_id):
                                         'HeureReturn': item.value.get('heure_return'),
                                     }
 
-                            # REAJUSTEMENT TARIFAIRE
-                            designation_label = None
-                            designation_number = None
-
-                            if 'reissuance adjustment' in item.designation.lower():
-                                if item.designation and ':' in item.designation:
-                                    parts = item.designation.split(':', 1)
-                                    designation_label = parts[0].strip()
-                                    designation_number = parts[1].strip()
-                                else:
-                                    designation_label = item.designation
-                                    designation_number = ''
                                     
                             csv_order_lines.append({
                                 'LineID': order.id,
@@ -1335,7 +1323,7 @@ def get_order(request, pnr_id):
                                 'IssueDate': item.creation_date.strftime('%d/%m/%Y') if item.creation_date is not None else '',
                                 'OrderNumber': order_invoice_number,
                                 'OtherFeeId': item.id if item is not None else '',
-                                'Designation': designation_label if designation_label is not None else item.designation if item else '',
+                                'Designation': item.designation if item else '',
                             })
                             
                             if len(csv_order_lines) == 0:

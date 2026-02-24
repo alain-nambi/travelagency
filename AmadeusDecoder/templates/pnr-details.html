@@ -812,7 +812,7 @@
 														{{ "Remboursement"}}
 													{% endif %}
 												</td>
-												{% if user.id == 58 or user.id == 70 or user.id == 71 or user.id == 72 %}
+												{% if user.is_admin %}
 													<td>
 														{% if not ticket.is_invoiced  %} 
 															<button class="btn btn-warning px-2 py-1 deleteticket" title='Annuler le ticket' type="button" data-toggle="modal" 

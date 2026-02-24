@@ -93,14 +93,14 @@ class PnrOnlyParser():
             if detail_row != '':
                 header_with_no_space.append(detail_row)
         
-        user_gds_id = header_with_no_space[len(header_with_no_space) - 3].split('/')[0]
-        user_agent = None
+        user_gds_id = None
         pnr.number = header_with_no_space[-1]
         try:
             copying_agent = pnr.get_pnr_creator_user_copying()
             if copying_agent is not None:
                 pnr.agent = copying_agent
             elif copying_agent is None:
+                user_gds_id = header_with_no_space[len(header_with_no_space) - 3].split('/')[0]
                 user_agent = User.objects.filter(gds_id=user_gds_id).first()
                 if user_agent is not None:
                     pnr.agent = user_agent  
@@ -133,6 +133,7 @@ class PnrOnlyParser():
             if copying_agent is not None:
                 temp_pnr.agent = copying_agent
             elif copying_agent is None:
+                user_gds_id = header_with_no_space[len(header_with_no_space) - 3].split('/')[0]
                 user_agent = User.objects.filter(gds_id=user_gds_id).first()
                 if user_agent is not None:
                     temp_pnr.agent = user_agent  
@@ -147,7 +148,7 @@ class PnrOnlyParser():
             except:
                 print("Current PNR has no emitter found")
             
-            return temp_pnr, is_saved, current_pnr_emitter, user_agent
+            return temp_pnr, is_saved, current_pnr_emitter
         
         pnr.gds_creation_date = creation_date
         # pnr.system_creation_date = datetime(system_creation_date.year, system_creation_date.month, system_creation_date.day, system_creation_date.hour, system_creation_date.minute, system_creation_date.second, system_creation_date.microsecond, pytz.UTC)
@@ -1367,7 +1368,7 @@ class PnrOnlyParser():
             
     
     # get ticket on issued pnr
-    def ticket_on_issued_pnr(self, normalized_file, pnr, passengers, segments, ssrs, flight_class, current_pnr_emitter=None):
+    def ticket_on_issued_pnr(self, normalized_file, pnr, passengers, segments, ssrs, flight_class):
         tickets = []
         tickets_segments = []
         tickets_ssrs = []
@@ -1511,8 +1512,8 @@ class PnrOnlyParser():
             temp_ticket.flightclass = flight_class
             temp_ticket.state = 2
             temp_ticket.ticket_type = 'TKT'
-            if current_pnr_emitter is not None:
-                ticket_emitter = User.objects.filter(gds_id=current_pnr_emitter.gds_id).first()
+            if pnr.agent is not None:
+                ticket_emitter = User.objects.filter(gds_id=pnr.agent.gds_id).first()
                 temp_ticket.emitter = ticket_emitter
             if len(passengers) == 1:
                 temp_ticket.passenger = passengers[0]
@@ -1741,8 +1742,8 @@ class PnrOnlyParser():
             temp_ticket.flightclass = flight_class
             temp_ticket.state = 0
             temp_ticket.ticket_type = 'CREDIT_NOTE'
-            if current_pnr_emitter is not None:
-                ticket_emitter = User.objects.filter(gds_id=current_pnr_emitter.gds_id).first()
+            if pnr.agent is not None:
+                ticket_emitter = User.objects.filter(gds_id=pnr.agent.gds_id).first()
                 temp_ticket.emitter = ticket_emitter
             if len(passengers) == 1:
                 temp_ticket.passenger = passengers[0]
@@ -1825,7 +1826,7 @@ class PnrOnlyParser():
             try:
                 normalized_file = self.normalize_file(needed_content)
                 # pnr
-                pnr, is_saved, current_pnr_emitter,gds_based_emitter = self.get_pnr_data(contents, email_date)
+                pnr, is_saved, current_pnr_emitter = self.get_pnr_data(contents, email_date)
                 # split or duplication
                 self.get_split_duplicated_status(pnr, normalized_file)
                 if pnr.status == 'Emis':
@@ -1879,7 +1880,7 @@ class PnrOnlyParser():
                 # credit_notes, credit_notes_related_segment, creadit_notes_related_ssrs = self.get_credit_note(normalized_file, pnr, passengers, air_segments, ssr_bases, flight_class)
                 # tickets on issued pnr
                 if pnr.status == 'Emis':
-                    tickets, tickets_segments, tickets_ssrs  = self.ticket_on_issued_pnr(normalized_file, pnr, passengers, air_segments, ssr_bases, flight_class, current_pnr_emitter)
+                    tickets, tickets_segments, tickets_ssrs  = self.ticket_on_issued_pnr(normalized_file, pnr, passengers, air_segments, ssr_bases, flight_class)
                 
                 # pnr is not saved ------ Insert
                 if not is_saved:
@@ -2016,7 +2017,7 @@ class PnrOnlyParser():
                                     ticket.get_issuing_user_different_creator()
                                     if ticket.emitter is None and current_pnr_emitter is not None:
                                         ticket.emitter = current_pnr_emitter
-                                    print("********** TICKET EMITTER *************** : ",ticket.emitter)
+                                        print("********** TICKET EMITTER *************** : ",ticket.emitter)
                                     # refund case
                                     if ticket.is_refund:
                                         temp_ticket_obj = Ticket.objects.filter(number=ticket.number.removesuffix('-R')).first()
@@ -2385,8 +2386,6 @@ class PnrOnlyParser():
                                     ticket.get_issuing_user_different_creator()
                                     if ticket.emitter is None and current_pnr_emitter is not None:
                                         ticket.emitter = current_pnr_emitter
-                                    print("********** TICKET EMITTER *************** : ",ticket.emitter)
-                                        
                                     # refund case
                                     if ticket.is_refund:
                                         temp_ticket_obj = Ticket.objects.filter(number=ticket.number.removesuffix('-R')).first()

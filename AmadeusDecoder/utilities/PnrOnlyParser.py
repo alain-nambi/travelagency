@@ -1368,7 +1368,7 @@ class PnrOnlyParser():
             
     
     # get ticket on issued pnr
-    def ticket_on_issued_pnr(self, normalized_file, pnr, passengers, segments, ssrs, flight_class):
+    def ticket_on_issued_pnr(self, normalized_file, pnr, passengers, segments, ssrs, flight_class, current_pnr_emitter=None):
         tickets = []
         tickets_segments = []
         tickets_ssrs = []
@@ -1512,9 +1512,19 @@ class PnrOnlyParser():
             temp_ticket.flightclass = flight_class
             temp_ticket.state = 2
             temp_ticket.ticket_type = 'TKT'
-            if pnr.agent is not None:
+            # if pnr.agent is not None:
+            #     ticket_emitter = User.objects.filter(gds_id=pnr.agent.gds_id).first()
+            #     temp_ticket.emitter = ticket_emitter
+            
+            if current_pnr_emitter is not None:
+                temp_ticket.emitter = current_pnr_emitter
+                print('TICKET EMITTER IS ', temp_ticket.emitter)
+            elif pnr.agent is not None:
+                # Fallback uniquement si pas d'émetteur PNR
                 ticket_emitter = User.objects.filter(gds_id=pnr.agent.gds_id).first()
                 temp_ticket.emitter = ticket_emitter
+                print('Fallback TICKET EMITTER IS ', temp_ticket.emitter)
+                
             if len(passengers) == 1:
                 temp_ticket.passenger = passengers[0]
             elif len(passengers) == 2:
@@ -1742,9 +1752,19 @@ class PnrOnlyParser():
             temp_ticket.flightclass = flight_class
             temp_ticket.state = 0
             temp_ticket.ticket_type = 'CREDIT_NOTE'
-            if pnr.agent is not None:
+            # if pnr.agent is not None:
+            #     ticket_emitter = User.objects.filter(gds_id=pnr.agent.gds_id).first()
+            #     temp_ticket.emitter = ticket_emitter
+            
+            if current_pnr_emitter is not None:
+                temp_ticket.emitter = current_pnr_emitter
+                print('TICKET EMITTER IS ', temp_ticket.emitter)
+            elif pnr.agent is not None:
+            # Fallback uniquement si pas d'émetteur PNR
                 ticket_emitter = User.objects.filter(gds_id=pnr.agent.gds_id).first()
                 temp_ticket.emitter = ticket_emitter
+                print('Fallback TICKET EMITTER IS ', temp_ticket.emitter)
+                
             if len(passengers) == 1:
                 temp_ticket.passenger = passengers[0]
             elif len(passengers) == 2:
@@ -1880,7 +1900,7 @@ class PnrOnlyParser():
                 # credit_notes, credit_notes_related_segment, creadit_notes_related_ssrs = self.get_credit_note(normalized_file, pnr, passengers, air_segments, ssr_bases, flight_class)
                 # tickets on issued pnr
                 if pnr.status == 'Emis':
-                    tickets, tickets_segments, tickets_ssrs  = self.ticket_on_issued_pnr(normalized_file, pnr, passengers, air_segments, ssr_bases, flight_class)
+                    tickets, tickets_segments, tickets_ssrs  = self.ticket_on_issued_pnr(normalized_file, pnr, passengers, air_segments, ssr_bases, flight_class, current_pnr_emitter)
                 
                 # pnr is not saved ------ Insert
                 if not is_saved:
@@ -2058,8 +2078,14 @@ class PnrOnlyParser():
                                     ticket_obj.state = 0
                                     ticket_obj.passenger = ticket.passenger
                                     ticket_obj.related_passenger_order = ticket.related_passenger_order
-                                    if pnr.agent is not None:
+                                    # if pnr.agent is not None:
+                                    #     ticket_obj.emitter = pnr.agent
+                                    if current_pnr_emitter is not None:
+                                        ticket_obj.emitter = current_pnr_emitter
+                                        print("********** TICKET EMITTER FORCED (state=1) *************** : ", ticket_obj.emitter)
+                                    elif pnr.agent is not None:
                                         ticket_obj.emitter = pnr.agent
+                                        
                                     if ticket.issuing_date is not None:
                                         ticket_obj.update_ticket_state_status(pnr, ticket.issuing_date, pnr.gds_creation_date)
                                     # issuing office
@@ -2071,9 +2097,9 @@ class PnrOnlyParser():
                                         ticket_obj.transport_cost = ticket.transport_cost - ticket_obj.tax
                                         ticket_obj.total = ticket.total
                                     # ticket emitter
-                                    ticket_obj.get_issuing_user_different_creator()
-                                    if ticket_obj.emitter is None and current_pnr_emitter is not None:
-                                        ticket_obj.emitter = current_pnr_emitter
+                                    # ticket_obj.get_issuing_user_different_creator()
+                                    # if ticket_obj.emitter is None and current_pnr_emitter is not None:
+                                    #     ticket_obj.emitter = current_pnr_emitter
                                     # refund case
                                     if ticket.is_refund:
                                         ticket_obj.is_refund = True

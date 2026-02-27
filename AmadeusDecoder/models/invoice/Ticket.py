@@ -181,9 +181,28 @@ class Ticket(models.Model, BaseModel):
             pnr.save()
     
     # get issuing user !!! important especially when the PNR has been created and issued by different agent !!!
-    def get_issuing_user_different_creator(self):
+    # def get_issuing_user_different_creator(self):
+    #     from AmadeusDecoder.models.user.Users import User
+    #     try:
+    #         issuing_user = User.objects.filter(copied_documents__document=self.pnr.number).order_by('-id').first()
+    #         if issuing_user is not None:
+    #             self.emitter = issuing_user
+    #         elif self.pnr.agent is not None:
+    #             self.emitter = self.pnr.agent
+    #     except Exception as e:
+    #         print(e)
+    
+    def get_issuing_user_different_creator(self, force_update=False):
+        """
+        Get issuing user from copied documents.
+        Only updates if emitter is None or force_update=True.
+        """
         from AmadeusDecoder.models.user.Users import User
         try:
+            # Si l'émetteur est déjà défini et qu'on ne force pas, ne rien faire
+            if self.emitter is not None and not force_update:
+                return  # Garder l'émetteur existant (défini par current_pnr_emitter)
+            
             issuing_user = User.objects.filter(copied_documents__document=self.pnr.number).order_by('-id').first()
             if issuing_user is not None:
                 self.emitter = issuing_user

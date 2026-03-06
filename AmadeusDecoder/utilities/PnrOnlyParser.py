@@ -144,6 +144,7 @@ class PnrOnlyParser():
             # current pnr emitter
             try:
                 current_pnr_emitter = User.objects.filter(gds_id=header_with_no_space[len(header_with_no_space) - 3].split('/')[0]).first()
+                print("GDS ID : ",header_with_no_space[len(header_with_no_space) - 3].split('/')[0])
                 print("********** CURRENT PNR EMITTER *************** : ",current_pnr_emitter)
             except:
                 print("Current PNR has no emitter found")
@@ -1521,7 +1522,7 @@ class PnrOnlyParser():
                 print('TICKET EMITTER IS ', temp_ticket.emitter)
             elif pnr.agent is not None:
                 # Fallback uniquement si pas d'émetteur PNR
-                ticket_emitter = User.objects.filter(gds_id=pnr.agent.gds_id).first()
+                ticket_emitter = pnr.agent
                 temp_ticket.emitter = ticket_emitter
                 print('Fallback TICKET EMITTER IS ', temp_ticket.emitter)
                 
@@ -1761,7 +1762,7 @@ class PnrOnlyParser():
                 print('TICKET EMITTER IS ', temp_ticket.emitter)
             elif pnr.agent is not None:
             # Fallback uniquement si pas d'émetteur PNR
-                ticket_emitter = User.objects.filter(gds_id=pnr.agent.gds_id).first()
+                ticket_emitter = pnr.agent
                 temp_ticket.emitter = ticket_emitter
                 print('Fallback TICKET EMITTER IS ', temp_ticket.emitter)
                 

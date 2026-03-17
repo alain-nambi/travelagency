@@ -73,10 +73,33 @@ def comment(request):
 
 @login_required(login_url='index')
 def comment_list(request):
-    maximum_timezone = "2023-01-01 01:00:00.000000+03:00"
+    maximum_timezone = "2020-01-01 01:00:00.000000+03:00"
     
     context = {}
-    comments = Comment.objects.filter(Q(creation_date__gt=maximum_timezone)).order_by('-creation_date')
+    # comments = Comment.objects.filter(Q(creation_date__gt=maximum_timezone)).order_by('-creation_date')
+    # récupérer les paramètres de tri
+    sort = request.GET.get('sort', 'creation_date')
+    direction = request.GET.get('direction', 'desc')
+
+    # définir le champ de tri autorisé
+    allowed_sorts = {
+        'pnr': 'pnr_id__number',
+        'comment': 'comment',
+        'date': 'creation_date',
+        'user': 'user_id__username',
+        'state': 'state'
+    }
+
+    sort_field = allowed_sorts.get(sort, 'creation_date')
+
+    if direction == 'desc':
+        sort_field = '-' + sort_field
+
+    comments = Comment.objects.filter(
+        Q(creation_date__gt=maximum_timezone)
+    ).order_by(sort_field)
+
+
     context['comments'] = comments
     comments_count = comments.count()
     

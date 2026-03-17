@@ -37,15 +37,58 @@
                 <form method='POST' action=''>
                   {% csrf_token %}
                       <div class="table-adapted-to-screen-height card-body table-responsive p-0" style="max-height: calc(100vh - 250px) !important; overflow: scroll !important;">
-                        <table class="table table-bordered table-head-fixed text-nowrap all-comment" id="tableAnomaly">
+                        <table class="table table-bordered table-head-fixed text-nowrap all-comment" ><!--id="tableAnomaly"-->
                           <thead class="bg-info">
                             <tr>
-                              <th width="5%" class="text-white">PNR</th>
+                              <th width="5%" class="text-white">
+                              <a href="?sort=date&pnr=asc" 
+                                style="color: white; text-decoration: none;" 
+                                onmouseover="this.style.color='black'" 
+                                onmouseout="this.style.color='white'">PNR ↑</a>
+                              <a href="?sort=date&pnr=desc" 
+                                style="color: white; text-decoration: none;" 
+                                onmouseover="this.style.color='black'" 
+                                onmouseout="this.style.color='white'">↓</a>
+                              </th>
+
                               <th width="20%" class="text-white">Anomalie</th>
-                              <th width="20%" class="text-white">Reponse</th>
-                              <th width="5%" class="text-white">Date d'anomalie</th>
-                              <th width="8%" class="text-white">Signalée par</th>
-                              <th width="5%" class="text-white">Statut</th>
+
+                              <th width="28%" class="text-white">Reponse</th>
+                              
+                              <th width="12%" class="text-white"> 
+                              <a href="?sort=date&direction=asc" 
+                                style="color: white; text-decoration: none;" 
+                                onmouseover="this.style.color='black'" 
+                                onmouseout="this.style.color='white'">Date de création ↑</a>
+                              <a href="?sort=date&direction=desc" 
+                                 style="color: white; text-decoration: none;" 
+                                 onmouseover="this.style.color='black'" 
+                                 onmouseout="this.style.color='white'">↓</a> 
+                              </th>
+
+                              <th width="8%" class="text-white">
+                              <a href="?sort=user&direction=asc" 
+                                style="color: white; text-decoration: none;" 
+                                onmouseover="this.style.color='black'" 
+                                onmouseout="this.style.color='white'">Signalée par ↑</a>
+                              <a href="?sort=user&direction=desc" 
+                                style="color: white; text-decoration: none;" 
+                                onmouseover="this.style.color='black'" 
+                                onmouseout="this.style.color='white'">↓</a>
+                              </th>
+
+                              <th width="5%" class="text-white">
+                              <a href="?sort=state&direction=asc" 
+                                style="color: white; text-decoration: none;" 
+                                onmouseover="this.style.color='black'" 
+                                onmouseout="this.style.color='white'">Statut ↑</a>
+                              <a href="?sort=state&direction=desc" 
+                                style="color: white; text-decoration: none;" 
+                                onmouseover="this.style.color='black'" 
+                                onmouseout="this.style.color='white'">↓</a>
+                              </th>
+                              
+                              
                             </tr>
                           </thead>
                           <tbody>

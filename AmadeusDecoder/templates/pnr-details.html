@@ -922,9 +922,9 @@
 														{% if user.role_id == 1 or temp_other_fee.designation == 'FRAIS DE SOUS-TRAITANCE' or temp_other_fee.designation == 'FRAIS SOUS-TRAITANCE'%}
 															{% if temp_other_fee.designation == 'FRAIS DE SOUS-TRAITANCE' or temp_other_fee.designation == 'FRAIS SOUS-TRAITANCE' %}
 																<td>
-																	{% if not ticket.is_invoiced  %} 
+																	{% if not temp_other_fee.is_invoiced  %} 
 																		<button class="btn btn-warning px-2 py-1 deleteticket" title='Annuler le frais de sous traitance' type="button" data-toggle="modal" 
-																				data-target="#modalRemoveTicket" data-ticket-table="ticket" data-ticket-number="{{ticket.number}}" data-ticket-id="{{ticket.id}}" data-ticket-designation="{{ticket.designation}}" data-is-ticket="false">
+																				data-target="#modalRemoveTicket" data-ticket-table="other_fee" data-ticket-number="{{temp_other_fee.number}}" data-ticket-id="{{temp_other_fee.id}}" data-ticket-designation="{{temp_other_fee.designation}}" data-is-ticket="false">
 																			<i class="fa-solid fa-trash"></i>
 																		</button>
 																	{% endif %}
@@ -932,9 +932,9 @@
 																</td>
 															{% else %}
 																<td>
-																	{% if not ticket.is_invoiced  %} 
+																	{% if not temp_other_fee.is_invoiced  %} 
 																		<button class="btn btn-warning px-2 py-1 deleteticket" title='Annuler le ticket' type="button" data-toggle="modal" 
-																				data-target="#modalRemoveTicket" data-ticket-table="ticket" data-ticket-number="{{ticket.number}}" data-ticket-id="{{ticket.id}}" data-ticket-designation="{{ticket.designation}}" data-is-ticket="true">
+																				data-target="#modalRemoveTicket" data-ticket-table="ticket" data-ticket-number="{{temp_other_fee.number}}" data-ticket-id="{{temp_other_fee.id}}" data-ticket-designation="{{temp_other_fee.designation}}" data-is-ticket="true">
 																			<i class="fa-solid fa-trash"></i>
 																		</button>
 																	{% endif %}

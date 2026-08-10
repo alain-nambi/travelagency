@@ -685,8 +685,8 @@ def get_customer_has_not_had_order(pnr_id):
                         list_clients.append(client)
             return {"list": list_clients, "length": len(list_clients)}
         else:
-            return None
-    return None
+            return {"list": [], "length": 0}
+    return {"list": [], "length": 0}
 
 
 ################################################################

@@ -2142,7 +2142,7 @@ def ticket_delete(request):
         print('------------------------------------------------------')
         print(ticketId)
         
-        if isTicket:
+        if isTicket == "true":
             
             # for ticket
             if ticketTable == 'ticket':
@@ -2191,7 +2191,7 @@ def ticket_delete(request):
         else:
             print('is Ticket :',isTicket)
             print('ticket id : ',ticketId)
-            outsourcing_fee = OthersFee.objects.get(ticket_id=ticketId)
+            outsourcing_fee = OthersFee.objects.get(id=ticketId)
             print('outsourcing_fee : ', outsourcing_fee)
             if outsourcing_fee is not None:
                 outsourcing_fee.other_fee_status = 0

@@ -267,10 +267,11 @@ old -->
             </li>
             <li class="nav-item">
               <a href="{% url 'get_all_pnr_not_fetched' %}" class="nav-link">
-                <i class="fas fa-times-circle nav-icon"></i>
+                <i class="fas fa-trash-can nav-icon"></i>
                 <p>PNR Non remonté</p>
               </a>
             </li>
+            
             <li class="nav-item">
               <a href="{% url 'get_all_pnr_unordered' %}" class="nav-link">
                 <i class="fas fa-trash-can nav-icon"></i>
@@ -281,6 +282,12 @@ old -->
               <a href="{% url 'get_all_anomalies' %}" class="nav-link">
                 <i class="fas fa-clock nav-icon"></i>
                 <p>Anomalie en attente</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'pnr_missing_list' %}" class="nav-link">
+                <i class="fas fa-exclamation-triangle nav-icon"></i>
+                <p>PNR manquant</p>
               </a>
             </li>
             {% endif %}

@@ -1,10 +1,12 @@
 from datetime import datetime, timezone, timedelta, time
 from dateutil import tz
 
-from django.db.models import Q
+from django.db.models import Q, Exists, OuterRef
+
 from AmadeusDecoder.models.invoice.Fee import ReducePnrFeeRequest
 
 from AmadeusDecoder.models.pnr.Pnr import Pnr
+from AmadeusDecoder.models.user.Users import UserCopying
 from AmadeusDecoder.models.invoice.Ticket import Ticket
 from AmadeusDecoder.utilities.SendMail import Sending
 from AmadeusDecoder.utilities.configuration_data import ANOMALY_EMAIL_SENDER
@@ -852,10 +854,19 @@ class MailNotification():
                                     )
 
         # Liste des pnrs remontés
-        pnr_remonte = Pnr.objects.filter(
-                                                    Q(system_creation_date__gte=dt_to_start_sending_to_odoo) & 
-                                                    Q(system_creation_date__lte=dt_to_end_sending_to_odoo)
-                                                ).filter(agent_id=75).all()
+        user_copying_qs = UserCopying.objects.filter(
+            document=OuterRef("number"),
+            user_id_id=75,
+        )
+
+        pnr_remonte = (
+            Pnr.objects
+            .filter(
+                Q(system_creation_date__gte=dt_to_start_sending_to_odoo) &
+                Q(system_creation_date__lte=dt_to_end_sending_to_odoo)
+            )
+            .filter(Exists(user_copying_qs))
+        )
         
         ISSOUFALI_URL = "https://pnr.issoufali.phidia.fr"
         
@@ -880,7 +891,7 @@ class MailNotification():
                                         {pnr.get_max_issuing_date().strftime('%d/%m/%Y %H:%M') if pnr.get_max_issuing_date() else ""}
                                     </td>
                                     <td style="border:1px solid #ddd;padding:8px;">
-                                        {pnr.agent if pnr.agent is not None else ""}
+                                        Ioly
                                     </td>
                                     <td style="border:1px solid #ddd;padding:8px;">
                                         {pnr.status}

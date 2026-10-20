@@ -296,11 +296,8 @@ class Pnr(models.Model, BaseModel):
     # get pnr creator from user copying table
     def get_pnr_creator_user_copying(self):
         from AmadeusDecoder.models.user.Users import UserCopying
-        first_copier = UserCopying.objects.filter(document=self.number).order_by('id').first()
-        if first_copier is not None:
-            return first_copier.user_id
-        else:
-            return None
+        first_copier = UserCopying.objects.select_related('user').filter(document=self.number).order_by('id').first()
+        return first_copier.user if first_copier is not None else None
     
     def update_ticket_status_present_in_passenger_invoice(self):
         from AmadeusDecoder.models.invoice.InvoicePassenger import PassengerInvoice

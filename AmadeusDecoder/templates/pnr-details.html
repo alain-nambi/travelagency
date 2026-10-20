@@ -718,7 +718,7 @@
 												<th>Date de commande</th>
 												<th>Numéro de commande</th>
 												<th>Emetteur </th>
-												<th width="10%">Référence</th>
+												<th width="10%">Agence</th>
 												<th width="2%"></th>
 												<th width="2%"></th>
 												<th width="2%"></th>
@@ -804,12 +804,14 @@
 												</td>
 												<td>{{ticket.emitter.username}}</td>
 												<td>
-													{% if ticket.is_refund and not ticket.is_deposit %}
-														{{ "Remboursement" }}
-													{% elif not ticket.is_refund and ticket.is_deposit %}
-														{{ "Acompte" }}
-													{% elif ticket.is_refund and ticket.is_deposit %}
-														{{ "Remboursement"}}
+													{% if ticket.issuing_agency_name %}
+														{{ ticket.issuing_agency_name }}
+													{% else %}
+														{% with office=pnr|pnr_office %}
+															{% if office %}
+																{{ office }}{% if office|lower == 'web' %} (Reçu dossier){% endif %}
+															{% endif %}
+														{% endwith %}
 													{% endif %}
 												</td>
 												{% if user.is_admin %}
@@ -918,7 +920,17 @@
 															{% else %}
 																{{ '' }}
 															{% endif %}
-														<td></td>
+														<td>
+															{% if temp_other_fee.issuing_agency_name %}
+																{{ temp_other_fee.issuing_agency_name }}
+															{% else %}
+																{% with office=pnr|pnr_office %}
+																	{% if office %}
+																		{{ office }}{% if office|lower == 'web' %} (Reçu dossier){% endif %}
+																	{% endif %}
+																{% endwith %}
+															{% endif %}
+														</td>
 														{% if user.role_id == 1 or temp_other_fee.designation == 'FRAIS DE SOUS-TRAITANCE' or temp_other_fee.designation == 'FRAIS SOUS-TRAITANCE'%}
 															{% if temp_other_fee.designation == 'FRAIS DE SOUS-TRAITANCE' or temp_other_fee.designation == 'FRAIS SOUS-TRAITANCE' %}
 																<td>
@@ -1021,7 +1033,7 @@
 													{% endif %}
 												</td>
 												<td>{{ticket.emitter.username}}</td>
-												<td>{{ '' }}</td>
+												<td></td>
 												<td>{{ '' }}</td>
 												<td>{{ '' }}</td>
 												<td class="checkbox">
@@ -1185,7 +1197,17 @@
 														{{ '' }}
 													{% endif %}
 												</td>
-												<td></td>
+												<td>
+													{% if other_fee.issuing_agency_name %}
+														{{ other_fee.issuing_agency_name }}
+													{% else %}
+														{% with office=pnr|pnr_office %}
+															{% if office %}
+																{{ office }}{% if office|lower == 'web' %} (Reçu dossier){% endif %}
+															{% endif %}
+														{% endwith %}
+													{% endif %}
+												</td>
 												{% if user.role_id == 1 or other_fee.designation == 'FRAIS DE SOUS-TRAITANCE' or other_fee.designation == 'FRAIS SOUS-TRAITANCE'%}
 													{% if other_fee.designation == 'FRAIS DE SOUS-TRAITANCE' or other_fee.designation == 'FRAIS SOUS-TRAITANCE' %}
 														<td>
@@ -1321,7 +1343,18 @@
 														{{ '' }}
 													{% endif %}
 												</td>
-												<td>{{ '' }}</td>
+												<td>
+													{% if other_fee.issuing_agency_name %}
+														{{ other_fee.issuing_agency_name }}
+													{% else %}
+														{% with office=pnr|pnr_office %}
+															{% if office %}
+																{{ office }}{% if office|lower == 'web' %} (Reçu dossier){% endif %}
+															{% endif %}
+														{% endwith %}
+													{% endif %}
+
+												</td>
 												{% if user.role_id == 1 %}<td></td>{% endif %}
 
 												<td>{{ '' }}</td>

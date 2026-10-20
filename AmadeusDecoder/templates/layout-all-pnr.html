@@ -101,7 +101,7 @@ old -->
             <div id="pnrNotUpdated">
               <button 
                 type="button" 
-                class="btn btn-outline-danger" 
+                class="btn btn-outline-danger " 
                 data-toggle="modal" 
                 data-target="#modalPnrNotUpdated" 
                 title="Pnr non remonté"
@@ -240,14 +240,12 @@ old -->
                 <p>Anomalies PNR</p>
               </a>
             </li>
-
             <li class="nav-item">
               <a href="{% url 'get_all_pnr_not_fetched' %}" class="nav-link">
-                <i class="fas fa-times-circle nav-icon"></i>
+                <i class="fas fa-trash-can nav-icon"></i>
                 <p>PNR Non remonté</p>
               </a>
             </li>
-
             <li class="nav-item">
               <a href="{% url 'get_all_pnr_unordered' %}" class="nav-link">
                 <i class="fas fa-trash-can nav-icon"></i>
@@ -260,6 +258,13 @@ old -->
                 <p>Anomalie en attente</p>
               </a>
             </li>
+            <li class="nav-item">
+              <a href="{% url 'pnr_missing_list' %}" class="nav-link">
+                <i class="fas fa-exclamation-triangle nav-icon"></i>
+                <p>PNR manquants</p>
+              </a>
+            </li>
+
             {% endif %}
             <!--menu direction role_id=2-->
             {% if request.user.role_id == 2 %}
@@ -441,6 +446,7 @@ old -->
     <script src="{% static 'js/notification.js' %}"></script>
     <script src="{% static 'js/manage_customer.js' %}"></script>
     <script src="{% static 'js/pnr_not_fetched.js' %}"></script>
+
 
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/colresizable/1.6.0/colResizable-1.6.min.js" integrity="sha512-pMZ2rgWRGMywzbRAVwGk+auTREN0ldKKjACUSB4cneTgD3kn/6pu//Lxi4l8xSRkY83HENr1vztTnGDySWs0Mg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

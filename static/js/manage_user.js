@@ -459,13 +459,13 @@ $('#UpdateInfo').click(function() {
         
       case 'update_password':
         console.log('Case Update Password');
-        console.log('USER ID : ',$('#user_id').val());
+        console.log('USER ID : ',user);
         
         
         updateUserPassword({
           password,
           newPassword: $('#new-password').val(),
-          userId: $('#user_id').val()
+          userId: user
         });
         break;
     }

@@ -74,94 +74,71 @@ class PnrOnlyParser():
         '''
         Constructor
         '''
+
+    def get_header_agent_code(self, file_content):
+        # RP/DZAUU0006/DZAUU0006  FS/SU  7OCT26/1036Z  98OJBG  -> "FS"
+        for line in file_content:
+            if line.startswith(PNR_IDENTIFIER[0]):
+                tokens = [t for t in line.split(' ') if t != '']
+                try:
+                    return tokens[-3].split('/')[0].strip() or None
+                except IndexError:
+                    return None
+        return None
     
     # get basic data from pnr
     def get_pnr_data(self, file_content, email_date):
         pnr = Pnr()
         is_saved = False
-        current_pnr_emitter = None
-        
+
         pnrDetailRow = ''
         for i in range(len(file_content)):
-            if(file_content[i].startswith(PNR_IDENTIFIER[0])):
+            if file_content[i].startswith(PNR_IDENTIFIER[0]):
                 pnrDetailRow = file_content[i]
                 break
-            
-        # new method
-        header_with_no_space = []
-        for detail_row in pnrDetailRow.split(' '):
-            if detail_row != '':
-                header_with_no_space.append(detail_row)
-        
-        user_gds_id = None
+
+        header_with_no_space = [part for part in pnrDetailRow.split(' ') if part != '']
+
         pnr.number = header_with_no_space[-1]
-        try:
-            copying_agent = pnr.get_pnr_creator_user_copying()
-            if copying_agent is not None:
-                pnr.agent = copying_agent
-            elif copying_agent is None:
-                user_gds_id = header_with_no_space[len(header_with_no_space) - 3].split('/')[0]
-                user_agent = User.objects.filter(gds_id=user_gds_id).first()
-                if user_agent is not None:
-                    pnr.agent = user_agent  
-                else:
-                    raise Exception('No agent found')
-                
-            print("********** PNR AGENT ************ : ",pnr.agent)
-        except:
-            pnr.agent_code = user_gds_id
-        
         creation_date = datetime.strptime(header_with_no_space[-2].split('/')[0].strip(), '%d%b%y').date()
-        # system_creation_date = datetime.now()
-        
+
+        # --- gds_id prioritaire : FS dans "RP/DZAUU0006/DZAUU0006  FS/SU  7OCT26/1036Z  98OJBG"
+        user_gds_id = header_with_no_space[-3].split('/')[0].strip()
+        current_pnr_emitter = User.objects.filter(gds_id__iexact=user_gds_id).first()
+        print("GDS ID:", user_gds_id, "-> CURRENT PNR EMITTER:", current_pnr_emitter)
+
+        # fallback seulement si aucun user ne correspond au gds_id
+        agent_to_set = current_pnr_emitter
+        if agent_to_set is None:
+            agent_to_set = pnr.get_pnr_creator_user_copying()   # doit renvoyer un User (voir correction précédente)
+            current_pnr_emitter = agent_to_set
+
+        office_code = pnrDetailRow.split('/')[1]
+        office = Office.objects.filter(code=office_code).first()
+        if office is None:
+            office = Office.objects.create(code=office_code)
+
         temp_pnr = Pnr.objects.filter(number=pnr.number).first()
         if temp_pnr is not None:
-            # if temp_pnr.state == 1:
-            #    is_saved = False
-            #else:
-            #    is_saved = True
-            is_saved = True
             temp_pnr.gds_creation_date = creation_date
-            # temp_pnr.system_creation_date = datetime(system_creation_date.year, system_creation_date.month, system_creation_date.day, system_creation_date.hour, system_creation_date.minute, system_creation_date.second, system_creation_date.microsecond, pytz.UTC)
             temp_pnr.system_creation_date = email_date
-            # temp_pnr.state = 0
-            if Office.objects.filter(code=pnrDetailRow.split('/')[1]).first() is None:
-                Office.objects.create(code=pnrDetailRow.split('/')[1])
-            temp_pnr.agency = Office.objects.get(code=pnrDetailRow.split('/')[1])
-            
-            copying_agent = pnr.get_pnr_creator_user_copying()
-            if copying_agent is not None:
-                temp_pnr.agent = copying_agent
-            elif copying_agent is None:
-                user_gds_id = header_with_no_space[len(header_with_no_space) - 3].split('/')[0]
-                user_agent = User.objects.filter(gds_id=user_gds_id).first()
-                if user_agent is not None:
-                    temp_pnr.agent = user_agent  
-                else:
-                    temp_pnr.agent_code = user_gds_id 
+            temp_pnr.agency = office
+            if agent_to_set is not None:
+                temp_pnr.agent = agent_to_set
+            else:
+                temp_pnr.agent_code = user_gds_id
             temp_pnr.is_read = False
-            
-            # current pnr emitter
-            try:
-                current_pnr_emitter = User.objects.filter(gds_id=header_with_no_space[len(header_with_no_space) - 3].split('/')[0]).first()
-                print("GDS ID : ",header_with_no_space[len(header_with_no_space) - 3].split('/')[0])
-                print("********** CURRENT PNR EMITTER *************** : ",current_pnr_emitter)
-            except:
-                print("Current PNR has no emitter found")
-            
-            return temp_pnr, is_saved, current_pnr_emitter
-        
+            return temp_pnr, True, current_pnr_emitter
+
         pnr.gds_creation_date = creation_date
-        # pnr.system_creation_date = datetime(system_creation_date.year, system_creation_date.month, system_creation_date.day, system_creation_date.hour, system_creation_date.minute, system_creation_date.second, system_creation_date.microsecond, pytz.UTC)
         pnr.system_creation_date = email_date
         pnr.type = PNR_TYPE[0]
-        if Office.objects.filter(code=pnrDetailRow.split('/')[1]).first() is None:
-            Office.objects.create(code=pnrDetailRow.split('/')[1])
-        pnr.agency = Office.objects.get(code=pnrDetailRow.split('/')[1])
+        pnr.agency = office
+        if agent_to_set is not None:
+            pnr.agent = agent_to_set
+        else:
+            pnr.agent_code = user_gds_id
         pnr.is_read = False
-        if pnr.agent is not None:
-            current_pnr_emitter = pnr.agent
-            print("********** CURRENT PNR EMITTER *************** : ",current_pnr_emitter)
         return pnr, False, current_pnr_emitter
     
     # Check if regular pnr line: a regular one always start with a number followed by a blank space or a full stop'''
@@ -1369,7 +1346,7 @@ class PnrOnlyParser():
             
     
     # get ticket on issued pnr
-    def ticket_on_issued_pnr(self, normalized_file, pnr, passengers, segments, ssrs, flight_class, current_pnr_emitter=None):
+    def ticket_on_issued_pnr(self, normalized_file, pnr, passengers, segments, ssrs, flight_class, current_pnr_emitter=None, issuing_agent_code=None):
         tickets = []
         tickets_segments = []
         tickets_ssrs = []
@@ -1519,12 +1496,13 @@ class PnrOnlyParser():
             
             if current_pnr_emitter is not None:
                 temp_ticket.emitter = current_pnr_emitter
-                print('TICKET EMITTER IS ', temp_ticket.emitter)
             elif pnr.agent is not None:
                 # Fallback uniquement si pas d'émetteur PNR
                 ticket_emitter = pnr.agent
                 temp_ticket.emitter = ticket_emitter
-                print('Fallback TICKET EMITTER IS ', temp_ticket.emitter)
+
+            # code agent de l'en-tête, enregistré même sans user correspondant
+            temp_ticket.issuing_agent_name = issuing_agent_code
                 
             if len(passengers) == 1:
                 temp_ticket.passenger = passengers[0]
@@ -1759,12 +1737,10 @@ class PnrOnlyParser():
             
             if current_pnr_emitter is not None:
                 temp_ticket.emitter = current_pnr_emitter
-                print('TICKET EMITTER IS ', temp_ticket.emitter)
             elif pnr.agent is not None:
             # Fallback uniquement si pas d'émetteur PNR
                 ticket_emitter = pnr.agent
                 temp_ticket.emitter = ticket_emitter
-                print('Fallback TICKET EMITTER IS ', temp_ticket.emitter)
                 
             if len(passengers) == 1:
                 temp_ticket.passenger = passengers[0]
@@ -1848,6 +1824,7 @@ class PnrOnlyParser():
                 normalized_file = self.normalize_file(needed_content)
                 # pnr
                 pnr, is_saved, current_pnr_emitter = self.get_pnr_data(contents, email_date)
+                issuing_agent_code = self.get_header_agent_code(contents)
                 # split or duplication
                 self.get_split_duplicated_status(pnr, normalized_file)
                 if pnr.status == 'Emis':
@@ -1901,7 +1878,7 @@ class PnrOnlyParser():
                 # credit_notes, credit_notes_related_segment, creadit_notes_related_ssrs = self.get_credit_note(normalized_file, pnr, passengers, air_segments, ssr_bases, flight_class)
                 # tickets on issued pnr
                 if pnr.status == 'Emis':
-                    tickets, tickets_segments, tickets_ssrs  = self.ticket_on_issued_pnr(normalized_file, pnr, passengers, air_segments, ssr_bases, flight_class, current_pnr_emitter)
+                    tickets, tickets_segments, tickets_ssrs  = self.ticket_on_issued_pnr(normalized_file, pnr, passengers, air_segments, ssr_bases, flight_class, current_pnr_emitter,issuing_agent_code)
                 
                 # pnr is not saved ------ Insert
                 if not is_saved:
@@ -2079,6 +2056,7 @@ class PnrOnlyParser():
                                     ticket_obj.state = 0
                                     ticket_obj.passenger = ticket.passenger
                                     ticket_obj.related_passenger_order = ticket.related_passenger_order
+                                    ticket_obj.issuing_agent_name = ticket.issuing_agent_name
                                     # if pnr.agent is not None:
                                     #     ticket_obj.emitter = pnr.agent
                                     if current_pnr_emitter is not None:
@@ -2461,8 +2439,12 @@ class PnrOnlyParser():
                                         # check subcontractor
                                         ticket_obj.process_subcontract()
                                         ticket_obj.state = 0
-                                    if ticket.emitter is not None:
+                                    if current_pnr_emitter is not None:
+                                        ticket_obj.emitter = current_pnr_emitter
+                                    elif ticket.emitter is not None:
                                         ticket_obj.emitter = ticket.emitter
+                                        if ticket.issuing_agent_name and not ticket_obj.issuing_agent_name:
+                                            ticket_obj.issuing_agent_name = ticket.issuing_agent_name
                                     if self.get_is_archived():
                                         # ticket cost on archived PNR
                                         ticket_obj.transport_cost = ticket.transport_cost - ticket_obj.tax

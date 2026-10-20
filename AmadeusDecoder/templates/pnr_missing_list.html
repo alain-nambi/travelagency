@@ -1,0 +1,152 @@
+
+{% extends "layout-all-pnr.html" %}
+
+{% block content %}
+<div class="content-wrapper">
+  <section class="content">
+    <div class="container-fluid">
+      <div class="card card-primary card-outline">
+
+        <div class="card-header">
+          <h4 class="text-primary mb-0">
+            PNR avec informations manquantes
+          </h4>
+          <small class="text-muted">
+            Période : {{ date_limit|date:"d/m/Y" }}
+            au {{ today|date:"d/m/Y" }}
+          </small>
+        </div>
+
+        <div class="card-body">
+          <div class="mb-3">
+            <strong>Total des PNR concernés :</strong>
+            <span class="badge badge-danger">
+              {{ total_missing }}
+            </span>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover text-nowrap">
+              
+              <thead class="thead-light">
+                <tr>
+                  <th>Numéro PNR</th>
+                  <th>
+                    <a href="?sort=date&direction={% if current_sort == 'date' and current_direction == 'asc' %}desc{% else %}asc{% endif %}">
+                      Date de création
+                      {% if current_sort == 'date' %}
+                        {% if current_direction == 'asc' %}▲{% else %}▼{% endif %}
+                      {% endif %}
+                    </a>
+                  </th>
+                  <th>
+                    <a href="?sort=passengers&direction={% if current_sort == 'passengers' and current_direction == 'asc' %}desc{% else %}asc{% endif %}">
+                      Passagers
+                      {% if current_sort == 'passengers' %}
+                        {% if current_direction == 'asc' %}▲{% else %}▼{% endif %}
+                      {% endif %}
+                    </a>
+                  </th>
+                  <th>Billets</th>
+                  <th>
+                    <a href="?sort=missing&direction={% if current_sort == 'missing' and current_direction == 'asc' %}desc{% else %}asc{% endif %}">
+                      Informations manquantes
+                      {% if current_sort == 'missing' %}
+                        {% if current_direction == 'asc' %}▲{% else %}▼{% endif %}
+                      {% endif %}
+                    </a>
+                  </th>
+                </tr>
+              </thead>
+
+
+              <tbody>
+                {% for item in page_obj %}
+                <tr>
+                  <td>
+                    <a href="{% url 'pnr_details' item.pnr.id %}">
+                      {{ item.pnr.number }}
+                    </a>
+                  </td>
+
+                  <td>
+                    {% if item.pnr.gds_creation_date %}
+                      {{ item.pnr.gds_creation_date|date:"d/m/Y" }}
+                    {% elif item.pnr.system_creation_date %}
+                      {{ item.pnr.system_creation_date|date:"d/m/Y H:i" }}
+                    {% else %}
+                      —
+                    {% endif %}
+                  </td>
+
+                  <td>
+                    {% for passenger in item.passengers %}
+                      {{ passenger.name|default:"Nom absent" }}
+                      {{ passenger.surname|default:"Prénom absent" }}<br>
+                    {% empty %}
+                      <span class="text-danger">Aucun passager</span>
+                    {% endfor %}
+                  </td>
+
+                  <td>
+                    {% for ticket in item.tickets %}
+                      {{ ticket.number|default:"Numéro absent" }}<br>
+                    {% empty %}
+                      <span class="text-danger">Aucun billet</span>
+                    {% endfor %}
+                  </td>
+
+                  <td>
+                    {% for problem in item.missing %}
+                      <span class="badge badge-danger mr-1">
+                        {{ problem }}
+                      </span><br>
+                    {% endfor %}
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="5" class="text-center">
+                    Aucun PNR manquant trouvé pour cette période.
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          {% if page_obj.has_other_pages %}
+          <nav aria-label="Pagination">
+            <ul class="pagination">
+              {% if page_obj.has_previous %}
+              <li class="page-item">
+                <a class="page-link"
+                   href="?page={{ page_obj.previous_page_number }}&sort={{ current_sort }}&direction={{ current_direction }}">
+                  Précédent
+                </a>
+              </li>
+              {% endif %}
+
+              <li class="page-item active">
+                <span class="page-link">
+                  Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                </span>
+              </li>
+
+              {% if page_obj.has_next %}
+              <li class="page-item">
+                <a class="page-link"
+                   href="?page={{ page_obj.next_page_number }}&sort={{ current_sort }}&direction={{ current_direction }}">
+                  Suivant
+                </a>
+              </li>
+              {% endif %}
+            </ul>
+          </nav>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}

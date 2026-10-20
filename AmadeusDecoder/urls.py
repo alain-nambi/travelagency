@@ -1,10 +1,10 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 from .views import home
 from .views.Dashboard import dashboard
 from .views.Manage_customers import *
-from .views.Manage_users import *
+from .views.Manage_users import users, register
 from .views.Account import account
 from .views.Tools import *
 from .views.Setting import setting
@@ -29,6 +29,7 @@ urlpatterns = [
     path('account/', account, name = "account"),
     path('comment/', comment, name = 'comment'),
     path('comment-list/', comment_list, name = 'comment-list'),
+    path('pnr-missing/',pnr_missing_list,name = 'pnr_missing_list'),
     path('comment-detail/<int:comment_id>', comment_detail, name = 'comment-detail'),
     path('comment-list/update-comment-state/', update_comment_state, name = "update-comment-state"),
     path('comment-detail/update-comment-state/', update_comment_state, name = "update-comment-state"),
@@ -82,13 +83,6 @@ urlpatterns = [
     path('home/add-service-supplier',add_service_supplier, name='add_service_supplier'),
     path('home/unorder-pnr/add-motif', addMotif,name="add_motif"),
     path('home/pnr/cancel/<int:pnr_id>',cancel_pnr,name="cancel_pnr"),
-    path('user/details/<int:user_id>/',user_details,name='user_details'),
-    path('user/archive',archive_user, name="archive_user"),
-    path('user/reactive',reactive_user, name="reactive_user"),
-    path('user/UpdatePassword',update_password, name='update_password'),
-    path('user/updateInfo',update_info,name='update_info'),
-    path('home/user-research', user_research, name= 'user_research'),
-    path('home/user-filter', user_filter, name= 'user_filter'),
     path('customer/details/<int:customer_id>',customer_details,name="customer_details"),
     path('customer/updateInfo',modify_customer,name='modify_customer'),
     path('customer-search/',search_customers,name='search_customers'),
@@ -96,5 +90,4 @@ urlpatterns = [
     path('ajax/updated-pnrs/', get_updated_pnrs, name='get_updated_pnrs'),
     path('not-fetched-list/update-state/', update_not_fetched_state, name = "update-not-fetched-state"),
     path('not-fetched-list/my-history/', views.get_my_pnr_history, name='get_my_pnr_history'),
-    
 ]

@@ -23,6 +23,8 @@ from django.db.models import Q
 from django.core.serializers import serialize
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
+from dateutil.relativedelta import relativedelta
+
 import json
 
 @login_required(login_url='index')
@@ -59,15 +61,14 @@ def comment(request):
                     </html>
                 """.format(comment_value, pnr_element.number, user_element.username)
 
-        Sending.send_email(
-            "anomalie.issoufali@alita.re",
-            [
-                "dev@alita.re",
-                "maphie@alita.re"
-            ],
-            subject,
-            message
-        )
+    Sending.send_email(
+        "anomalie.issoufali.pnr@gmail.com",
+        [
+            "dev@alita.re",
+        ],
+         subject,
+         message
+    )
 
     return JsonResponse({'comment': 'Data successfully sent to database'})
 
@@ -160,11 +161,10 @@ def comment_detail(request, comment_id):
                     """.format(comments.comment, comments.pnr_id.number, comments.user_id.username, comment_response)
 
             Sending.send_email(
-                "anomalie.issoufali@alita.re",
+                "anomalie.issoufali.pnr@gmail.com",
                 [   
                     comments.user_id.email,
                     "dev@alita.re",
-                    "maphie@alita.re"
                 ],
                 subject,
                 message
@@ -189,7 +189,6 @@ def update_comment_state(request):
 
 @login_required(login_url='index')
 def get_pnr_not_fetched(request):
-    print("PNR NON REMONTE")
     if request.method == 'POST':
         if 'pnrNumber' in request.POST:
             pnr_number = request.POST.get('pnrNumber')
@@ -197,9 +196,7 @@ def get_pnr_not_fetched(request):
             
             user_follower = request.user.id
             if pnr_number != '' and pnr_number != None and not NotFetched.objects.filter(pnr_number=pnr_number).exists():
-                print("We can send the mail")
                 follower = User.objects.get(pk=int(user_follower))
-                pnr_not_fetched = NotFetched(pnr_number=pnr_number, follower=follower)
                 pnr_not_fetched = NotFetched(pnr_number=pnr_number, follower=follower, context=context)
                 pnr_not_fetched.save()
 
@@ -227,14 +224,14 @@ def get_pnr_not_fetched(request):
                             </html>
                         """.format(pnr.pnr_number,pnr.context, pnr.follower.username)
 
-                Sending.send_email_pnr_not_fetched(
-                    "anomalie.issoufali@alita.re",
-                    [
-                        "dev@alita.re",
-                    ],
-                    subject,
-                    message
-                )
+            Sending.send_email_pnr_not_fetched(
+                "anomalie.issoufali.pnr@gmail.com",
+                [
+                    "maphie@alita.re",
+                ],
+                subject,
+                message
+            )
     return JsonResponse({})
 
 # ----------------- anomalie: réponse automatique -----------------
@@ -260,7 +257,6 @@ def get_unshowed_tickets(request):
                 'transport_cost' : ticket.transport_cost,
                 'taxe' : ticket.tax,
                 'total' : ticket.total,
-                'issuing_date': ticket.issuing_date,
                 'emitter_id' : emitter_id,
                 'emitter_name' : emitter_name
                 
@@ -414,11 +410,10 @@ def save_ticket_anomalie(request):
             pnr_id = request.POST.get('pnr_id')
             user_id = request.POST.get('user_id')
             emitter_id = request.POST.get('emitter_id')
-            issuing_date = request.POST.get('issuing_date')
             
             pnr = Pnr.objects.filter(id=pnr_id).first()
             
-            info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "ticket_status":0,'isticket':0, "issuing_date":issuing_date,"emitter_id":emitter_id} # ticket_status : 0 ticket existant , 1 ticket non existant
+            info = {"ticket_number": ticket_number, "montant": montant_hors_taxe, "taxe": taxe, "ticket_status":0,'isticket':0, "emitter_id":emitter_id} # ticket_status : 0 ticket existant , 1 ticket non existant
             
         if montant_hors_taxe == "" or taxe == "":
             return JsonResponse(
@@ -501,13 +496,14 @@ def update_ticket(request):
                 ticket.is_no_adc = True
             ticket.ticket_status = 1
             ticket.state = 0
+            ticket.emitter = emitter
             ticket.issuing_date = anomalie.infos.get('issuing_date')
 
-            ticket.emitter = emitter
             ticket.save()
            
         else:
             # Create a new ticket
+            print('****************************** CREATE TICKET ****************************')
             ticket = Ticket()
             ticket.transport_cost=anomalie.infos.get('montant')
             ticket.number=anomalie.infos.get('ticket_number')
@@ -525,6 +521,7 @@ def update_ticket(request):
             ticket.emitter = emitter
             ticket.issuing_date=anomalie.infos.get('issuing_date')
 
+            print('************************IS TICKET : ', anomalie.infos.get('isticket'))
             ticket.is_refund = anomalie.infos.get('isticket') == '1'
             print(ticket.is_refund)
             ticket.save()
@@ -697,7 +694,7 @@ def get_all_pnr_not_fetched(request):
     }
     
     return render(request, 'pnr_not_fetched.html', context)
-  
+    
 def get_updated_pnrs(request):
     last_timestamp = request.GET.get('since')
     if not last_timestamp:
@@ -738,7 +735,7 @@ def get_updated_pnrs(request):
     except (ValueError, AttributeError) as e:
         print(f"Error parsing timestamp: {e}")
         return JsonResponse({'updated_ids': [], 'has_my_update': False})
-               
+        
     
 @login_required(login_url='index')
 def update_not_fetched_state(request):
@@ -795,3 +792,123 @@ def get_my_pnr_history(request):
         pnrs_data.append(pnr_data)
         
     return JsonResponse({'pnrs': pnrs_data})
+
+
+
+
+@login_required(login_url='index')
+def pnr_missing_list(request):
+    # Accès réservé aux administrateurs
+    if request.user.role_id != 1:
+        from django.core.exceptions import PermissionDenied
+        raise PermissionDenied
+
+    today = tz.localdate()
+    date_limit = today - relativedelta(months=12)
+
+    # Date de référence : date GDS, sinon date système.
+    pnrs = Pnr.objects.filter(
+        Q(gds_creation_date__gte=date_limit, gds_creation_date__lte=today)
+        | Q(
+            gds_creation_date__isnull=True,
+            system_creation_date__date__gte=date_limit,
+            system_creation_date__date__lte=today,
+        )
+    ).filter(
+        pnr_status=1,
+        is_invoiced=False,
+    ).order_by('-system_creation_date')
+
+    missing_pnrs = []
+
+    for pnr in pnrs.prefetch_related('passengers__passenger', 'tickets__passenger'):
+        passengers = [
+            link.passenger
+            for link in pnr.passengers.all()
+            if link.passenger.passenger_status == 1
+        ]
+
+        active_tickets = [
+            ticket for ticket in pnr.tickets.all()
+            if ticket.ticket_status != 0
+            and ticket.ticket_type not in ('TST', 'CREDIT_NOTE')
+        ]
+
+        missing = []
+
+        if not passengers:
+            missing.append('Passager absent')
+        elif any(
+            not (passenger.name or '').strip()
+            and not (passenger.surname or '').strip()
+            for passenger in passengers
+        ):
+            missing.append('Nom du passager absent')
+
+        if not active_tickets:
+            missing.append('Billet absent')
+
+        if missing:
+            missing_pnrs.append({
+                'pnr': pnr,
+                'passengers': passengers,
+                'tickets': active_tickets,
+                'missing': missing,
+            })
+
+    
+    # Tri global avant la pagination
+    sort_by = request.GET.get('sort', 'date')
+    direction = request.GET.get('direction', 'desc')
+
+    def get_pnr_date(item):
+        pnr = item['pnr']
+        if pnr.gds_creation_date:
+            return pnr.gds_creation_date
+        if pnr.system_creation_date:
+            return pnr.system_creation_date.date()
+        return date.min
+
+    def get_passenger_names(item):
+        return ' '.join(
+            f"{(p.name or '').strip()} {(p.surname or '').strip()}"
+            for p in item['passengers']
+        ).casefold()
+
+    def get_missing_info(item):
+        return ' '.join(item['missing']).casefold()
+
+    sort_functions = {
+        'date': get_pnr_date,
+        'passengers': get_passenger_names,
+        'missing': get_missing_info,
+    }
+
+    if sort_by not in sort_functions:
+        sort_by = 'date'
+
+    if direction not in ('asc', 'desc'):
+        direction = 'desc'
+
+    missing_pnrs.sort(
+        key=sort_functions[sort_by],
+        reverse=(direction == 'desc'),
+    )
+
+    # Pagination après le tri
+    paginator = Paginator(missing_pnrs, 50)
+    page_obj = paginator.get_page(request.GET.get('page', 1))
+
+    return render(
+        request,
+        'pnr_missing_list.html',
+        {
+            'page_obj': page_obj,
+            'total_missing': paginator.count,
+            'date_limit': date_limit,
+            'today': today,
+            'current_sort': sort_by,
+            'current_direction': direction,
+        }
+    )
+
